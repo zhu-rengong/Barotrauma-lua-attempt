@@ -309,7 +309,10 @@ namespace Barotrauma.Networking
                 SendConsoleMessage("Granted all permissions to " + newClient.Name + ".", newClient);
             }
 
-            SendChatMessage($"ServerMessage.JoinedServer~[client]={ClientLogName(newClient)}", ChatMessageType.Server, null, changeType: PlayerConnectionChangeType.Joined);
+            GameMain.Lua.hook.Call("clientConnected", new MoonSharp.Interpreter.DynValue[] { MoonSharp.Interpreter.UserData.Create(newClient) });
+            
+
+            SendChatMessage($"ServerMessage.JoinedServer~[client]={clName}", ChatMessageType.Server, null, changeType: PlayerConnectionChangeType.Joined);
             serverSettings.ServerDetailsChanged = true;
 
             if (previousPlayer != null && previousPlayer.Name != newClient.Name)
@@ -2410,6 +2413,9 @@ namespace Barotrauma.Networking
 
             Log("Round started.", ServerLog.MessageType.ServerMessage);
 
+            GameMain.Lua.hook.Call("roundStart", new MoonSharp.Interpreter.DynValue[] { });
+
+
             gameStarted = true;
             initiatedStartGame = false;
             GameMain.ResetFrameTime();
@@ -2534,6 +2540,9 @@ namespace Barotrauma.Networking
             {
                 Log("Ending the round...", ServerLog.MessageType.ServerMessage);
             }
+
+            GameMain.Lua.hook.Call("roundEnd", new MoonSharp.Interpreter.DynValue[] { });
+
 
             string endMessage = TextManager.FormatServerMessage("RoundSummaryRoundHasEnded");
             var traitorResults = TraitorManager?.GetEndResults() ?? new List<TraitorMissionResult>();
@@ -2827,6 +2836,8 @@ namespace Barotrauma.Networking
         public void DisconnectClient(Client client, string msg = "", string targetmsg = "", string reason = "", PlayerConnectionChangeType changeType = PlayerConnectionChangeType.Disconnected)
         {
             if (client == null) return;
+
+            GameMain.Lua.hook.Call("clientDisconnected", new MoonSharp.Interpreter.DynValue[] { MoonSharp.Interpreter.UserData.Create(client) });
 
             if (gameStarted && client.Character != null)
             {

@@ -11,6 +11,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Xml.Linq;
+using MoonSharp.Interpreter;
 
 namespace Barotrauma
 {
@@ -20,6 +21,7 @@ namespace Barotrauma
 
         public static World World;
         public static GameSettings Config;
+        public static LuaSetup Lua;
 
         public static GameServer Server;
         public static NetworkMember NetworkMember
@@ -131,6 +133,8 @@ namespace Barotrauma
             NetLobbyScreen = new NetLobbyScreen();
 
             CheckContentPackage();
+
+            Lua = new LuaSetup();
         }
 
 
@@ -356,6 +360,8 @@ namespace Barotrauma
                     SteamManager.Update((float)Timing.Step);
                     TaskPool.Update();
                     CoroutineManager.Update((float)Timing.Step, (float)Timing.Step);
+
+                    GameMain.Lua.hook.Call("think", new DynValue[] { DynValue.NewNumber(elapsedTime) });
 
                     Timing.Accumulator -= Timing.Step;
                 }

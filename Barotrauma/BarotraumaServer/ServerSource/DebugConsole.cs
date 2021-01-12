@@ -734,7 +734,7 @@ namespace Barotrauma
                                 revokedCommands.Add(matchingCommand);
                             }
                         }
-                    }                    
+                    }
 
                     client.SetPermissions(client.Permissions, client.PermittedConsoleCommands.Except(revokedCommands).ToList());
                     GameMain.Server.UpdateClientPermissions(client);
@@ -899,9 +899,9 @@ namespace Barotrauma
             {
                 if (GameMain.Server?.KarmaManager == null) { return; }
                 GameMain.Server.KarmaManager.TestMode = !GameMain.Server.KarmaManager.TestMode;
-                NewMessage(GameMain.Server.KarmaManager.TestMode ? 
+                NewMessage(GameMain.Server.KarmaManager.TestMode ?
                     $"Karma test mode enabled by {client.Name}." :
-                    $"Karma test mode disabled by {client.Name}.", 
+                    $"Karma test mode disabled by {client.Name}.",
                     Color.LightGreen);
                 GameMain.Server.SendDirectChatMessage(
                     GameMain.Server.KarmaManager.TestMode ? "Karma test mode enabled." : "Karma test mode disabled.",
@@ -1205,7 +1205,7 @@ namespace Barotrauma
             (Client client, Vector2 cursorPos, string[] args) =>
             {
                 string text = string.Join(" ", args);
-                text = client.Name+": " + text;
+                text = client.Name + ": " + text;
                 if (GameMain.Server.OwnerConnection != null &&
                     client.Connection == GameMain.Server.OwnerConnection)
                 {
@@ -1241,6 +1241,18 @@ namespace Barotrauma
             {
                 GameMain.NetLobbyScreen.LevelSeed = string.Join(" ", args);
             }));
+
+
+            commands.Add(new Command("lua", "lua: runs a string", (string[] args) =>
+            {
+                GameMain.Lua.DoString(string.Join(" ", args));
+            }));
+
+            commands.Add(new Command("reloadlua", "reloads lua", (string[] args) =>
+            {
+                GameMain.Lua = new LuaSetup();
+            }));
+
 
             commands.Add(new Command("randomizeseed", "randomizeseed: Toggles level seed randomization on/off.", (string[] args) =>
             {

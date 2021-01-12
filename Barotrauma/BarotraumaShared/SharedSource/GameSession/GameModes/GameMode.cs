@@ -1,79 +1,83 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+#if SERVER
+using MoonSharp.Interpreter;
+#endif
 
 namespace Barotrauma
 {
-    partial class GameMode
-    {
-        public static List<GameModePreset> PresetList = new List<GameModePreset>();
+	partial class GameMode
+	{
+		public static List<GameModePreset> PresetList = new List<GameModePreset>();
 
-        protected DateTime startTime;
-                
-        protected GameModePreset preset;
-                
-        public CrewManager CrewManager
-        {
-            get { return GameMain.GameSession?.CrewManager; }
-        }
+		protected DateTime startTime;
 
-        public virtual IEnumerable<Mission> Missions
-        {
-            get { return Enumerable.Empty<Mission>(); }
-        }
+		protected GameModePreset preset;
 
-        public bool IsSinglePlayer
-        {
-            get { return preset.IsSinglePlayer; }
-        }
+		public CrewManager CrewManager
+		{
+			get { return GameMain.GameSession?.CrewManager; }
+		}
 
-        public string Name
-        {
-            get { return preset.Name; }
-        }
+		public virtual Mission Mission
+		{
+			get { return null; }
+		}
 
-        public virtual bool Paused
-        {
-            get { return false; }
-        }
+		public bool IsSinglePlayer
+		{
+			get { return preset.IsSinglePlayer; }
+		}
 
-        public virtual void UpdateWhilePaused(float deltaTime) { }
+		public string Name
+		{
+			get { return preset.Name; }
+		}
 
-        public GameModePreset Preset
-        {
-            get { return preset; }
-        }
+		public virtual bool Paused
+		{
+			get { return false; }
+		}
 
-        public GameMode(GameModePreset preset)
-        {
-            this.preset = preset;
-        }
+		public virtual void UpdateWhilePaused(float deltaTime) { }
 
-        public virtual void Start()
-        {
-            startTime = DateTime.Now;
-        }
+		public GameModePreset Preset
+		{
+			get { return preset; }
+		}
 
-        public virtual void ShowStartMessage() { }
+		public GameMode(GameModePreset preset)
+		{
+			this.preset = preset;
+		}
 
-        public virtual void AddExtraMissions(LevelData levelData) { }
-        
-        public virtual void AddToGUIUpdateList()
-        {
+		public virtual void Start()
+		{
+			startTime = DateTime.Now;
+		}
+
+		public virtual void ShowStartMessage() { }
+
+		public virtual void AddToGUIUpdateList()
+		{
 #if CLIENT
             GameMain.GameSession?.CrewManager.AddToGUIUpdateList();
 #endif
-        }
+		}
 
-        public virtual void Update(float deltaTime)
-        {
-            CrewManager?.Update(deltaTime);
-        }
+		public virtual void Update(float deltaTime)
+		{
+			CrewManager?.Update(deltaTime);
 
-        public virtual void End(CampaignMode.TransitionType transitionType = CampaignMode.TransitionType.None)
-        {
-        }
+#if SERVER
+			GameMain.Lua.hook.Call("update", new DynValue[] { DynValue.NewNumber(deltaTime) });
+#endif
+		}
 
-        public virtual void Remove() { }
-    }
+		public virtual void End(CampaignMode.TransitionType transitionType = CampaignMode.TransitionType.None)
+		{
+		}
+
+		public virtual void Remove() { }
+	}
 }
