@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using System.Text;
+using MoonSharp.Interpreter;
 
 namespace Barotrauma.Networking
 {
@@ -169,6 +170,11 @@ namespace Barotrauma.Networking
             {
                 GameMain.Server.SendChatMessage(txt, null, c);
             }
+
+
+            GameMain.Lua.hook.Call("chatMessage", new DynValue[] { DynValue.NewString(txt), UserData.Create(c) });
+
+
         }
 
         public int EstimateLengthBytesServer(Client c)
