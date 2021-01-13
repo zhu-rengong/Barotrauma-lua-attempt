@@ -1,6 +1,7 @@
 # Barotrauma
-
 Copyright © Undertow Games 2017-2019
+
+This is my attempt to implement server-side lua scripting
 
 Before downloading the source code, please read the [EULA](EULA.txt).
 
