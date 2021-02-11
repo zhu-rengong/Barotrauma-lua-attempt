@@ -1,6 +1,8 @@
 # Note 
 This is my attempt to implement server-side lua scripting
+inspired by garrysmod
 
+not documentation yet
 
 # Barotrauma
 Copyright © Undertow Games 2017-2019
