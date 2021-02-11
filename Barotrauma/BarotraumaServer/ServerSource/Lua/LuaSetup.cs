@@ -5,6 +5,7 @@ using System.IO;
 using Barotrauma.Networking;
 using MoonSharp.Interpreter;
 using Microsoft.Xna.Framework;
+using System.Threading.Tasks;
 
 namespace Barotrauma
 {
@@ -90,6 +91,20 @@ namespace Barotrauma
 				GameMain.Server.SendChatMessage(msg, (ChatMessageType)messageType, sender, character);
 			}
 
+			public static void SendDirectChatMessage(string sendername, string text, Character sender, int messageType = 0, Client client = null)
+			{
+
+				ChatMessage cm = ChatMessage.Create(sendername, text, (ChatMessageType)messageType, sender, client);
+
+				GameMain.Server.SendDirectChatMessage(cm, client);
+
+			}
+
+			public static void Log(string message, int type)
+			{
+				GameServer.Log(message, (ServerLog.MessageType)type);
+			}
+
 			public static void Explode(Vector2 pos, float range=100, float force=30, float damage=30, float structureDamage=30, float itemDamage=30, float empStrength=0, float ballastFloraStrength=0)
 			{
 				new Explosion(range, force, damage, structureDamage, itemDamage, empStrength, ballastFloraStrength).Explode(pos, null);
@@ -110,6 +125,38 @@ namespace Barotrauma
 			}
 		}
 
+
+		private class LuaTimer
+		{
+			public Script env;
+
+			public LuaTimer(Script e)
+			{
+				env = e;
+			}
+
+			public void Simple(int time, DynValue function)
+			{
+				Task.Delay(new TimeSpan(0, 0, 0, 0, time)).ContinueWith(o => { env.Call(function); });
+			}
+
+		
+		}
+
+		private class LuaRandom
+		{
+			Random random;
+
+			public LuaRandom()
+			{
+				random = new Random();				
+			}
+
+			public int Range(int min, int max)
+			{
+				return random.Next(min, max);
+			}
+		}
 
 		// hooks:
 		// chatMessage
@@ -180,7 +227,7 @@ namespace Barotrauma
 
 		public LuaSetup()
 		{
-
+			
 			Console.WriteLine("Lua!");
 
 			LuaCustomConverters.RegisterAll();
@@ -193,6 +240,8 @@ namespace Barotrauma
 			UserData.RegisterType<Player>();
 			UserData.RegisterType<Hook>();
 			UserData.RegisterType<Game>();
+			UserData.RegisterType<LuaRandom>();
+			UserData.RegisterType<LuaTimer>();
 			UserData.RegisterType<Vector2>();
 			UserData.RegisterType<Vector3>();
 			UserData.RegisterType<Vector4>();
@@ -206,7 +255,8 @@ namespace Barotrauma
 			lua.Globals["Player"] = new Player();
 			lua.Globals["Game"] = new Game();
 			lua.Globals["Hook"] = hook;
-
+			lua.Globals["Random"] = new LuaRandom();
+			lua.Globals["Timer"] = new LuaTimer(lua);
 
 			luaScriptLoader.RunFolder("Lua/autorun", lua);
 
