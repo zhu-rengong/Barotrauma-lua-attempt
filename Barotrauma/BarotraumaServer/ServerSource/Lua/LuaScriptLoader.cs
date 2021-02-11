@@ -23,7 +23,15 @@ namespace Barotrauma
 		{
 			foreach(var str in DirSearch(folder))
 			{
-				script.DoFile(str.Replace("\\", "/")); // i hate windows
+				var s = str.Replace("\\", "/");
+
+				if (s.EndsWith(".lua"))
+				{
+					Console.WriteLine(s);
+
+					script.DoFile(s); // i hate windows
+				}
+
 			}
 		}
 
