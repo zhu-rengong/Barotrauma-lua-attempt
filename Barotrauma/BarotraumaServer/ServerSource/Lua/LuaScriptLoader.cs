@@ -29,7 +29,22 @@ namespace Barotrauma
 				{
 					Console.WriteLine(s);
 
-					script.DoFile(s); // i hate windows
+					try
+					{
+						script.DoFile(s); // i hate windows
+					}
+					catch (Exception e)
+					{
+						if (e is InterpreterException)
+						{
+
+							Console.WriteLine(((InterpreterException)e).DecoratedMessage);
+						}
+						else
+						{
+							Console.WriteLine(e.ToString());
+						}
+					}
 				}
 
 			}

@@ -6,6 +6,7 @@ using Barotrauma.Networking;
 using MoonSharp.Interpreter;
 using Microsoft.Xna.Framework;
 using System.Threading.Tasks;
+using MoonSharp.VsCodeDebugger;
 
 namespace Barotrauma
 {
@@ -15,6 +16,7 @@ namespace Barotrauma
 		public Script lua;
 		public Hook hook;
 
+		public bool overrideTraitors = false;
 
 		public void DoString(string code)
 		{
@@ -24,7 +26,36 @@ namespace Barotrauma
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine(e.ToString());
+				if (e is InterpreterException)
+				{
+					
+					Console.WriteLine(((InterpreterException)e).DecoratedMessage);
+				}
+				else
+				{
+					Console.WriteLine(e.ToString());
+				}
+			}
+		}
+
+
+		public void RunFunction(DynValue func)
+		{
+			try
+			{
+				lua.Call(func);
+			}
+			catch (Exception e)
+			{
+				if (e is InterpreterException)
+				{
+
+					Console.WriteLine(((InterpreterException)e).DecoratedMessage);
+				}
+				else
+				{
+					Console.WriteLine(e.ToString());
+				}
 			}
 		}
 
@@ -86,9 +117,21 @@ namespace Barotrauma
 		
 		private class Game 
 		{
+			LuaSetup env;
+
+			public Game(LuaSetup e)
+			{
+				env = e;
+			}
+
 			public static void SendMessage(string msg, int messageType = 0, Client sender = null, Character character = null)
 			{
 				GameMain.Server.SendChatMessage(msg, (ChatMessageType)messageType, sender, character);
+			}
+
+			public static void SendTraitorMessage(Client client, string msg, int type)
+			{
+				GameMain.Server.SendTraitorMessage(client, msg, "", (TraitorMessageType)type);
 			}
 
 			public static void SendDirectChatMessage(string sendername, string text, Character sender, int messageType = 0, Client client = null)
@@ -98,6 +141,11 @@ namespace Barotrauma
 
 				GameMain.Server.SendDirectChatMessage(cm, client);
 
+			}
+
+			public void OverrideTraitors(bool o)
+			{
+				env.overrideTraitors = o;
 			}
 
 			public static void Log(string message, int type)
@@ -128,16 +176,22 @@ namespace Barotrauma
 
 		private class LuaTimer
 		{
-			public Script env;
+			public LuaSetup env;
 
-			public LuaTimer(Script e)
+			public LuaTimer(LuaSetup e)
 			{
 				env = e;
 			}
 
 			public void Simple(int time, DynValue function)
 			{
-				Task.Delay(new TimeSpan(0, 0, 0, 0, time)).ContinueWith(o => { env.Call(function); });
+
+				Task.Delay(time).ContinueWith(o => { env.RunFunction(function); });
+			}
+
+			public static double GetTime()
+			{
+				return Timing.TotalTime;
 			}
 
 		
@@ -207,7 +261,7 @@ namespace Barotrauma
 				hookFunctions.Add(new HookFunction(name, hookName, function));
 			}
 
-			public void Call(string name, DynValue[] args)
+			public DynValue Call(string name, DynValue[] args)
 			{
 				foreach(HookFunction hf in hookFunctions)
 				{
@@ -215,22 +269,31 @@ namespace Barotrauma
 					{
 						try
 						{
-							env.Call(hf.function, args);
-						}catch(Exception e)
+							return env.Call(hf.function, args);
+						}
+						catch (Exception e)
 						{
-							Console.WriteLine(e.ToString());
+							if (e is InterpreterException)
+							{
+
+								Console.WriteLine(((InterpreterException)e).DecoratedMessage);
+							}
+							else
+							{
+								Console.WriteLine(e.ToString());
+							}
 						}
 					}
 				}
+
+				return null;
 			}
 		}
 
 		public LuaSetup()
 		{
-			
 			Console.WriteLine("Lua!");
 
-			LuaCustomConverters.RegisterAll();
 
 			LuaScriptLoader luaScriptLoader = new LuaScriptLoader();
 
@@ -253,10 +316,10 @@ namespace Barotrauma
 			hook = new Hook(lua);
 
 			lua.Globals["Player"] = new Player();
-			lua.Globals["Game"] = new Game();
+			lua.Globals["Game"] = new Game(this);
 			lua.Globals["Hook"] = hook;
 			lua.Globals["Random"] = new LuaRandom();
-			lua.Globals["Timer"] = new LuaTimer(lua);
+			lua.Globals["Timer"] = new LuaTimer(this);
 
 			luaScriptLoader.RunFolder("Lua/autorun", lua);
 

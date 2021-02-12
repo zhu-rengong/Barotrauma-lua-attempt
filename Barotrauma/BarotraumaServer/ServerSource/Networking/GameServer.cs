@@ -2345,8 +2345,11 @@ namespace Barotrauma.Networking
             {
                 if (!(GameMain.GameSession?.GameMode is CampaignMode))
                 {
-                    TraitorManager = new TraitorManager();
-                    TraitorManager.Start(this);
+                    if (!GameMain.Lua.overrideTraitors)
+                    {
+                        TraitorManager = new TraitorManager();
+                        TraitorManager.Start(this);
+                    }
                 }
             }
 
