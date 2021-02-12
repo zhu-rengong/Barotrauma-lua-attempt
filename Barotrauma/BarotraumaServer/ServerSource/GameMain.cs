@@ -12,6 +12,7 @@ using System.Reflection;
 using System.Threading;
 using System.Xml.Linq;
 using MoonSharp.Interpreter;
+using MoonSharp.VsCodeDebugger;
 
 namespace Barotrauma
 {
@@ -135,6 +136,7 @@ namespace Barotrauma
             CheckContentPackage();
 
             Lua = new LuaSetup();
+
         }
 
 
@@ -361,7 +363,7 @@ namespace Barotrauma
                     TaskPool.Update();
                     CoroutineManager.Update((float)Timing.Step, (float)Timing.Step);
 
-                    GameMain.Lua.hook.Call("think", new DynValue[] { DynValue.NewNumber(elapsedTime) });
+                    GameMain.Lua.hook.Call("think", new DynValue[] { DynValue.NewNumber(elapsedTime), DynValue.NewNumber(Timing.TotalTime) });
 
                     Timing.Accumulator -= Timing.Step;
                 }

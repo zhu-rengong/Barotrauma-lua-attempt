@@ -174,6 +174,21 @@ namespace Barotrauma.Networking
                 return;
             }
 
+            var should = GameMain.Lua.hook.Call("chatMessage", new DynValue[] { DynValue.NewString(txt), UserData.Create(c) });
+
+
+            if(should != null)
+			{
+				if (should.CastToBool())
+				{
+                    return;
+				}
+				else
+				{
+
+				}
+			}
+
             if (type == ChatMessageType.Order)
             {
                 if (c.Character == null || c.Character.SpeechImpediment >= 100.0f || c.Character.IsDead) { return; }
@@ -223,9 +238,6 @@ namespace Barotrauma.Networking
             {
                 GameMain.Server.SendChatMessage(txt, null, c);
             }
-
-
-            GameMain.Lua.hook.Call("chatMessage", new DynValue[] { DynValue.NewString(txt), UserData.Create(c) });
 
 
         }
