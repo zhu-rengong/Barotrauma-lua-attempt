@@ -15,8 +15,7 @@ namespace Barotrauma
 
 		public Script lua;
 		public Hook hook;
-
-		public bool overrideTraitors = false;
+		public Game game;
 
 		public void DoString(string code)
 		{
@@ -91,6 +90,11 @@ namespace Barotrauma
 				GameMain.Server.SetClientCharacter(client, character);
 			}
 
+			public static void SetCharacterTeam(Character character, int team)
+			{
+				character.TeamID = (CharacterTeamType)team;
+			}
+
 			public static void Kick(Client client, string reason="")
 			{
 				GameMain.Server.KickClient(client.Connection, reason);
@@ -115,9 +119,13 @@ namespace Barotrauma
 			}
 		}
 		
-		private class Game 
+		public class Game 
 		{
 			LuaSetup env;
+
+			public bool overrideTraitors = false;
+			public bool overrideRespawnSub = false;
+
 
 			public Game(LuaSetup e)
 			{
@@ -145,7 +153,12 @@ namespace Barotrauma
 
 			public void OverrideTraitors(bool o)
 			{
-				env.overrideTraitors = o;
+				overrideTraitors = o;
+			}
+
+			public void OverrideRespawnSub(bool o)
+			{
+				overrideRespawnSub = o;
 			}
 
 			public static void Log(string message, int type)
@@ -158,11 +171,51 @@ namespace Barotrauma
 				new Explosion(range, force, damage, structureDamage, itemDamage, empStrength, ballastFloraStrength).Explode(pos, null);
 			}
 
-			public static string Spawn(string name, Vector2 pos)
+			public static Character Spawn(string name, Vector2 worldPos)
 			{
-				string error;
-				DebugConsole.SpawnCharacter(new string[] {name, "cursor"}, pos, out error);
-				return error;
+				Character spawnedCharacter = null;
+				Vector2 spawnPosition = worldPos;
+
+				string characterLowerCase = name.ToLowerInvariant();
+				JobPrefab job = null;
+				if (!JobPrefab.Prefabs.ContainsKey(characterLowerCase))
+				{
+					job = JobPrefab.Prefabs.Find(jp => jp.Name != null && jp.Name.Equals(characterLowerCase, StringComparison.OrdinalIgnoreCase));
+				}
+				else
+				{
+					job = JobPrefab.Prefabs[characterLowerCase];
+				}
+				bool human = job != null || characterLowerCase == CharacterPrefab.HumanSpeciesName;
+
+
+				if (string.IsNullOrWhiteSpace(name)) { return null; }
+
+				if (human)
+				{
+					var variant = job != null ? Rand.Range(0, job.Variants, Rand.RandSync.Server) : 0;
+					CharacterInfo characterInfo = new CharacterInfo(CharacterPrefab.HumanSpeciesName, jobPrefab: job, variant: variant);
+					spawnedCharacter = Character.Create(characterInfo, spawnPosition, ToolBox.RandomSeed(8));
+					if (GameMain.GameSession != null)
+					{
+						//TODO: a way to select which team to spawn to?
+						spawnedCharacter.TeamID = Character.Controlled != null ? Character.Controlled.TeamID : CharacterTeamType.Team1;
+#if CLIENT
+                    GameMain.GameSession.CrewManager.AddCharacter(spawnedCharacter);          
+#endif
+					}
+					spawnedCharacter.GiveJobItems(null);
+					spawnedCharacter.Info.StartItemsGiven = true;
+				}
+				else
+				{
+					if (CharacterPrefab.FindBySpeciesName(name) != null)
+					{
+						Character.Create(name, spawnPosition, ToolBox.RandomSeed(8));
+					}
+				}
+
+				return spawnedCharacter;
 			}
 
 			public static string SpawnItem(string name, Vector2 pos, bool inventory = false, Character character=null)
@@ -170,6 +223,16 @@ namespace Barotrauma
 				string error;
 				DebugConsole.SpawnItem(new string[] { name, inventory ? "inventory" : "cursor" }, pos, character, out error);
 				return error;
+			}
+
+			public static Submarine GetRespawnSub()
+			{
+				return GameMain.Server.RespawnManager.RespawnShuttle;
+			}
+
+			public static void DispatchRespawnSub()
+			{
+				GameMain.Server.RespawnManager.DispatchShuttle();
 			}
 		}
 
@@ -297,8 +360,13 @@ namespace Barotrauma
 
 			LuaScriptLoader luaScriptLoader = new LuaScriptLoader();
 
+			LuaCustomConverters.RegisterAll();
+
+			// GameMain.Server.RespawnManager.RespawnShuttle.SetPosition();
+
 			//UserData.RegisterAssembly();
 			UserData.RegisterType<Character>();
+			UserData.RegisterType<Submarine>();
 			UserData.RegisterType<Client>();
 			UserData.RegisterType<Player>();
 			UserData.RegisterType<Hook>();
@@ -314,9 +382,10 @@ namespace Barotrauma
 			lua.Options.ScriptLoader = luaScriptLoader;
 
 			hook = new Hook(lua);
+			game = new Game(this);
 
 			lua.Globals["Player"] = new Player();
-			lua.Globals["Game"] = new Game(this);
+			lua.Globals["Game"] = game;
 			lua.Globals["Hook"] = hook;
 			lua.Globals["Random"] = new LuaRandom();
 			lua.Globals["Timer"] = new LuaTimer(this);

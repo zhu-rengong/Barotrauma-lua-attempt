@@ -71,6 +71,10 @@ namespace Barotrauma.Networking
         private bool RespawnPending()
         {
             int characterToRespawnCount = GetClientsToRespawn().Count();
+            if (GameMain.Lua.game.overrideRespawnSub)
+            {
+                characterToRespawnCount = 0;
+            }
             int totalCharacterCount = GameMain.Server.ConnectedClients.Count;
             return (float)characterToRespawnCount >= Math.Max((float)totalCharacterCount * GameMain.Server.ServerSettings.MinRespawnRatio, 1.0f);
         }
@@ -98,11 +102,18 @@ namespace Barotrauma.Networking
             RespawnShuttle.Velocity = Vector2.Zero;
         }
 
-        private void DispatchShuttle()
+        public void DispatchShuttle()
         {
             if (RespawnShuttle != null)
             {
-                CurrentState = State.Transporting;
+                if (GameMain.Lua.game.overrideRespawnSub)
+				{
+                    CurrentState = State.Waiting;
+                }
+                else
+				{
+                    CurrentState = State.Transporting;
+                }
                 GameMain.Server.CreateEntityEvent(this);
 
                 ResetShuttle();
@@ -114,7 +125,10 @@ namespace Barotrauma.Networking
 
                 GameServer.Log("Dispatching the respawn shuttle.", ServerLog.MessageType.Spawning);
 
-                RespawnCharacters();
+                if (!GameMain.Lua.game.overrideRespawnSub)
+                {
+                    RespawnCharacters();
+                }
 
                 CoroutineManager.StopCoroutines("forcepos");
                 Vector2 spawnPos = FindSpawnPos();
