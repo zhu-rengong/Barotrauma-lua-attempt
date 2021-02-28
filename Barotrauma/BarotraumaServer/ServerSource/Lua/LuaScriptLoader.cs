@@ -7,79 +7,90 @@ using MoonSharp.Interpreter.Loaders;
 
 namespace Barotrauma
 {
-	public class LuaScriptLoader : ScriptLoaderBase
-	{
-		public override object LoadFile(string file, Table globalContext)
-		{
-			return File.ReadAllText(file);
-		}
+	partial class LuaSetup {
 
-		public override bool ScriptFileExists(string file)
+		public class LuaScriptLoader : ScriptLoaderBase
 		{
-			return File.Exists(file);
-		}
+			public LuaSetup lua;
 
-		public void RunFolder(string folder, Script script)
-		{
-			foreach(var str in DirSearch(folder))
+			public LuaScriptLoader(LuaSetup l)
 			{
-				var s = str.Replace("\\", "/");
-
-				if (s.EndsWith(".lua"))
-				{
-					Console.WriteLine(s);
-
-					try
-					{
-						script.DoFile(s); // i hate windows
-					}
-					catch (Exception e)
-					{
-						if (e is InterpreterException)
-						{
-
-							Console.WriteLine(((InterpreterException)e).DecoratedMessage);
-						}
-						else
-						{
-							Console.WriteLine(e.ToString());
-						}
-					}
-				}
-
+				lua = l;
 			}
-		}
 
-		static string[] DirSearch(string sDir)
-		{
-			List<string> files = new List<string>();
 
-			try
+			public override object LoadFile(string file, Table globalContext)
 			{
-				foreach (string f in Directory.GetFiles(sDir))
-				{
-					files.Add(f);
-				}
+				return File.ReadAllText(file);
+			}
 
-				foreach (string d in Directory.GetDirectories(sDir))
+			public override bool ScriptFileExists(string file)
+			{
+				return File.Exists(file);
+			}
+
+			public void RunFolder(string folder)
+			{
+				foreach (var str in DirSearch(folder))
 				{
-					foreach (string f in Directory.GetFiles(d))
+					var s = str.Replace("\\", "/");
+
+					if (s.EndsWith(".lua"))
+					{
+						Console.WriteLine(s);
+
+						try
+						{
+							lua.DoFile(s);
+						}
+						catch (Exception e)
+						{
+							if (e is InterpreterException)
+							{
+
+								Console.WriteLine(((InterpreterException)e).DecoratedMessage);
+							}
+							else
+							{
+								Console.WriteLine(e.ToString());
+							}
+						}
+					}
+
+				}
+			}
+
+			static string[] DirSearch(string sDir)
+			{
+				List<string> files = new List<string>();
+
+				try
+				{
+					foreach (string f in Directory.GetFiles(sDir))
 					{
 						files.Add(f);
 					}
-					DirSearch(d);
+
+					foreach (string d in Directory.GetDirectories(sDir))
+					{
+						foreach (string f in Directory.GetFiles(d))
+						{
+							files.Add(f);
+						}
+						DirSearch(d);
+					}
 				}
-			}
-			catch (System.Exception excpt)
-			{
-				Console.WriteLine(excpt.Message);
+				catch (System.Exception excpt)
+				{
+					Console.WriteLine(excpt.Message);
+				}
+
+				return files.ToArray();
 			}
 
-			return files.ToArray();
+
+
+
 		}
-
-
-
-
 	}
 }
