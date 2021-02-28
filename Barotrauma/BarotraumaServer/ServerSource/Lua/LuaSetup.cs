@@ -100,7 +100,7 @@ namespace Barotrauma
 			UserData.RegisterType<Vector3>();
 			UserData.RegisterType<Vector4>();
 
-			lua = new Script(CoreModules.Preset_SoftSandbox);
+			lua = new Script(CoreModules.Preset_SoftSandbox | CoreModules.LoadMethods);
 
 			lua.Options.ScriptLoader = luaScriptLoader;
 
