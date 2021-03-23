@@ -113,7 +113,14 @@ namespace Barotrauma
 			lua.Globals["Random"] = new LuaRandom();
 			lua.Globals["Timer"] = new LuaTimer(this);
 
-			luaScriptLoader.RunFolder("Lua/autorun");
+			foreach (string d in Directory.GetDirectories("Lua"))
+			{
+				if (Directory.Exists(d + "/autorun"))
+				{
+					luaScriptLoader.RunFolder(d + "/autorun");
+				}
+			}
+
 
 
 		}
