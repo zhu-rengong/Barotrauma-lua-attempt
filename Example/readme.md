@@ -1,0 +1,1 @@
+# To run the example you need to put the Lua folder in your Barotrauma folder
