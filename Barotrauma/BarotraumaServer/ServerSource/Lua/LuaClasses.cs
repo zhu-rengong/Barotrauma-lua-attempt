@@ -84,20 +84,20 @@ namespace Barotrauma
 				env = e;
 			}
 
-			public static void SendMessage(string msg, int messageType = 0, Client sender = null, Character character = null)
+			public static void SendMessage(string msg, ChatMessageType messageType = ChatMessageType.Server, Client sender = null, Character character = null)
 			{
-				GameMain.Server.SendChatMessage(msg, (ChatMessageType)messageType, sender, character);
+				GameMain.Server.SendChatMessage(msg, messageType, sender, character);
 			}
 
-			public static void SendTraitorMessage(Client client, string msg, int type)
+			public static void SendTraitorMessage(Client client, string msg, TraitorMessageType type)
 			{
-				GameMain.Server.SendTraitorMessage(client, msg, "", (TraitorMessageType)type);
+				GameMain.Server.SendTraitorMessage(client, msg, "", type);
 			}
 
-			public static void SendDirectChatMessage(string sendername, string text, Character sender, int messageType = 0, Client client = null)
+			public static void SendDirectChatMessage(string sendername, string text, Character sender, ChatMessageType messageType = ChatMessageType.Private, Client client = null)
 			{
 
-				ChatMessage cm = ChatMessage.Create(sendername, text, (ChatMessageType)messageType, sender, client);
+				ChatMessage cm = ChatMessage.Create(sendername, text, messageType, sender, client);
 
 				GameMain.Server.SendDirectChatMessage(cm, client);
 
@@ -113,9 +113,9 @@ namespace Barotrauma
 				overrideRespawnSub = o;
 			}
 
-			public static void Log(string message, int type)
+			public static void Log(string message, ServerLog.MessageType type)
 			{
-				GameServer.Log(message, (ServerLog.MessageType)type);
+				GameServer.Log(message, type);
 			}
 
 			public static void Explode(Vector2 pos, float range = 100, float force = 30, float damage = 30, float structureDamage = 30, float itemDamage = 30, float empStrength = 0, float ballastFloraStrength = 0)
@@ -182,9 +182,35 @@ namespace Barotrauma
 				return GameMain.Server.RespawnManager.RespawnShuttle;
 			}
 
+			public static Items.Components.Steering GetSubmarineSteering(Submarine sub)
+			{
+				foreach (Item item in Item.ItemList)
+				{
+					if (item.Submarine != sub) continue;
+
+					var steering = item.GetComponent<Items.Components.Steering>();
+					if (steering != null)
+					{
+						return steering;
+					}
+				}
+
+				return null;
+			}
+
 			public static void DispatchRespawnSub()
 			{
 				GameMain.Server.RespawnManager.DispatchShuttle();
+			}
+
+			public static void SetRespawnSubTeam(int team)
+			{
+				GameMain.Server.RespawnManager.RespawnShuttle.TeamID = (CharacterTeamType)team;
+			}
+
+			public static void ExecuteCommand(string command)
+			{
+				DebugConsole.ExecuteCommand(command);
 			}
 		}
 
@@ -284,7 +310,11 @@ namespace Barotrauma
 					{
 						try
 						{
-							return env.Call(hf.function, args);
+							var result = env.Call(hf.function, args);
+							if (result.IsNil() == false)
+							{
+								return result;
+							}
 						}
 						catch (Exception e)
 						{

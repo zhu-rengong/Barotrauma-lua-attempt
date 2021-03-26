@@ -83,12 +83,20 @@ namespace Barotrauma
 		{
 			Console.WriteLine("Lua!");
 
-
 			LuaScriptLoader luaScriptLoader = new LuaScriptLoader(this);
 
 			LuaCustomConverters.RegisterAll();
 
+			UserData.RegisterType<Level.InterestingPosition>();
+			UserData.RegisterType<Level.PositionType>();
+			UserData.RegisterType<Level>();
+			UserData.RegisterType<Items.Components.Steering>();
+			UserData.RegisterType<ServerLog.MessageType>();
+			UserData.RegisterType<SpawnType>();
+			UserData.RegisterType<ChatMessageType>();
+			UserData.RegisterType<WayPoint>();
 			UserData.RegisterType<Character>();
+			UserData.RegisterType<Item>();
 			UserData.RegisterType<Submarine>();
 			UserData.RegisterType<Client>();
 			UserData.RegisterType<LuaPlayer>();
@@ -112,6 +120,18 @@ namespace Barotrauma
 			lua.Globals["Hook"] = hook;
 			lua.Globals["Random"] = new LuaRandom();
 			lua.Globals["Timer"] = new LuaTimer(this);
+			lua.Globals["WayPoint"] = UserData.CreateStatic<WayPoint>();
+			lua.Globals["SpawnType"] = UserData.CreateStatic<SpawnType>();
+			lua.Globals["ChatMessageType"] = UserData.CreateStatic<ChatMessageType>();
+			lua.Globals["ServerLog_MessageType"] = UserData.CreateStatic<ServerLog.MessageType>();
+			lua.Globals["Submarine"] = UserData.CreateStatic<Submarine>();
+			lua.Globals["Client"] = UserData.CreateStatic<Client>();
+			lua.Globals["Character"] = UserData.CreateStatic<Character>();
+			lua.Globals["Item"] = UserData.CreateStatic<Item>();
+			lua.Globals["Level"] = UserData.CreateStatic<Level>();
+			lua.Globals["Vector2"] = UserData.CreateStatic<Vector2>();
+			lua.Globals["Vector3"] = UserData.CreateStatic<Vector3>();
+			lua.Globals["PositionType"] = UserData.CreateStatic<Level.PositionType>();
 
 			foreach (string d in Directory.GetDirectories("Lua"))
 			{
