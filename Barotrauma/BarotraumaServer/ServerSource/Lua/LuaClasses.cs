@@ -37,6 +37,11 @@ namespace Barotrauma
 				return values;
 			}
 
+			public static CharacterInfo CreateCharacterInfo(string speciesName, string name = "", JobPrefab jobPrefab = null, string ragdollFileName = null, int variant = 0, Rand.RandSync randSync = Rand.RandSync.Unsynced)
+			{
+				return new CharacterInfo(speciesName, name, jobPrefab, ragdollFileName, variant, randSync);
+			}
+
 			public static void SetClientCharacter(Client client, Character character)
 			{
 				GameMain.Server.SetClientCharacter(client, character);
@@ -65,10 +70,11 @@ namespace Barotrauma
 
 			}
 
-			public static void StartGame()
+			public static void SetSpectatorPos(Client client, Vector2 pos)
 			{
-				GameMain.Server.StartGame();
+				client.SpectatePos = pos;
 			}
+
 		}
 
 		public class LuaGame
@@ -89,9 +95,9 @@ namespace Barotrauma
 				GameMain.Server.SendChatMessage(msg, messageType, sender, character);
 			}
 
-			public static void SendTraitorMessage(Client client, string msg, TraitorMessageType type)
+			public static void SendTraitorMessage(Client client, string msg, string missionid, TraitorMessageType type)
 			{
-				GameMain.Server.SendTraitorMessage(client, msg, "", type);
+				GameMain.Server.SendTraitorMessage(client, msg, missionid, type);
 			}
 
 			public static void SendDirectChatMessage(string sendername, string text, Character sender, ChatMessageType messageType = ChatMessageType.Private, Client client = null)
@@ -163,7 +169,7 @@ namespace Barotrauma
 				{
 					if (CharacterPrefab.FindBySpeciesName(name) != null)
 					{
-						Character.Create(name, spawnPosition, ToolBox.RandomSeed(8));
+						spawnedCharacter = Character.Create(name, spawnPosition, ToolBox.RandomSeed(8));
 					}
 				}
 
@@ -212,6 +218,12 @@ namespace Barotrauma
 			{
 				DebugConsole.ExecuteCommand(command);
 			}
+
+
+			public static void StartGame()
+			{
+				GameMain.Server.StartGame();
+			}
 		}
 
 
@@ -251,6 +263,17 @@ namespace Barotrauma
 			{
 				return random.Next(min, max);
 			}
+
+			public float RangeFloat(float min, float max)
+			{
+				double range = (double)max - (double)min;
+				double sample = random.NextDouble();
+				double scaled = (sample * range) + min;
+				float f = (float)scaled;
+
+				return f;
+			}
+
 		}
 
 		// hooks:
@@ -264,9 +287,9 @@ namespace Barotrauma
 
 		public class LuaHook
 		{
-			public Script env;
+			public LuaSetup env;
 
-			public LuaHook(Script e)
+			public LuaHook(LuaSetup e)
 			{
 				env = e;
 			}
@@ -310,7 +333,7 @@ namespace Barotrauma
 					{
 						try
 						{
-							var result = env.Call(hf.function, args);
+							var result = env.lua.Call(hf.function, args);
 							if (result.IsNil() == false)
 							{
 								return result;
@@ -318,15 +341,7 @@ namespace Barotrauma
 						}
 						catch (Exception e)
 						{
-							if (e is InterpreterException)
-							{
-
-								Console.WriteLine(((InterpreterException)e).DecoratedMessage);
-							}
-							else
-							{
-								Console.WriteLine(e.ToString());
-							}
+							env.HandleLuaException(e);
 						}
 					}
 				}

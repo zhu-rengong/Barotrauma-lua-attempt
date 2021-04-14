@@ -2416,8 +2416,6 @@ namespace Barotrauma.Networking
 
             Log("Round started.", ServerLog.MessageType.ServerMessage);
 
-            GameMain.Lua.hook.Call("roundStart", new MoonSharp.Interpreter.DynValue[] { });
-
 
             gameStarted = true;
             initiatedStartGame = false;
@@ -2426,6 +2424,9 @@ namespace Barotrauma.Networking
             LastClientListUpdateID++;
 
             roundStartTime = DateTime.Now;
+
+            GameMain.Lua.hook.Call("roundStart", new MoonSharp.Interpreter.DynValue[] { });
+
 
             yield return CoroutineStatus.Success;
         }
