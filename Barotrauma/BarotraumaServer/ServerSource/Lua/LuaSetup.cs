@@ -17,6 +17,31 @@ namespace Barotrauma
 		public LuaHook hook;
 		public LuaGame game;
 
+		public void HandleLuaException(Exception ex)
+		{
+			if(ex is InterpreterException)
+			{
+				PrintMessage(((InterpreterException)ex).DecoratedMessage);
+			}
+			else
+			{
+				PrintMessage(ex.ToString());
+			}
+		}
+
+		public void PrintMessage(object message)
+		{
+			Console.WriteLine(message.ToString());
+			if (GameMain.Server != null)
+			{
+				foreach (var c in GameMain.Server.ConnectedClients)
+				{
+					GameMain.Server.SendDirectChatMessage(message.ToString(), c, ChatMessageType.Console);
+					GameServer.Log("[LUA] " + message.ToString(), ServerLog.MessageType.ServerMessage);
+				}
+			}
+		}
+
 		public void DoString(string code)
 		{
 			try
@@ -25,15 +50,7 @@ namespace Barotrauma
 			}
 			catch (Exception e)
 			{
-				if (e is InterpreterException)
-				{
-
-					Console.WriteLine(((InterpreterException)e).DecoratedMessage);
-				}
-				else
-				{
-					Console.WriteLine(e.ToString());
-				}
+				HandleLuaException(e);
 			}
 		}
 
@@ -46,15 +63,7 @@ namespace Barotrauma
 			}
 			catch (Exception e)
 			{
-				if (e is InterpreterException)
-				{
-
-					Console.WriteLine(((InterpreterException)e).DecoratedMessage);
-				}
-				else
-				{
-					Console.WriteLine(e.ToString());
-				}
+				HandleLuaException(e);
 			}
 		}
 
@@ -66,27 +75,24 @@ namespace Barotrauma
 			}
 			catch (Exception e)
 			{
-				if (e is InterpreterException)
-				{
-
-					Console.WriteLine(((InterpreterException)e).DecoratedMessage);
-				}
-				else
-				{
-					Console.WriteLine(e.ToString());
-				}
+				HandleLuaException(e);
 			}
 		}
 
 
 		public LuaSetup()
 		{
-			Console.WriteLine("Lua!");
+			PrintMessage("Lua!");
 
 			LuaScriptLoader luaScriptLoader = new LuaScriptLoader(this);
 
 			LuaCustomConverters.RegisterAll();
 
+			UserData.RegisterType<TraitorMessageType>();
+			UserData.RegisterType<JobPrefab>();
+			UserData.RegisterType<CharacterInfo>();
+			UserData.RegisterType<Rectangle>();
+			UserData.RegisterType<Point>();
 			UserData.RegisterType<Level.InterestingPosition>();
 			UserData.RegisterType<Level.PositionType>();
 			UserData.RegisterType<Level>();
@@ -107,12 +113,15 @@ namespace Barotrauma
 			UserData.RegisterType<Vector2>();
 			UserData.RegisterType<Vector3>();
 			UserData.RegisterType<Vector4>();
+			
 
 			lua = new Script(CoreModules.Preset_SoftSandbox | CoreModules.LoadMethods);
 
+			lua.Options.DebugPrint = PrintMessage;
+
 			lua.Options.ScriptLoader = luaScriptLoader;
 
-			hook = new LuaHook(lua);
+			hook = new LuaHook(this);
 			game = new LuaGame(this);
 
 			lua.Globals["Player"] = new LuaPlayer();
@@ -132,6 +141,8 @@ namespace Barotrauma
 			lua.Globals["Vector2"] = UserData.CreateStatic<Vector2>();
 			lua.Globals["Vector3"] = UserData.CreateStatic<Vector3>();
 			lua.Globals["PositionType"] = UserData.CreateStatic<Level.PositionType>();
+			lua.Globals["JobPrefab"] = UserData.CreateStatic<JobPrefab>();
+			lua.Globals["TraitorMessageType"] = UserData.CreateStatic<TraitorMessageType>();
 
 			foreach (string d in Directory.GetDirectories("Lua"))
 			{

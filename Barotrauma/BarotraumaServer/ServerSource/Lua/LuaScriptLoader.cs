@@ -37,7 +37,7 @@ namespace Barotrauma
 
 					if (s.EndsWith(".lua"))
 					{
-						Console.WriteLine(s);
+						lua.PrintMessage(s);
 
 						try
 						{
@@ -45,15 +45,7 @@ namespace Barotrauma
 						}
 						catch (Exception e)
 						{
-							if (e is InterpreterException)
-							{
-
-								Console.WriteLine(((InterpreterException)e).DecoratedMessage);
-							}
-							else
-							{
-								Console.WriteLine(e.ToString());
-							}
+							lua.HandleLuaException(e);
 						}
 					}
 
