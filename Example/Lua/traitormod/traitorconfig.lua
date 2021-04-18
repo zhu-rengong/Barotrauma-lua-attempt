@@ -12,8 +12,11 @@ config.codewords = codewords
 config.amountCodewords = 2
 config.traitorSpawnDelay = 60
 config.nextMissionDelay = 60
+
+config.traitorShipEnabled = true -- set this to false for the respawn shuttles to work
 config.traitorShipChance = 15
 config.traitorShipGodModeDistance = 4000
+
 
 -- Traitor Selection Options
 config.roundEndPercentageIncrease = 10
@@ -23,11 +26,11 @@ config.traitorPenalty = 5
 
 -- >=12 players = 3 traitors, >=8 players = 2 traitors, default = 1 traitor
 config.getAmountTraitors = function (amountClients)
-	if amountClients >= 12 then return 3 end
+	if amountClients >= 12 then return 3 end -- if theres 12 or more players, 3 traitors will be selected
 
-    if amountClients >= 8 then return 2 end
+    if amountClients >= 8 then return 2 end -- if theres 8 or more players, 2 traitors will be selected
 
-    return 1
+    return 1 -- if theres less than 8 players, there will only one traitor
 end
 
 -- shipTraitors and normal traitors will be selected equally
