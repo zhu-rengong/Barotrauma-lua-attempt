@@ -5,7 +5,7 @@ local loadedpeople = {}
 local config = dofile("lua/traitormod/traitorconfig.lua")
 local util = dofile("lua/traitormod/util.lua")
 
-Game.OverrideRespawnSub(true)
+Game.OverrideRespawnSub(config.traitorShipEnabled)
 
 Hook.Add("think", "traitorShip", function()
     if respawnshuttle ~= nil then

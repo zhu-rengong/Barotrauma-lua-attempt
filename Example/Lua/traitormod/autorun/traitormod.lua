@@ -6,7 +6,6 @@ traitormod.selectedCodeResponses = {}
 traitormod.selectedCodePhrases = {}
 
 traitormod.enabled = true
-traitormod.traitorShipEnabled = true
 traitormod.roundGamemode = ""
 
 local traitorAssignDelay = 0
@@ -255,7 +254,7 @@ Hook.Add("roundStart", "traitor_start", function()
 
     local rng = Random.Range(0, 100)
 
-    if rng < config.traitorShipChance and traitormod.traitorShipEnabled == true then
+    if rng < config.traitorShipChance and config.traitorShipEnabled == true then
         local amount = config.getAmountShipTraitors(#util.GetValidPlayers())
 
         Game.Log("Infiltraiton Gamemode selected, Random = " .. rng, 6)
@@ -269,7 +268,9 @@ Hook.Add("roundStart", "traitor_start", function()
         Game.Log("Assasination Gamemode was selected, Random = " .. rng, 6)
         traitormod.roundGamemode = "Assasination"
 
-        traitormod.spawnTraitorShipAndHide()
+        if config.traitorShipEnabled then
+            traitormod.spawnTraitorShipAndHide()
+        end
     end
 
     for key, value in pairs(Player.GetAllClients()) do
@@ -387,15 +388,17 @@ Hook.Add("chatMessage", "chatcommands", function(msg, client)
         end
 
         if msg == "!toggletraitorship" then
-            traitormod.traitorShipEnabled = not traitormod.traitorShipEnabled
+            config.traitorShipEnabled = not config.traitorShipEnabled
 
-            if traitormod.traitorShipEnabled then
+            if config.traitorShipEnabled then
                 Game.SendDirectChatMessage("", "Traitor Ship Enabled", nil, 1,
                                            client)
             else
                 Game.SendDirectChatMessage("", "Traitor Ship Disabled", nil, 1,
                                            client)
             end
+
+            Game.OverrideRespawnSub(config.traitorShipEnabled)
 
             return true
         end
