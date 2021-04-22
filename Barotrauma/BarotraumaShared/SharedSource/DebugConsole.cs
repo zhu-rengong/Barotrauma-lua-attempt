@@ -80,6 +80,11 @@ namespace Barotrauma
 
                 OnExecute(args);
             }
+
+            public override int GetHashCode()
+            {
+                return names[0].GetHashCode();
+            }
         }
 
         private static readonly Queue<ColoredText> queuedMessages = new Queue<ColoredText>();
@@ -340,7 +345,7 @@ namespace Barotrauma
                     return new string[][]
                     {
                         GameMain.NetworkMember.ConnectedClients.Select(c => c.Name).ToArray(),
-                        commands.Select(c => c.names[0]).ToArray()
+                        commands.Select(c => c.names[0]).Union(new string[]{ "All" }).ToArray()
                     };
                 }));
 
@@ -352,7 +357,7 @@ namespace Barotrauma
                     return new string[][]
                     {
                         GameMain.NetworkMember.ConnectedClients.Select(c => c.Name).ToArray(),
-                        new string[0]
+                        commands.Select(c => c.names[0]).Union(new string[]{ "All" }).ToArray()
                     };
                 }));
 
@@ -605,7 +610,7 @@ namespace Barotrauma
 
             commands.Add(new Command("giveaffliction", "giveaffliction [affliction name] [affliction strength] [character name]: Add an affliction to a character. If the name parameter is omitted, the affliction is added to the controlled character.", (string[] args) =>
             {
-                if (args.Length < 2) return;
+                if (args.Length < 2) { return; }
 
                 AfflictionPrefab afflictionPrefab = AfflictionPrefab.List.FirstOrDefault(a =>
                     a.Name.Equals(args[0], StringComparison.OrdinalIgnoreCase) ||
@@ -622,9 +627,19 @@ namespace Barotrauma
                     return;
                 }
 
-                Character targetCharacter = (args.Length <= 2) ? Character.Controlled : FindMatchingCharacter(args.Skip(2).ToArray());
+                bool relativeStrength = false;
+                if (args.Length > 2)
+                {
+                    bool.TryParse(args[2], out relativeStrength);
+                }
+
+                Character targetCharacter = (relativeStrength || args.Length <= 2) ? Character.Controlled : FindMatchingCharacter(args.Skip(2).ToArray());
                 if (targetCharacter != null)
                 {
+                    if (relativeStrength)
+                    {
+                        afflictionStrength *= targetCharacter.MaxVitality / afflictionPrefab.MaxStrength;
+                    }
                     targetCharacter.CharacterHealth.ApplyAffliction(targetCharacter.AnimController.MainLimb, afflictionPrefab.Instantiate(afflictionStrength));
                 }
             },
@@ -708,9 +723,10 @@ namespace Barotrauma
 
             commands.Add(new Command("freecamera|freecam", "freecam: Detach the camera from the controlled character.", (string[] args) =>
             {
+#if CLIENT
+                if (Screen.Selected == GameMain.SubEditorScreen) { return; }
                 Character.Controlled = null;
                 GameMain.GameScreen.Cam.TargetPos = Vector2.Zero;
-#if CLIENT
                 GameMain.Client?.SendConsoleCommand("freecam");
 #endif
             }, isCheat: true));
@@ -729,19 +745,19 @@ namespace Barotrauma
                 List<EventPrefab> eventPrefabs = EventSet.GetAllEventPrefabs().Where(prefab => !string.IsNullOrWhiteSpace(prefab.Identifier)).ToList();
                 if (GameMain.GameSession?.EventManager != null && args.Length > 0)
                 {
-                    EventPrefab newEvent = eventPrefabs.Find(prefab => string.Equals(prefab.Identifier, args[0], StringComparison.InvariantCultureIgnoreCase));
+                    EventPrefab eventPrefab = eventPrefabs.Find(prefab => string.Equals(prefab.Identifier, args[0], StringComparison.InvariantCultureIgnoreCase));
 
-                    if (newEvent != null)
+                    if (eventPrefab != null)
                     {
-                        var @event = newEvent.CreateInstance();
+                        var newEvent = eventPrefab.CreateInstance();
                         if (newEvent == null)
                         {
                             NewMessage($"Could not initialize event {args[0]} because level did not meet requirements");
                             return;
                         }
-                        GameMain.GameSession.EventManager.ActiveEvents.Add(@event);
-                        @event.Init(true);
-                        NewMessage($"Initialized event {newEvent.Identifier}", Color.Aqua);
+                        GameMain.GameSession.EventManager.ActiveEvents.Add(newEvent);
+                        newEvent.Init(true);
+                        NewMessage($"Initialized event {eventPrefab.Identifier}", Color.Aqua);
                         return;
                     }
 
@@ -997,7 +1013,7 @@ namespace Barotrauma
                     }
                     else
                     {
-                        ThrowError("Could not set location reputation ({args[0]} is not a valid reputation value).");
+                        ThrowError($"Could not set location reputation ({args[0]} is not a valid reputation value).");
                     }
                 }
                 else
@@ -1005,6 +1021,41 @@ namespace Barotrauma
                     ThrowError("Could not set location reputation (no active campaign).");
                 }
             }, null, true));
+            
+            commands.Add(new Command("setreputation", "setreputation [faction] [value]: Set the reputation of a cation to the specified value.", (string[] args) =>
+            {
+                if (args.Length < 2)
+                {
+                    ThrowError("Insufficient arguments (expected 2)");
+                    return;
+                }
+
+                if (GameMain.GameSession?.GameMode is CampaignMode campaign)
+                {
+                    if (campaign.Factions.FirstOrDefault(f => f.Prefab.Identifier.Equals(args[0], StringComparison.OrdinalIgnoreCase)) is { } faction)
+                    {
+                        if (float.TryParse(args[1], NumberStyles.Any, CultureInfo.InvariantCulture, out float reputation))
+                        {
+                            faction.Reputation.Value = reputation;
+                        }
+                        else
+                        {
+                            ThrowError($"Could not set faction reputation ({args[1]} is not a valid reputation value).");
+                        }
+                    }
+                    else
+                    {
+                        ThrowError($"Could not set faction reputation (faction {args[0]} not found).");
+                    }
+                }
+                else
+                {
+                    ThrowError("Could not set faction reputation (no active campaign).");
+                }
+            }, () =>
+            {
+                return new[] { FactionPrefab.Prefabs.Select(f => f.Identifier).ToArray() };
+            }, true));
 
             commands.Add(new Command("fixitems", "fixitems: Repairs all items and restores them to full condition.", (string[] args) =>
             {
@@ -1128,6 +1179,56 @@ namespace Barotrauma
                     UpgradePrefab.Prefabs.Select(c => c.Identifier).Distinct().ToArray()
                 };
             }, true));
+            
+            commands.Add(new Command("maxupgrades", "maxupgrades [category] [prefab]: Maxes out all upgrades or only specific one if given arguments.", args =>
+            {
+                UpgradeManager upgradeManager = GameMain.GameSession?.Campaign?.UpgradeManager;
+                if (upgradeManager == null)
+                {
+                    ThrowError("This command can only be used in campaign.");
+                    return;
+                }
+                
+                string categoryIdentifier = null;
+                string prefabIdentifier = null;
+
+                switch (args.Length)
+                {
+                    case 1:
+                        categoryIdentifier = args[0];
+                        break;
+                    case 2:
+                        categoryIdentifier = args[0];
+                        prefabIdentifier = args[1];
+                        break;
+                }
+                
+                foreach (UpgradeCategory category in UpgradeCategory.Categories)
+                {
+                    if (!string.IsNullOrWhiteSpace(categoryIdentifier) && !category.Identifier.Equals(categoryIdentifier, StringComparison.OrdinalIgnoreCase)) { continue; }
+                    foreach (UpgradePrefab prefab in UpgradePrefab.Prefabs)
+                    {
+                        if (!prefab.UpgradeCategories.Contains(category)) { continue; }
+                        if (!string.IsNullOrWhiteSpace(prefabIdentifier) && !prefab.Identifier.Equals(prefabIdentifier, StringComparison.OrdinalIgnoreCase)) { continue; }
+                        
+                        int targetLevel = prefab.MaxLevel - upgradeManager.GetRealUpgradeLevel(prefab, category);
+                        for (int i = 0; i < targetLevel; i++)
+                        {
+                            upgradeManager.PurchaseUpgrade(prefab, category, force: true);
+                        }
+                        NewMessage($"Upgraded {category.Identifier}.{prefab.Identifier} by {targetLevel} levels.", Color.DarkGreen);
+                    }
+                }
+
+                NewMessage($"Start a new round to apply the upgrades.", Color.Lime);
+            }, () =>
+            {
+                return new[]
+                {
+                    UpgradeCategory.Categories.Select(c => c.Identifier).Distinct().ToArray(),
+                    UpgradePrefab.Prefabs.Select(c => c.Identifier).Distinct().ToArray()
+                };
+            }, true));
 
             commands.Add(new Command("power", "power: Immediately powers up the submarine's nuclear reactor.", (string[] args) =>
             {
@@ -1174,10 +1275,13 @@ namespace Barotrauma
                         c.SetAllDamage(200.0f, 0.0f, 0.0f);
                     }
                 }
-
                 foreach (Hull hull in Hull.hullList)
                 {
                     hull.BallastFlora?.Kill();
+                }
+                foreach (Submarine sub in Submarine.Loaded)
+                {
+                    sub.WreckAI?.Kill();
                 }
             }, null, isCheat: true));
 
@@ -1693,6 +1797,8 @@ namespace Barotrauma
                 return null;
             }
 
+            // Use same sorting as DebugConsole.ListCharacterNames() above
+            matchingCharacters = matchingCharacters.OrderBy(c => c.IsDead).ThenByDescending(c => c.IsHuman).ToList();
             if (characterIndex == -1)
             {
                 if (matchingCharacters.Count > 1)
