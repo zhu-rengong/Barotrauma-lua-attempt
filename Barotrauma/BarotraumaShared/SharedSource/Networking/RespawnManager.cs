@@ -113,7 +113,12 @@ namespace Barotrauma.Networking
                         {
                             foreach (Wire wire in connection.Wires)
                             {
-                                if (wire != null) wire.Locked = true;
+#if SERVER
+                                if (GameMain.Lua.game.overrideRespawnSub)
+                                {
+                                    if (wire != null) wire.Locked = true;
+                                }
+#endif
                             }
                         }
                     }
@@ -199,6 +204,14 @@ namespace Barotrauma.Networking
         
         private IEnumerable<object> ForceShuttleToPos(Vector2 position, float speed)
         {
+
+#if SERVER
+            if (GameMain.Lua.game.overrideRespawnSub)
+			{
+                yield return CoroutineStatus.Success;
+            }
+#endif
+
             if (RespawnShuttle == null)
             {
                 yield return CoroutineStatus.Success;

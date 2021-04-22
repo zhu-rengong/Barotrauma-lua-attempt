@@ -96,7 +96,10 @@ namespace Barotrauma.Networking
         {
             if (RespawnShuttle != null)
             {
-                RespawnShuttle.Velocity = Vector2.Zero;
+                if (!GameMain.Lua.game.overrideRespawnSub)
+                {
+                    RespawnShuttle.Velocity = Vector2.Zero;
+                }
             }
 
             int clientsToRespawn = GetClientsToRespawn().Count();
