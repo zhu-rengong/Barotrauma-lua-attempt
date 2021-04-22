@@ -39,7 +39,7 @@ namespace Barotrauma
 
 			public static CharacterInfo CreateCharacterInfo(string speciesName, string name = "", JobPrefab jobPrefab = null, string ragdollFileName = null, int variant = 0, Rand.RandSync randSync = Rand.RandSync.Unsynced)
 			{
-				return new CharacterInfo(speciesName, name, jobPrefab, ragdollFileName, variant, randSync);
+				return new CharacterInfo(speciesName, name, name, jobPrefab, ragdollFileName, variant, randSync);
 			}
 
 			public static void SetClientCharacter(Client client, Character character)
