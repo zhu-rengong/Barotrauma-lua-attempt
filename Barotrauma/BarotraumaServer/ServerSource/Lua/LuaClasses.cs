@@ -75,12 +75,28 @@ namespace Barotrauma
 				client.SpectatePos = pos;
 			}
 
+			public static void SetRadioRange(Character character, float range)
+			{
+				if(character.Inventory == null) { return; }
+
+				foreach(Item item in character.Inventory.AllItems)
+				{
+					if(item == null) { continue; }
+
+					if(item.Name == "Headset")
+					{
+						item.GetComponent<Items.Components.WifiComponent>().Range = range;
+					}
+ 				}
+			}
+
 		}
 
 		public class LuaGame
 		{
 			LuaSetup env;
 
+			public bool allowWifiChat = false;
 			public bool overrideTraitors = false;
 			public bool overrideRespawnSub = false;
 
@@ -117,6 +133,11 @@ namespace Barotrauma
 			public void OverrideRespawnSub(bool o)
 			{
 				overrideRespawnSub = o;
+			}
+
+			public void AllowWifiChat(bool o)
+			{
+				allowWifiChat = o;
 			}
 
 			public static void Log(string message, ServerLog.MessageType type)
