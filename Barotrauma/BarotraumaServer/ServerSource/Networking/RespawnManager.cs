@@ -223,6 +223,7 @@ namespace Barotrauma.Networking
                 GameMain.Server.CreateEntityEvent(this);
 
                 RespawnCountdownStarted = false;
+                ReturnCountdownStarted = false;
             }
         }
 
