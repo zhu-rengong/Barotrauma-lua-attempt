@@ -4,18 +4,19 @@ traitormod.peoplePercentages = {}
 traitormod.roundtraitors = {}
 traitormod.selectedCodeResponses = {}
 traitormod.selectedCodePhrases = {}
+traitormod.gamemodes = {}
 
-traitormod.enabled = true
-traitormod.roundGamemode = ""
+traitormod.disableRadioChat = false
 
 local traitorAssignDelay = 0
 local traitorsAssigned = true
 local warningClients = {}
 
-Game.OverrideTraitors(true) -- shutup old traitors
-
 local config = dofile("lua/traitormod/traitorconfig.lua")
 local util = dofile("lua/traitormod/util.lua")
+
+Game.OverrideTraitors(config.enableTraitors) -- shutup old traitors
+Game.AllowWifiChat(config.enableWifiChat)
 
 traitormod.config = config
 
@@ -25,31 +26,35 @@ traitormod.setPercentage = function(client, amount)
     if traitormod.peoplePercentages[client.SteamID] == nil then
         traitormod.peoplePercentages[client.SteamID] = {}
         traitormod.peoplePercentages[client.SteamID].penalty = 1
-        traitormod.peoplePercentages[client.SteamID].p = config.firstJoinPercentage
+        traitormod.peoplePercentages[client.SteamID].p =
+            config.firstJoinPercentage
     end
 
     traitormod.peoplePercentages[client.SteamID].p = amount
 end
 
-traitormod.addPenalty = function (client, amount)
+traitormod.addPenalty = function(client, amount)
     if client == nil then return end
 
     if traitormod.peoplePercentages[client.SteamID] == nil then
         traitormod.peoplePercentages[client.SteamID] = {}
         traitormod.peoplePercentages[client.SteamID].penalty = 1
-        traitormod.peoplePercentages[client.SteamID].p = config.firstJoinPercentage
+        traitormod.peoplePercentages[client.SteamID].p =
+            config.firstJoinPercentage
     end
 
-    traitormod.peoplePercentages[client.SteamID].penalty = traitormod.peoplePercentages[client.SteamID].penalty + amount
+    traitormod.peoplePercentages[client.SteamID].penalty =
+        traitormod.peoplePercentages[client.SteamID].penalty + amount
 end
 
-traitormod.getPenalty = function (client)
-    if client == nil then return end
+traitormod.getPenalty = function(client)
+    if client == nil then return 0 end
 
     if traitormod.peoplePercentages[client.SteamID] == nil then
         traitormod.peoplePercentages[client.SteamID] = {}
         traitormod.peoplePercentages[client.SteamID].penalty = 1
-        traitormod.peoplePercentages[client.SteamID].p = config.firstJoinPercentage
+        traitormod.peoplePercentages[client.SteamID].p =
+            config.firstJoinPercentage
     end
 
     return traitormod.peoplePercentages[client.SteamID].penalty
@@ -61,19 +66,22 @@ traitormod.addPercentage = function(client, amount)
     if traitormod.peoplePercentages[client.SteamID] == nil then
         traitormod.peoplePercentages[client.SteamID] = {}
         traitormod.peoplePercentages[client.SteamID].penalty = 1
-        traitormod.peoplePercentages[client.SteamID].p = config.firstJoinPercentage
+        traitormod.peoplePercentages[client.SteamID].p =
+            config.firstJoinPercentage
     end
 
-    traitormod.peoplePercentages[client.SteamID].p = traitormod.peoplePercentages[client.SteamID].p + amount
+    traitormod.peoplePercentages[client.SteamID].p =
+        traitormod.peoplePercentages[client.SteamID].p + amount
 end
 
-traitormod.getPercentage = function (client)
-    if client == nil then return end
+traitormod.getPercentage = function(client)
+    if client == nil then return 0 end
 
     if traitormod.peoplePercentages[client.SteamID] == nil then
         traitormod.peoplePercentages[client.SteamID] = {}
         traitormod.peoplePercentages[client.SteamID].penalty = 1
-        traitormod.peoplePercentages[client.SteamID].p = config.firstJoinPercentage
+        traitormod.peoplePercentages[client.SteamID].p =
+            config.firstJoinPercentage
     end
 
     return traitormod.peoplePercentages[client.SteamID].p
@@ -104,9 +112,7 @@ traitormod.selectPlayerPercentages = function(ignore)
 
     for i = 1, #players, 1 do
         for key, value in pairs(ignore) do
-            if players[i] == value then
-                table.remove(players, i)
-            end
+            if players[i] == value then table.remove(players, i) end
         end
     end
 
@@ -236,7 +242,10 @@ traitormod.chooseNextObjective = function(key, value)
 end
 
 Hook.Add("roundStart", "traitor_start", function()
-    if not traitormod.enabled then return end
+
+    Game.SendMessage(
+        "We are using Custom Traitors Plugin by EvilFactory (https://steamcommunity.com/id/evilfactory/)\n Join discord.gg/f9zvNNuxu9",
+        3)
 
     local players = util.GetValidPlayersNoBots()
 
@@ -247,69 +256,105 @@ Hook.Add("roundStart", "traitor_start", function()
             traitormod.addPenalty(client, -1)
         end
 
-        traitormod.addPercentage(client, config.roundEndPercentageIncrease / traitormod.getPenalty(client))
+        traitormod.addPercentage(client, config.roundEndPercentageIncrease /
+                                     traitormod.getPenalty(client))
     end
 
     traitormod.chooseCodes()
 
-    local rng = Random.Range(0, 100)
+    if config.enableTraitors then
 
-    if rng < config.traitorShipChance and config.traitorShipEnabled == true then
-        local amount = config.getAmountShipTraitors(#util.GetValidPlayers())
+        local rng = Random.Range(0, 100)
 
-        Game.Log("Infiltraiton Gamemode selected, Random = " .. rng, 6)
-        traitormod.roundGamemode = "Infiltraiton"
+        if rng < config.traitorShipChance and config.traitorShipEnabled == true then
+            local amount = config.getAmountShipTraitors(#util.GetValidPlayers())
 
-        traitormod.traitorShipRoundStart(amount)
-    else
-        traitorsAssigned = false
-        traitorAssignDelay = Timer.GetTime() + config.traitorSpawnDelay
+            Game.Log("Infiltraition Gamemode selected, Random = " .. rng, 6)
+            table.insert(traitormod.gamemodes, "Infiltraition")
 
-        Game.Log("Assasination Gamemode was selected, Random = " .. rng, 6)
-        traitormod.roundGamemode = "Assasination"
+            traitormod.traitorShipRoundStart(amount)
+        else
+            traitorsAssigned = false
+            traitorAssignDelay = Timer.GetTime() + config.traitorSpawnDelay
 
-        if config.traitorShipEnabled then
-            traitormod.spawnTraitorShipAndHide()
+            Game.Log("Assasination Gamemode was selected, Random = " .. rng, 6)
+            table.insert(traitormod.gamemodes, "Assasination")
+
+            if config.traitorShipEnabled then
+                traitormod.spawnTraitorShipAndHide()
+            end
+        end
+
+        if config.enableCommunicationsOffline then
+            rng = Random.Range(0, 100)
+
+            if rng < config.communicationsOfflineChance then
+                table.insert(traitormod.gamemodes, "Offline Communications")
+                traitormod.disableRadioChat = true
+
+                Game.SendMessage(
+                    "—-radiation closing in on our location, comms down!", 11)
+
+                Game.SendMessage(
+                    "—-radiation closing in on our location, comms down!", 3)
+
+                for key, value in pairs(Player.GetAllCharacters()) do
+                    if value.IsHuman then
+                        Player.SetRadioRange(value, 0)
+                    end
+                end
+            end
+        end
+
+    end
+
+    if config.enableSabotage then
+        for key, value in pairs(Player.GetAllClients()) do
+            
+            if value.Character then
+                value.Character.IsTraitor = true 
+            end
+            
+            Game.SendTraitorMessage(value, 'traitor', 'traitor',
+                                    TraitorMessageType.Objective) -- enable everyone to sabotage
         end
     end
 
-    for key, value in pairs(Player.GetAllClients()) do
-        Game.SendTraitorMessage(value, 'traitor', 'traitor', TraitorMessageType.Objective) -- enable everyone to sabotage
-    end
-
-    Game.SendMessage(
-        "We are using Custom Traitors Plugin by EvilFactory (https://steamcommunity.com/id/evilfactory/)\n Join discord.gg/f9zvNNuxu9",
-        3)
 end)
 
 Hook.Add("roundEnd", "traitor_end", function()
-    if not traitormod.enabled then return end
+    if config.enableTraitors then
 
-    local msg = "Traitors of the round: "
+        local msg = "Traitors of the round: "
 
-    for key, value in pairs(traitormod.roundtraitors) do
-        msg = msg .. "\"" .. key.name .. "\" "
-    end
+        for key, value in pairs(traitormod.roundtraitors) do
+            msg = msg .. "\"" .. key.name .. "\" "
+        end
 
-    msg = msg .. "\n\nGamemode: " .. traitormod.roundGamemode
+        msg = msg .. "\n\nGamemodes:"
 
-    Game.SendMessage(msg, 1)
+        for key, value in pairs(traitormod.gamemodes) do
+            msg = msg .. " \"" .. value .. "\""
+        end
 
-    for key, value in pairs(traitormod.roundtraitors) do
-        local c = util.clientChar(key)
-        traitormod.setPercentage(c, config.traitorPercentageSet)
-        traitormod.addPenalty(c, config.traitorPenalty)
+        Game.SendMessage(msg, 1)
+
+        for key, value in pairs(traitormod.roundtraitors) do
+            local c = util.clientChar(key)
+            traitormod.setPercentage(c, config.traitorPercentageSet)
+            traitormod.addPenalty(c, config.traitorPenalty)
+        end
+
     end
 
     traitormod.roundtraitors = {}
     traitormod.selectedCodeResponses = {}
     traitormod.selectedCodePhrases = {}
+    traitormod.gamemodes = {}
     warningClients = {}
 end)
 
 Hook.Add("think", "traitor_think", function()
-    if not traitormod.enabled then return end
-
     if not traitorsAssigned and traitorAssignDelay < Timer.GetTime() then
         local amount = config.getAmountTraitors(#util.GetValidPlayers())
         traitormod.assignNormalTraitors(amount)
@@ -371,21 +416,6 @@ end)
 Hook.Add("chatMessage", "chatcommands", function(msg, client)
 
     if bit32.band(client.Permissions, 0x40) == 0x40 then
-        if msg == "!toggletraitormod" then
-            traitormod.enabled = not traitormod.enabled
-
-            if traitormod.enabled then
-                Game.SendDirectChatMessage("", "TraitorMod Enabled", nil, 1,
-                                           client)
-            else
-                Game.SendDirectChatMessage("", "TraitorMod Disabled", nil, 1,
-                                           client)
-            end
-
-            Game.OverrideTraitors(traitormod.enabled)
-
-            return true
-        end
 
         if msg == "!toggletraitorship" then
             config.traitorShipEnabled = not config.traitorShipEnabled
@@ -419,17 +449,15 @@ Hook.Add("chatMessage", "chatcommands", function(msg, client)
             local num = 0
 
             for key, value in pairs(traitormod.roundtraitors) do
-                if key.IsDead == false then
-                    num = num + 1
-                end
+                if key.IsDead == false then num = num + 1 end
             end
 
             if num > 0 then
-                traitormod.sendTraitorMessage("There are traitors alive.", client)
-            else 
+                traitormod.sendTraitorMessage("There are traitors alive.",
+                                              client)
+            else
                 traitormod.sendTraitorMessage("All traitors are dead!", client)
             end
-
 
             return true
         end
@@ -444,14 +472,15 @@ Hook.Add("chatMessage", "chatcommands", function(msg, client)
 
             traitormod.sendTraitorMessage(msg, client)
 
-            return true 
-        end 
-    end 
- 
+            return true
+        end
+    end
+
     if msg == "!percentage" then
 
         traitormod.sendTraitorMessage("You have " ..
-                                          math.floor(traitormod.getPercentage(client)) ..
+                                          math.floor(
+                                              traitormod.getPercentage(client)) ..
                                           "% of being traitor", client)
 
         return true

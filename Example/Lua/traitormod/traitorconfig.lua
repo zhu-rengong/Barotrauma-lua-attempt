@@ -8,15 +8,23 @@ local codewords = {
 	"tire", "trunk", "blow sticks", "thrashers"
 }
 
+config.enableTraitors = true
+
 config.codewords = codewords
 config.amountCodewords = 2
 config.traitorSpawnDelay = 60
 config.nextMissionDelay = 60
 
 config.traitorShipEnabled = true -- set this to false for the respawn shuttles to work
-config.traitorShipChance = 15
+config.traitorShipChance = 18
 config.traitorShipGodModeDistance = 4000
 
+config.enableCommunicationsOffline = true
+config.communicationsOfflineChance = 20
+
+-- Gameplay Options
+config.enableSabotage = true -- allow everyone to sabotage
+config.enableWifiChat = true -- allow people to wire wifi components to the chat ingame
 
 -- Traitor Selection Options
 config.roundEndPercentageIncrease = 10
