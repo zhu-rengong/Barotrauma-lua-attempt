@@ -58,6 +58,8 @@ namespace Barotrauma.Items.Components
 			set;
 		}
 
+
+
 		[Editable, Serialize(false, false, description: "If enabled, any signals received from another chat-linked wifi component are displayed " +
 			"as chat messages in the chatbox of the player holding the item.", alwaysUseInstanceValues: true)]
 		public bool LinkToChat
@@ -68,7 +70,7 @@ namespace Barotrauma.Items.Components
 				return GameMain.Lua.game.allowWifiChat;
 #endif
 #if CLIENT
-                return LinkToChat;
+                return false;
 #endif
 			}
 			set { }
