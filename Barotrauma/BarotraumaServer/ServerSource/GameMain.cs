@@ -12,7 +12,6 @@ using System.Reflection;
 using System.Threading;
 using System.Xml.Linq;
 using MoonSharp.Interpreter;
-using MoonSharp.VsCodeDebugger;
 
 namespace Barotrauma
 {

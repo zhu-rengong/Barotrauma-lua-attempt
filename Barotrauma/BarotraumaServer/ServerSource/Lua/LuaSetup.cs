@@ -6,7 +6,6 @@ using Barotrauma.Networking;
 using MoonSharp.Interpreter;
 using Microsoft.Xna.Framework;
 using System.Threading.Tasks;
-using MoonSharp.VsCodeDebugger;
 
 namespace Barotrauma
 {
