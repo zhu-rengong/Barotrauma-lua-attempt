@@ -42,6 +42,7 @@ Hook.Add("roundEnd", "traitorShipRemove", function()
 end)
 
 traitormod.spawnTraitorShipAndHide = function()
+
     Game.SetRespawnSubTeam(2)
     Game.DispatchRespawnSub()
 
@@ -114,6 +115,8 @@ traitormod.traitorShipRoundStart = function(maxplayers)
         for key, va in pairs(traitormod.selectedCodeResponses) do
             mess = mess .. "\"" .. va .. "\" "
         end
+
+        mess = mess .. "\n\n(You can type in local chat !traitor, to check this information again.)"
 
         Game.Log(value.name .. " Was assigned to be Ship traitor", 6)
 

@@ -16,7 +16,7 @@ config.traitorSpawnDelay = 60
 config.nextMissionDelay = 60
 
 config.traitorShipEnabled = true -- set this to false for the respawn shuttles to work
-config.traitorShipChance = 18
+config.traitorShipChance = 15
 config.traitorShipGodModeDistance = 4000
 
 config.enableCommunicationsOffline = true

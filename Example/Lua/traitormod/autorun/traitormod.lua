@@ -203,6 +203,8 @@ traitormod.assignNormalTraitors = function(amount)
             for key, va in pairs(traitormod.selectedCodeResponses) do
                 mess = mess .. "\"" .. va .. "\" "
             end
+
+            mess = mess .. "\n(You can type in local chat !traitor, to check this information again.)"
         end
 
         Game.Log(value.name ..
@@ -266,7 +268,7 @@ Hook.Add("roundStart", "traitor_start", function()
 
         local rng = Random.Range(0, 100)
 
-        if rng < config.traitorShipChance and config.traitorShipEnabled == true then
+        if (rng < config.traitorShipChance and config.traitorShipEnabled == true) and Game.GetRespawnSub() ~= nil then
             local amount = config.getAmountShipTraitors(#util.GetValidPlayers())
 
             Game.Log("Infiltraition Gamemode selected, Random = " .. rng, 6)
@@ -281,7 +283,11 @@ Hook.Add("roundStart", "traitor_start", function()
             table.insert(traitormod.gamemodes, "Assasination")
 
             if config.traitorShipEnabled then
-                traitormod.spawnTraitorShipAndHide()
+                if Game.GetRespawnSub() == nil then
+                    Game.SendMessage("TraitorMod Warning: Traitor Ship enabled but respawn shuttle disabled!", 1)
+                else
+                    traitormod.spawnTraitorShipAndHide()
+                end
             end
         end
 
@@ -484,6 +490,14 @@ Hook.Add("chatMessage", "chatcommands", function(msg, client)
                                           "% of being traitor", client)
 
         return true
+    end
+
+    if msg == "!help" then
+
+        
+        traitormod.sendTraitorMessage("\nCommands\n!help\n!traitor\n!traitors\n!percentage\n!percentages\n!toggletraitorship", client)
+
+        return true 
     end
 
     if util.stringstarts(msg, "!traitor") then
