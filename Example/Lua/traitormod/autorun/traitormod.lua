@@ -8,8 +8,12 @@ traitormod.gamemodes = {}
 
 traitormod.disableRadioChat = false
 
+local endingRound = false
+local roundEndDelay = 0
+
 local traitorAssignDelay = 0
 local traitorsAssigned = true
+local traitorsRoundStartAssigned = false
 local warningClients = {}
 
 local config = dofile("lua/traitormod/traitorconfig.lua")
@@ -203,9 +207,10 @@ traitormod.assignNormalTraitors = function(amount)
             for key, va in pairs(traitormod.selectedCodeResponses) do
                 mess = mess .. "\"" .. va .. "\" "
             end
-
-            mess = mess .. "\n(You can type in local chat !traitor, to check this information again.)"
         end
+
+        mess = mess .. "\n(You can type in local chat !traitor, to check this information again.)"
+
 
         Game.Log(value.name ..
                      " Was assigned to be traitor, his first mission is to kill " ..
@@ -353,6 +358,8 @@ Hook.Add("roundEnd", "traitor_end", function()
 
     end
 
+    traitorsRoundStartAssigned = false
+    endingRound = false
     traitormod.roundtraitors = {}
     traitormod.selectedCodeResponses = {}
     traitormod.selectedCodePhrases = {}
@@ -366,7 +373,31 @@ Hook.Add("think", "traitor_think", function()
         traitormod.assignNormalTraitors(amount)
 
         traitorsAssigned = true
+        traitorsRoundStartAssigned = true
     end
+
+    if endingRound == true and roundEndDelay < Timer.GetTime() then
+        Game.ExecuteCommand('endgame')
+
+        endingRound = false
+    end
+
+    if traitorsRoundStartAssigned and config.endRoundWhenAllTraitorsDie then
+        local num = 0
+
+        for key, value in pairs(traitormod.roundtraitors) do
+            if key.IsDead == false then num = num + 1 end
+        end
+
+        if num == 0 then
+            Game.SendMessage('All traitors died! Ending round in ' .. config.endRoundDelayInSeconds .. ' seconds.', 1)
+
+            endingRound = true
+            roundEndDelay = Timer.GetTime() + config.endRoundDelayInSeconds
+            traitorsRoundStartAssigned = false
+        end
+    end
+
 
     for key, value in pairs(Player.GetAllCharacters()) do
 

@@ -15,6 +15,9 @@ config.amountCodewords = 2
 config.traitorSpawnDelay = 60
 config.nextMissionDelay = 60
 
+config.endRoundWhenAllTraitorsDie = false
+config.endRoundDelayInSeconds = 60
+
 config.traitorShipEnabled = true -- set this to false for the respawn shuttles to work
 config.traitorShipChance = 15
 config.traitorShipGodModeDistance = 4000
