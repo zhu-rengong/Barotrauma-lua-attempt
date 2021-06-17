@@ -37,6 +37,8 @@ namespace Barotrauma
             private set;
         }
 
+        public static Thread MainThread { get; private set; }
+
         //only screens the server implements
         public static GameScreen GameScreen;
         public static NetLobbyScreen NetLobbyScreen;
@@ -93,6 +95,8 @@ namespace Barotrauma
 
             Console.WriteLine("Initializing GameScreen");
             GameScreen = new GameScreen();
+
+            MainThread = Thread.CurrentThread;
         }
 
         public void Init()
@@ -395,6 +399,8 @@ namespace Barotrauma
 
             if (GameSettings.SaveDebugConsoleLogs) { DebugConsole.SaveLogs(); }
             if (GameSettings.SendUserStatistics) { GameAnalytics.OnQuit(); }
+
+            MainThread = null;
         }
 
         public static void ResetFrameTime()

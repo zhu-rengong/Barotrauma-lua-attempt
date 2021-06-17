@@ -10,6 +10,11 @@ namespace Barotrauma.Networking
     {
         private DateTime despawnTime;
 
+        private float shuttleEmptyTimer;
+
+        private int pendingRespawnCount, requiredRespawnCount;
+        private int prevPendingRespawnCount, prevRequiredRespawnCount;
+
         private IEnumerable<Client> GetClientsToRespawn()
         {
             MultiPlayerCampaign campaign = GameMain.GameSession.GameMode as MultiPlayerCampaign;
@@ -102,10 +107,19 @@ namespace Barotrauma.Networking
                 }
             }
 
-            int clientsToRespawn = GetClientsToRespawn().Count();
+            pendingRespawnCount = GetClientsToRespawn().Count();
+            requiredRespawnCount = (int)Math.Max((float)GameMain.Server.ConnectedClients.Count * GameMain.Server.ServerSettings.MinRespawnRatio, 1.0f);
+            if (pendingRespawnCount != prevPendingRespawnCount || 
+                requiredRespawnCount != prevRequiredRespawnCount)
+            {
+                prevPendingRespawnCount = pendingRespawnCount;
+                prevRequiredRespawnCount = requiredRespawnCount;
+                GameMain.Server.CreateEntityEvent(this);
+            }
+
             if (RespawnCountdownStarted)
             {
-                if (clientsToRespawn == 0)
+                if (pendingRespawnCount == 0)
                 {
                     RespawnCountdownStarted = false;
                     GameMain.Server.CreateEntityEvent(this);
@@ -113,7 +127,7 @@ namespace Barotrauma.Networking
             }
             else
             {
-                bool shouldStartCountdown = ShouldStartRespawnCountdown(clientsToRespawn);       
+                bool shouldStartCountdown = ShouldStartRespawnCountdown(pendingRespawnCount);       
                 if (shouldStartCountdown)
                 {
                     RespawnCountdownStarted = true;
@@ -185,8 +199,14 @@ namespace Barotrauma.Networking
             }
         }
 
-        partial void UpdateReturningProjSpecific()
+        partial void UpdateReturningProjSpecific(float deltaTime)
         {
+            //speed up despawning if there's no-one inside the shuttle
+            if (despawnTime > DateTime.Now + new TimeSpan(0, 0, seconds: 30) && CheckShuttleEmpty(deltaTime))
+            {
+                despawnTime = DateTime.Now + new TimeSpan(0, 0, seconds: 30);
+            }
+
             foreach (Door door in shuttleDoors)
             {
                 if (door.IsOpen) door.TrySetState(false, false, true);
@@ -232,7 +252,7 @@ namespace Barotrauma.Networking
             if (!ReturnCountdownStarted)
             {
                 //if there are no living chracters inside, transporting can be stopped immediately
-                if (!Character.CharacterList.Any(c => c.Submarine == RespawnShuttle && !c.IsDead))
+                if (CheckShuttleEmpty(deltaTime))
                 {
                     ReturnTime = DateTime.Now;
                     ReturnCountdownStarted = true;
@@ -250,6 +270,10 @@ namespace Barotrauma.Networking
                     GameMain.Server.CreateEntityEvent(this);
                 }
             }
+            else if (CheckShuttleEmpty(deltaTime))
+            {
+                ReturnTime = DateTime.Now;
+            }
 
             if (DateTime.Now > ReturnTime)
             {
@@ -263,6 +287,19 @@ namespace Barotrauma.Networking
             }
         }
 
+        private bool CheckShuttleEmpty(float deltaTime)
+        {
+            if (!Character.CharacterList.Any(c => c.Submarine == RespawnShuttle && !c.IsDead))
+            {
+                shuttleEmptyTimer += deltaTime;
+            }
+            else
+            {
+                shuttleEmptyTimer = 0.0f;
+            }
+            return shuttleEmptyTimer > 1.0f;
+        }
+        
         partial void RespawnCharactersProjSpecific(Vector2? shuttlePos)
         {
             var respawnSub = RespawnShuttle ?? Submarine.MainSub;
@@ -412,7 +449,7 @@ namespace Barotrauma.Networking
                 else
                 {
                     characterData.SpawnInventoryItems(character, character.Inventory);
-                    characterData.ApplyHealthData(character.Info, character);
+                    characterData.ApplyHealthData(character);
                     character.GiveIdCardTags(mainSubSpawnPoints[i]);
                     characterData.HasSpawned = true;
                 }
@@ -445,6 +482,8 @@ namespace Barotrauma.Networking
                     msg.Write((float)(ReturnTime - DateTime.Now).TotalSeconds);
                     break;
                 case State.Waiting:
+                    msg.Write((ushort)pendingRespawnCount);
+                    msg.Write((ushort)requiredRespawnCount);
                     msg.Write(RespawnCountdownStarted);
                     msg.Write((float)(RespawnTime - DateTime.Now).TotalSeconds);
                     break;
