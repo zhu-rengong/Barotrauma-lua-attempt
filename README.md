@@ -5,7 +5,7 @@ inspired by garrysmod
 no documentation yet
 
 # Barotrauma
-Copyright © Undertow Games 2017-2019
+Copyright © FakeFish Ltd 2017-2021
 
 Before downloading the source code, please read the [EULA](EULA.txt).
 
