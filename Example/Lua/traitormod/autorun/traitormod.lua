@@ -20,7 +20,7 @@ local config = dofile("lua/traitormod/traitorconfig.lua")
 local util = dofile("lua/traitormod/util.lua")
 
 Game.OverrideTraitors(config.enableTraitors) -- shutup old traitors
-Game.AllowWifiChat(config.enableWifiChat)
+Game.AllowWifiChat(config.enableWifiChat) -- deprecated
 
 traitormod.config = config
 

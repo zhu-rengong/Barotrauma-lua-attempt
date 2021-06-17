@@ -23,11 +23,11 @@ config.traitorShipChance = 15
 config.traitorShipGodModeDistance = 4000
 
 config.enableCommunicationsOffline = true
-config.communicationsOfflineChance = 20
+config.communicationsOfflineChance = 15
 
 -- Gameplay Options
 config.enableSabotage = true -- allow everyone to sabotage
-config.enableWifiChat = true -- allow people to wire wifi components to the chat ingame
+config.enableWifiChat = true -- deprecated
 
 -- Traitor Selection Options
 config.roundEndPercentageIncrease = 10
@@ -40,6 +40,8 @@ config.getAmountTraitors = function (amountClients)
 	if amountClients >= 12 then return 3 end -- if theres 12 or more players, 3 traitors will be selected
 
     if amountClients >= 8 then return 2 end -- if theres 8 or more players, 2 traitors will be selected
+
+	if amountClients == 1 then return 0 end
 
     return 1 -- if theres less than 8 players, there will only one traitor
 end
