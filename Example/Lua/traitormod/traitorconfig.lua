@@ -14,6 +14,7 @@ config.codewords = codewords
 config.amountCodewords = 2
 config.traitorSpawnDelay = 60
 config.nextMissionDelay = 60
+config.chooseBotsAsTraitorTargets = false
 
 config.endRoundWhenAllTraitorsDie = false
 config.endRoundDelayInSeconds = 60
@@ -48,5 +49,6 @@ end
 
 -- shipTraitors and normal traitors will be selected equally
 config.getAmountShipTraitors = config.getAmountTraitors
+
 
 return config;

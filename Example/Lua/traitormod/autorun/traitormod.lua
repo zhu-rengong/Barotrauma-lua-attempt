@@ -19,8 +19,16 @@ local warningClients = {}
 local config = dofile("lua/traitormod/traitorconfig.lua")
 local util = dofile("lua/traitormod/util.lua")
 
+local assassinationChooseFunc 
+
 Game.OverrideTraitors(config.enableTraitors) -- shutup old traitors
 Game.AllowWifiChat(config.enableWifiChat) -- deprecated
+
+if config.chooseBotsAsTraitorTargets then
+    assassinationChooseFunc = util.GetValidPlayersNoTraitors
+else
+    assassinationChooseFunc = util.GetValidPlayersNoBotsAndNoTraitors
+end
 
 traitormod.config = config
 
@@ -181,7 +189,15 @@ traitormod.assignNormalTraitors = function(amount)
 
     for key, value in pairs(traitors) do traitormod.roundtraitors[value] = {} end
 
-    local targets = util.GetValidPlayersNoTraitors(traitormod.roundtraitors)
+    local targets = assassinationChooseFunc(traitormod.roundtraitors)
+
+    if #targets == 0 then
+        for key, value in pairs(traitors) do
+            traitormod.sendTraitorMessage("Looks like you are a traitor without targets.", util.clientChar(value))
+            traitormod.roundtraitors[value].objectiveType = "nothing"
+            return
+        end
+    end
 
     for key, value in pairs(traitors) do
         traitormod.roundtraitors[value].objectiveType = "kill"
@@ -222,7 +238,7 @@ traitormod.assignNormalTraitors = function(amount)
 end
 
 traitormod.chooseNextObjective = function(key, value)
-    local players = util.GetValidPlayersNoTraitors(traitormod.roundtraitors)
+    local players = assassinationChooseFunc(traitormod.roundtraitors)
 
     if #players == 0 then
         traitormod.sendTraitorMessage("Good job agent, You did it.",
@@ -251,7 +267,7 @@ end
 Hook.Add("roundStart", "traitor_start", function()
 
     Game.SendMessage(
-        "We are using Custom Traitors Plugin by EvilFactory (https://steamcommunity.com/id/evilfactory/)\n Join discord.gg/f9zvNNuxu9",
+        "We are using TraitorMod Plugin by EvilFactory (https://steamcommunity.com/id/evilfactory/)\n Join discord.gg/f9zvNNuxu9",
         3)
 
     local players = util.GetValidPlayersNoBots()
