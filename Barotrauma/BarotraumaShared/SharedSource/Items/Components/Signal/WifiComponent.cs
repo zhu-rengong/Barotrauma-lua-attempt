@@ -58,14 +58,41 @@ namespace Barotrauma.Items.Components
             set;
         }
 
-        [ConditionallyEditable(ConditionallyEditable.ConditionType.AllowLinkingWifiToChat)]
-        [Serialize(false, false, description: "If enabled, any signals received from another chat-linked wifi component are displayed " +
-            "as chat messages in the chatbox of the player holding the item.", alwaysUseInstanceValues: true)]
-        public bool LinkToChat
-        {
-            get;
-            set;
-        }
+		[ConditionallyEditable(ConditionallyEditable.ConditionType.AllowLinkingWifiToChat)]
+		[Serialize(false, false, description: "If enabled, any signals received from another chat-linked wifi component are displayed " +
+			"as chat messages in the chatbox of the player holding the item.", alwaysUseInstanceValues: true)]
+		public bool LinkToChat
+		{
+			get
+			{
+#if SERVER
+                return GameMain.Lua.game.allowWifiChat;
+#endif
+#if CLIENT
+                return true;
+#endif
+            }
+			set
+			{
+
+			}
+		}
+
+//		[Editable, Serialize(false, false, description: "If enabled, any signals received from another chat-linked wifi component are displayed " +
+//            "as chat messages in the chatbox of the player holding the item.", alwaysUseInstanceValues: true)]
+//        public bool LinkToChat
+//        {
+//            get
+//            {
+//#if SERVER
+//				return GameMain.Lua.game.allowWifiChat;
+//#endif
+//#if CLIENT
+//                return true;
+//#endif
+//            }
+//            set { }
+//        }
 
         [Editable, Serialize(1.0f, true, description: "How many seconds have to pass between signals for a message to be displayed in the chatbox. " +
             "Setting this to a very low value is not recommended, because it may cause an excessive amount of chat messages to be created " +
@@ -168,9 +195,12 @@ namespace Barotrauma.Items.Components
                 //signal strength diminishes by distance
                 float sentSignalStrength = signal.strength *
                     MathHelper.Clamp(1.0f - (Vector2.Distance(item.WorldPosition, wifiComp.item.WorldPosition) / wifiComp.range), 0.0f, 1.0f);
-                Signal s = new Signal(signal.value, signal.stepsTaken, sender: signal.sender, source: signal.source,
-                                      power: 0.0f, strength: sentSignalStrength);
-                wifiComp.item.SendSignal(s, "signal_out");
+
+                //Signal s = new Signal(signal.value, signal.stepsTaken, sender: signal.sender, source: signal.source, power: 0.0f, strength: sentSignalStrength);
+
+                signal.source = null;
+
+                wifiComp.item.SendSignal(signal, "signal_out");
                 
                 if (signal.source != null)
                 {
