@@ -114,7 +114,7 @@ namespace Barotrauma.Networking
                             foreach (Wire wire in connection.Wires)
                             {
 #if SERVER
-                                if (GameMain.Lua.game.overrideRespawnSub)
+                                if (GameMain.Lua.game.overrideRespawnSub == false)
                                 {
                                     if (wire != null) wire.Locked = true;
                                 }
