@@ -52,6 +52,11 @@ namespace Barotrauma
 				character.TeamID = (CharacterTeamType)team;
 			}
 
+			public static void SetClientTeam(Client character, int team)
+			{
+				character.TeamID = (CharacterTeamType)team;
+			}
+
 			public static void Kick(Client client, string reason = "")
 			{
 				GameMain.Server.KickClient(client.Connection, reason);
