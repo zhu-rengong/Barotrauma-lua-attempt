@@ -1165,7 +1165,7 @@ namespace Barotrauma
                         // The guards don't react when the player attacks instigators.
                         return c.IsSecurity ? AIObjectiveCombat.CombatMode.None : (Character.CombatAction != null ? Character.CombatAction.WitnessReaction : AIObjectiveCombat.CombatMode.Retreat);
                     }
-                    else if (attacker.TeamID == CharacterTeamType.FriendlyNPC && !(attacker.AIController.IsMentallyUnstable || attacker.AIController.IsMentallyUnstable))
+                    else if (attacker.TeamID == CharacterTeamType.FriendlyNPC && attacker.AIController != null && !(attacker.AIController.IsMentallyUnstable || attacker.AIController.IsMentallyUnstable))
                     {
                         if (c.IsSecurity)
                         {
