@@ -20,6 +20,9 @@ namespace Barotrauma.Networking
             MultiPlayerCampaign campaign = GameMain.GameSession.GameMode as MultiPlayerCampaign;
             foreach (Client c in networkMember.ConnectedClients)
             {
+                if (GameMain.Lua.game.overrideRespawnSub)
+                    continue;
+
                 if (!c.InGame) { continue; }
                 if (c.SpectateOnly && (GameMain.Server.ServerSettings.AllowSpectating || GameMain.Server.OwnerConnection == c.Connection)) { continue; }
                 if (c.Character != null && !c.Character.IsDead) { continue; }

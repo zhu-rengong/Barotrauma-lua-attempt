@@ -112,7 +112,9 @@ namespace Barotrauma
 			UserData.RegisterType<Vector2>();
 			UserData.RegisterType<Vector3>();
 			UserData.RegisterType<Vector4>();
-			
+			UserData.RegisterType<CauseOfDeathType>();
+			UserData.RegisterType<Affliction>();
+
 
 			lua = new Script(CoreModules.Preset_SoftSandbox | CoreModules.LoadMethods);
 
@@ -142,12 +144,22 @@ namespace Barotrauma
 			lua.Globals["PositionType"] = UserData.CreateStatic<Level.PositionType>();
 			lua.Globals["JobPrefab"] = UserData.CreateStatic<JobPrefab>();
 			lua.Globals["TraitorMessageType"] = UserData.CreateStatic<TraitorMessageType>();
+			lua.Globals["CauseOfDeathType"] = UserData.CreateStatic<CauseOfDeathType>();
+			lua.Globals["Affliction"] = UserData.CreateStatic<Affliction>();
 
-			foreach (string d in Directory.GetDirectories("Lua"))
+			foreach (string d in Directory.GetDirectories("Mods"))
 			{
-				if (Directory.Exists(d + "/autorun"))
+				if (Directory.Exists(d + "/Lua/Autorun"))
 				{
-					luaScriptLoader.RunFolder(d + "/autorun");
+					luaScriptLoader.RunFolder(d + "/Lua/Autorun");
+				}
+
+				if (Directory.Exists(d + "/LuaRaw"))
+				{
+					foreach (string d2 in Directory.GetDirectories(d + "/LuaRaw"))
+					{
+						luaScriptLoader.RunFolder(d2 + "/Autorun");
+					}
 				}
 			}
 
