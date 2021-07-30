@@ -2,7 +2,7 @@
 This is my attempt to implement server-side lua scripting
 inspired by garrysmod
 
-no documentation yet
+incomplete documentation: https://github.com/evilfactory/Barotrauma-lua-attempt/wiki/Lua
 
 # Barotrauma
 Copyright © FakeFish Ltd 2017-2021
