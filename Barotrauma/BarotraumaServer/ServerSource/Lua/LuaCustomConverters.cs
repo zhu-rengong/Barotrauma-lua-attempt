@@ -13,7 +13,7 @@ namespace Barotrauma
 		public static void RegisterAll()
 		{
 
-			// Vector 2
+/*			// Vector 2
 
 			Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(Vector2),
 				dynVal => {
@@ -51,7 +51,7 @@ namespace Barotrauma
 					DynValue dynVal = DynValue.NewTable(script, new DynValue[] { x, y, z });
 					return dynVal;
 				}
-			);
+			);*/
 
 		}
 

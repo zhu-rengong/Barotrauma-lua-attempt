@@ -139,13 +139,18 @@ namespace Barotrauma
 			lua.Globals["Character"] = UserData.CreateStatic<Character>();
 			lua.Globals["Item"] = UserData.CreateStatic<Item>();
 			lua.Globals["Level"] = UserData.CreateStatic<Level>();
-			lua.Globals["Vector2"] = UserData.CreateStatic<Vector2>();
-			lua.Globals["Vector3"] = UserData.CreateStatic<Vector3>();
 			lua.Globals["PositionType"] = UserData.CreateStatic<Level.PositionType>();
 			lua.Globals["JobPrefab"] = UserData.CreateStatic<JobPrefab>();
 			lua.Globals["TraitorMessageType"] = UserData.CreateStatic<TraitorMessageType>();
 			lua.Globals["CauseOfDeathType"] = UserData.CreateStatic<CauseOfDeathType>();
 			lua.Globals["Affliction"] = UserData.CreateStatic<Affliction>();
+
+			lua.Globals["Vector2"] = UserData.CreateStatic<Vector2>();
+			lua.Globals["Vector3"] = UserData.CreateStatic<Vector3>();
+			lua.Globals["Vector4"] = UserData.CreateStatic<Vector3>();
+			lua.Globals["CreateVector2"] = (Func<float, float, Vector2>)CreateVector2;
+			lua.Globals["CreateVector3"] = (Func<float, float, float, Vector3>)CreateVector3;
+			lua.Globals["CreateVector4"] = (Func<float, float, float, float, Vector4>)CreateVector4;
 
 			foreach (string d in Directory.GetDirectories("Mods"))
 			{

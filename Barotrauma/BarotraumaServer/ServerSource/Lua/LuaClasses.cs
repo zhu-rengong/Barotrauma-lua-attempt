@@ -10,6 +10,21 @@ namespace Barotrauma
 {
 	partial class LuaSetup
 	{
+		private static Vector2 CreateVector2(float x, float y)
+		{
+			return new Vector2(x, y);
+		}
+
+		private static Vector3 CreateVector3(float x, float y, float z)
+		{
+			return new Vector3(x, y, z);
+		}
+
+		private static Vector4 CreateVector4(float x, float y, float z, float w)
+		{
+			return new Vector4(x, y, z, w);
+		}
+
 		private class LuaPlayer
 		{
 
