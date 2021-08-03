@@ -3748,6 +3748,10 @@ namespace Barotrauma
                 GameMain.NetworkMember.CreateEntityEvent(this, new object[] { NetEntityEvent.Type.Status });
             }
 
+#if SERVER
+            GameMain.Lua.hook.Call("characterDeath", new MoonSharp.Interpreter.DynValue[] { MoonSharp.Interpreter.UserData.Create(this) });
+#endif
+
             isDead = true;
 
             ApplyStatusEffects(ActionType.OnDeath, 1.0f);

@@ -193,7 +193,7 @@ namespace Barotrauma.Networking
             int length = 1 + //(byte)ServerNetObject.CHAT_MESSAGE
                             2 + //(UInt16)NetStateID
                             1 + //(byte)Type
-                            Encoding.UTF8.GetBytes(Text).Length + 2;
+                            (Text == null ? 0 : Encoding.UTF8.GetBytes(Text).Length) + 2;
             
             if (SenderClient != null)
             {
