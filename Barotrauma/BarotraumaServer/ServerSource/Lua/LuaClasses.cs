@@ -87,6 +87,11 @@ namespace Barotrauma
 				{
 					GameMain.Server.BanClient(client, reason, range, TimeSpan.FromSeconds(seconds));
 				}
+			}
+
+			public static void UnbanPlayer(string player, string endpoint)
+			{
+				GameMain.Server.UnbanPlayer(player, endpoint);
 
 			}
 
@@ -109,6 +114,7 @@ namespace Barotrauma
 					}
  				}
 			}
+
 
 		}
 

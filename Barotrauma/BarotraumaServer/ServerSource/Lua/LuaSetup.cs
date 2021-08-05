@@ -36,8 +36,9 @@ namespace Barotrauma
 				foreach (var c in GameMain.Server.ConnectedClients)
 				{
 					GameMain.Server.SendDirectChatMessage(message.ToString(), c, ChatMessageType.Console);
-					GameServer.Log("[LUA] " + message.ToString(), ServerLog.MessageType.ServerMessage);
 				}
+
+				GameServer.Log("[LUA] " + message.ToString(), ServerLog.MessageType.ServerMessage);
 			}
 		}
 
@@ -113,15 +114,19 @@ namespace Barotrauma
 			UserData.RegisterType<Vector3>();
 			UserData.RegisterType<Vector4>();
 			UserData.RegisterType<CauseOfDeathType>();
+			UserData.RegisterType<AfflictionPrefab>();
 			UserData.RegisterType<Affliction>();
-
+			UserData.RegisterType<CharacterHealth>();
+			UserData.RegisterType<AnimController>();
+			UserData.RegisterType<Limb>();
+			UserData.RegisterType<Ragdoll>();
 
 			lua = new Script(CoreModules.Preset_SoftSandbox | CoreModules.LoadMethods);
 
 			lua.Options.DebugPrint = PrintMessage;
 
 			lua.Options.ScriptLoader = luaScriptLoader;
-
+			
 			hook = new LuaHook(this);
 			game = new LuaGame(this);
 
@@ -143,7 +148,7 @@ namespace Barotrauma
 			lua.Globals["JobPrefab"] = UserData.CreateStatic<JobPrefab>();
 			lua.Globals["TraitorMessageType"] = UserData.CreateStatic<TraitorMessageType>();
 			lua.Globals["CauseOfDeathType"] = UserData.CreateStatic<CauseOfDeathType>();
-			lua.Globals["Affliction"] = UserData.CreateStatic<Affliction>();
+			lua.Globals["AfflictionPrefab"] = UserData.CreateStatic<AfflictionPrefab>();
 
 			lua.Globals["Vector2"] = UserData.CreateStatic<Vector2>();
 			lua.Globals["Vector3"] = UserData.CreateStatic<Vector3>();
