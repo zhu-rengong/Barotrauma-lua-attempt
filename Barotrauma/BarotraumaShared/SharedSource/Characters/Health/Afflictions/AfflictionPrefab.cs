@@ -261,6 +261,14 @@ namespace Barotrauma
             }
         }
 
+        public static AfflictionPrefab[] ListArray
+		{
+			get
+			{
+                return List.ToArray();
+			}
+		}
+
         public string FilePath { get; private set; }
 
         /// <summary>
