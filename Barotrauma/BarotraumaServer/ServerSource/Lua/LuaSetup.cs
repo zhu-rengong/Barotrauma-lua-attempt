@@ -67,16 +67,18 @@ namespace Barotrauma
 			}
 		}
 
-		public void DoFile(string file)
+		public DynValue DoFile(string file)
 		{
 			try
 			{
-				lua.DoFile(file);
+				return lua.DoFile(file);
 			}
 			catch (Exception e)
 			{
 				HandleLuaException(e);
 			}
+
+			return null;
 		}
 
 
@@ -130,6 +132,7 @@ namespace Barotrauma
 			hook = new LuaHook(this);
 			game = new LuaGame(this);
 
+			lua.Globals["dofile"] = (Func<string, DynValue>)DoFile;
 			lua.Globals["Player"] = new LuaPlayer();
 			lua.Globals["Game"] = game;
 			lua.Globals["Hook"] = hook;
