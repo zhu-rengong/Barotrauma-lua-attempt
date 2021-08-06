@@ -142,10 +142,11 @@ namespace Barotrauma
 				GameMain.Server.SendTraitorMessage(client, msg, missionid, type);
 			}
 
-			public static void SendDirectChatMessage(string sendername, string text, Character sender, ChatMessageType messageType = ChatMessageType.Private, Client client = null)
+			public static void SendDirectChatMessage(string sendername, string text, Character sender, ChatMessageType messageType = ChatMessageType.Private, Client client = null, string iconStyle = "")
 			{
 
 				ChatMessage cm = ChatMessage.Create(sendername, text, messageType, sender, client);
+				cm.IconStyle = iconStyle;
 
 				GameMain.Server.SendDirectChatMessage(cm, client);
 

@@ -89,7 +89,7 @@ namespace Barotrauma
 			LuaScriptLoader luaScriptLoader = new LuaScriptLoader(this);
 
 			LuaCustomConverters.RegisterAll();
-
+			
 			UserData.RegisterType<TraitorMessageType>();
 			UserData.RegisterType<JobPrefab>();
 			UserData.RegisterType<CharacterInfo>();
@@ -122,6 +122,7 @@ namespace Barotrauma
 			UserData.RegisterType<AnimController>();
 			UserData.RegisterType<Limb>();
 			UserData.RegisterType<Ragdoll>();
+			UserData.RegisterType<ChatMessage>();
 
 			lua = new Script(CoreModules.Preset_SoftSandbox | CoreModules.LoadMethods);
 
