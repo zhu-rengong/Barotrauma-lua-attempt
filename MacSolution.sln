@@ -37,6 +37,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Facepunch.Steamworks.Posix", "Libraries\Facepunch.Steamworks\Facepunch.Steamworks.Posix.csproj", "{F10CE3BB-26B8-446E-84D2-86D25E850F61}"
 EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Libraries\GameAnalytics\GA-SDK-MONO-SHARED\GA-SDK-MONO-SHARED.projitems*{c54f0dfe-add3-4767-8cbc-101859218d66}*SharedItemsImports = 5
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
