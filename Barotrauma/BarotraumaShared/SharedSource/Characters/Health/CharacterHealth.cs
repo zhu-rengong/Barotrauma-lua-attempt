@@ -6,12 +6,13 @@ using System.Xml.Linq;
 using Barotrauma.Networking;
 using Barotrauma.Extensions;
 using System.Globalization;
+using MoonSharp.Interpreter;
 
 namespace Barotrauma
 {
     partial class CharacterHealth
     {
-        class LimbHealth
+        public class LimbHealth
         {
             public Sprite IndicatorSprite;
             public Sprite HighlightSprite;
@@ -408,19 +409,47 @@ namespace Barotrauma
             {
                 if (targetLimb == null)
                 {
+#if SERVER
+                    var should = GameMain.Lua.hook.Call("afflictionApplied", new DynValue[] { UserData.Create(this), UserData.Create(affliction) });
+
+                    if (should != null && should.CastToBool())
+                    {
+                        return;
+                    }
+#endif
+
                     //if a limb-specific affliction is applied to no specific limb, apply to all limbs
                     foreach (LimbHealth limbHealth in limbHealths)
                     {
                         AddLimbAffliction(limbHealth, affliction);
                     }
+
                 }
                 else
                 {
+#if SERVER
+                    var should = GameMain.Lua.hook.Call("afflictionApplied", new DynValue[] { UserData.Create(this), UserData.Create(affliction), UserData.Create(targetLimb) });
+
+                    if (should != null && should.CastToBool())
+                    {
+                        return;
+                    }
+#endif
+
                     AddLimbAffliction(targetLimb, affliction);
                 }
             }
             else
             {
+#if SERVER
+                var should = GameMain.Lua.hook.Call("afflictionApplied", new DynValue[] { UserData.Create(this), UserData.Create(affliction)});
+
+                if (should != null && should.CastToBool())
+                {
+                    return;
+                }
+#endif
+
                 AddAffliction(affliction);
             }
         }

@@ -123,6 +123,7 @@ namespace Barotrauma
 			UserData.RegisterType<Limb>();
 			UserData.RegisterType<Ragdoll>();
 			UserData.RegisterType<ChatMessage>();
+			UserData.RegisterType<CharacterHealth.LimbHealth>();
 
 			lua = new Script(CoreModules.Preset_SoftSandbox | CoreModules.LoadMethods);
 
