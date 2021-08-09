@@ -153,6 +153,7 @@ namespace Barotrauma
 			lua.Globals["TraitorMessageType"] = UserData.CreateStatic<TraitorMessageType>();
 			lua.Globals["CauseOfDeathType"] = UserData.CreateStatic<CauseOfDeathType>();
 			lua.Globals["AfflictionPrefab"] = UserData.CreateStatic<AfflictionPrefab>();
+			lua.Globals["CharacterTeamType"] = UserData.CreateStatic<CharacterTeamType>();
 
 			lua.Globals["Vector2"] = UserData.CreateStatic<Vector2>();
 			lua.Globals["Vector3"] = UserData.CreateStatic<Vector3>();
