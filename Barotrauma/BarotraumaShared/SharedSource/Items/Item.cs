@@ -11,6 +11,7 @@ using System.Linq;
 using System.Xml.Linq;
 using Barotrauma.Extensions;
 using Barotrauma.MapCreatures.Behavior;
+using MoonSharp.Interpreter;
 
 #if CLIENT
 using Microsoft.Xna.Framework.Graphics;
@@ -2258,6 +2259,15 @@ namespace Barotrauma
         {
             if (condition == 0.0f) { return; }
 
+#if SERVER
+            var should = GameMain.Lua.hook.Call("itemSecondaryUse", new DynValue[] { LuaSetup.CreateUserDataSafe(this), LuaSetup.CreateUserDataSafe(character)});
+
+            if (should != null && should.CastToBool())
+            {
+                return;
+            }
+#endif
+
             bool remove = false;
 
             foreach (ItemComponent ic in components)
@@ -2289,6 +2299,15 @@ namespace Barotrauma
 
         public void ApplyTreatment(Character user, Character character, Limb targetLimb)
         {
+#if SERVER
+            var should = GameMain.Lua.hook.Call("itemApplyTreatment", new DynValue[] { LuaSetup.CreateUserDataSafe(this), LuaSetup.CreateUserDataSafe(user), LuaSetup.CreateUserDataSafe(character), LuaSetup.CreateUserDataSafe(targetLimb) });
+
+            if (should != null && should.CastToBool())
+            {
+                return;
+            }
+#endif
+
             //can't apply treatment to dead characters
             if (character.IsDead) return;
             if (!UseInHealthInterface) return;
@@ -2345,6 +2364,15 @@ namespace Barotrauma
 
         public void Drop(Character dropper, bool createNetworkEvent = true)
         {
+#if SERVER
+            var should = GameMain.Lua.hook.Call("itemDrop", new DynValue[] { LuaSetup.CreateUserDataSafe(this), LuaSetup.CreateUserDataSafe(dropper)});
+
+            if (should != null && should.CastToBool())
+            {
+                return;
+            }
+#endif
+
             if (createNetworkEvent)
             {
                 if (parentInventory != null && !parentInventory.Owner.Removed && !Removed &&
@@ -2395,6 +2423,15 @@ namespace Barotrauma
 
         public void Equip(Character character)
         {
+#if SERVER
+            var should = GameMain.Lua.hook.Call("itemEquip", new DynValue[] { LuaSetup.CreateUserDataSafe(this), LuaSetup.CreateUserDataSafe(character)});
+
+            if (should != null && should.CastToBool())
+            {
+                return;
+            }
+#endif
+
             if (Removed)
             {
                 DebugConsole.ThrowError($"Tried to equip a removed item ({Name}).\n{Environment.StackTrace.CleanupStackTrace()}");
@@ -2406,6 +2443,15 @@ namespace Barotrauma
 
         public void Unequip(Character character)
         {
+#if SERVER
+            var should = GameMain.Lua.hook.Call("itemUnequip", new DynValue[] { LuaSetup.CreateUserDataSafe(this), LuaSetup.CreateUserDataSafe(character)});
+
+            if (should != null && should.CastToBool())
+            {
+                return;
+            }
+#endif
+
             foreach (ItemComponent ic in components) { ic.Unequip(character); }
         }
 

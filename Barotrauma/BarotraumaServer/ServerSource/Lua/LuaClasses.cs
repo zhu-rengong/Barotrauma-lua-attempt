@@ -231,6 +231,11 @@ namespace Barotrauma
 				return error;
 			}
 
+			public static void RemoveItem(Item item)
+			{
+				EntitySpawner.Spawner.AddToRemoveQueue(item);
+			}
+
 			public static Submarine GetRespawnSub()
 			{
 				return GameMain.Server.RespawnManager.RespawnShuttle;

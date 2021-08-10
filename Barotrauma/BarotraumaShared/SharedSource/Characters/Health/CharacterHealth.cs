@@ -410,7 +410,7 @@ namespace Barotrauma
                 if (targetLimb == null)
                 {
 #if SERVER
-                    var should = GameMain.Lua.hook.Call("afflictionApplied", new DynValue[] { UserData.Create(this), UserData.Create(affliction) });
+                    var should = GameMain.Lua.hook.Call("afflictionApplied", new DynValue[] { LuaSetup.CreateUserDataSafe(this), LuaSetup.CreateUserDataSafe(affliction) });
 
                     if (should != null && should.CastToBool())
                     {
@@ -525,6 +525,15 @@ namespace Barotrauma
                     "\" only has health configured for" + limbHealths.Count + " limbs but the limb " + hitLimb.type + " is targeting index " + hitLimb.HealthIndex);
                 return;
             }
+
+#if SERVER
+            var should = GameMain.Lua.hook.Call("afflictionApplied", new DynValue[] { LuaSetup.CreateUserDataSafe(this), LuaSetup.CreateUserDataSafe(attackResult), LuaSetup.CreateUserDataSafe(hitLimb) });
+
+            if (should != null && should.CastToBool())
+            {
+                return;
+            }
+#endif
 
             foreach (Affliction newAffliction in attackResult.Afflictions)
             {

@@ -82,6 +82,15 @@ namespace Barotrauma
 		}
 
 
+		public static DynValue CreateUserDataSafe(object o)
+		{
+			if(o == null)
+				return DynValue.Nil;
+
+			return UserData.Create(o);
+			
+		}
+
 		public LuaSetup()
 		{
 			PrintMessage("Lua!");
@@ -124,6 +133,10 @@ namespace Barotrauma
 			UserData.RegisterType<Ragdoll>();
 			UserData.RegisterType<ChatMessage>();
 			UserData.RegisterType<CharacterHealth.LimbHealth>();
+			UserData.RegisterType<InputType>();
+			UserData.RegisterType<AttackResult>();
+			UserData.RegisterType<Entity>();
+			UserData.RegisterType<MapEntity>();
 
 			lua = new Script(CoreModules.Preset_SoftSandbox | CoreModules.LoadMethods);
 
