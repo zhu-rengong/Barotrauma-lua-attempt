@@ -2226,7 +2226,6 @@ namespace Barotrauma
 
             if (condition == 0.0f) { return; }
 
-
 #if SERVER
             var should = GameMain.Lua.hook.Call("itemUse", new DynValue[] { LuaSetup.CreateUserDataSafe(this), LuaSetup.CreateUserDataSafe(character), LuaSetup.CreateUserDataSafe(targetLimb) });
 

@@ -238,6 +238,8 @@ namespace Barotrauma
 
 			public static Submarine GetRespawnSub()
 			{
+				if (GameMain.Server.RespawnManager == null)
+					return null;
 				return GameMain.Server.RespawnManager.RespawnShuttle;
 			}
 

@@ -137,6 +137,8 @@ namespace Barotrauma
 			UserData.RegisterType<AttackResult>();
 			UserData.RegisterType<Entity>();
 			UserData.RegisterType<MapEntity>();
+			UserData.RegisterType<CauseOfDeath>();
+			UserData.RegisterType<CharacterTeamType>();
 
 			lua = new Script(CoreModules.Preset_SoftSandbox | CoreModules.LoadMethods);
 

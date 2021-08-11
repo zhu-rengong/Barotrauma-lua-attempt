@@ -117,7 +117,7 @@ namespace Barotrauma.Networking
                 return;
             }
 
-            var should = GameMain.Lua.hook.Call("chatMessage", new DynValue[] { DynValue.NewString(txt), UserData.Create(c) });
+            var should = GameMain.Lua.hook.Call("chatMessage", new DynValue[] { DynValue.NewString(txt), UserData.Create(c), UserData.Create(type) });
 
 
             if(should != null)
