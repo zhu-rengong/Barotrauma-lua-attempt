@@ -5,6 +5,7 @@ using MoonSharp.Interpreter;
 using Microsoft.Xna.Framework;
 using Barotrauma.Networking;
 using System.Threading.Tasks;
+using Barotrauma.Items.Components;
 
 namespace Barotrauma
 {
@@ -125,16 +126,22 @@ namespace Barotrauma
 			public bool allowWifiChat = false;
 			public bool overrideTraitors = false;
 			public bool overrideRespawnSub = false;
-
+			public bool overrideSignalRadio = false;
+			public bool disableSpamFilter = false;
 
 			public LuaGame(LuaSetup e)
 			{
 				env = e;
 			}
 
-			public static void SendMessage(string msg, ChatMessageType messageType = ChatMessageType.Server, Client sender = null, Character character = null)
+			public static void SendMessage(string msg, ChatMessageType? messageType = null, Client sender = null, Character character = null)
 			{
 				GameMain.Server.SendChatMessage(msg, messageType, sender, character);
+			}
+
+			public static void SendMessage(string msg, int messageType, Client sender = null, Character character = null)
+			{
+				GameMain.Server.SendChatMessage(msg, (ChatMessageType)messageType, sender, character);
 			}
 
 			public static void SendTraitorMessage(Client client, string msg, string missionid, TraitorMessageType type)
@@ -152,6 +159,11 @@ namespace Barotrauma
 
 			}
 
+			public static void SendDirectChatMessage(ChatMessage chatMessage, Client client)
+			{
+				GameMain.Server.SendDirectChatMessage(chatMessage, client);
+			}
+
 			public void OverrideTraitors(bool o)
 			{
 				overrideTraitors = o;
@@ -165,6 +177,16 @@ namespace Barotrauma
 			public void AllowWifiChat(bool o)
 			{
 				allowWifiChat = o;
+			}
+
+			public void OverrideSignalRadio(bool o)
+			{
+				overrideSignalRadio = o;
+			}
+
+			public void DisableSpamFilter(bool o)
+			{
+				disableSpamFilter = o;
 			}
 
 			public static void Log(string message, ServerLog.MessageType type)
@@ -259,6 +281,16 @@ namespace Barotrauma
 				return null;
 			}
 
+			public static WifiComponent GetWifiComponent(Item item)
+			{
+				return item.GetComponent<WifiComponent>();
+			}
+
+			public static LightComponent GetLightComponent(Item item)
+			{
+				return item.GetComponent<LightComponent>();
+			}
+
 			public static void DispatchRespawnSub()
 			{
 				GameMain.Server.RespawnManager.DispatchShuttle();
@@ -278,6 +310,11 @@ namespace Barotrauma
 			public static void StartGame()
 			{
 				GameMain.Server.StartGame();
+			}
+
+			public static Signal CreateSignal(string value, int stepsTaken = 1, Character sender = null, Item source = null, float power = 0, float strength = 1)
+			{
+				return new Signal(value, stepsTaken, sender, source, power, strength);
 			}
 		}
 

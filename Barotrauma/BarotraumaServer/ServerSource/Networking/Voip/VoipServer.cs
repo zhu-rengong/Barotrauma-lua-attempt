@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using MoonSharp.Interpreter;
 
 namespace Barotrauma.Networking
 {
@@ -93,6 +94,11 @@ namespace Barotrauma.Networking
                 ChatMessage.CanUseRadio(sender.Character, out WifiComponent senderRadio) && 
                 ChatMessage.CanUseRadio(recipient.Character, out WifiComponent recipientRadio))
             {
+                var should = GameMain.Lua.hook.Call("canUseVoiceRadio", new DynValue[] { UserData.Create(sender), LuaSetup.CreateUserDataSafe(recipient) });
+
+                if (should != null)
+                    return should.CastToBool();
+
                 if (recipientRadio.CanReceive(senderRadio)) { return true; }
             }
 

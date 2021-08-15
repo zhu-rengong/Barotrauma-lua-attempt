@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
+using MoonSharp.Interpreter;
 
 namespace Barotrauma
 {
@@ -647,6 +648,13 @@ namespace Barotrauma
                 //if the water level is above the gap, oxygen doesn't circulate
                 if (Math.Max(hull1.WorldSurface + hull1.WaveY[hull1.WaveY.Length - 1], hull2.WorldSurface + hull2.WaveY[0]) > WorldRect.Y) { return; }
             }
+
+#if SERVER
+            var should = GameMain.Lua.hook.Call("gapOxygenUpdate", new DynValue[] { UserData.Create(this), UserData.Create(hull1), UserData.Create(hull2) });
+
+            if (should != null && should.CastToBool())
+                return;
+#endif
 
             float totalOxygen = hull1.Oxygen + hull2.Oxygen;
             float totalVolume = (hull1.Volume + hull2.Volume);

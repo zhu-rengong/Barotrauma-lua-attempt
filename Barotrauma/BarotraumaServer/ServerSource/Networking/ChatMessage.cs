@@ -88,7 +88,7 @@ namespace Barotrauma.Networking
 
             bool isOwner = GameMain.Server.OwnerConnection != null && c.Connection == GameMain.Server.OwnerConnection;
 
-            if (similarity + c.ChatSpamSpeed > 5.0f && !isOwner)
+            if (similarity + c.ChatSpamSpeed > 5.0f && !isOwner && !GameMain.Lua.game.disableSpamFilter)
             {
                 GameMain.Server.KarmaManager.OnSpamFilterTriggered(c);
 

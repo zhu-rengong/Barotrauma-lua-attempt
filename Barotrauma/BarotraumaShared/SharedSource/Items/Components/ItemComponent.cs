@@ -5,6 +5,8 @@ using System.Linq;
 using System.Reflection;
 using System.Xml.Linq;
 using Barotrauma.Extensions;
+using Barotrauma;
+using MoonSharp.Interpreter;
 #if CLIENT
 using Microsoft.Xna.Framework.Graphics;
 using Barotrauma.Sounds;
@@ -432,8 +434,18 @@ namespace Barotrauma.Items.Components
         //called then the item is dropped or dragged out of a "limbslot"
         public virtual void Unequip(Character character) { }
 
+
+        Dictionary<string, string> lastSignal = new Dictionary<string, string>();
         public virtual void ReceiveSignal(Signal signal, Connection connection)
         {
+#if SERVER
+            if (!lastSignal.ContainsValue(connection.Name) || lastSignal[connection.Name] != signal.value)
+            {
+                GameMain.Lua.hook.Call("signalReceived", new DynValue[] { UserData.Create(signal), UserData.Create(connection) });
+
+                lastSignal[connection.Name] = signal.value;
+            }
+#endif
             switch (connection.Name)
             {
                 case "activate":

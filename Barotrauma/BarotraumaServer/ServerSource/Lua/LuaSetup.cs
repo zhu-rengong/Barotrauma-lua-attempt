@@ -6,6 +6,7 @@ using Barotrauma.Networking;
 using MoonSharp.Interpreter;
 using Microsoft.Xna.Framework;
 using System.Threading.Tasks;
+using Barotrauma.Items.Components;
 
 namespace Barotrauma
 {
@@ -139,9 +140,18 @@ namespace Barotrauma
 			UserData.RegisterType<MapEntity>();
 			UserData.RegisterType<CauseOfDeath>();
 			UserData.RegisterType<CharacterTeamType>();
+			UserData.RegisterType<Signal>();
+			UserData.RegisterType<Connection>();
+			UserData.RegisterType<ItemComponent>();
+			UserData.RegisterType<WifiComponent>();
+			UserData.RegisterType<LightComponent>();
+			UserData.RegisterType<Inventory>();
+			UserData.RegisterType<CharacterInventory>();
+			UserData.RegisterType<Hull>();
+			UserData.RegisterType<Gap>();
 
 			lua = new Script(CoreModules.Preset_SoftSandbox | CoreModules.LoadMethods);
-
+			
 			lua.Options.DebugPrint = PrintMessage;
 
 			lua.Options.ScriptLoader = luaScriptLoader;
@@ -169,14 +179,14 @@ namespace Barotrauma
 			lua.Globals["TraitorMessageType"] = UserData.CreateStatic<TraitorMessageType>();
 			lua.Globals["CauseOfDeathType"] = UserData.CreateStatic<CauseOfDeathType>();
 			lua.Globals["AfflictionPrefab"] = UserData.CreateStatic<AfflictionPrefab>();
-			lua.Globals["CharacterTeamType"] = UserData.CreateStatic<CharacterTeamType>();
-
+			lua.Globals["CharacterTeamType"] = UserData.CreateStatic<CharacterTeamType>();		
 			lua.Globals["Vector2"] = UserData.CreateStatic<Vector2>();
 			lua.Globals["Vector3"] = UserData.CreateStatic<Vector3>();
 			lua.Globals["Vector4"] = UserData.CreateStatic<Vector3>();
 			lua.Globals["CreateVector2"] = (Func<float, float, Vector2>)CreateVector2;
 			lua.Globals["CreateVector3"] = (Func<float, float, float, Vector3>)CreateVector3;
 			lua.Globals["CreateVector4"] = (Func<float, float, float, float, Vector4>)CreateVector4;
+			lua.Globals["ChatMessage"] = UserData.CreateStatic<ChatMessage>();
 
 			foreach (string d in Directory.GetDirectories("Mods"))
 			{

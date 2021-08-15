@@ -47,7 +47,7 @@ namespace Barotrauma.Networking
             new Color(255, 128, 0)      //order
         };
 
-        public readonly string Text;
+        public string Text;
 
         private string translatedText;
         public string TranslatedText
@@ -74,8 +74,8 @@ namespace Barotrauma.Networking
         public PlayerConnectionChangeType ChangeType;
         public string IconStyle;
 
-        public readonly Character Sender;
-        public readonly Client SenderClient;
+        public Character Sender;
+        public Client SenderClient;
 
         public readonly string SenderName;
 

@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Xml.Linq;
+using MoonSharp.Interpreter;
 
 namespace Barotrauma.Networking
 {
@@ -3095,12 +3096,19 @@ namespace Barotrauma.Networking
                 senderName = null;
                 senderCharacter = null;
             }
-            else if (type == ChatMessageType.Radio)
+            else if (type == ChatMessageType.Radio && !GameMain.Lua.game.overrideSignalRadio)
             {
                 //send to chat-linked wifi components
                 Signal s = new Signal(message, sender: senderCharacter, source: senderRadio.Item);
                 senderRadio.TransmitSignal(s, sentFromChat: true);
             }
+
+            var hookChatMsg = ChatMessage.Create(senderName, message, (ChatMessageType)type, senderCharacter, senderClient, changeType);
+
+            var should = GameMain.Lua.hook.Call("modifyChatMessage", new DynValue[] { UserData.Create(hookChatMsg), LuaSetup.CreateUserDataSafe(senderRadio) });
+
+            if (should != null && should.CastToBool())
+                return;
 
             //check which clients can receive the message and apply distance effects
             foreach (Client client in ConnectedClients)
@@ -3134,6 +3142,7 @@ namespace Barotrauma.Networking
                         break;
                 }
 
+
                 var chatMsg = ChatMessage.Create(
                     senderName,
                     modifiedMessage,
@@ -3141,7 +3150,7 @@ namespace Barotrauma.Networking
                     senderCharacter,
                     senderClient, 
                     changeType);
-
+               
                 SendDirectChatMessage(chatMsg, client);
             }
 

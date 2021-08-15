@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Xml.Linq;
+using MoonSharp.Interpreter;
 
 namespace Barotrauma.Items.Components
 {
@@ -185,6 +186,13 @@ namespace Barotrauma.Items.Components
             var senderComponent = signal.source?.GetComponent<WifiComponent>();
             if (senderComponent != null && !CanReceive(senderComponent)) { return; }
 
+#if SERVER
+            var should = GameMain.Lua.hook.Call("wifiSignalTransmitted", new DynValue[] { UserData.Create(this), UserData.Create(signal), DynValue.NewBoolean(sentFromChat) });
+
+            if (should != null && should.CastToBool())
+                return;
+#endif
+
             bool chatMsgSent = false;
 
             var receivers = GetReceiversInRange();
@@ -243,6 +251,7 @@ namespace Barotrauma.Items.Components
                             Client recipientClient = GameMain.Server.ConnectedClients.Find(c => c.Character == wifiComp.item.ParentInventory.Owner);
                             if (recipientClient != null)
                             {
+                                
                                 GameMain.Server.SendDirectChatMessage(
                                     ChatMessage.Create(signal.source?.Name ?? "", chatMsg, ChatMessageType.Radio, null), recipientClient);
                             }
