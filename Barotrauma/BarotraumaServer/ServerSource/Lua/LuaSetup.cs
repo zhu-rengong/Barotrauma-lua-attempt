@@ -149,6 +149,9 @@ namespace Barotrauma
 			UserData.RegisterType<CharacterInventory>();
 			UserData.RegisterType<Hull>();
 			UserData.RegisterType<Gap>();
+			UserData.RegisterType<PhysicsBody>();
+			UserData.RegisterType<SubmarineBody>();
+			UserData.RegisterType<InvSlotType>();
 
 			lua = new Script(CoreModules.Preset_SoftSandbox | CoreModules.LoadMethods);
 			
@@ -187,6 +190,8 @@ namespace Barotrauma
 			lua.Globals["CreateVector3"] = (Func<float, float, float, Vector3>)CreateVector3;
 			lua.Globals["CreateVector4"] = (Func<float, float, float, float, Vector4>)CreateVector4;
 			lua.Globals["ChatMessage"] = UserData.CreateStatic<ChatMessage>();
+			lua.Globals["Hull"] = UserData.CreateStatic<Hull>();
+			lua.Globals["InvSlotType"] = UserData.CreateStatic<InvSlotType>();
 
 			foreach (string d in Directory.GetDirectories("Mods"))
 			{
