@@ -258,6 +258,29 @@ namespace Barotrauma
 				EntitySpawner.Spawner.AddToRemoveQueue(item);
 			}
 
+			public static ItemPrefab GetItemPrefab(string itemNameOrId)
+			{
+				ItemPrefab itemPrefab =
+				(MapEntityPrefab.Find(itemNameOrId, identifier: null, showErrorMessages: false) ??
+				MapEntityPrefab.Find(null, identifier: itemNameOrId, showErrorMessages: false)) as ItemPrefab;
+
+				return itemPrefab;
+			}
+
+			public void AddItemPrefabToSpawnQueue(ItemPrefab itemPrefab, Vector2 position, DynValue spawned = null)
+			{
+				EntitySpawner.Spawner.AddToSpawnQueue(itemPrefab, position, onSpawned: (Item item) => {
+					if (spawned?.Type == DataType.Function) env.lua.Call(spawned, UserData.Create(item));
+				});
+			}
+
+			public void AddItemPrefabToSpawnQueue(ItemPrefab itemPrefab, Inventory inventory, DynValue spawned = null)
+			{
+				EntitySpawner.Spawner.AddToSpawnQueue(itemPrefab, inventory, onSpawned: (Item item) => {
+					if (spawned?.Type == DataType.Function) env.lua.Call(spawned, UserData.Create(item));
+				});
+			}
+
 			public static Submarine GetRespawnSub()
 			{
 				if (GameMain.Server.RespawnManager == null)
@@ -316,6 +339,7 @@ namespace Barotrauma
 			{
 				return new Signal(value, stepsTaken, sender, source, power, strength);
 			}
+			
 		}
 
 

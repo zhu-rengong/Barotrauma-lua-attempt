@@ -152,6 +152,10 @@ namespace Barotrauma
 			UserData.RegisterType<PhysicsBody>();
 			UserData.RegisterType<SubmarineBody>();
 			UserData.RegisterType<InvSlotType>();
+			UserData.RegisterType<ItemPrefab>();
+			UserData.RegisterType<SerializableProperty>();
+			UserData.RegisterType<StatusEffect>();
+
 
 			lua = new Script(CoreModules.Preset_SoftSandbox | CoreModules.LoadMethods);
 			
