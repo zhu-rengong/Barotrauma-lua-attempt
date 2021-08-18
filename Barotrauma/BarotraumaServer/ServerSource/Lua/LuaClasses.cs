@@ -314,6 +314,11 @@ namespace Barotrauma
 				return item.GetComponent<LightComponent>();
 			}
 
+			public static CustomInterface GetCustomInterface(Item item)
+			{
+				return item.GetComponent<CustomInterface>();
+			}
+
 			public static void DispatchRespawnSub()
 			{
 				GameMain.Server.RespawnManager.DispatchShuttle();

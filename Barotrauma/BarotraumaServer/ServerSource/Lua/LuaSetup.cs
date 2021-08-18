@@ -145,6 +145,7 @@ namespace Barotrauma
 			UserData.RegisterType<ItemComponent>();
 			UserData.RegisterType<WifiComponent>();
 			UserData.RegisterType<LightComponent>();
+			UserData.RegisterType<CustomInterface>();
 			UserData.RegisterType<Inventory>();
 			UserData.RegisterType<CharacterInventory>();
 			UserData.RegisterType<Hull>();
@@ -155,7 +156,7 @@ namespace Barotrauma
 			UserData.RegisterType<ItemPrefab>();
 			UserData.RegisterType<SerializableProperty>();
 			UserData.RegisterType<StatusEffect>();
-
+			UserData.RegisterType<CustomInterface.CustomInterfaceElement>();
 
 			lua = new Script(CoreModules.Preset_SoftSandbox | CoreModules.LoadMethods);
 			
@@ -196,6 +197,7 @@ namespace Barotrauma
 			lua.Globals["ChatMessage"] = UserData.CreateStatic<ChatMessage>();
 			lua.Globals["Hull"] = UserData.CreateStatic<Hull>();
 			lua.Globals["InvSlotType"] = UserData.CreateStatic<InvSlotType>();
+			lua.Globals["Gap"] = UserData.CreateStatic<Gap>();
 
 			foreach (string d in Directory.GetDirectories("Mods"))
 			{

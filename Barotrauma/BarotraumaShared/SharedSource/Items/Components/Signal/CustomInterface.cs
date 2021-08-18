@@ -7,7 +7,7 @@ namespace Barotrauma.Items.Components
 {
     partial class CustomInterface : ItemComponent, IClientSerializable, IServerSerializable
     {
-        class CustomInterfaceElement : ISerializableEntity
+        public class CustomInterfaceElement : ISerializableEntity
         {
             public bool ContinuousSignal;
             public bool State;
@@ -130,7 +130,7 @@ namespace Barotrauma.Items.Components
 
         public override bool RecreateGUIOnResolutionChange => true;
 
-        private readonly List<CustomInterfaceElement> customInterfaceElementList = new List<CustomInterfaceElement>();
+        public readonly List<CustomInterfaceElement> customInterfaceElementList = new List<CustomInterfaceElement>();
         
         public CustomInterface(Item item, XElement element)
             : base(item, element)
