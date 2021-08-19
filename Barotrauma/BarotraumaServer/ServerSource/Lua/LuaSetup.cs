@@ -157,9 +157,10 @@ namespace Barotrauma
 			UserData.RegisterType<SerializableProperty>();
 			UserData.RegisterType<StatusEffect>();
 			UserData.RegisterType<CustomInterface.CustomInterfaceElement>();
+			UserData.RegisterType<FireSource>();
 
 			lua = new Script(CoreModules.Preset_SoftSandbox | CoreModules.LoadMethods);
-			
+
 			lua.Options.DebugPrint = PrintMessage;
 
 			lua.Options.ScriptLoader = luaScriptLoader;
