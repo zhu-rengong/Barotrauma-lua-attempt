@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Barotrauma.Networking;
 using System.Threading.Tasks;
 using Barotrauma.Items.Components;
+using System.IO;
 
 namespace Barotrauma
 {
@@ -395,6 +396,26 @@ namespace Barotrauma
 				return f;
 			}
 
+		}
+
+		private class LuaFile
+		{
+			// TODO: SANDBOXING
+
+			public static string Read(string path)
+			{
+				return File.ReadAllText(path);
+			}
+
+			public static void Write(string path, string text)
+			{
+				File.WriteAllText(path, text);
+			}
+
+			public static bool Exists(string path)
+			{
+				return File.Exists(path);
+			}
 		}
 
 		// hooks:

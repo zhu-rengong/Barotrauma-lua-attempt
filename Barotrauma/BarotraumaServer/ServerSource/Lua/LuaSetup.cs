@@ -7,6 +7,7 @@ using MoonSharp.Interpreter;
 using Microsoft.Xna.Framework;
 using System.Threading.Tasks;
 using Barotrauma.Items.Components;
+using System.Diagnostics;
 
 namespace Barotrauma
 {
@@ -92,6 +93,7 @@ namespace Barotrauma
 			
 		}
 
+
 		public LuaSetup()
 		{
 			PrintMessage("Lua!");
@@ -122,6 +124,7 @@ namespace Barotrauma
 			UserData.RegisterType<LuaGame>();
 			UserData.RegisterType<LuaRandom>();
 			UserData.RegisterType<LuaTimer>();
+			UserData.RegisterType<LuaFile>();
 			UserData.RegisterType<Vector2>();
 			UserData.RegisterType<Vector3>();
 			UserData.RegisterType<Vector4>();
@@ -174,6 +177,7 @@ namespace Barotrauma
 			lua.Globals["Hook"] = hook;
 			lua.Globals["Random"] = new LuaRandom();
 			lua.Globals["Timer"] = new LuaTimer(this);
+			lua.Globals["File"] = UserData.CreateStatic<LuaFile>();
 			lua.Globals["WayPoint"] = UserData.CreateStatic<WayPoint>();
 			lua.Globals["SpawnType"] = UserData.CreateStatic<SpawnType>();
 			lua.Globals["ChatMessageType"] = UserData.CreateStatic<ChatMessageType>();
