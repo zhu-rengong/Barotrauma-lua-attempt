@@ -7,6 +7,7 @@ using Barotrauma.Networking;
 using System.Threading.Tasks;
 using Barotrauma.Items.Components;
 using System.IO;
+using System.Net;
 
 namespace Barotrauma
 {
@@ -415,6 +416,51 @@ namespace Barotrauma
 			public static bool Exists(string path)
 			{
 				return File.Exists(path);
+			}
+		}
+
+		private class LuaNetworking
+		{
+			public LuaSetup env;
+
+			public LuaNetworking(LuaSetup e)
+			{
+				env = e;
+			}
+
+			public string RequestPostHTTP(string url, string data, string contentType = "application/json")
+			{
+				try
+				{
+					var httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
+					httpWebRequest.ContentType = contentType;
+					httpWebRequest.Method = "POST";
+
+					using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+						streamWriter.Write(data);
+
+					var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+					using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+						return streamReader.ReadToEnd();
+				}catch(Exception e)
+				{
+					return e.ToString();
+				}
+			}
+
+			public string RequestGetHTTP(string url)
+			{
+				try
+				{
+					var httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
+
+					var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+					using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+						return streamReader.ReadToEnd();
+				}catch(Exception e)
+				{
+					return e.ToString();
+				}
 			}
 		}
 

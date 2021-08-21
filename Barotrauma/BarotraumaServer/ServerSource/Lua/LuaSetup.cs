@@ -125,6 +125,7 @@ namespace Barotrauma
 			UserData.RegisterType<LuaRandom>();
 			UserData.RegisterType<LuaTimer>();
 			UserData.RegisterType<LuaFile>();
+			UserData.RegisterType<LuaNetworking>();
 			UserData.RegisterType<Vector2>();
 			UserData.RegisterType<Vector3>();
 			UserData.RegisterType<Vector4>();
@@ -161,7 +162,8 @@ namespace Barotrauma
 			UserData.RegisterType<StatusEffect>();
 			UserData.RegisterType<CustomInterface.CustomInterfaceElement>();
 			UserData.RegisterType<FireSource>();
-
+		
+			
 			lua = new Script(CoreModules.Preset_SoftSandbox | CoreModules.LoadMethods);
 
 			lua.Options.DebugPrint = PrintMessage;
@@ -178,6 +180,7 @@ namespace Barotrauma
 			lua.Globals["Random"] = new LuaRandom();
 			lua.Globals["Timer"] = new LuaTimer(this);
 			lua.Globals["File"] = UserData.CreateStatic<LuaFile>();
+			lua.Globals["Networking"] = new LuaNetworking(this);
 			lua.Globals["WayPoint"] = UserData.CreateStatic<WayPoint>();
 			lua.Globals["SpawnType"] = UserData.CreateStatic<SpawnType>();
 			lua.Globals["ChatMessageType"] = UserData.CreateStatic<ChatMessageType>();
