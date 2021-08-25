@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Xml.Linq;
+using MoonSharp.Interpreter;
 
 namespace Barotrauma.Items.Components
 {
@@ -17,14 +18,12 @@ namespace Barotrauma.Items.Components
         private float range;
 
         private int channel;
-        
+
         private float chatMsgCooldown;
 
         private string prevSignal;
 
-        private readonly int[] channelMemory = new int[ChannelMemorySize];
-
-        private Connection signalOutConnection;
+        private int[] channelMemory = new int[ChannelMemorySize];
 
         [Serialize(CharacterTeamType.None, true, description: "WiFi components can only communicate with components that have the same Team ID.", alwaysUseInstanceValues: true)]
         public CharacterTeamType TeamID { get; set; }
@@ -65,9 +64,36 @@ namespace Barotrauma.Items.Components
             "as chat messages in the chatbox of the player holding the item.", alwaysUseInstanceValues: true)]
         public bool LinkToChat
         {
-            get;
-            set;
+            get
+            {
+#if SERVER
+                return GameMain.Lua.game.allowWifiChat;
+#endif
+#if CLIENT
+                return true;
+#endif
+            }
+            set
+            {
+
+            }
         }
+
+        //		[Editable, Serialize(false, false, description: "If enabled, any signals received from another chat-linked wifi component are displayed " +
+        //            "as chat messages in the chatbox of the player holding the item.", alwaysUseInstanceValues: true)]
+        //        public bool LinkToChat
+        //        {
+        //            get
+        //            {
+        //#if SERVER
+        //				return GameMain.Lua.game.allowWifiChat;
+        //#endif
+        //#if CLIENT
+        //                return true;
+        //#endif
+        //            }
+        //            set { }
+        //        }
 
         [Editable, Serialize(1.0f, true, description: "How many seconds have to pass between signals for a message to be displayed in the chatbox. " +
             "Setting this to a very low value is not recommended, because it may cause an excessive amount of chat messages to be created " +
@@ -86,7 +112,7 @@ namespace Barotrauma.Items.Components
         }
 
         public WifiComponent(Item item, XElement element)
-            : base (item, element)
+            : base(item, element)
         {
             list.Add(this);
             IsActive = true;
@@ -95,10 +121,6 @@ namespace Barotrauma.Items.Components
 
         public override void OnItemLoaded()
         {
-            if (item.Connections != null)
-            {
-                signalOutConnection = item.Connections.Find(c => c.Name == "signal_out");
-            }
             if (channelMemory.All(m => m == 0))
             {
                 for (int i = 0; i < channelMemory.Length; i++)
@@ -112,7 +134,7 @@ namespace Barotrauma.Items.Components
         {
             return HasRequiredContainedItems(user: null, addMessage: false);
         }
-        
+
         public IEnumerable<WifiComponent> GetReceiversInRange()
         {
             return list.Where(w => w != this && w.CanReceive(this));
@@ -125,7 +147,7 @@ namespace Barotrauma.Items.Components
             if (sender.TeamID != TeamID && !AllowCrossTeamCommunication)
             {
                 return false;
-            }            
+            }
 
             if (Vector2.DistanceSquared(item.WorldPosition, sender.item.WorldPosition) > sender.range * sender.range) { return false; }
 
@@ -161,12 +183,15 @@ namespace Barotrauma.Items.Components
 
         public void TransmitSignal(Signal signal, bool sentFromChat)
         {
-            if (sentFromChat)
-            {
-                item.LastSentSignalRecipients.Clear();
-            }
             var senderComponent = signal.source?.GetComponent<WifiComponent>();
             if (senderComponent != null && !CanReceive(senderComponent)) { return; }
+
+#if SERVER
+            var should = GameMain.Lua.hook.Call("wifiSignalTransmitted", new DynValue[] { UserData.Create(this), UserData.Create(signal), DynValue.NewBoolean(sentFromChat) });
+
+            if (should != null && should.CastToBool())
+                return;
+#endif
 
             bool chatMsgSent = false;
 
@@ -178,13 +203,12 @@ namespace Barotrauma.Items.Components
                 //signal strength diminishes by distance
                 float sentSignalStrength = signal.strength *
                     MathHelper.Clamp(1.0f - (Vector2.Distance(item.WorldPosition, wifiComp.item.WorldPosition) / wifiComp.range), 0.0f, 1.0f);
-                Signal s = new Signal(signal.value, ++signal.stepsTaken, sender: signal.sender, source: signal.source,
-                                      power: 0.0f, strength: sentSignalStrength);
 
-                if (wifiComp.signalOutConnection != null)
-                {
-                    wifiComp.item.SendSignal(s, wifiComp.signalOutConnection);
-                }
+                //Signal s = new Signal(signal.value, signal.stepsTaken, sender: signal.sender, source: signal.source, power: 0.0f, strength: sentSignalStrength);
+
+                signal.source = null;
+
+                wifiComp.item.SendSignal(signal, "signal_out");
 
                 if (signal.source != null)
                 {
@@ -227,6 +251,7 @@ namespace Barotrauma.Items.Components
                             Client recipientClient = GameMain.Server.ConnectedClients.Find(c => c.Character == wifiComp.item.ParentInventory.Owner);
                             if (recipientClient != null)
                             {
+                                
                                 GameMain.Server.SendDirectChatMessage(
                                     ChatMessage.Create(signal.source?.Name ?? "", chatMsg, ChatMessageType.Radio, null), recipientClient);
                             }
@@ -236,15 +261,15 @@ namespace Barotrauma.Items.Components
                     }
                 }
             }
-            if (chatMsgSent) 
-            { 
+            if (chatMsgSent)
+            {
                 chatMsgCooldown = MinChatMessageInterval;
                 IsActive = true;
             }
 
             prevSignal = signal.value;
         }
-                
+
         public override void ReceiveSignal(Signal signal, Connection connection)
         {
             if (connection == null) { return; }
