@@ -3808,10 +3808,6 @@ namespace Barotrauma
                 GameMain.GameSession.KillCharacter(this);
             }
 
-
-#if SERVER
-            GameMain.Lua.hook.Call("characterDeath", new object[] { this });
-#endif
         }
         partial void KillProjSpecific(CauseOfDeathType causeOfDeath, Affliction causeOfDeathAffliction, bool log);
 
