@@ -310,7 +310,7 @@ namespace Barotrauma.Networking
                 SendConsoleMessage("Granted all permissions to " + newClient.Name + ".", newClient);
             }
 
-            GameMain.Lua.hook.Call("clientConnected", new MoonSharp.Interpreter.DynValue[] { MoonSharp.Interpreter.UserData.Create(newClient) });
+            GameMain.Lua.hook.Call("clientConnected", new object[] { newClient });
             
 
             SendChatMessage($"ServerMessage.JoinedServer~[client]={clName}", ChatMessageType.Server, null, changeType: PlayerConnectionChangeType.Joined);
@@ -2439,7 +2439,7 @@ namespace Barotrauma.Networking
 
             roundStartTime = DateTime.Now;
 
-            GameMain.Lua.hook.Call("roundStart", new MoonSharp.Interpreter.DynValue[] { });
+            GameMain.Lua.hook.Call("roundStart", new object[] { });
 
 
             yield return CoroutineStatus.Success;
@@ -2561,7 +2561,7 @@ namespace Barotrauma.Networking
                 Log("Ending the round...", ServerLog.MessageType.ServerMessage);
             }
 
-            GameMain.Lua.hook.Call("roundEnd", new MoonSharp.Interpreter.DynValue[] { });
+            GameMain.Lua.hook.Call("roundEnd", new object[] { });
 
 
             string endMessage = TextManager.FormatServerMessage("RoundSummaryRoundHasEnded");
@@ -2857,7 +2857,7 @@ namespace Barotrauma.Networking
         {
             if (client == null) return;
 
-            GameMain.Lua.hook.Call("clientDisconnected", new MoonSharp.Interpreter.DynValue[] { MoonSharp.Interpreter.UserData.Create(client) });
+            GameMain.Lua.hook.Call("clientDisconnected", new object[] { client });
 
             if (gameStarted && client.Character != null)
             {
@@ -3107,10 +3107,18 @@ namespace Barotrauma.Networking
 
             var hookChatMsg = ChatMessage.Create(senderName, message, (ChatMessageType)type, senderCharacter, senderClient, changeType);
 
-            var should = GameMain.Lua.hook.Call("modifyChatMessage", new DynValue[] { UserData.Create(hookChatMsg), LuaSetup.CreateUserDataSafe(senderRadio) });
+            var should = GameMain.Lua.hook.Call("modifyChatMessage", new object[] { hookChatMsg, senderRadio });
 
-            if (should != null && should.CastToBool())
-                return;
+            if (should != null)
+            {
+                if (should is DynValue dyn)
+                {
+                    if (dyn.CastToBool())
+                    {
+                        return;
+                    }
+                }
+            }
 
             //check which clients can receive the message and apply distance effects
             foreach (Client client in ConnectedClients)

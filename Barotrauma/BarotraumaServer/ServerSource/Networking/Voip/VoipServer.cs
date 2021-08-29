@@ -94,10 +94,15 @@ namespace Barotrauma.Networking
                 ChatMessage.CanUseRadio(sender.Character, out WifiComponent senderRadio) && 
                 ChatMessage.CanUseRadio(recipient.Character, out WifiComponent recipientRadio))
             {
-                var should = GameMain.Lua.hook.Call("canUseVoiceRadio", new DynValue[] { UserData.Create(sender), LuaSetup.CreateUserDataSafe(recipient) });
+                var should = GameMain.Lua.hook.Call("canUseVoiceRadio", new object[] { sender, recipient });
 
                 if (should != null)
-                    return should.CastToBool();
+                {
+                    if (should is DynValue dyn)
+                    {
+                        return dyn.CastToBool();
+                    }
+                }
 
                 if (recipientRadio.CanReceive(senderRadio)) { return true; }
             }

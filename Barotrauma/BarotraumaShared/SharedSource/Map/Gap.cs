@@ -651,10 +651,18 @@ namespace Barotrauma
             }
 
 #if SERVER
-            var should = GameMain.Lua.hook.Call("gapOxygenUpdate", new DynValue[] { UserData.Create(this), UserData.Create(hull1), UserData.Create(hull2) });
+            var should = GameMain.Lua.hook.Call("gapOxygenUpdate", new object[] { this, hull1, hull2 });
 
-            if (should != null && should.CastToBool())
-                return;
+            if (should != null)
+            {
+                if (should is DynValue dyn)
+                {
+                    if (dyn.CastToBool())
+                    {
+                        return;
+                    }
+                }
+            }
 #endif
 
             float totalOxygen = hull1.Oxygen + hull2.Oxygen;

@@ -3810,7 +3810,7 @@ namespace Barotrauma
 
 
 #if SERVER
-            GameMain.Lua.hook.Call("characterDeath", new MoonSharp.Interpreter.DynValue[] { MoonSharp.Interpreter.UserData.Create(this) });
+            GameMain.Lua.hook.Call("characterDeath", new object[] { this });
 #endif
         }
         partial void KillProjSpecific(CauseOfDeathType causeOfDeath, Affliction causeOfDeathAffliction, bool log);

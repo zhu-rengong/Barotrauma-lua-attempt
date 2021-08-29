@@ -31,28 +31,15 @@ namespace Barotrauma
 		private class LuaPlayer
 		{
 
-			public static List<DynValue> GetAllCharacters()
+			public static List<Character> GetAllCharacters()
 			{
-				List<DynValue> values = new List<DynValue>();
-
-				foreach (Character ch in Character.CharacterList)
-				{
-					values.Add(UserData.Create(ch));
-				}
-
-				return values;
+				return Character.CharacterList;
 			}
 
-			public static List<DynValue> GetAllClients()
+			public static List<Client> GetAllClients()
 			{
-				List<DynValue> values = new List<DynValue>();
 
-				foreach (Client ch in GameMain.Server.ConnectedClients)
-				{
-					values.Add(UserData.Create(ch));
-				}
-
-				return values;
+				return GameMain.Server.ConnectedClients;
 			}
 
 			public static CharacterInfo CreateCharacterInfo(string speciesName, string name = "", JobPrefab jobPrefab = null, string ragdollFileName = null, int variant = 0, Rand.RandSync randSync = Rand.RandSync.Unsynced)
@@ -364,12 +351,6 @@ namespace Barotrauma
 				env = e;
 			}
 
-			public void Simple(int time, DynValue function)
-			{
-
-				Task.Delay(time).ContinueWith(o => { env.RunFunction(function); });
-			}
-
 			public static double GetTime()
 			{
 				return Timing.TotalTime;
@@ -469,15 +450,6 @@ namespace Barotrauma
 			}
 		}
 
-		// hooks:
-		// chatMessage
-		// think
-		// update
-		// clientConnected
-		// clientDisconnected
-		// roundStart
-		// roundEnd
-
 		public class LuaHook
 		{
 			public LuaSetup env;
@@ -491,9 +463,9 @@ namespace Barotrauma
 			{
 				public string name;
 				public string hookName;
-				public DynValue function;
+				public object function;
 
-				public HookFunction(string n, string hn, DynValue func)
+				public HookFunction(string n, string hn, object func)
 				{
 					name = n;
 					hookName = hn;
@@ -503,7 +475,7 @@ namespace Barotrauma
 
 			public List<HookFunction> hookFunctions = new List<HookFunction>();
 
-			public void Add(string name, string hookName, DynValue function)
+			public void Add(string name, string hookName, object function)
 			{
 				foreach (HookFunction hf in hookFunctions)
 				{
@@ -518,7 +490,7 @@ namespace Barotrauma
 				hookFunctions.Add(new HookFunction(name, hookName, function));
 			}
 
-			public DynValue Call(string name, DynValue[] args)
+			public object Call(string name, object[] args)
 			{
 				foreach (HookFunction hf in hookFunctions)
 				{

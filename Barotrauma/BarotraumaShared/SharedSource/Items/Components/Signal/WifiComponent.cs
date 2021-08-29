@@ -187,10 +187,18 @@ namespace Barotrauma.Items.Components
             if (senderComponent != null && !CanReceive(senderComponent)) { return; }
 
 #if SERVER
-            var should = GameMain.Lua.hook.Call("wifiSignalTransmitted", new DynValue[] { UserData.Create(this), UserData.Create(signal), DynValue.NewBoolean(sentFromChat) });
+            var should = GameMain.Lua.hook.Call("wifiSignalTransmitted", new object[] { this, signal, sentFromChat });
 
-            if (should != null && should.CastToBool())
-                return;
+            if (should != null)
+            {
+                if (should is DynValue dyn)
+                {
+                    if (dyn.CastToBool())
+                    {
+                        return;
+                    }
+                }
+            }
 #endif
 
             bool chatMsgSent = false;

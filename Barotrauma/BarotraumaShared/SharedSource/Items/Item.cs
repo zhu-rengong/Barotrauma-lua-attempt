@@ -2226,11 +2226,17 @@ namespace Barotrauma
             if (condition == 0.0f) { return; }
 
 #if SERVER
-            var should = GameMain.Lua.hook.Call("itemUse", new DynValue[] { LuaSetup.CreateUserDataSafe(this), LuaSetup.CreateUserDataSafe(character), LuaSetup.CreateUserDataSafe(targetLimb) });
+            var should = GameMain.Lua.hook.Call("itemUse", new object[] { this, character, targetLimb });
 
-            if (should != null && should.CastToBool())
+            if (should != null)
             {
-                return;
+                if (should is DynValue dyn)
+                {
+                    if (dyn.CastToBool())
+                    {
+                        return;
+                    }
+                }
             }
 #endif
 
@@ -2268,11 +2274,17 @@ namespace Barotrauma
             if (condition == 0.0f) { return; }
 
 #if SERVER
-            var should = GameMain.Lua.hook.Call("itemSecondaryUse", new DynValue[] { LuaSetup.CreateUserDataSafe(this), LuaSetup.CreateUserDataSafe(character)});
+            var should = GameMain.Lua.hook.Call("itemSecondaryUse", new object[] { this, character});
 
-            if (should != null && should.CastToBool())
+            if (should != null)
             {
-                return;
+                if (should is DynValue dyn)
+                {
+                    if (dyn.CastToBool())
+                    {
+                        return;
+                    }
+                }
             }
 #endif
 
@@ -2308,11 +2320,17 @@ namespace Barotrauma
         public void ApplyTreatment(Character user, Character character, Limb targetLimb)
         {
 #if SERVER
-            var should = GameMain.Lua.hook.Call("itemApplyTreatment", new DynValue[] { LuaSetup.CreateUserDataSafe(this), LuaSetup.CreateUserDataSafe(user), LuaSetup.CreateUserDataSafe(character), LuaSetup.CreateUserDataSafe(targetLimb) });
+            var should = GameMain.Lua.hook.Call("itemApplyTreatment", new object[] { this, user, character, targetLimb });
 
-            if (should != null && should.CastToBool())
+            if (should != null)
             {
-                return;
+                if (should is DynValue dyn)
+                {
+                    if (dyn.CastToBool())
+                    {
+                        return;
+                    }
+                }
             }
 #endif
 
@@ -2373,11 +2391,17 @@ namespace Barotrauma
         public void Drop(Character dropper, bool createNetworkEvent = true)
         {
 #if SERVER
-            var should = GameMain.Lua.hook.Call("itemDrop", new DynValue[] { LuaSetup.CreateUserDataSafe(this), LuaSetup.CreateUserDataSafe(dropper)});
+            var should = GameMain.Lua.hook.Call("itemDrop", new object[] { this, dropper});
 
-            if (should != null && should.CastToBool())
+            if (should != null)
             {
-                return;
+                if (should is DynValue dyn)
+                {
+                    if (dyn.CastToBool())
+                    {
+                        return;
+                    }
+                }
             }
 #endif
 
@@ -2432,11 +2456,17 @@ namespace Barotrauma
         public void Equip(Character character)
         {
 #if SERVER
-            var should = GameMain.Lua.hook.Call("itemEquip", new DynValue[] { LuaSetup.CreateUserDataSafe(this), LuaSetup.CreateUserDataSafe(character)});
+            var should = GameMain.Lua.hook.Call("itemEquip", new object[] { this, character});
 
-            if (should != null && should.CastToBool())
+            if (should != null)
             {
-                return;
+                if (should is DynValue dyn)
+                {
+                    if (dyn.CastToBool())
+                    {
+                        return;
+                    }
+                }
             }
 #endif
 
@@ -2452,11 +2482,17 @@ namespace Barotrauma
         public void Unequip(Character character)
         {
 #if SERVER
-            var should = GameMain.Lua.hook.Call("itemUnequip", new DynValue[] { LuaSetup.CreateUserDataSafe(this), LuaSetup.CreateUserDataSafe(character)});
+            var should = GameMain.Lua.hook.Call("itemUnequip", new object[] { this, character });
 
-            if (should != null && should.CastToBool())
+            if (should != null)
             {
-                return;
+                if (should is DynValue dyn)
+                {
+                    if (dyn.CastToBool())
+                    {
+                        return;
+                    }
+                }
             }
 #endif
 

@@ -73,7 +73,7 @@ namespace Barotrauma
 			CrewManager?.Update(deltaTime);
 
 #if SERVER
-			GameMain.Lua.hook.Call("update", new DynValue[] { DynValue.NewNumber(deltaTime) });
+			GameMain.Lua.hook.Call("update", new object[] { deltaTime });
 #endif
 		}
 

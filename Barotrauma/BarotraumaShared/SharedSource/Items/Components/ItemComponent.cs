@@ -441,7 +441,7 @@ namespace Barotrauma.Items.Components
 #if SERVER
             if (!lastSignal.ContainsValue(connection.Name) || lastSignal[connection.Name] != signal.value)
             {
-                GameMain.Lua.hook.Call("signalReceived", new DynValue[] { UserData.Create(signal), UserData.Create(connection) });
+                GameMain.Lua.hook.Call("signalReceived", new object[] { signal, connection });
 
                 lastSignal[connection.Name] = signal.value;
             }

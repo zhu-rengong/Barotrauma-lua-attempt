@@ -117,19 +117,18 @@ namespace Barotrauma.Networking
                 return;
             }
 
-            var should = GameMain.Lua.hook.Call("chatMessage", new DynValue[] { DynValue.NewString(txt), UserData.Create(c), UserData.Create(type) });
+            var should = GameMain.Lua.hook.Call("chatMessage", new object[] { txt, c, type });
 
 
             if(should != null)
 			{
-				if (should.CastToBool())
-				{
-                    return;
-				}
-				else
-				{
-
-				}
+                if (should is DynValue dyn)
+                {
+                    if (dyn.CastToBool())
+                    {
+                        return;
+                    }
+                }
 			}
 
             if (type == ChatMessageType.Order)

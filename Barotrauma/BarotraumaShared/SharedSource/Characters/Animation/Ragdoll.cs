@@ -714,11 +714,14 @@ namespace Barotrauma
 
 #if SERVER
 
-                        var should = GameMain.Lua.hook.Call("changeFallDamage", new DynValue[] { DynValue.NewNumber(impactDamage), LuaSetup.CreateUserDataSafe(character), LuaSetup.CreateUserDataSafe(impactPos), LuaSetup.CreateUserDataSafe(velocity) });
+                        var should = GameMain.Lua.hook.Call("changeFallDamage", new object[] { impactDamage, character, impactPos, velocity });
 
                         if (should != null)
                         {
-                            impactDamage = (float)should.CastToNumber();
+                            if (should is DynValue dyn)
+                            {
+                                impactDamage = (float)dyn.CastToNumber();
+                            }
                         }
 #endif
 

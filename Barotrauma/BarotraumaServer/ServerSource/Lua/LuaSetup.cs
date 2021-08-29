@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework;
 using System.Threading.Tasks;
 using Barotrauma.Items.Components;
 using System.Diagnostics;
+using NLua;
 
 namespace Barotrauma
 {
@@ -49,19 +50,6 @@ namespace Barotrauma
 			try
 			{
 				lua.DoString(code);
-			}
-			catch (Exception e)
-			{
-				HandleLuaException(e);
-			}
-		}
-
-
-		public void RunFunction(DynValue func)
-		{
-			try
-			{
-				lua.Call(func);
 			}
 			catch (Exception e)
 			{

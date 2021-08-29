@@ -410,11 +410,17 @@ namespace Barotrauma
                 if (targetLimb == null)
                 {
 #if SERVER
-                    var should = GameMain.Lua.hook.Call("afflictionApplied", new DynValue[] { LuaSetup.CreateUserDataSafe(this), LuaSetup.CreateUserDataSafe(affliction) });
+                    var should = GameMain.Lua.hook.Call("afflictionApplied", new object[] { this, affliction });
 
-                    if (should != null && should.CastToBool())
+                    if (should != null)
                     {
-                        return;
+                        if (should is DynValue dyn)
+                        {
+                            if (dyn.CastToBool())
+                            {
+                                return;
+                            }
+                        }
                     }
 #endif
 
@@ -428,11 +434,17 @@ namespace Barotrauma
                 else
                 {
 #if SERVER
-                    var should = GameMain.Lua.hook.Call("afflictionApplied", new DynValue[] { UserData.Create(this), UserData.Create(affliction), UserData.Create(targetLimb) });
+                    var should = GameMain.Lua.hook.Call("afflictionApplied", new object[] { this, affliction, targetLimb });
 
-                    if (should != null && should.CastToBool())
+                    if (should != null)
                     {
-                        return;
+                        if (should is DynValue dyn)
+                        {
+                            if (dyn.CastToBool())
+                            {
+                                return;
+                            }
+                        }
                     }
 #endif
 
@@ -442,11 +454,17 @@ namespace Barotrauma
             else
             {
 #if SERVER
-                var should = GameMain.Lua.hook.Call("afflictionApplied", new DynValue[] { UserData.Create(this), UserData.Create(affliction)});
+                var should = GameMain.Lua.hook.Call("afflictionApplied", new object[] { this, affliction });
 
-                if (should != null && should.CastToBool())
+                if (should != null)
                 {
-                    return;
+                    if (should is DynValue dyn)
+                    {
+                        if (dyn.CastToBool())
+                        {
+                            return;
+                        }
+                    }
                 }
 #endif
 
@@ -527,11 +545,17 @@ namespace Barotrauma
             }
 
 #if SERVER
-            var should = GameMain.Lua.hook.Call("afflictionApplied", new DynValue[] { LuaSetup.CreateUserDataSafe(this), LuaSetup.CreateUserDataSafe(attackResult), LuaSetup.CreateUserDataSafe(hitLimb) });
+            var should = GameMain.Lua.hook.Call("afflictionApplied", new object[] { this, attackResult, hitLimb });
 
-            if (should != null && should.CastToBool())
+            if (should != null)
             {
-                return;
+                if (should is DynValue dyn)
+                {
+                    if (dyn.CastToBool())
+                    {
+                        return;
+                    }
+                }
             }
 #endif
 
