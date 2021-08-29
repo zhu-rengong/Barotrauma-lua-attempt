@@ -107,8 +107,19 @@ namespace Barotrauma.Networking
                 if (recipientRadio.CanReceive(senderRadio)) { return true; }
             }
 
+            var should2 = GameMain.Lua.hook.Call("changeLocalVoiceRange", new object[] { sender, recipient });
+            float range = 1.0f;
+
+            if (should2 != null)
+            {
+                if (should2 is DynValue dyn)
+                {
+                    range = (float)dyn.CastToNumber();
+                }
+            }
+
             //otherwise do a distance check
-            return ChatMessage.GetGarbleAmount(recipient.Character, sender.Character, ChatMessage.SpeakRange) < 1.0f;
+            return ChatMessage.GetGarbleAmount(recipient.Character, sender.Character, ChatMessage.SpeakRange) < range;
         }
     }
 }
