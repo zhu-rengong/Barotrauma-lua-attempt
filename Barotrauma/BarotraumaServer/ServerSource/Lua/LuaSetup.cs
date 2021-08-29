@@ -142,6 +142,7 @@ namespace Barotrauma
 			UserData.RegisterType<AttackResult>();
 			UserData.RegisterType<Entity>();
 			UserData.RegisterType<MapEntity>();
+			UserData.RegisterType<MapEntityPrefab>();
 			UserData.RegisterType<CauseOfDeath>();
 			UserData.RegisterType<CharacterTeamType>();
 			UserData.RegisterType<Signal>();
@@ -162,8 +163,9 @@ namespace Barotrauma
 			UserData.RegisterType<StatusEffect>();
 			UserData.RegisterType<CustomInterface.CustomInterfaceElement>();
 			UserData.RegisterType<FireSource>();
-		
-			
+			UserData.RegisterType<Fabricator>();
+
+
 			lua = new Script(CoreModules.Preset_SoftSandbox | CoreModules.LoadMethods);
 
 			lua.Options.DebugPrint = PrintMessage;

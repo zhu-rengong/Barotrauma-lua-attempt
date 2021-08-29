@@ -321,6 +321,11 @@ namespace Barotrauma
 				return item.GetComponent<CustomInterface>();
 			}
 
+			public static Fabricator GetFabricatorComponent(Item item)
+			{
+				return item.GetComponent<Fabricator>();
+			}
+
 			public static void DispatchRespawnSub()
 			{
 				GameMain.Server.RespawnManager.DispatchShuttle();
