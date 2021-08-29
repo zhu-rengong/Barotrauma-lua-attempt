@@ -27,7 +27,7 @@ namespace Barotrauma
                     GameServer.Log(GameServer.CharacterLogName(this) + " has died (Cause of death: " + causeOfDeath + ")", ServerLog.MessageType.Attack);
                 }
             }
-            GameMain.Lua.hook.Call("characterDeath", new MoonSharp.Interpreter.DynValue[] { MoonSharp.Interpreter.UserData.Create(this),MoonSharp.Interpreter.UserData.Create(causeOfDeath.Killer),MoonSharp.Interpreter.UserData.Create(causeOfDeathAffliction) });
+            GameMain.Lua.hook.Call("characterDeath", new object[] { this,causeOfDeathAffliction });
             healthUpdateTimer = 0.0f;
 
             if (CauseOfDeath.Killer != null && CauseOfDeath.Killer.IsTraitor && CauseOfDeath.Killer != this)
