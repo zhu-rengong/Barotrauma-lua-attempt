@@ -8,7 +8,6 @@ using Microsoft.Xna.Framework;
 using System.Threading.Tasks;
 using Barotrauma.Items.Components;
 using System.Diagnostics;
-using NLua;
 
 namespace Barotrauma
 {
