@@ -61,6 +61,7 @@ namespace Barotrauma
 			try
 			{
 				return lua.DoFile(file);
+				
 			}
 			catch (Exception e)
 			{
@@ -70,6 +71,21 @@ namespace Barotrauma
 			return null;
 		}
 
+
+		public DynValue LoadFile(string file)
+		{
+			try
+			{
+				return lua.LoadFile(file);
+
+			}
+			catch (Exception e)
+			{
+				HandleLuaException(e);
+			}
+
+			return null;
+		}
 
 		public static DynValue CreateUserDataSafe(object o)
 		{
@@ -86,6 +102,7 @@ namespace Barotrauma
 			PrintMessage("Lua!");
 
 			LuaScriptLoader luaScriptLoader = new LuaScriptLoader(this);
+			luaScriptLoader.ModulePaths = new string[] { };
 
 			LuaCustomConverters.RegisterAll();
 			
@@ -163,6 +180,9 @@ namespace Barotrauma
 			game = new LuaGame(this);
 
 			lua.Globals["dofile"] = (Func<string, DynValue>)DoFile;
+			lua.Globals["loadfile"] = (Func<string, DynValue>)LoadFile;
+			lua.Globals["loadfilesafe"] = null;
+
 			lua.Globals["Player"] = new LuaPlayer();
 			lua.Globals["Game"] = game;
 			lua.Globals["Hook"] = hook;
@@ -196,23 +216,19 @@ namespace Barotrauma
 			lua.Globals["InvSlotType"] = UserData.CreateStatic<InvSlotType>();
 			lua.Globals["Gap"] = UserData.CreateStatic<Gap>();
 
+			List<string> modulePaths = new List<string>();
+
 			foreach (string d in Directory.GetDirectories("Mods"))
 			{
+				modulePaths.Add(d + "/Lua/?.lua");
+
 				if (Directory.Exists(d + "/Lua/Autorun"))
 				{
 					luaScriptLoader.RunFolder(d + "/Lua/Autorun");
 				}
-
-				if (Directory.Exists(d + "/LuaRaw"))
-				{
-					foreach (string d2 in Directory.GetDirectories(d + "/LuaRaw"))
-					{
-						luaScriptLoader.RunFolder(d2 + "/Autorun");
-					}
-				}
 			}
 
-
+			luaScriptLoader.ModulePaths = modulePaths.ToArray();
 
 		}
 
