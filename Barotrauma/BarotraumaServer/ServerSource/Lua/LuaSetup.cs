@@ -44,23 +44,25 @@ namespace Barotrauma
 			}
 		}
 
-		public void DoString(string code)
+		public DynValue DoString(string code, Table globalContext = null, string codeStringFriendly = null)
 		{
 			try
 			{
-				lua.DoString(code);
+				return lua.DoString(code, globalContext, codeStringFriendly);
 			}
 			catch (Exception e)
 			{
 				HandleLuaException(e);
 			}
+
+			return null;
 		}
 
-		public DynValue DoFile(string file)
+		public DynValue DoFile(string file, Table globalContext=null, string codeStringFriendly = null)
 		{
 			try
 			{
-				return lua.DoFile(file);
+				return lua.DoFile(file, globalContext, codeStringFriendly);
 				
 			}
 			catch (Exception e)
@@ -72,11 +74,41 @@ namespace Barotrauma
 		}
 
 
-		public DynValue LoadFile(string file)
+		public DynValue LoadString(string file, Table globalContext = null, string codeStringFriendly = null)
 		{
 			try
 			{
-				return lua.LoadFile(file);
+				return lua.LoadString(file, globalContext, codeStringFriendly);
+
+			}
+			catch (Exception e)
+			{
+				HandleLuaException(e);
+			}
+
+			return null;
+		}
+
+		public DynValue LoadFile(string file, Table globalContext = null, string codeStringFriendly = null)
+		{
+			try
+			{
+				return lua.LoadFile(file, globalContext, codeStringFriendly);
+
+			}
+			catch (Exception e)
+			{
+				HandleLuaException(e);
+			}
+
+			return null;
+		}
+
+		public DynValue Require(string modname, Table globalContext)
+		{
+			try
+			{
+				return lua.Call(lua.RequireModule(modname, globalContext));
 
 			}
 			catch (Exception e)
@@ -169,8 +201,7 @@ namespace Barotrauma
 			UserData.RegisterType<FireSource>();
 			UserData.RegisterType<Fabricator>();
 
-
-			lua = new Script(CoreModules.Preset_SoftSandbox | CoreModules.LoadMethods);
+			lua = new Script(CoreModules.Preset_SoftSandbox);
 
 			lua.Options.DebugPrint = PrintMessage;
 
@@ -179,9 +210,12 @@ namespace Barotrauma
 			hook = new LuaHook(this);
 			game = new LuaGame(this);
 
-			lua.Globals["dofile"] = (Func<string, DynValue>)DoFile;
-			lua.Globals["loadfile"] = (Func<string, DynValue>)LoadFile;
-			lua.Globals["loadfilesafe"] = null;
+			lua.Globals["dofile"] = (Func<string, Table, string, DynValue>)DoFile;
+			lua.Globals["loadfile"] = (Func<string, Table, string, DynValue>)LoadFile;
+			lua.Globals["require"] = (Func<string, Table, DynValue>)Require;
+
+			lua.Globals["dostring"] = (Func<string, Table, string, DynValue>)DoString;
+			lua.Globals["load"] = (Func<string, Table, string, DynValue>)LoadString;
 
 			lua.Globals["Player"] = new LuaPlayer();
 			lua.Globals["Game"] = game;
