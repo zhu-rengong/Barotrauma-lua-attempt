@@ -501,26 +501,38 @@ namespace Barotrauma
 				}
 			}
 
-			public List<HookFunction> hookFunctions = new List<HookFunction>();
+			public Dictionary<string, Dictionary<string, HookFunction>> hookFunctions = new Dictionary<string, Dictionary<string, HookFunction>>();
 
 			public void Add(string name, string hookName, object function)
 			{
-				foreach (HookFunction hf in hookFunctions)
-				{
-					if (hf.hookName == hookName && hf.name == name)
-					{
-						hf.function = function;
+				if (name == null && hookName == null && function == null) return;
 
-						return;
-					}
-				}
+				if (!hookFunctions.ContainsKey(name))
+					hookFunctions.Add(name, new Dictionary<string, HookFunction>());
 
-				hookFunctions.Add(new HookFunction(name, hookName, function));
+
+				hookFunctions[name][hookName] = new HookFunction(name, hookName, function);
+			}
+
+			public void Remove(string name, string hookName)
+			{
+				if (name == null && hookName == null) return;
+
+				if (!hookFunctions.ContainsKey(name))
+					return;
+
+				if(hookFunctions[name].ContainsKey(hookName))
+					hookFunctions[name].Remove(hookName);
 			}
 
 			public object Call(string name, object[] args)
 			{
-				foreach (HookFunction hf in hookFunctions)
+				if (name == null) return null;
+
+				if (!hookFunctions.ContainsKey(name))
+					return null;
+
+				foreach (HookFunction hf in hookFunctions[name].Values)
 				{
 					if (hf.name == name)
 					{
