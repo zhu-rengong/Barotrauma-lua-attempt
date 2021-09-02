@@ -200,6 +200,7 @@ namespace Barotrauma
 			UserData.RegisterType<CustomInterface.CustomInterfaceElement>();
 			UserData.RegisterType<FireSource>();
 			UserData.RegisterType<Fabricator>();
+			UserData.RegisterType<Pair<JobPrefab, int>>();
 
 			lua = new Script(CoreModules.Preset_SoftSandbox);
 
