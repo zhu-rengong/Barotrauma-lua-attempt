@@ -201,6 +201,7 @@ namespace Barotrauma
 			UserData.RegisterType<FireSource>();
 			UserData.RegisterType<Fabricator>();
 			UserData.RegisterType<Pair<JobPrefab, int>>();
+			UserData.RegisterType<ContentPackage>();
 
 			lua = new Script(CoreModules.Preset_SoftSandbox);
 
@@ -210,7 +211,7 @@ namespace Barotrauma
 			
 			hook = new LuaHook(this);
 			game = new LuaGame(this);
-
+			
 			lua.Globals["dofile"] = (Func<string, Table, string, DynValue>)DoFile;
 			lua.Globals["loadfile"] = (Func<string, Table, string, DynValue>)LoadFile;
 			lua.Globals["require"] = (Func<string, Table, DynValue>)Require;
@@ -250,6 +251,7 @@ namespace Barotrauma
 			lua.Globals["Hull"] = UserData.CreateStatic<Hull>();
 			lua.Globals["InvSlotType"] = UserData.CreateStatic<InvSlotType>();
 			lua.Globals["Gap"] = UserData.CreateStatic<Gap>();
+			lua.Globals["ContentPackage"] = UserData.CreateStatic<ContentPackage>();
 
 			List<string> modulePaths = new List<string>();
 

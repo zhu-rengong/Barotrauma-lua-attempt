@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Barotrauma.Items.Components;
 using System.IO;
 using System.Net;
+using System.Linq;
 
 namespace Barotrauma
 {
@@ -338,7 +339,12 @@ namespace Barotrauma
 			{
 				return new Signal(value, stepsTaken, sender, source, power, strength);
 			}
-			
+
+			public static ContentPackage[] GetEnabledContentPackages()
+			{
+				return GameMain.Config.AllEnabledPackages.ToArray();
+			}
+			 
 		}
 
 
