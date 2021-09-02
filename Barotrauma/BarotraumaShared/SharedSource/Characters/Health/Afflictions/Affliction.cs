@@ -292,6 +292,9 @@ namespace Barotrauma
             {
                 AdditionStrength -= amount;
             }
+            #if SERVER
+                GameMain.Lua.hook.Call("afflictionUpdate", new object[] { this, characterHealth, targetLimb, deltaTime });
+            #endif
         }
 
         public void ApplyStatusEffects(ActionType type, float deltaTime, CharacterHealth characterHealth, Limb targetLimb)
