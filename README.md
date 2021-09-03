@@ -1,8 +1,8 @@
-# Note 
-This is my attempt to implement server-side lua scripting
-inspired by garrysmod
+# Barotrauma-Lua 
+This is a Barotrauma server-side modification that adds Lua modding support.
 
-incomplete documentation: https://github.com/evilfactory/Barotrauma-lua-attempt/wiki/Lua-(Incomplete)
+### Documentation: https://github.com/evilfactory/Barotrauma-lua-attempt/wiki/Lua-(Incomplete)
+### Discord: https://discord.ggf9zvNNuxu9
 
 # Barotrauma
 Copyright © FakeFish Ltd 2017-2021
