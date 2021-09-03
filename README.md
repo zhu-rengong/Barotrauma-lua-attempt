@@ -2,7 +2,7 @@
 This is a Barotrauma server-side modification that adds Lua modding support.
 
 ### Documentation: https://github.com/evilfactory/Barotrauma-lua-attempt/wiki/Lua-(Incomplete)
-### Discord: https://discord.ggf9zvNNuxu9
+### Discord: https://discord.gg/f9zvNNuxu9
 
 # Barotrauma
 Copyright © FakeFish Ltd 2017-2021
