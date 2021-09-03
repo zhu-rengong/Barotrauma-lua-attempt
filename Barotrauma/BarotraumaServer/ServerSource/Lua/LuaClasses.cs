@@ -113,17 +113,26 @@ namespace Barotrauma
 		{
 			LuaSetup env;
 
+			public LuaGame(LuaSetup e)
+			{
+				env = e;
+			}
+
 			public bool allowWifiChat = false;
 			public bool overrideTraitors = false;
 			public bool overrideRespawnSub = false;
 			public bool overrideSignalRadio = false;
 			public bool disableSpamFilter = false;
 
-			public LuaGame(LuaSetup e)
+			public bool RoundStarted
 			{
-				env = e;
+				get
+				{
+					return GameMain.Server.GameStarted;
+				}
 			}
 
+			
 			public static void SendMessage(string msg, ChatMessageType? messageType = null, Client sender = null, Character character = null)
 			{
 				GameMain.Server.SendChatMessage(msg, messageType, sender, character);
