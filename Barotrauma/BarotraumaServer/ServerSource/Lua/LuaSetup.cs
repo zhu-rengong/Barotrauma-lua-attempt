@@ -207,6 +207,7 @@ namespace Barotrauma
 			UserData.RegisterType<Fabricator>();
 			UserData.RegisterType<Pair<JobPrefab, int>>();
 			UserData.RegisterType<ContentPackage>();
+			UserData.RegisterType<ClientPermissions>();
 
 			lua = new Script(CoreModules.Preset_SoftSandbox);
 
@@ -259,6 +260,7 @@ namespace Barotrauma
 			lua.Globals["InvSlotType"] = UserData.CreateStatic<InvSlotType>();
 			lua.Globals["Gap"] = UserData.CreateStatic<Gap>();
 			lua.Globals["ContentPackage"] = UserData.CreateStatic<ContentPackage>();
+			lua.Globals["ClientPermissions"] = UserData.CreateStatic<ClientPermissions>();
 
 			List<string> modulePaths = new List<string>();
 
