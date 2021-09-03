@@ -3842,6 +3842,8 @@ namespace Barotrauma.Networking
         {
             if (GameMain.Server == null || !GameMain.Server.ServerSettings.SaveServerLogs) { return; }
 
+            GameMain.Lua.hook.Call("serverLog", new object[] { line, messageType });
+
             GameMain.Server.ServerSettings.ServerLog.WriteLine(line, messageType);
 
             foreach (Client client in GameMain.Server.ConnectedClients)

@@ -44,6 +44,11 @@ namespace Barotrauma
 			}
 		}
 
+		public void PrintMessageNoLog(object message)
+		{
+			Console.WriteLine(message.ToString());
+		}
+
 		public DynValue DoString(string code, Table globalContext = null, string codeStringFriendly = null)
 		{
 			try
@@ -211,7 +216,9 @@ namespace Barotrauma
 			
 			hook = new LuaHook(this);
 			game = new LuaGame(this);
-			
+
+			lua.Globals["printNoLog"] = (Action<object>)PrintMessageNoLog;
+
 			lua.Globals["dofile"] = (Func<string, Table, string, DynValue>)DoFile;
 			lua.Globals["loadfile"] = (Func<string, Table, string, DynValue>)LoadFile;
 			lua.Globals["require"] = (Func<string, Table, DynValue>)Require;
@@ -257,7 +264,7 @@ namespace Barotrauma
 
 			foreach (string d in Directory.GetDirectories("Mods"))
 			{
-				modulePaths.Add(d + "/Lua/?.lua");
+				modulePaths.Add(d + "/Lua/?");
 
 				if (Directory.Exists(d + "/Lua/Autorun"))
 				{

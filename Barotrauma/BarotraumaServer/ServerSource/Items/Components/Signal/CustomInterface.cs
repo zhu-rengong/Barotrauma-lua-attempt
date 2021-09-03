@@ -5,6 +5,19 @@ namespace Barotrauma.Items.Components
 {
     partial class CustomInterface : ItemComponent, IClientSerializable, IServerSerializable
     {
+        public void UpdateClients()
+		{
+
+            //notify all clients of the new state
+            GameMain.Server.CreateEntityEvent(item, new object[]
+            {
+                NetEntityEvent.Type.ComponentState,
+                item.GetComponentIndex(this)
+            });
+
+            item.CreateServerEvent(this);
+        }
+
         public void ServerRead(ClientNetObject type, IReadMessage msg, Client c)
         {
             bool[] elementStates = new bool[customInterfaceElementList.Count];
