@@ -208,6 +208,8 @@ namespace Barotrauma
 			UserData.RegisterType<Pair<JobPrefab, int>>();
 			UserData.RegisterType<ContentPackage>();
 			UserData.RegisterType<ClientPermissions>();
+			UserData.RegisterType<SubmarineInfo>();
+			UserData.RegisterType<SubmarineBody>();
 
 			lua = new Script(CoreModules.Preset_SoftSandbox);
 
