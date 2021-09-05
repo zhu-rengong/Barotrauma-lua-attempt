@@ -207,7 +207,6 @@ namespace Barotrauma
 			UserData.RegisterType<Fabricator>();
 			UserData.RegisterType<Pair<JobPrefab, int>>();
 			UserData.RegisterType<ContentPackage>();
-			UserData.RegisterType<ClientPermissions>();
 			UserData.RegisterType<SubmarineInfo>();
 			UserData.RegisterType<SubmarineBody>();
 

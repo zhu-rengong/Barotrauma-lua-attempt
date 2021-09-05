@@ -305,21 +305,25 @@ namespace Barotrauma
 
 			public static WifiComponent GetWifiComponent(Item item)
 			{
+				if (item == null) return null;
 				return item.GetComponent<WifiComponent>();
 			}
 
 			public static LightComponent GetLightComponent(Item item)
 			{
+				if (item == null) return null;
 				return item.GetComponent<LightComponent>();
 			}
 
 			public static CustomInterface GetCustomInterface(Item item)
 			{
+				if (item == null) return null;
 				return item.GetComponent<CustomInterface>();
 			}
 
 			public static Fabricator GetFabricatorComponent(Item item)
 			{
+				if (item == null) return null;
 				return item.GetComponent<Fabricator>();
 			}
 
