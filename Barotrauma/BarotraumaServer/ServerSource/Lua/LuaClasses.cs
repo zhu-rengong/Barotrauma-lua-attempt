@@ -132,6 +132,14 @@ namespace Barotrauma
 				}
 			}
 
+
+			public bool IsDedicated
+			{
+				get
+				{
+					return GameMain.Server.ServerPeer is LidgrenServerPeer;
+				}
+			}
 			
 			public static void SendMessage(string msg, ChatMessageType? messageType = null, Client sender = null, Character character = null)
 			{
