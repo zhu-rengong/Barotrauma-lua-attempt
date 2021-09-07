@@ -574,20 +574,17 @@ namespace Barotrauma
 
 				foreach (HookFunction hf in hookFunctions[name].Values)
 				{
-					if (hf.name == name)
+					try
 					{
-						try
+						var result = env.lua.Call(hf.function, args);
+						if (result.IsNil() == false)
 						{
-							var result = env.lua.Call(hf.function, args);
-							if (result.IsNil() == false)
-							{
-								return result;
-							}
+							return result;
 						}
-						catch (Exception e)
-						{
-							env.HandleLuaException(e);
-						}
+					}
+					catch (Exception e)
+					{
+						env.HandleLuaException(e);
 					}
 				}
 

@@ -441,7 +441,9 @@ namespace Barotrauma.Items.Components
 #if SERVER
             if (!lastSignal.ContainsValue(connection.Name) || lastSignal[connection.Name] != signal.value)
             {
-                GameMain.Lua.hook.Call("signalReceived", new object[] { signal, connection });
+                object[] obj = new object[] { signal, connection };
+                GameMain.Lua.hook.Call("signalReceived", obj);
+                GameMain.Lua.hook.Call("signalReceived." + item.prefab.Identifier, obj);
 
                 lastSignal[connection.Name] = signal.value;
             }
