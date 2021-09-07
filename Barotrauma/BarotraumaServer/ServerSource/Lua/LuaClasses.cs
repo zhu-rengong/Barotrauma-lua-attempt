@@ -106,7 +106,10 @@ namespace Barotrauma
  				}
 			}
 
-
+			public static bool CheckPermission(Client client, ClientPermissions permissions)
+			{
+				return client.Permissions.HasFlag(permissions);
+			}
 		}
 
 		public class LuaGame
@@ -429,6 +432,16 @@ namespace Barotrauma
 			public static bool Exists(string path)
 			{
 				return File.Exists(path);
+			}
+
+			public static bool DirectoryExists(string path)
+			{
+				return Directory.Exists(path);
+			}
+
+			public static string[] GetDirectories(string path)
+			{
+				return Directory.GetDirectories(path);
 			}
 
 			public static string[] DirSearch(string sDir)

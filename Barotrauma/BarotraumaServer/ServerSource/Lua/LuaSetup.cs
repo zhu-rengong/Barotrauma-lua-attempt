@@ -18,11 +18,16 @@ namespace Barotrauma
 		public LuaHook hook;
 		public LuaGame game;
 
+		public LuaScriptLoader luaScriptLoader;
+
 		public void HandleLuaException(Exception ex)
 		{
 			if(ex is InterpreterException)
 			{
-				PrintMessage(((InterpreterException)ex).DecoratedMessage);
+				if(((InterpreterException)ex).DecoratedMessage == null)
+					PrintMessage(((InterpreterException)ex).Message);
+				else
+					PrintMessage(((InterpreterException)ex).DecoratedMessage);
 			}
 			else
 			{
@@ -32,6 +37,7 @@ namespace Barotrauma
 
 		public void PrintMessage(object message)
 		{
+			if (message == null) { message = "nil"; }
 			Console.WriteLine(message.ToString());
 			if (GameMain.Server != null)
 			{
@@ -46,6 +52,7 @@ namespace Barotrauma
 
 		public void PrintMessageNoLog(object message)
 		{
+			if (message == null) { message = "nil"; }
 			Console.WriteLine(message.ToString());
 		}
 
@@ -134,11 +141,16 @@ namespace Barotrauma
 		}
 
 
+		public void SetModulePaths(string[] str)
+		{
+			luaScriptLoader.ModulePaths = str;
+		}
+
 		public LuaSetup()
 		{
 			PrintMessage("Lua!");
 
-			LuaScriptLoader luaScriptLoader = new LuaScriptLoader(this);
+			luaScriptLoader = new LuaScriptLoader(this);
 			luaScriptLoader.ModulePaths = new string[] { };
 
 			LuaCustomConverters.RegisterAll();
@@ -228,6 +240,8 @@ namespace Barotrauma
 			lua.Globals["dostring"] = (Func<string, Table, string, DynValue>)DoString;
 			lua.Globals["load"] = (Func<string, Table, string, DynValue>)LoadString;
 
+			lua.Globals["setmodulepaths"] = (Action<string[]>)SetModulePaths;
+
 			lua.Globals["Player"] = new LuaPlayer();
 			lua.Globals["Game"] = game;
 			lua.Globals["Hook"] = hook;
@@ -263,19 +277,26 @@ namespace Barotrauma
 			lua.Globals["ContentPackage"] = UserData.CreateStatic<ContentPackage>();
 			lua.Globals["ClientPermissions"] = UserData.CreateStatic<ClientPermissions>();
 
-			List<string> modulePaths = new List<string>();
+			if (File.Exists("Lua/MoonsharpSetup.lua")) // try the default loader
+				DoFile("Lua/MoonsharpSetup.lua");
+			else if(File.Exists("Mods/LuaForBarotrauma/Lua/MoonsharpSetup.lua")) // in case its the workshop version
+				DoFile("Mods/LuaForBarotrauma/Lua/MoonsharpSetup.lua");
+			else // fallback to c# script loading
+			{ 
+				List<string> modulePaths = new List<string>();
 
-			foreach (string d in Directory.GetDirectories("Mods"))
-			{
-				modulePaths.Add(d + "/Lua/?");
-
-				if (Directory.Exists(d + "/Lua/Autorun"))
+				foreach (string d in Directory.GetDirectories("Mods"))
 				{
-					luaScriptLoader.RunFolder(d + "/Lua/Autorun");
-				}
-			}
+					modulePaths.Add(d + "/Lua/?.lua");
 
-			luaScriptLoader.ModulePaths = modulePaths.ToArray();
+					if (Directory.Exists(d + "/Lua/Autorun"))
+					{
+						luaScriptLoader.RunFolder(d + "/Lua/Autorun");
+					}
+				}
+
+				luaScriptLoader.ModulePaths = modulePaths.ToArray();
+			}
 
 		}
 
