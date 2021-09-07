@@ -197,6 +197,8 @@ namespace Barotrauma.Networking
 #endif
             }
 
+            GameMain.Lua = new LuaSetup();
+
             TickRate = serverSettings.TickRate;
 
             Log("Server started", ServerLog.MessageType.ServerMessage);
@@ -3842,7 +3844,8 @@ namespace Barotrauma.Networking
         {
             if (GameMain.Server == null || !GameMain.Server.ServerSettings.SaveServerLogs) { return; }
 
-            GameMain.Lua.hook.Call("serverLog", new object[] { line, messageType });
+            if(GameMain.Lua != null)
+                GameMain.Lua.hook.Call("serverLog", new object[] { line, messageType });
 
             GameMain.Server.ServerSettings.ServerLog.WriteLine(line, messageType);
 

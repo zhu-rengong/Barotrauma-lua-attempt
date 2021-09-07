@@ -137,9 +137,6 @@ namespace Barotrauma
             NetLobbyScreen = new NetLobbyScreen();
 
             CheckContentPackage();
-
-            Lua = new LuaSetup();
-
         }
 
 
