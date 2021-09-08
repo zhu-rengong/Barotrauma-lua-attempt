@@ -12,7 +12,7 @@ else
     print("LUA LOADER: Only enabled mods will be executed. Lua/MoonsharpSetup.lua")
 end
 
-local enabledPackages = Game.GetEnabledContentPackages()
+local enabledPackages = Game.GetEnabledPackagesDirectlyFromFile()
 
 local function endsWith(str, suffix)
     return str:sub(-string.len(suffix)) == suffix
@@ -34,8 +34,8 @@ local modulePaths = {}
 
 if not runDisabledMods then
 
-    for _, package in pairs(enabledPackages) do
-        d = package.Name:gsub("\\", "/")
+    for _, packageName in pairs(enabledPackages) do
+        d = packageName:gsub("\\", "/")
         d = "Mods/" .. d
 
         table.insert(modulePaths, (d .. "/Lua/?.lua"))

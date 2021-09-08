@@ -9,6 +9,7 @@ using Barotrauma.Items.Components;
 using System.IO;
 using System.Net;
 using System.Linq;
+using System.Xml.Linq;
 
 namespace Barotrauma
 {
@@ -369,6 +370,29 @@ namespace Barotrauma
 				return GameMain.Config.AllEnabledPackages.ToArray();
 			}
 			 
+			public static List<string> GetEnabledPackagesDirectlyFromFile()
+			{
+				List<string> enabledPackages = new List<string>();
+
+				XDocument doc = XMLExtensions.LoadXml("config_player.xml");
+				var contentPackagesElement = doc.Root.Element("contentpackages");
+
+				string coreName = contentPackagesElement.Element("core")?.GetAttributeString("name", "");
+				enabledPackages.Add(coreName);
+
+				XElement regularElement = contentPackagesElement.Element("regular");
+				List<XElement> subElements = regularElement?.Elements()?.ToList();
+
+				foreach (var subElement in subElements)
+				{
+					if (!bool.TryParse(subElement.GetAttributeString("enabled", "false"), out bool enabled) || !enabled)	{ continue; }
+
+					string name = subElement.GetAttributeString("name", null);
+					enabledPackages.Add(name);
+				}
+
+				return enabledPackages;
+			}
 		}
 
 
