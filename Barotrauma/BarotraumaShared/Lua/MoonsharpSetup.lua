@@ -1,4 +1,18 @@
-local modulePaths = {}
+local runDisabledMods = false
+
+if Game.IsDedicated then
+    runDisabledMods = true
+
+    print("LUA LOADER: Dedicated server detected, loading mods regardless being disabled.")
+end
+
+if runDisabledMods then 
+    print("LUA LOADER: Mods will be executed regardless being enabled or not. Lua/MoonsharpSetup.lua")
+else
+    print("LUA LOADER: Only enabled mods will be executed. Lua/MoonsharpSetup.lua")
+end
+
+local enabledPackages = Game.GetEnabledContentPackages()
 
 local function endsWith(str, suffix)
     return str:sub(-string.len(suffix)) == suffix
@@ -16,14 +30,32 @@ local function runFolder(folder)
     end
 end
 
-for _, d in pairs(File.GetDirectories("Mods")) do
-    d = d:gsub("\\", "/")
+local modulePaths = {}
 
-    table.insert(modulePaths, (d .. "/Lua/?.lua"))
+if not runDisabledMods then
 
-    if File.DirectoryExists(d .. "/Lua/Autorun") then
-        runFolder(d .. "/Lua/Autorun");
+    for _, package in pairs(enabledPackages) do
+        d = package.Name:gsub("\\", "/")
+        d = "Mods/" .. d
+
+        table.insert(modulePaths, (d .. "/Lua/?.lua"))
+
+        if File.DirectoryExists(d .. "/Lua/Autorun") then
+            runFolder(d .. "/Lua/Autorun");
+        end
+    end
+
+else
+    for _, d in pairs(File.GetDirectories("Mods")) do
+        d = d:gsub("\\", "/")
+    
+        table.insert(modulePaths, (d .. "/Lua/?.lua"))
+    
+        if File.DirectoryExists(d .. "/Lua/Autorun") then
+            runFolder(d .. "/Lua/Autorun");
+        end
     end
 end
+
 
 setmodulepaths(modulePaths)
