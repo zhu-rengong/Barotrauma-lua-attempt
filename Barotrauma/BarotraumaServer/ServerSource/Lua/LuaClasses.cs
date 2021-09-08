@@ -596,15 +596,13 @@ namespace Barotrauma
 				if (!hookFunctions.ContainsKey(name))
 					return null;
 
+				object lastResult = null;
+
 				foreach (HookFunction hf in hookFunctions[name].Values)
 				{
 					try
 					{
-						var result = env.lua.Call(hf.function, args);
-						if (result.IsNil() == false)
-						{
-							return result;
-						}
+						lastResult = env.lua.Call(hf.function, args);
 					}
 					catch (Exception e)
 					{
@@ -612,7 +610,7 @@ namespace Barotrauma
 					}
 				}
 
-				return null;
+				return lastResult;
 			}
 		}
 	}
