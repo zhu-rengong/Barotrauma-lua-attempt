@@ -204,6 +204,7 @@ namespace Barotrauma
 			UserData.RegisterType<WifiComponent>();
 			UserData.RegisterType<LightComponent>();
 			UserData.RegisterType<CustomInterface>();
+			UserData.RegisterType<Holdable>();
 			UserData.RegisterType<Inventory>();
 			UserData.RegisterType<CharacterInventory>();
 			UserData.RegisterType<Hull>();
@@ -221,6 +222,7 @@ namespace Barotrauma
 			UserData.RegisterType<ContentPackage>();
 			UserData.RegisterType<SubmarineInfo>();
 			UserData.RegisterType<SubmarineBody>();
+			UserData.RegisterType<Explosion>();
 
 			lua = new Script(CoreModules.Preset_SoftSandbox);
 

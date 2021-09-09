@@ -339,6 +339,12 @@ namespace Barotrauma
 				return item.GetComponent<Fabricator>();
 			}
 
+			public static Holdable GetHoldableComponent(Item item)
+			{
+				if (item == null) return null;
+				return item.GetComponent<Holdable>();
+			}
+
 			public static void DispatchRespawnSub()
 			{
 				GameMain.Server.RespawnManager.DispatchShuttle();
@@ -602,7 +608,8 @@ namespace Barotrauma
 				{
 					try
 					{
-						lastResult = env.lua.Call(hf.function, args);
+						if (hf.function is Closure)
+							lastResult = env.lua.Call(hf.function, args);
 					}
 					catch (Exception e)
 					{
