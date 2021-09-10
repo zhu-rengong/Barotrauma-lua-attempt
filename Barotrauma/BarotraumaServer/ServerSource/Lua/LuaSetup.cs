@@ -13,8 +13,10 @@ namespace Barotrauma
 {
 	partial class LuaSetup
 	{
+		public static LuaSetup luaSetup;
 
 		public Script lua;
+
 		public LuaHook hook;
 		public LuaGame game;
 
@@ -22,9 +24,9 @@ namespace Barotrauma
 
 		public void HandleLuaException(Exception ex)
 		{
-			if(ex is InterpreterException)
+			if (ex is InterpreterException)
 			{
-				if(((InterpreterException)ex).DecoratedMessage == null)
+				if (((InterpreterException)ex).DecoratedMessage == null)
 					PrintMessage(((InterpreterException)ex).Message);
 				else
 					PrintMessage(((InterpreterException)ex).DecoratedMessage);
@@ -70,12 +72,12 @@ namespace Barotrauma
 			return null;
 		}
 
-		public DynValue DoFile(string file, Table globalContext=null, string codeStringFriendly = null)
+		public DynValue DoFile(string file, Table globalContext = null, string codeStringFriendly = null)
 		{
 			try
 			{
 				return lua.DoFile(file, globalContext, codeStringFriendly);
-				
+
 			}
 			catch (Exception e)
 			{
@@ -133,11 +135,11 @@ namespace Barotrauma
 
 		public static DynValue CreateUserDataSafe(object o)
 		{
-			if(o == null)
+			if (o == null)
 				return DynValue.Nil;
 
 			return UserData.Create(o);
-			
+
 		}
 
 
@@ -146,15 +148,22 @@ namespace Barotrauma
 			luaScriptLoader.ModulePaths = str;
 		}
 
-		public LuaSetup()
+		public float TestFunction(float value)
 		{
+			return value * 2;
+		}
+
+		public void Initialize()
+		{
+			luaSetup = this;
+
 			PrintMessage("Lua!");
 
 			luaScriptLoader = new LuaScriptLoader(this);
 			luaScriptLoader.ModulePaths = new string[] { };
 
 			LuaCustomConverters.RegisterAll();
-			
+
 			UserData.RegisterType<TraitorMessageType>();
 			UserData.RegisterType<JobPrefab>();
 			UserData.RegisterType<CharacterInfo>();
@@ -203,8 +212,8 @@ namespace Barotrauma
 			UserData.RegisterType<ItemComponent>();
 			UserData.RegisterType<WifiComponent>();
 			UserData.RegisterType<LightComponent>();
-			UserData.RegisterType<CustomInterface>();
 			UserData.RegisterType<Holdable>();
+			UserData.RegisterType<CustomInterface>();
 			UserData.RegisterType<Inventory>();
 			UserData.RegisterType<CharacterInventory>();
 			UserData.RegisterType<Hull>();
@@ -229,9 +238,11 @@ namespace Barotrauma
 			lua.Options.DebugPrint = PrintMessage;
 
 			lua.Options.ScriptLoader = luaScriptLoader;
-			
+
 			hook = new LuaHook(this);
 			game = new LuaGame(this);
+
+			lua.Globals["TestFunction"] = (Func<float, float>)TestFunction;
 
 			lua.Globals["printNoLog"] = (Action<object>)PrintMessageNoLog;
 
@@ -258,6 +269,7 @@ namespace Barotrauma
 			lua.Globals["Submarine"] = UserData.CreateStatic<Submarine>();
 			lua.Globals["Client"] = UserData.CreateStatic<Client>();
 			lua.Globals["Character"] = UserData.CreateStatic<Character>();
+			lua.Globals["CharacterInfo"] = UserData.CreateStatic<CharacterInfo>();
 			lua.Globals["Item"] = UserData.CreateStatic<Item>();
 			lua.Globals["Level"] = UserData.CreateStatic<Level>();
 			lua.Globals["PositionType"] = UserData.CreateStatic<Level.PositionType>();
@@ -265,7 +277,7 @@ namespace Barotrauma
 			lua.Globals["TraitorMessageType"] = UserData.CreateStatic<TraitorMessageType>();
 			lua.Globals["CauseOfDeathType"] = UserData.CreateStatic<CauseOfDeathType>();
 			lua.Globals["AfflictionPrefab"] = UserData.CreateStatic<AfflictionPrefab>();
-			lua.Globals["CharacterTeamType"] = UserData.CreateStatic<CharacterTeamType>();		
+			lua.Globals["CharacterTeamType"] = UserData.CreateStatic<CharacterTeamType>();
 			lua.Globals["Vector2"] = UserData.CreateStatic<Vector2>();
 			lua.Globals["Vector3"] = UserData.CreateStatic<Vector3>();
 			lua.Globals["Vector4"] = UserData.CreateStatic<Vector3>();
@@ -279,12 +291,13 @@ namespace Barotrauma
 			lua.Globals["ContentPackage"] = UserData.CreateStatic<ContentPackage>();
 			lua.Globals["ClientPermissions"] = UserData.CreateStatic<ClientPermissions>();
 
+
 			if (File.Exists("Lua/MoonsharpSetup.lua")) // try the default loader
 				DoFile("Lua/MoonsharpSetup.lua");
-			else if(File.Exists("Mods/LuaForBarotrauma/Lua/MoonsharpSetup.lua")) // in case its the workshop version
+			else if (File.Exists("Mods/LuaForBarotrauma/Lua/MoonsharpSetup.lua")) // in case its the workshop version
 				DoFile("Mods/LuaForBarotrauma/Lua/MoonsharpSetup.lua");
 			else // fallback to c# script loading
-			{ 
+			{
 				List<string> modulePaths = new List<string>();
 
 				foreach (string d in Directory.GetDirectories("Mods"))
@@ -299,6 +312,11 @@ namespace Barotrauma
 
 				luaScriptLoader.ModulePaths = modulePaths.ToArray();
 			}
+		}
+
+
+		public LuaSetup()
+		{
 
 		}
 

@@ -13,6 +13,7 @@ using System.Xml.Linq;
 
 namespace Barotrauma
 {
+
 	partial class LuaSetup
 	{
 		private static Vector2 CreateVector2(float x, float y)
@@ -40,13 +41,12 @@ namespace Barotrauma
 
 			public static List<Client> GetAllClients()
 			{
-
 				return GameMain.Server.ConnectedClients;
 			}
 
-			public static CharacterInfo CreateCharacterInfo(string speciesName, string name = "", JobPrefab jobPrefab = null, string ragdollFileName = null, int variant = 0, Rand.RandSync randSync = Rand.RandSync.Unsynced)
+			public static CharacterInfo CreateCharacterInfo(string speciesName, string name = "", JobPrefab jobPrefab = null, string ragdollFileName = null, int variant = 0, Rand.RandSync randSync = Rand.RandSync.Unsynced, string npcIdentifier = "")
 			{
-				return new CharacterInfo(speciesName, name, name, jobPrefab, ragdollFileName, variant, randSync);
+				return new CharacterInfo(speciesName, name, name, jobPrefab, ragdollFileName, variant, randSync, npcIdentifier);
 			}
 
 			public static void SetClientCharacter(Client client, Character character)
@@ -89,7 +89,7 @@ namespace Barotrauma
 
 			public static void SetSpectatorPos(Client client, Vector2 pos)
 			{
-				client.SpectatePos = pos;
+				
 			}
 
 			public static void SetRadioRange(Character character, float range)
@@ -610,6 +610,8 @@ namespace Barotrauma
 					{
 						if (hf.function is Closure)
 							lastResult = env.lua.Call(hf.function, args);
+						// else if (hf.function is NLua.LuaFunction luaFunction)
+						//	lastResult = luaFunction.Call(args);
 					}
 					catch (Exception e)
 					{

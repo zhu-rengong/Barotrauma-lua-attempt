@@ -1250,7 +1250,7 @@ namespace Barotrauma
 
             commands.Add(new Command("reloadlua", "reloads lua", (string[] args) =>
             {
-                GameMain.Lua = new LuaSetup();
+                GameMain.Lua.Initialize();
             }));
 
 
