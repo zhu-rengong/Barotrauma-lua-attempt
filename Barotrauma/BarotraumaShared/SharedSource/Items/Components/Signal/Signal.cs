@@ -1,6 +1,6 @@
 namespace Barotrauma.Items.Components
 {
-    struct Signal
+    partial struct Signal
     {
         public string value;
         public int stepsTaken;

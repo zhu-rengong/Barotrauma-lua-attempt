@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-#if SERVER
-using MoonSharp.Interpreter;
-#endif
 
 namespace Barotrauma
 {
@@ -69,18 +66,14 @@ namespace Barotrauma
         }
 
         public virtual void Update(float deltaTime)
-		{
-			CrewManager?.Update(deltaTime);
+        {
+            CrewManager?.Update(deltaTime);
+        }
 
-#if SERVER
-			GameMain.Lua.hook.Call("update", new object[] { deltaTime });
-#endif
-		}
+        public virtual void End(CampaignMode.TransitionType transitionType = CampaignMode.TransitionType.None)
+        {
+        }
 
-		public virtual void End(CampaignMode.TransitionType transitionType = CampaignMode.TransitionType.None)
-		{
-		}
-
-		public virtual void Remove() { }
-	}
+        public virtual void Remove() { }
+    }
 }

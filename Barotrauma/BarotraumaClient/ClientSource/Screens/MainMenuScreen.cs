@@ -955,8 +955,7 @@ namespace Barotrauma
                 {
                     FileName = filename,
                     Arguments = arguments,
-                    //#if !DEBUG
-#if false
+#if !DEBUG
                     CreateNoWindow = true,
                     UseShellExecute = false,
                     WindowStyle = ProcessWindowStyle.Hidden

@@ -143,6 +143,11 @@ namespace Barotrauma
 		}
 
 
+		public object CallFunction(object function, object[] arguments)
+		{
+			return lua.Call(function, arguments);
+		}
+
 		public void SetModulePaths(string[] str)
 		{
 			luaScriptLoader.ModulePaths = str;

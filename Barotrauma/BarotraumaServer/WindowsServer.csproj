@@ -82,7 +82,6 @@
   
   <ItemGroup>
     <PackageReference Include="MoonSharp" Version="2.0.0" />
-    <PackageReference Include="MoonSharp.Debugger.VsCode" Version="2.0.0" />
   </ItemGroup>
 
   <!-- Sourced from https://stackoverflow.com/a/45248069 -->
