@@ -276,6 +276,7 @@ namespace Barotrauma
 			lua.Globals["Character"] = UserData.CreateStatic<Character>();
 			lua.Globals["CharacterInfo"] = UserData.CreateStatic<CharacterInfo>();
 			lua.Globals["Item"] = UserData.CreateStatic<Item>();
+			lua.Globals["ItemPrefab"] = UserData.CreateStatic<ItemPrefab>();
 			lua.Globals["Level"] = UserData.CreateStatic<Level>();
 			lua.Globals["PositionType"] = UserData.CreateStatic<Level.PositionType>();
 			lua.Globals["JobPrefab"] = UserData.CreateStatic<JobPrefab>();
