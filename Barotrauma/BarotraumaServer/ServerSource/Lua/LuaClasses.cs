@@ -396,7 +396,6 @@ namespace Barotrauma
 					string name = subElement.GetAttributeString("name", null);
 					enabledPackages.Add(name);
 				}
-
 				return enabledPackages;
 			}
 		}
@@ -467,6 +466,11 @@ namespace Barotrauma
 			public static bool DirectoryExists(string path)
 			{
 				return Directory.Exists(path);
+			}
+
+			public static string[] GetFiles(string path)
+			{
+				return Directory.GetFiles(path);
 			}
 
 			public static string[] GetDirectories(string path)

@@ -296,7 +296,7 @@ namespace Barotrauma
 			lua.Globals["Gap"] = UserData.CreateStatic<Gap>();
 			lua.Globals["ContentPackage"] = UserData.CreateStatic<ContentPackage>();
 			lua.Globals["ClientPermissions"] = UserData.CreateStatic<ClientPermissions>();
-
+			lua.Globals["Signal"] = UserData.CreateStatic<Signal>();
 
 			if (File.Exists("Lua/MoonsharpSetup.lua")) // try the default loader
 				DoFile("Lua/MoonsharpSetup.lua");

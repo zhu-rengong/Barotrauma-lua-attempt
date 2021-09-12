@@ -65,7 +65,7 @@ namespace Barotrauma
 
 	partial class Item
 	{
-		public void AddToRemoveQueue(Item item)
+		public static void AddToRemoveQueue(Item item)
 		{
 			EntitySpawner.Spawner.AddToRemoveQueue(item);
 		}
@@ -74,14 +74,14 @@ namespace Barotrauma
 
 	partial class ItemPrefab
 	{
-		public void AddToSpawnQueue(ItemPrefab itemPrefab, Vector2 position, object spawned = null)
+		public static void AddToSpawnQueue(ItemPrefab itemPrefab, Vector2 position, object spawned = null)
 		{
 			EntitySpawner.Spawner.AddToSpawnQueue(itemPrefab, position, onSpawned: (Item item) => {
 				GameMain.Lua.CallFunction(spawned, new object[] { item });
 			});
 		}
 
-		public void AddToSpawnQueue(ItemPrefab itemPrefab, Inventory inventory, object spawned = null)
+		public static void AddToSpawnQueue(ItemPrefab itemPrefab, Inventory inventory, object spawned = null)
 		{
 			EntitySpawner.Spawner.AddToSpawnQueue(itemPrefab, inventory, onSpawned: (Item item) => {
 				GameMain.Lua.CallFunction(spawned, new object[] { item });
