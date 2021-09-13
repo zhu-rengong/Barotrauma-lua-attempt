@@ -30,7 +30,6 @@ jobs:
         run: ldoc . --fatalwarnings
 
       - name: Copy assets
-        working-directory: helix
         run: |
           cp -v docs/css/* docs/html
           cp -v docs/js/* docs/html
