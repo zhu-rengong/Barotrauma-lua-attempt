@@ -80,19 +80,19 @@ function characterCreated(createdCharacter) end
 -- end)
 function characterDeath(character) end
 
----
+--- Gets called every time an affliction is applied.
 -- @realm shared
 function afflictionApplied(affliction, characterHealth, limb) end
----
+--- Gets called every time an affliction updates.
 -- @realm shared
 function afflictionUpdate(affliction, characterHealth, limb) end
----
+--- Gets called every time an Item gets "Used".
 -- @realm shared
 function itemUse(item, itemUser, targetLimb) end
----
+--- Same as itemUse.
 -- @realm shared
 function itemSecondaryUse(item, itemUser) end
----
+--- Gets called whenever an item is used as a treatment (eg. bandages).
 -- @realm shared
 function itemApplyTreatment(item, usingCharacter, targetCharacter, limb) end
 
@@ -107,22 +107,22 @@ function itemEquip(item, character) end
 
 --- Same as itemEquip, but for unequipping.
 -- @realm shared
-function itemUnequip() end
----
+function itemUnequip(item, character) end
+--- 
 -- @realm shared
 function changeFallDamage() end
----
+--- Gets called every update when a gap passes oxygen
 -- @realm shared
-function gapOxygenUpdate() end
----
+function gapOxygenUpdate(gap, hull1, hull2) end
+---  Gets called everytime an Item receives a wire signal
 -- @realm shared
-function signalReceived() end
----
+function signalReceived(connection, signal) end
+---  Same as signalReceived, but gets called only when needed by specifying your component, better performance.
 -- @realm shared
-function signalReceived.YourComponentIdentifier() end
----
+function signalReceived.YourComponentIdentifier(connection, signal) end
+--- Gets called everytime a WifiComponent starts transmitting a signal
 -- @realm shared
-function wifiSignalTransmitted() end
----
+function wifiSignalTransmitted(wifiComponent, signal, sentFromChat) end
+--- Gets called everytime something is logged to the Server Log
 -- @realm shared
-function serverLog() end
+function serverLog(text, serverLogMessageType) end
