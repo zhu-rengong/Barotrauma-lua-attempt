@@ -29,6 +29,12 @@ jobs:
       - name: Build docs
         run: ldoc . --fatalwarnings
 
+      - name: Copy assets
+        working-directory: helix
+        run: |
+          cp -v docs/css/* docs/html
+          cp -v docs/js/* docs/html
+
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
