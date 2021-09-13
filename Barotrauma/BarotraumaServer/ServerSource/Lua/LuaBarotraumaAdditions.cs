@@ -54,10 +54,25 @@ namespace Barotrauma.Networking
 namespace Barotrauma 
 {
 	using Barotrauma.Networking;
+	using System.Linq;
+	using System.Reflection;
+
+
 
 	partial class Character
 	{
+		
+	}
 
+	partial class AfflictionPrefab
+	{
+		public static AfflictionPrefab[] ListArray
+		{
+			get
+			{
+				return List.ToArray();
+			}
+		}
 	}
 
 	partial class CharacterInfo
@@ -73,6 +88,18 @@ namespace Barotrauma
 		public static void AddToRemoveQueue(Item item)
 		{
 			EntitySpawner.Spawner.AddToRemoveQueue(item);
+		}
+
+		public object GetComponentString(string component)
+		{
+			Type type = Type.GetType("Barotrauma.Items.Components." + component);
+
+			if (type == null)
+				return null;
+
+			MethodInfo method = typeof(Item).GetMethod(nameof(Item.GetComponent));
+			MethodInfo generic = method.MakeGenericMethod(type);
+			return generic.Invoke(this, null);
 		}
 
 	}

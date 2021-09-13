@@ -111,7 +111,7 @@ namespace Barotrauma
         public readonly bool NeedsAir;
     }
 
-    class AfflictionPrefab : IPrefab, IDisposable, IHasUintIdentifier
+    partial class AfflictionPrefab : IPrefab, IDisposable, IHasUintIdentifier
     {
         public class Effect
         {
@@ -260,14 +260,6 @@ namespace Barotrauma
                 }
             }
         }
-
-        public static AfflictionPrefab[] ListArray
-		{
-			get
-			{
-                return List.ToArray();
-			}
-		}
 
         public string FilePath { get; private set; }
 

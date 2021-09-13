@@ -220,6 +220,9 @@ namespace Barotrauma
 			UserData.RegisterType<Holdable>();
 			UserData.RegisterType<CustomInterface>();
 			UserData.RegisterType<Inventory>();
+			UserData.RegisterType<ItemContainer>();
+			UserData.RegisterType<PowerContainer>();
+			UserData.RegisterType<Pickable>();
 			UserData.RegisterType<CharacterInventory>();
 			UserData.RegisterType<Hull>();
 			UserData.RegisterType<Gap>();
@@ -242,6 +245,7 @@ namespace Barotrauma
 			UserData.RegisterType<HumanAIController>();
 			UserData.RegisterType<AITarget>();
 			UserData.RegisterType<AITargetMemory>();
+			UserData.RegisterType<ServerSettings>();
 
 			lua = new Script(CoreModules.Preset_SoftSandbox);
 

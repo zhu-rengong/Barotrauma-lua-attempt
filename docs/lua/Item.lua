@@ -11,6 +11,10 @@ Barotrauma source code: [Item.cs](https://github.com/evilfactory/Barotrauma-lua-
 -- @realm server 
 function AddToRemoveQueue(item) end
 
+--- Gets a component from an item by a string name.
+-- @treturn Component component
+-- @realm server 
+function GetComponentString(componentName) end
 
 --- Sends a signal.
 -- @realm server 

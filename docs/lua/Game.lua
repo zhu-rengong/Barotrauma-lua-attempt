@@ -15,6 +15,10 @@ RoundStarted = true
 -- @realm server 
 IsDedicated = true
 
+--- Server settings.
+-- @realm server 
+ServerSettings = true
+
 --- Send chat message to every client.
 -- @realm server 
 function SendMessage(msg, messageType, sender, character) end
@@ -36,7 +40,7 @@ function SendDirectChatMessage(chatMessage, client) end
 -- @realm server 
 function OverrideTraitors(override) end
 
---- True to override respawn shuttle.
+--- True to override respawn sub, stops players from being respawned.
 -- @realm server 
 function OverrideRespawnSub(override) end
 
@@ -60,12 +64,12 @@ function Log(message, ServerLogMessageType) end
 -- @realm server 
 function Explode(pos, range, force, damage, structureDamage, itemDamage, empStrength, ballastFloraStrength) end
 
---- Get respawn shuttle submarine.
+--- Get respawn sub submarine.
 --@treturn Submarine Respawn Shuttle
 -- @realm shared 
-function GetRespawnShuttle() end
+function GetRespawnSub() end
 
---- Dispatch respawn shuttle.
+--- Dispatch respawn sub.
 -- @realm server 
 function DispatchRespawnSub() end
 
