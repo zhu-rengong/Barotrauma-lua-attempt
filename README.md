@@ -1,10 +1,11 @@
 # Barotrauma-Lua 
 This is a Barotrauma server-side modification that adds Lua modding support.
 
-### Documentation: https://github.com/evilfactory/Barotrauma-lua-attempt/wiki/Lua-(Incomplete)
+### Documentation: https://evilfactory.github.io/Barotrauma-lua-attempt/manual/lua-examples/
 ### Discord: https://discord.gg/f9zvNNuxu9
 
 # Barotrauma
+
 Copyright © FakeFish Ltd 2017-2021
 
 Before downloading the source code, please read the [EULA](EULA.txt).
@@ -17,7 +18,9 @@ If you're interested in working on the code, either to develop mods or to contri
 
 **Official Website:** www.barotraumagame.com
 
-**Forums:** http://undertowgames.com/forum/
+**Steam Forums:** https://steamcommunity.com/app/602960/discussions/
+
+**Discord:** https://discordapp.com/invite/undertow
 
 **Wiki:** https://barotraumagame.com/wiki/Main_Page
 
