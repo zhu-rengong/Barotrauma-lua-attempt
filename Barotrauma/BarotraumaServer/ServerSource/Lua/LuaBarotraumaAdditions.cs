@@ -55,6 +55,11 @@ namespace Barotrauma
 {
 	using Barotrauma.Networking;
 
+	partial class Character
+	{
+
+	}
+
 	partial class CharacterInfo
 	{
 		public static CharacterInfo Create(string speciesName, string name = "", JobPrefab jobPrefab = null, string ragdollFileName = null, int variant = 0, Rand.RandSync randSync = Rand.RandSync.Unsynced, string npcIdentifier = "")

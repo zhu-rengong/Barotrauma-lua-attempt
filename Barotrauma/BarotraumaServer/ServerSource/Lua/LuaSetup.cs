@@ -237,6 +237,11 @@ namespace Barotrauma
 			UserData.RegisterType<SubmarineInfo>();
 			UserData.RegisterType<SubmarineBody>();
 			UserData.RegisterType<Explosion>();
+			UserData.RegisterType<AIController>();
+			UserData.RegisterType<EnemyAIController>();
+			UserData.RegisterType<HumanAIController>();
+			UserData.RegisterType<AITarget>();
+			UserData.RegisterType<AITargetMemory>();
 
 			lua = new Script(CoreModules.Preset_SoftSandbox);
 
