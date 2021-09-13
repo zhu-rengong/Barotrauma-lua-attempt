@@ -20,9 +20,9 @@ function CreateVector2(path) end
 --- Create Vector3
 -- @treturn Vector3
 -- @realm shared 
-function CreateVector2(path) end
+function CreateVector3(path) end
 
 --- Create Vector4
 -- @treturn Vector4
 -- @realm shared 
-function CreateVector2(path) end
+function CreateVector4(path) end

@@ -53,7 +53,7 @@ namespace Barotrauma
 
             string executableDir = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
             Directory.SetCurrentDirectory(executableDir);
-            
+
             if (File.Exists("filelist.xml"))
                 Directory.SetCurrentDirectory(executableDir + "/../.."); // sweet
 
