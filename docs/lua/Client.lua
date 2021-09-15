@@ -31,12 +31,15 @@ function Client:CheckPermission(permissions) end
 function Client.Unban(player, endpoint) end
 
 
---- List of all connected clients.
--- @treturn table
--- @realm shared 
-Client.ClientList = {}
 
---- The Character that the client is currently controlling.
--- @treturn Character
--- @realm shared 
-Character = {}
+---
+-- List of all connected clients.
+-- @realm shared
+-- @Character Client.ClientList Table containing characters
+
+---
+-- Character that the client is currently controlling.
+-- @realm shared
+-- @Character Character
+
+

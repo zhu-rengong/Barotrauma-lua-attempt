@@ -54,6 +54,13 @@ tparam_alias("Client", "client")
 tparam_alias("Character", "character")
 tparam_alias("Submarine", "submarine")
 tparam_alias("Item", "item")
+tparam_alias("Vector2", "Vector2")
+tparam_alias("Vector3", "Vector3")
+tparam_alias("Vector4", "Vector4")
+tparam_alias("CauseOfDeath", "CauseOfDeath")
+tparam_alias("CharacterInventory", "CharacterInventory")
+tparam_alias("PhysicsBody", "PhysicsBody")
+
 
 tparam_alias("string", "string")
 tparam_alias("bool", "boolean")
