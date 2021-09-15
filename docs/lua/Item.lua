@@ -30,7 +30,7 @@ function Item:SendSignal(signalOrString, connectionOrConnectionName) end
 -- @usage
 -- Item.ItemList[1].body.position = CreateVector2(0, 0) -- teleports first item created to 0, 0 of the level
 
---- List of all items.
--- @treturn table
--- @realm shared 
-Item.ItemList = {}
+---
+-- Item.ItemList, Table containing all items.
+-- @realm shared
+-- @Item Item.ItemList

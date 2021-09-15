@@ -114,7 +114,7 @@ span.realm {
 	height: 14px;
 	border-radius: 3px;
 	display: inline-block;
-	margin-right: 6px;
+	margin-right: 5px;
 }
 
 span.realm.shared {
@@ -127,6 +127,11 @@ span.realm.client {
 
 span.realm.server {
 	background-color: #08f;
+}
+
+
+.colorful-label {
+	color: rgb(31, 141, 155);
 }
 
 /* wrapper element for sidebar/content */

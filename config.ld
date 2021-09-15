@@ -49,6 +49,7 @@ end
 
 
 new_type("code", "Code", true)
+new_type("enum", "Enum", true)
 
 tparam_alias("Client", "client")
 tparam_alias("Character", "character")

@@ -31,9 +31,9 @@ function TeleportTo(position) end
 
 
 ---
--- Character.CharacterList, List of all characters.
+-- Character.CharacterList, Table containing all characters.
 -- @realm shared
--- @table Character.CharacterList
+-- @Character Character.CharacterList
 
 
 
