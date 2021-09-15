@@ -7,11 +7,15 @@ Barotrauma source code: [Character.cs](https://github.com/evilfactory/Barotrauma
 ]]
 -- @code Character
 
-
---- Creates a CharacterInfo.
--- @treturn CharacterInfo
+--- Creates a Character using CharacterInfo.
+-- @treturn Character
 -- @realm server 
-function Create(speciesName, name, jobPrefab, ragdollFileName, variant, randSync, npcIdentifier) end
+-- @usage 
+-- local vsauce = CharacterInfo.Create("human", "VSAUCE HERE")
+-- local character = Character.Create(vsauce, CreateVector2(0, 0), "some random characters")
+-- print(character)
+function Create(characterInfo, position, seed, id, isRemotePlayer, hasAi, ragdollParams) end
+
 
 --- List of all characters.
 -- @treturn table
