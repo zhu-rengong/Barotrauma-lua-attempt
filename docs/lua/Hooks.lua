@@ -3,7 +3,8 @@
 --[[--
 Hooks are basically functions that get called when events happen in-game, like chat messages.
 ]]
--- @code Hooks
+-- @code Hook
+-- @pragma nostrip
 
 local Hook = {}
 

@@ -4,37 +4,40 @@
 Class providing filesystem functionality.
 ]]
 -- @code File
+-- @pragma nostrip
+
+File = {}
 
 --- Read contents from path
 -- @treturn string file contents
 -- @realm shared 
-function Read(path) end
+function File.Read(path) end
 
 --- Write text to file
 -- @realm shared 
-function Write(path, text) end
+function File.Write(path, text) end
 
 --- Check if file exists.
 -- @treturn bool
 -- @realm shared 
-function Exists(path) end
+function File.Exists(path) end
 
 --- Check if directory exists.
 -- @treturn bool
 -- @realm shared 
-function DirectoryExists(path) end
+function File.DirectoryExists(path) end
 
 --- Check if directory exists.
 -- @treturn table table containing all files
 -- @realm shared 
-function GetFiles(path) end
+function File.GetFiles(path) end
 
 --- List all directories.
 -- @treturn table table containing all directories
 -- @realm shared 
-function GetDirectories(path) end
+function File.GetDirectories(path) end
 
 --- Search directory for all files including sub directories.
 -- @treturn table table containing all files
 -- @realm shared 
-function DirSearch(path) end
+function File.DirSearch(path) end

@@ -6,31 +6,32 @@ Barotrauma Character class with some additional functions and fields
 Barotrauma source code: [Client.cs](https://github.com/evilfactory/Barotrauma-lua-attempt/blob/master/Barotrauma/BarotraumaShared/SharedSource/Networking/Client.cs)
 ]]
 -- @code Client
+-- @pragma nostrip
 
-local myClient = {}
+local Client = {}
 
 --- Sets the client character.
 -- @realm server 
-function myClient.SetClientCharacter(character) end
+function Client:SetClientCharacter(character) end
 
 --- Kick a client.
 -- @realm server 
-function myClient.Kick(reason) end
+function Client:Kick(reason) end
 
 --- Ban a client.
 -- @realm server 
-function myClient.Ban(reason, range, seconds) end
+function Client:Ban(reason, range, seconds) end
 
 --- Checks permissions, Client.Permissions.
 -- @realm server 
-function myClient.CheckPermission(permissions) end
+function Client:CheckPermission(permissions) end
 
 --- Unban a client.
 -- @realm server 
-function Unban(player, endpoint) end
+function Client.Unban(player, endpoint) end
 
 
 --- List of all connected clients.
 -- @treturn table
 -- @realm shared 
-ClientList = {}
+Client.ClientList = {}

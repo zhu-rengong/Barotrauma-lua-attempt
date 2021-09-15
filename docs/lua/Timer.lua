@@ -4,8 +4,11 @@
 Class providing timing related things.
 ]]
 -- @code Timer
+-- @pragma nostrip
+
+Timer = {}
 
 --- Get time in seconds.
 -- @treturn number current time in seconds
 -- @realm shared 
-function GetTime() end
+function Timer.GetTime() end

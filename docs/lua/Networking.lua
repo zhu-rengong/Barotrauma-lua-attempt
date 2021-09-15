@@ -4,13 +4,16 @@
 Class providing networking related tasks.
 ]]
 -- @code Networking
+-- @pragma nostrip
+
+local Networking = {}
 
 --- Send a post HTTP Request.
 -- treturn string result.
 -- @realm server 
-function RequestPostHTTP(url, textData, contentType) end
+function Networking.RequestPostHTTP(url, textData, contentType) end
 
 --- Send a get HTTP Request.
 -- treturn string result.
 -- @realm server 
-function RequestGetHTTP(url) end
+function Networking.RequestGetHTTP(url) end

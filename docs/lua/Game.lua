@@ -4,89 +4,90 @@
 Class providing game related things, Access fields and functions like that: Game.*
 ]]
 -- @code Game
+-- @pragma nostrip
 
 local Game = {}
 
 --- Is the round started?
 -- @realm shared 
-RoundStarted = true
+Game.RoundStarted = true
 
 --- Is dedicated server?
 -- @realm server 
-IsDedicated = true
+Game.IsDedicated = true
 
 --- Server settings.
 -- @realm server 
-ServerSettings = true
+Game.ServerSettings = true
 
 --- Send chat message to every client.
 -- @realm server 
-function SendMessage(msg, messageType, sender, character) end
+function Game.SendMessage(msg, messageType, sender, character) end
 
 --- Send traitor message.
 -- @realm server 
-function SendTraitorMessage(client, msg, missionid, type) end
+function Game.SendTraitorMessage(client, msg, missionid, type) end
 
 
 --- Send direct message.
 -- @realm server 
-function SendDirectChatMessage(sendername, text, senderCharacter, chatMessageType, client, iconStyle) end
+function Game.SendDirectChatMessage(sendername, text, senderCharacter, chatMessageType, client, iconStyle) end
 
 --- Send direct message.
 -- @realm server 
-function SendDirectChatMessage(chatMessage, client) end
+function Game.SendDirectChatMessage(chatMessage, client) end
 
 --- True to override traitors.
 -- @realm server 
-function OverrideTraitors(override) end
+function Game.OverrideTraitors(override) end
 
 --- True to override respawn sub, stops players from being respawned.
 -- @realm server 
-function OverrideRespawnSub(override) end
+function Game.OverrideRespawnSub(override) end
 
 --- True to make wifi chat always work.
 -- @realm server 
-function AllowWifiChat(override) end
+function Game.AllowWifiChat(override) end
 
 --- True to prevent headsets from transmitting wifi signals.
 -- @realm server 
-function OverrideSignalRadio(override) end
+function Game.OverrideSignalRadio(override) end
 
 --- True to disable spam filter.
 -- @realm server 
-function DisableSpamFilter(override) end
+function Game.DisableSpamFilter(override) end
 
 --- Log message to server logs.
 -- @realm server 
-function Log(message, ServerLogMessageType) end
+function Game.Log(message, ServerLogMessageType) end
 
 --- Spawn explosion.
 -- @realm server 
-function Explode(pos, range, force, damage, structureDamage, itemDamage, empStrength, ballastFloraStrength) end
+function Game.Explode(pos, range, force, damage, structureDamage, itemDamage, empStrength, ballastFloraStrength) end
 
 --- Get respawn sub submarine.
 --@treturn Submarine Respawn Shuttle
 -- @realm shared 
-function GetRespawnSub() end
+function Game.GetRespawnSub() end
 
 --- Dispatch respawn sub.
 -- @realm server 
-function DispatchRespawnSub() end
+function Game.DispatchRespawnSub() end
 
 --- Execute console command.
 -- @realm server 
-function ExecuteCommand(command) end
+function Game.ExecuteCommand(command) end
 
 --- Starts the game.
 -- @realm server 
-function StartGame() end
+function Game.StartGame() end
 
 --- Gets all enabled content packages.
 --@treturn table Table containing ContentPackages
 -- @realm shared 
-function GetEnabledContentPackages() end
+function Game.GetEnabledContentPackages() end
 
 --- Gets all enabled content packages by reading directly the player xml, useful when your mod doesn't have any xml.
 --@treturn table Table containing ContentPackages
 -- @realm shared 
-function GetEnabledPackagesDirectlyFromFile() end
+function Game.GetEnabledPackagesDirectlyFromFile() end
