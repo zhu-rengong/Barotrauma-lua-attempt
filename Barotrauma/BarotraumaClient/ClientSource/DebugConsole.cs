@@ -3096,6 +3096,22 @@ namespace Barotrauma
                     NewMessage("Level seed: " + Level.Loaded.Seed);
                 }
             });
+
+            commands.Add(new Command("lua_cl", "lua_cl: runs a string on the client", (string[] args) =>
+            {
+                if (GameMain.Client != null)
+                    GameMain.Lua.DoString(string.Join(" ", args));
+                else
+                    ThrowError("Client not connected to any server.");
+            }));
+
+            commands.Add(new Command("reloadlua_cl", "reloads lua on the client", (string[] args) =>
+            {
+                if (GameMain.Client != null)
+                    GameMain.Lua.Initialize();
+                else
+                    ThrowError("Client not connected to any server.");
+            }));
         }
 
         private static void ReloadWearables(Character character, int variant = 0)

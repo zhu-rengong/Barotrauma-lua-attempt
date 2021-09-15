@@ -393,6 +393,8 @@ namespace Barotrauma.Networking
                 {
                     GameMain.NetLobbyScreen.ChatInput.Enabled = true;
                 }
+
+                GameMain.Lua.Initialize();
             };
             clientPeer.OnRequestPassword = (int salt, int retries) =>
             {
@@ -2690,6 +2692,8 @@ namespace Barotrauma.Networking
 
         public override void Disconnect()
         {
+            GameMain.Lua.Stop();
+
             allowReconnect = false;
 
             if (clientPeer is SteamP2PClientPeer || clientPeer is SteamP2POwnerPeer)

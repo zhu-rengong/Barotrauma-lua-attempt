@@ -41,6 +41,8 @@ namespace Barotrauma
 		{
 			if (message == null) { message = "nil"; }
 			Console.WriteLine(message.ToString());
+
+#if SERVER
 			if (GameMain.Server != null)
 			{
 				foreach (var c in GameMain.Server.ConnectedClients)
@@ -50,6 +52,10 @@ namespace Barotrauma
 
 				GameServer.Log("[LUA] " + message.ToString(), ServerLog.MessageType.ServerMessage);
 			}
+#else
+			DebugConsole.NewMessage("[LUA] " + message.ToString());
+#endif
+
 		}
 
 		public void PrintMessageNoLog(object message)
@@ -158,6 +164,17 @@ namespace Barotrauma
 			return value * 2;
 		}
 
+		public void Stop()
+		{
+
+			lua = null;
+			hook = null;
+			game = null;
+			luaScriptLoader = null;
+
+			luaSetup = null;
+		}
+
 		public void Initialize()
 		{
 			luaSetup = this;
@@ -246,6 +263,8 @@ namespace Barotrauma
 			UserData.RegisterType<AITarget>();
 			UserData.RegisterType<AITargetMemory>();
 			UserData.RegisterType<ServerSettings>();
+			UserData.RegisterType<PrefabCollection<ItemPrefab>>();
+			UserData.RegisterType<PrefabCollection<JobPrefab>>();
 
 			lua = new Script(CoreModules.Preset_SoftSandbox);
 
@@ -306,6 +325,21 @@ namespace Barotrauma
 			lua.Globals["ContentPackage"] = UserData.CreateStatic<ContentPackage>();
 			lua.Globals["ClientPermissions"] = UserData.CreateStatic<ClientPermissions>();
 			lua.Globals["Signal"] = UserData.CreateStatic<Signal>();
+
+			bool isServer = true;
+
+#if SERVER
+			isServer = true;
+#else
+			isServer = false;
+#endif
+
+			lua.Globals["SERVER"] = isServer;
+			lua.Globals["CLIENT"] = !isServer;
+
+#if CLIENT 
+			return;
+#endif
 
 			if (File.Exists("Lua/MoonsharpSetup.lua")) // try the default loader
 				DoFile("Lua/MoonsharpSetup.lua");

@@ -35,3 +35,8 @@ function Client.Unban(player, endpoint) end
 -- @treturn table
 -- @realm shared 
 Client.ClientList = {}
+
+--- The Character that the client is currently controlling.
+-- @treturn Character
+-- @realm shared 
+Character = {}

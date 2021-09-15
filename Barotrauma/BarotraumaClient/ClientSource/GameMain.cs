@@ -23,6 +23,8 @@ namespace Barotrauma
 {
     class GameMain : Game
     {
+        public static LuaSetup Lua;
+
         public static bool ShowFPS = false;
         public static bool ShowPerf = false;
         public static bool DebugDraw;
@@ -209,6 +211,8 @@ namespace Barotrauma
             }
 
             Config = new GameSettings();
+
+            Lua = new LuaSetup();
 
             Md5Hash.LoadCache();
 
