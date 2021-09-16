@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework;
 using System.Threading.Tasks;
 using Barotrauma.Items.Components;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Barotrauma
 {
@@ -40,21 +41,29 @@ namespace Barotrauma
 		public void PrintMessage(object message)
 		{
 			if (message == null) { message = "nil"; }
-			Console.WriteLine(message.ToString());
+			string str = message.ToString();
+
+			Console.WriteLine(str);
+
+			for (int i = 0; i < str.Length; i += 1024)
+			{
+				string subStr = str.Substring(i, Math.Min(1024, str.Length - i));
+
 
 #if SERVER
-			if (GameMain.Server != null)
-			{
-				foreach (var c in GameMain.Server.ConnectedClients)
+				if (GameMain.Server != null)
 				{
-					GameMain.Server.SendDirectChatMessage(message.ToString(), c, ChatMessageType.Console);
-				}
+					foreach (var c in GameMain.Server.ConnectedClients)
+					{
+						GameMain.Server.SendDirectChatMessage(subStr, c, ChatMessageType.Console);
+					}
 
-				GameServer.Log("[LUA] " + message.ToString(), ServerLog.MessageType.ServerMessage);
-			}
+					GameServer.Log("[LUA] " + subStr, ServerLog.MessageType.ServerMessage);
+				}
 #else
 			DebugConsole.NewMessage("[LUA] " + message.ToString());
 #endif
+			}
 
 		}
 
