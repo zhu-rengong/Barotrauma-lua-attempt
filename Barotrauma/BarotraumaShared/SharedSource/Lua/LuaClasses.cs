@@ -64,7 +64,13 @@ namespace Barotrauma
 				}
 			}
 
-			
+			public GameSession GameSession
+			{
+				get
+				{
+					return GameMain.GameSession;
+				}
+			}
 
 			public void OverrideTraitors(bool o)
 			{
