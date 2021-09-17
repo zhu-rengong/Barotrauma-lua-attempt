@@ -269,6 +269,7 @@ namespace Barotrauma
 			UserData.RegisterType<AIController>();
 			UserData.RegisterType<EnemyAIController>();
 			UserData.RegisterType<HumanAIController>();
+			UserData.RegisterType<AICharacter>();
 			UserData.RegisterType<AITarget>();
 			UserData.RegisterType<AITargetMemory>();
 			UserData.RegisterType<ServerSettings>();
