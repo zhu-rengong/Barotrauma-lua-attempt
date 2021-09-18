@@ -249,6 +249,7 @@ namespace Barotrauma
 			UserData.RegisterType<ItemContainer>();
 			UserData.RegisterType<PowerContainer>();
 			UserData.RegisterType<Pickable>();
+			UserData.RegisterType<Reactor>();
 			UserData.RegisterType<CharacterInventory>();
 			UserData.RegisterType<Hull>();
 			UserData.RegisterType<Gap>();
