@@ -72,6 +72,14 @@ namespace Barotrauma
 				}
 			}
 
+			public NetLobbyScreen NetLobbyScreen
+			{
+				get
+				{
+					return GameMain.NetLobbyScreen;
+				}
+			}
+
 			public void OverrideTraitors(bool o)
 			{
 				overrideTraitors = o;

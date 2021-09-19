@@ -280,6 +280,7 @@ namespace Barotrauma
 			UserData.RegisterType<CampaignMode>();
 			UserData.RegisterType<InputType>();
 			UserData.RegisterType<Key>();
+			UserData.RegisterType<NetLobbyScreen>();
 
 			lua = new Script(CoreModules.Preset_SoftSandbox);
 
