@@ -278,7 +278,9 @@ namespace Barotrauma
 			UserData.RegisterType<PrefabCollection<JobPrefab>>();
 			UserData.RegisterType<GameSession>();
 			UserData.RegisterType<CampaignMode>();
-			
+			UserData.RegisterType<InputType>();
+			UserData.RegisterType<Key>();
+
 			lua = new Script(CoreModules.Preset_SoftSandbox);
 
 			lua.Options.DebugPrint = PrintMessage;
