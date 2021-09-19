@@ -43,6 +43,34 @@ namespace Barotrauma.Networking
 namespace Barotrauma
 {
 	using Microsoft.Xna.Framework;
+	using System.Reflection;
+
+	partial class Item
+	{
+		public object CreateServerEventString(string component)
+		{
+			Type type = Type.GetType("Barotrauma.Items.Components." + component);
+
+			if (type == null)
+				return null;
+
+			MethodInfo method = typeof(Item).GetMethod(nameof(Item.CreateServerEvent));
+			MethodInfo generic = method.MakeGenericMethod(type);
+			return generic.Invoke(this, null);
+		}
+
+		public object CreateServerEventString(string component, object[] extraData)
+		{
+			Type type = Type.GetType("Barotrauma.Items.Components." + component);
+
+			if (type == null)
+				return null;
+
+			MethodInfo method = typeof(Item).GetMethod(nameof(Item.CreateServerEvent));
+			MethodInfo generic = method.MakeGenericMethod(type);
+			return generic.Invoke(this, new object[]{ extraData });
+		}
+	}
 
 	partial class ItemPrefab
 	{

@@ -29,3 +29,8 @@ function ItemPrefab.AddToSpawnQueue(itemPrefab, inventory, spawned) end
 -- @treturn ItemPrefab
 -- @realm shared 
 function ItemPrefab.GetItemPrefab(itemNameOrId) end
+
+---
+-- Identifier, the identifier of the prefab.
+-- @realm shared
+-- @string Identifier

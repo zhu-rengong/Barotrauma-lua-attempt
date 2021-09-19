@@ -34,3 +34,18 @@ function Item:SendSignal(signalOrString, connectionOrConnectionName) end
 -- Item.ItemList, Table containing all items.
 -- @realm shared
 -- @Item Item.ItemList
+
+---
+-- Prefab, ItemPrefab containing the original prefab of the item.
+-- @realm shared
+-- @ItemPrefab Prefab
+
+---
+-- Name, the name of the item.
+-- @realm shared
+-- @string Name
+
+---
+-- WorldPosition, Vector2 position of the item in the world
+-- @realm shared
+-- @Vector2 WorldPosition

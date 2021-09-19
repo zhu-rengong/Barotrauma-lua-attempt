@@ -173,6 +173,11 @@ function TeleportTo(position) end
 -- @bool IsInFriendlySub
 
 ---
+-- WorldPosition, Vector2 position of the Character in the world
+-- @realm shared
+-- @Vector2 WorldPosition
+
+---
 -- Position, returns a Vector2.
 -- @realm shared
 -- @Vector2 Position
