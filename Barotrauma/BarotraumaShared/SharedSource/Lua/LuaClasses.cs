@@ -397,7 +397,7 @@ namespace Barotrauma
 			}
 		}
 
-		private partial class LuaNetworking
+		public partial class LuaNetworking
 		{
 			public LuaSetup env;
 
@@ -405,6 +405,61 @@ namespace Barotrauma
 			{
 				env = e;
 			}
+
+			public Dictionary<string, object> NetReceives = new Dictionary<string, object>();
+			
+			[MoonSharpHidden]
+			public void NetMessageReceived(IReadMessage netMessage, Client client = null)
+			{
+				string netMessageName = netMessage.ReadString();
+				if (NetReceives[netMessageName] is Closure)
+					env.lua.Call(NetReceives[netMessageName], new object[] { netMessage, client });
+			}
+
+			public void Receive(string netMessageName, object callback)
+			{
+				NetReceives[netMessageName] = callback;
+			}
+
+
+			public IWriteMessage Start(string netMessageName)
+			{
+				var message = new WriteOnlyMessage();
+#if SERVER
+				message.Write((byte)ServerPacketHeader.LUA_NET_MESSAGE);
+#else
+				message.Write((byte)ClientPacketHeader.LUA_NET_MESSAGE);
+#endif
+				message.Write(netMessageName);
+				return ((IWriteMessage)message);
+			}
+
+			public IWriteMessage Start()
+			{
+				return new WriteOnlyMessage();
+			}
+
+#if SERVER
+			public void Send(IWriteMessage netMessage, NetworkConnection connection = null, DeliveryMethod deliveryMethod = DeliveryMethod.Reliable)
+			{
+				if (connection == null)
+				{
+					foreach (NetworkConnection conn in Client.ClientList.Select(c => c.Connection))
+					{
+						GameMain.Server.ServerPeer.Send(netMessage, conn, deliveryMethod);
+					}
+				}
+				else
+				{
+					GameMain.Server.ServerPeer.Send(netMessage, connection, deliveryMethod);
+				}
+			}
+#else
+			public void Send(IWriteMessage netMessage, DeliveryMethod deliveryMethod = DeliveryMethod.Reliable)
+			{
+				GameMain.Client.ClientPeer.Send(netMessage, deliveryMethod);
+			}
+#endif
 
 			public string RequestPostHTTP(string url, string data, string contentType = "application/json")
 			{

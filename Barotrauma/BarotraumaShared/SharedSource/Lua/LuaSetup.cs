@@ -20,6 +20,7 @@ namespace Barotrauma
 
 		public LuaHook hook;
 		public LuaGame game;
+		public LuaNetworking networking;
 
 		public LuaScriptLoader luaScriptLoader;
 
@@ -281,6 +282,11 @@ namespace Barotrauma
 			UserData.RegisterType<InputType>();
 			UserData.RegisterType<Key>();
 			UserData.RegisterType<NetLobbyScreen>();
+			UserData.RegisterType<IWriteMessage>();
+			UserData.RegisterType<IReadMessage>();
+			UserData.RegisterType<ServerPacketHeader>();
+			UserData.RegisterType<ClientPacketHeader>();
+			UserData.RegisterType<DeliveryMethod>();
 
 			lua = new Script(CoreModules.Preset_SoftSandbox);
 
@@ -290,6 +296,7 @@ namespace Barotrauma
 
 			hook = new LuaHook(this);
 			game = new LuaGame(this);
+			networking = new LuaNetworking(this);
 
 			lua.Globals["TestFunction"] = (Func<float, float>)TestFunction;
 
@@ -310,7 +317,7 @@ namespace Barotrauma
 			lua.Globals["Random"] = new LuaRandom();
 			lua.Globals["Timer"] = new LuaTimer(this);
 			lua.Globals["File"] = UserData.CreateStatic<LuaFile>();
-			lua.Globals["Networking"] = new LuaNetworking(this);
+			lua.Globals["Networking"] = networking;
 			lua.Globals["WayPoint"] = UserData.CreateStatic<WayPoint>();
 			lua.Globals["SpawnType"] = UserData.CreateStatic<SpawnType>();
 			lua.Globals["ChatMessageType"] = UserData.CreateStatic<ChatMessageType>();
@@ -341,6 +348,9 @@ namespace Barotrauma
 			lua.Globals["ContentPackage"] = UserData.CreateStatic<ContentPackage>();
 			lua.Globals["ClientPermissions"] = UserData.CreateStatic<ClientPermissions>();
 			lua.Globals["Signal"] = UserData.CreateStatic<Signal>();
+			lua.Globals["DeliveryMethod"] = UserData.CreateStatic<DeliveryMethod>();
+			lua.Globals["ClientPacketHeader"] = UserData.CreateStatic<ClientPacketHeader>();
+			lua.Globals["ServerPacketHeader"] = UserData.CreateStatic<ServerPacketHeader>();
 
 			bool isServer = true;
 
@@ -352,11 +362,7 @@ namespace Barotrauma
 
 			lua.Globals["SERVER"] = isServer;
 			lua.Globals["CLIENT"] = !isServer;
-
-#if CLIENT 
-			return;
-#endif
-
+			
 			if (File.Exists("Lua/MoonsharpSetup.lua")) // try the default loader
 				DoFile("Lua/MoonsharpSetup.lua");
 			else if (File.Exists("Mods/LuaForBarotrauma/Lua/MoonsharpSetup.lua")) // in case its the workshop version

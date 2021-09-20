@@ -958,6 +958,9 @@ namespace Barotrauma.Networking
                 case ServerPacketHeader.EVENTACTION:
                     GameMain.GameSession?.EventManager.ClientRead(inc);
                     break;
+                case ServerPacketHeader.LUA_NET_MESSAGE:
+                    GameMain.Lua.networking.NetMessageReceived(inc);
+                    break;
             }
         }
 

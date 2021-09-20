@@ -849,6 +849,9 @@ namespace Barotrauma.Networking
                 case ClientPacketHeader.ERROR:
                     HandleClientError(inc, connectedClient);
                     break;
+                case ClientPacketHeader.LUA_NET_MESSAGE:
+                    GameMain.Lua.networking.NetMessageReceived(inc, connectedClient);
+                    break;
             }
         }
 

@@ -31,8 +31,8 @@ namespace Barotrauma.Networking
         ERROR,           //tell the server that an error occurred
         CREW,
         READY_CHECK,
-        READY_TO_SPAWN
-        
+        READY_TO_SPAWN,
+        LUA_NET_MESSAGE
     }
     enum ClientNetObject
     {
@@ -80,7 +80,8 @@ namespace Barotrauma.Networking
         MISSION,
         EVENTACTION,
         CREW,               //anything related to managing bots in multiplayer
-        READY_CHECK         //start, end and update a ready check 
+        READY_CHECK,        //start, end and update a ready check
+        LUA_NET_MESSAGE
     }
     enum ServerNetObject
     {

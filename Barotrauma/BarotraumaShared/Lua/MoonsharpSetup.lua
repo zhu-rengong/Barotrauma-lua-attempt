@@ -1,6 +1,6 @@
 local runDisabledMods = false
 
-if Game.IsDedicated then
+if SERVER and Game.IsDedicated then
     runDisabledMods = true
 
     print("LUA LOADER: Dedicated server detected, loading mods regardless being disabled.")
