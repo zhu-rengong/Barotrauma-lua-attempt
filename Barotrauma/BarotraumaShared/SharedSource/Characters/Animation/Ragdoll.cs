@@ -712,18 +712,12 @@ namespace Barotrauma
 
                         float impactDamage = Math.Min((impact - ImpactTolerance) * ImpactDamageMultiplayer, character.MaxVitality * MaxImpactDamage);
 
-#if SERVER
+                        var should = new LuaResult(GameMain.Lua.hook.Call("changeFallDamage", new object[] { impactDamage, character, impactPos, velocity }));
 
-                        var should = GameMain.Lua.hook.Call("changeFallDamage", new object[] { impactDamage, character, impactPos, velocity });
-
-                        if (should != null)
-                        {
-                            if (should is DynValue dyn)
-                            {
-                                impactDamage = (float)dyn.CastToNumber();
-                            }
+						if (!should.IsNull())
+						{
+                            impactDamage = should.Float();
                         }
-#endif
 
                         character.LastDamageSource = null;
                         character.AddDamage(impactPos, AfflictionPrefab.ImpactDamage.Instantiate(impactDamage).ToEnumerable(), 0.0f, true);

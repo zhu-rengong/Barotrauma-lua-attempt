@@ -559,8 +559,12 @@ namespace Barotrauma
 					try
 					{
 						if (hf.function is Closure)
-							lastResult = env.lua.Call(hf.function, args);
-						// else if (hf.function is NLua.LuaFunction luaFunction)
+						{
+							var result = env.lua.Call(hf.function, args);
+							if (result.CastToBool() != false)
+								lastResult = result;
+						}
+						//else if (hf.function is NLua.LuaFunction luaFunction)
 						//	lastResult = luaFunction.Call(args);
 					}
 					catch (Exception e)
@@ -571,6 +575,61 @@ namespace Barotrauma
 
 				return lastResult;
 			}
+		}
+
+	}
+
+	public class LuaResult
+	{
+		object result;
+		public LuaResult(object arg)
+		{
+			result = arg;
+		}
+
+		public bool IsNull()
+		{
+			if (result == null)
+				return true;
+
+			if (result is DynValue dynValue)
+				return dynValue.IsNil();
+
+			return false;
+		}
+
+		public bool Bool()
+		{
+			if (result is DynValue dynValue)
+			{
+				return dynValue.CastToBool();
+			}
+
+			return false;
+		}
+
+		public float Float()
+		{
+			if (result is DynValue dynValue)
+			{
+				var num = dynValue.CastToNumber();
+				if (num == null) { return 0f; }
+				return (float)num;
+			}
+
+			return 0f;
+		}
+
+		public double Double()
+		{
+			if (result is DynValue dynValue)
+			{
+				var num = dynValue.CastToNumber();
+				if (num == null) { return 0f; }
+				return (double)num;
+			}
+
+			return 0f;
 		}
 	}
 }

@@ -3112,18 +3112,11 @@ namespace Barotrauma.Networking
 
             var hookChatMsg = ChatMessage.Create(senderName, message, (ChatMessageType)type, senderCharacter, senderClient, changeType);
 
-            var should = GameMain.Lua.hook.Call("modifyChatMessage", new object[] { hookChatMsg, senderRadio });
+            var should = new LuaResult(GameMain.Lua.hook.Call("modifyChatMessage", new object[] { hookChatMsg, senderRadio }));
 
-            if (should != null)
-            {
-                if (should is DynValue dyn)
-                {
-                    if (dyn.CastToBool())
-                    {
-                        return;
-                    }
-                }
-            }
+            if (should.Bool())
+                return;
+            
 
             //check which clients can receive the message and apply distance effects
             foreach (Client client in ConnectedClients)

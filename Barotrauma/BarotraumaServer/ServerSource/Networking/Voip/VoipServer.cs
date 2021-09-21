@@ -94,29 +94,20 @@ namespace Barotrauma.Networking
                 ChatMessage.CanUseRadio(sender.Character, out WifiComponent senderRadio) && 
                 ChatMessage.CanUseRadio(recipient.Character, out WifiComponent recipientRadio))
             {
-                var should = GameMain.Lua.hook.Call("canUseVoiceRadio", new object[] { sender, recipient });
+                var should = new LuaResult(GameMain.Lua.hook.Call("canUseVoiceRadio", new object[] { sender, recipient }));
 
-                if (should != null)
-                {
-                    if (should is DynValue dyn)
-                    {
-                        return dyn.CastToBool();
-                    }
-                }
+                if (!should.IsNull() && should.Bool())
+                    return should.Bool();
 
                 if (recipientRadio.CanReceive(senderRadio)) { return true; }
             }
 
-            var should2 = GameMain.Lua.hook.Call("changeLocalVoiceRange", new object[] { sender, recipient });
+            var should2 = new LuaResult(GameMain.Lua.hook.Call("changeLocalVoiceRange", new object[] { sender, recipient }));
             float range = 1.0f;
 
-            if (should2 != null)
-            {
-                if (should2 is DynValue dyn)
-                {
-                    range = (float)dyn.CastToNumber();
-                }
-            }
+            if (!should2.IsNull())
+                range = should2.Float();
+            
 
             //otherwise do a distance check
             return ChatMessage.GetGarbleAmount(recipient.Character, sender.Character, ChatMessage.SpeakRange) < range;

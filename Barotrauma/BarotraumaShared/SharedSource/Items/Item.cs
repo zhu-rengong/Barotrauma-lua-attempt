@@ -2225,20 +2225,10 @@ namespace Barotrauma
 
             if (condition == 0.0f) { return; }
 
-#if SERVER
-            var should = GameMain.Lua.hook.Call("itemUse", new object[] { this, character, targetLimb });
+            var should = new LuaResult(GameMain.Lua.hook.Call("itemUse", new object[] { this, character, targetLimb }));
 
-            if (should != null)
-            {
-                if (should is DynValue dyn)
-                {
-                    if (dyn.CastToBool())
-                    {
-                        return;
-                    }
-                }
-            }
-#endif
+            if (should.Bool())
+                return;
 
             bool remove = false;
 
@@ -2273,20 +2263,11 @@ namespace Barotrauma
         {
             if (condition == 0.0f) { return; }
 
-#if SERVER
-            var should = GameMain.Lua.hook.Call("itemSecondaryUse", new object[] { this, character});
+            var should = new LuaResult(GameMain.Lua.hook.Call("itemSecondaryUse", new object[] { this, character}));
 
-            if (should != null)
-            {
-                if (should is DynValue dyn)
-                {
-                    if (dyn.CastToBool())
-                    {
-                        return;
-                    }
-                }
-            }
-#endif
+            if (should.Bool())
+                return;
+
 
             bool remove = false;
 
@@ -2319,20 +2300,10 @@ namespace Barotrauma
 
         public void ApplyTreatment(Character user, Character character, Limb targetLimb)
         {
-#if SERVER
-            var should = GameMain.Lua.hook.Call("itemApplyTreatment", new object[] { this, user, character, targetLimb });
+            var should = new LuaResult(GameMain.Lua.hook.Call("itemApplyTreatment", new object[] { this, user, character, targetLimb }));
 
-            if (should != null)
-            {
-                if (should is DynValue dyn)
-                {
-                    if (dyn.CastToBool())
-                    {
-                        return;
-                    }
-                }
-            }
-#endif
+            if (should.Bool())
+                return;
 
             //can't apply treatment to dead characters
             if (character.IsDead) return;
@@ -2390,20 +2361,10 @@ namespace Barotrauma
 
         public void Drop(Character dropper, bool createNetworkEvent = true)
         {
-#if SERVER
-            var should = GameMain.Lua.hook.Call("itemDrop", new object[] { this, dropper});
+            var should = new LuaResult(GameMain.Lua.hook.Call("itemDrop", new object[] { this, dropper}));
 
-            if (should != null)
-            {
-                if (should is DynValue dyn)
-                {
-                    if (dyn.CastToBool())
-                    {
-                        return;
-                    }
-                }
-            }
-#endif
+            if (should.Bool())
+                return;
 
             if (createNetworkEvent)
             {
@@ -2455,20 +2416,10 @@ namespace Barotrauma
 
         public void Equip(Character character)
         {
-#if SERVER
-            var should = GameMain.Lua.hook.Call("itemEquip", new object[] { this, character});
+            var should = new LuaResult(GameMain.Lua.hook.Call("itemEquip", new object[] { this, character}));
 
-            if (should != null)
-            {
-                if (should is DynValue dyn)
-                {
-                    if (dyn.CastToBool())
-                    {
-                        return;
-                    }
-                }
-            }
-#endif
+            if (should.Bool())
+                return;
 
             if (Removed)
             {
@@ -2481,20 +2432,10 @@ namespace Barotrauma
 
         public void Unequip(Character character)
         {
-#if SERVER
-            var should = GameMain.Lua.hook.Call("itemUnequip", new object[] { this, character });
+            var should = new LuaResult(GameMain.Lua.hook.Call("itemUnequip", new object[] { this, character }));
 
-            if (should != null)
-            {
-                if (should is DynValue dyn)
-                {
-                    if (dyn.CastToBool())
-                    {
-                        return;
-                    }
-                }
-            }
-#endif
+            if (should.Bool())
+                return;
 
             foreach (ItemComponent ic in components) { ic.Unequip(character); }
         }

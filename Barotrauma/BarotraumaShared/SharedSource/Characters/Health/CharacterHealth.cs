@@ -409,20 +409,11 @@ namespace Barotrauma
             {
                 if (targetLimb == null)
                 {
-#if SERVER
-                    var should = GameMain.Lua.hook.Call("afflictionApplied", new object[] { this, affliction });
+                    var should = new LuaResult(GameMain.Lua.hook.Call("afflictionApplied", new object[] { this, affliction }));
 
-                    if (should != null)
-                    {
-                        if (should is DynValue dyn)
-                        {
-                            if (dyn.CastToBool())
-                            {
-                                return;
-                            }
-                        }
-                    }
-#endif
+                    if (should.Bool())
+                        return;
+
 
                     //if a limb-specific affliction is applied to no specific limb, apply to all limbs
                     foreach (LimbHealth limbHealth in limbHealths)
@@ -433,40 +424,20 @@ namespace Barotrauma
                 }
                 else
                 {
-#if SERVER
-                    var should = GameMain.Lua.hook.Call("afflictionApplied", new object[] { this, affliction, targetLimb });
+                    var should = new LuaResult(GameMain.Lua.hook.Call("afflictionApplied", new object[] { this, affliction, targetLimb }));
 
-                    if (should != null)
-                    {
-                        if (should is DynValue dyn)
-                        {
-                            if (dyn.CastToBool())
-                            {
-                                return;
-                            }
-                        }
-                    }
-#endif
+                    if (should.Bool())
+                        return;
 
                     AddLimbAffliction(targetLimb, affliction);
                 }
             }
             else
             {
-#if SERVER
-                var should = GameMain.Lua.hook.Call("afflictionApplied", new object[] { this, affliction });
+                var should = new LuaResult(GameMain.Lua.hook.Call("afflictionApplied", new object[] { this, affliction }));
 
-                if (should != null)
-                {
-                    if (should is DynValue dyn)
-                    {
-                        if (dyn.CastToBool())
-                        {
-                            return;
-                        }
-                    }
-                }
-#endif
+                if (should.Bool())
+                    return;
 
                 AddAffliction(affliction);
             }
@@ -544,20 +515,10 @@ namespace Barotrauma
                 return;
             }
 
-#if SERVER
-            var should = GameMain.Lua.hook.Call("afflictionApplied", new object[] { this, attackResult, hitLimb });
+            var should = new LuaResult(GameMain.Lua.hook.Call("afflictionApplied", new object[] { this, attackResult, hitLimb }));
 
-            if (should != null)
-            {
-                if (should is DynValue dyn)
-                {
-                    if (dyn.CastToBool())
-                    {
-                        return;
-                    }
-                }
-            }
-#endif
+            if (should.Bool())
+                return;
 
             foreach (Affliction newAffliction in attackResult.Afflictions)
             {
