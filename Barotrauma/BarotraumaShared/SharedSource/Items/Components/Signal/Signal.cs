@@ -9,7 +9,7 @@ namespace Barotrauma.Items.Components
         public float power;
         public float strength;
 
-        internal Signal(string value, int stepsTaken = 0, Character sender = null,
+        public Signal(string value, int stepsTaken = 0, Character sender = null,
                         Item source = null, float power = 0.0f, float strength = 1.0f)
         {
             this.value = value;

@@ -561,7 +561,7 @@ namespace Barotrauma
 						if (hf.function is Closure)
 						{
 							var result = env.lua.Call(hf.function, args);
-							if (result.CastToBool() != false)
+							if (!result.IsNil())
 								lastResult = result;
 						}
 						//else if (hf.function is NLua.LuaFunction luaFunction)
