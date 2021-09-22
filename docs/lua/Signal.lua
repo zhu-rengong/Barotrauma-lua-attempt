@@ -13,7 +13,7 @@ Signal = {}
 --- Instantiates a new Signal.
 -- @treturn Signal
 -- @realm shared 
-function Signal.__new(stringValue, stepsTaken, characterSender, itemSource, power, strength) end
+function Signal(stringValue, stepsTaken, characterSender, itemSource, power, strength) end
 
 ---
 -- value, String value of the signal.

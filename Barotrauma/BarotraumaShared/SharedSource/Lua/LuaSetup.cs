@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using Barotrauma.Items.Components;
 using System.Diagnostics;
 using System.Linq;
+using MoonSharp.Interpreter.Interop;
+using System.Reflection;
 
 namespace Barotrauma
 {
@@ -174,6 +176,37 @@ namespace Barotrauma
 			return value * 2;
 		}
 
+		// messy solution
+		private object HandleCall(object arg1, ScriptExecutionContext arg2, CallbackArguments arg3)
+		{
+			var what = arg3.RawGet(0, true);
+
+			var code = "return " + what.UserData.Descriptor.Type.Name + ".__new(";
+
+			var tbl = new Table(lua);
+			tbl[what.UserData.Descriptor.Type.Name] = what;
+			
+			for(var i=1; i < arg3.Count; i++)
+			{
+				if (i == arg3.Count - 1)
+					code = code + "arg" + i;
+				else
+					code = code + "arg" + i + ",";
+
+				tbl["arg" + i] = arg3.RawGet(i, true);
+			}
+
+			code = code + ")";
+
+			return lua.DoString(code, tbl);
+		}
+
+		private void AddCallMetaMember(IUserDataDescriptor IUDD)
+		{
+			var descriptor = (StandardUserDataDescriptor)IUDD;
+			descriptor.AddMetaMember("__call", new ObjectCallbackMemberDescriptor("__call", HandleCall));
+		}
+
 		public void Stop()
 		{
 
@@ -198,7 +231,6 @@ namespace Barotrauma
 
 			UserData.RegisterType<TraitorMessageType>();
 			UserData.RegisterType<JobPrefab>();
-			UserData.RegisterType<CharacterInfo>();
 			UserData.RegisterType<Rectangle>();
 			UserData.RegisterType<Point>();
 			UserData.RegisterType<Level.InterestingPosition>();
@@ -220,9 +252,6 @@ namespace Barotrauma
 			UserData.RegisterType<LuaTimer>();
 			UserData.RegisterType<LuaFile>();
 			UserData.RegisterType<LuaNetworking>();
-			UserData.RegisterType<Vector2>();
-			UserData.RegisterType<Vector3>();
-			UserData.RegisterType<Vector4>();
 			UserData.RegisterType<CauseOfDeathType>();
 			UserData.RegisterType<AfflictionPrefab>();
 			UserData.RegisterType<Affliction>();
@@ -239,7 +268,6 @@ namespace Barotrauma
 			UserData.RegisterType<MapEntityPrefab>();
 			UserData.RegisterType<CauseOfDeath>();
 			UserData.RegisterType<CharacterTeamType>();
-			UserData.RegisterType<Signal>();
 			UserData.RegisterType<Connection>();
 			UserData.RegisterType<ItemComponent>();
 			UserData.RegisterType<WifiComponent>();
@@ -287,6 +315,13 @@ namespace Barotrauma
 			UserData.RegisterType<ServerPacketHeader>();
 			UserData.RegisterType<ClientPacketHeader>();
 			UserData.RegisterType<DeliveryMethod>();
+
+			AddCallMetaMember(UserData.RegisterType<Vector2>());
+			AddCallMetaMember(UserData.RegisterType<Vector3>());
+			AddCallMetaMember(UserData.RegisterType<Vector4>());
+			AddCallMetaMember(UserData.RegisterType<CharacterInfo>());
+			AddCallMetaMember(UserData.RegisterType<Signal>());
+
 
 			lua = new Script(CoreModules.Preset_SoftSandbox);
 
@@ -337,10 +372,7 @@ namespace Barotrauma
 			lua.Globals["CharacterTeamType"] = UserData.CreateStatic<CharacterTeamType>();
 			lua.Globals["Vector2"] = UserData.CreateStatic<Vector2>();
 			lua.Globals["Vector3"] = UserData.CreateStatic<Vector3>();
-			lua.Globals["Vector4"] = UserData.CreateStatic<Vector3>();
-			lua.Globals["CreateVector2"] = (Func<float, float, Vector2>)CreateVector2;
-			lua.Globals["CreateVector3"] = (Func<float, float, float, Vector3>)CreateVector3;
-			lua.Globals["CreateVector4"] = (Func<float, float, float, float, Vector4>)CreateVector4;
+			lua.Globals["Vector4"] = UserData.CreateStatic<Vector4>();
 			lua.Globals["ChatMessage"] = UserData.CreateStatic<ChatMessage>();
 			lua.Globals["Hull"] = UserData.CreateStatic<Hull>();
 			lua.Globals["InvSlotType"] = UserData.CreateStatic<InvSlotType>();
@@ -351,6 +383,11 @@ namespace Barotrauma
 			lua.Globals["DeliveryMethod"] = UserData.CreateStatic<DeliveryMethod>();
 			lua.Globals["ClientPacketHeader"] = UserData.CreateStatic<ClientPacketHeader>();
 			lua.Globals["ServerPacketHeader"] = UserData.CreateStatic<ServerPacketHeader>();
+
+			// obsolete
+			lua.Globals["CreateVector2"] = (Func<float, float, Vector2>)CreateVector2;
+			lua.Globals["CreateVector3"] = (Func<float, float, float, Vector3>)CreateVector3;
+			lua.Globals["CreateVector4"] = (Func<float, float, float, float, Vector4>)CreateVector4;
 
 			bool isServer = true;
 
@@ -384,7 +421,6 @@ namespace Barotrauma
 				luaScriptLoader.ModulePaths = modulePaths.ToArray();
 			}
 		}
-
 
 		public LuaSetup()
 		{

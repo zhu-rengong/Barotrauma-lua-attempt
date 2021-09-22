@@ -17,4 +17,4 @@ local CharacterInfo = {}
 -- local vsauce = CharacterInfo.__new("human", "VSAUCE HERE")
 -- local character = Character.Create(vsauce, Vector2.__new(0, 0), "some random characters")
 -- print(character)
-function CharacterInfo.__new(speciesName, name, jobPrefab, ragdollFileName, variant, randSync, npcIdentifier) end
+function CharacterInfo(speciesName, name, jobPrefab, ragdollFileName, variant, randSync, npcIdentifier) end
