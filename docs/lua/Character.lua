@@ -16,8 +16,8 @@ local Character = {}
 -- @treturn Character
 -- @realm server 
 -- @usage 
--- local vsauce = CharacterInfo.Create("human", "VSAUCE HERE")
--- local character = Character.Create(vsauce, CreateVector2(0, 0), "some random characters")
+-- local vsauce = CharacterInfo.__new("human", "VSAUCE HERE")
+-- local character = Character.Create(vsauce, Vector2.__new(0, 0), "some random characters")
 -- print(character)
 function Character.Create(characterInfo, position, seed, id, isRemotePlayer, hasAi, ragdollParams) end
 
@@ -26,7 +26,7 @@ function Character.Create(characterInfo, position, seed, id, isRemotePlayer, has
 -- @realm server 
 -- @tparam Vector2 position
 -- @usage 
--- Character.CharacterList[1].TeleportTo(CreateVector2(0, 0)) -- teleports first created characters to 0, 0
+-- Character.CharacterList[1].TeleportTo(Vector2.__new(0, 0)) -- teleports first created characters to 0, 0
 function TeleportTo(position) end
 
 

@@ -12,17 +12,21 @@ CreateVector2, CreateVector3, CreateVector4 are globals.
 ]]
 -- @code Vectors
 
+local Vector2 = {}
+local Vector3 = {}
+local Vector4 = {}
+
 --- Create Vector2
 -- @treturn Vector2
 -- @realm shared 
-function CreateVector2(path) end
+function Vector2.__new(x, y) end
 
 --- Create Vector3
 -- @treturn Vector3
 -- @realm shared 
-function CreateVector3(path) end
+function Vector3.__new(x, y, z) end
 
 --- Create Vector4
 -- @treturn Vector4
 -- @realm shared 
-function CreateVector4(path) end
+function Vector4.__new(x, y, z, w) end
