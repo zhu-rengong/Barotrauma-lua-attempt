@@ -57,7 +57,7 @@ Hook.Add("chatMessage", "discordIntegration", function (msg, client)
     local escapedName = escapeQuotes(client.name)
     local escapedMessage = escapeQuotes(msg)
 
-    Networking.RequestPostHTTP(discordWebHook, '{\"content\": \"'..escapedMessage..'\", \"username\": \"'..escapedName..'\"}')
+    Networking.RequestPostHTTP(discordWebHook, function(result) end, '{\"content\": \"'..escapedMessage..'\", \"username\": \"'..escapedName..'\"}')
 end)
 ```
 

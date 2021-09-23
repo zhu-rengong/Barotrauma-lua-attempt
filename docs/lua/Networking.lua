@@ -8,15 +8,13 @@ Class providing networking related tasks.
 
 local Networking = {}
 
---- Send a post HTTP Request.
--- treturn string result.
+--- Send a post HTTP Request, callback is called with an argument result string.
 -- @realm server 
-function Networking.RequestPostHTTP(url, textData, contentType) end
+function Networking.RequestPostHTTP(url, callback, textData, contentType) end
 
---- Send a get HTTP Request.
--- treturn string result.
+--- Send a get HTTP Request, callback is called with an argument result string.
 -- @realm server 
-function Networking.RequestGetHTTP(url) end
+function Networking.RequestGetHTTP(url, callback) end
 
 --- Creates a new net message, returns an IWriteMessage
 -- treturn IWriteMessage netMessage
