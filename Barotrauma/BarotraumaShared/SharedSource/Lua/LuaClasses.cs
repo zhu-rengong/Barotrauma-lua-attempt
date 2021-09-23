@@ -461,7 +461,7 @@ namespace Barotrauma
 			}
 #endif
 
-			public string RequestPostHTTP(string url, string data, string contentType = "application/json")
+			public void RequestPostHTTP(string url, object callback, string data, string contentType = "application/json")
 			{
 				try
 				{
@@ -472,27 +472,35 @@ namespace Barotrauma
 					using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
 						streamWriter.Write(data);
 
-					var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-					using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
-						return streamReader.ReadToEnd();
+					httpWebRequest.BeginGetResponse(new AsyncCallback((IAsyncResult result) => 
+					{
+						var httpResponse = httpWebRequest.EndGetResponse(result);
+						using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+							env.CallFunction(callback, new object[] { streamReader.ReadToEnd() });
+					}), null);
+
 				}catch(Exception e)
 				{
-					return e.ToString();
+					env.CallFunction(callback, new object[] { e.ToString() });
 				}
 			}
 
-			public string RequestGetHTTP(string url)
+			public void RequestGetHTTP(string url, object callback)
 			{
 				try
 				{
 					var httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
 
-					var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-					using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
-						return streamReader.ReadToEnd();
-				}catch(Exception e)
+					httpWebRequest.BeginGetResponse(new AsyncCallback((IAsyncResult result) =>
+					{
+						var httpResponse = httpWebRequest.EndGetResponse(result);
+						using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+							env.CallFunction(callback, new object[] { streamReader.ReadToEnd() });
+					}), null);
+				}
+				catch(Exception e)
 				{
-					return e.ToString();
+					env.CallFunction(callback, new object[] { e.ToString() });
 				}
 			}
 		}
