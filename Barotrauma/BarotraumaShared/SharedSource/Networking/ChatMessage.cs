@@ -79,9 +79,16 @@ namespace Barotrauma.Networking
 
         public readonly string SenderName;
 
+        private Color? customColor = null;
+
         public Color Color
         {
-            get { return MessageColor[(int)Type]; }
+            get 
+            { 
+                if(customColor == null) return MessageColor[(int)Type];
+                return (Color)customColor;
+            }
+			set { customColor = value; }
         }
 
         public static string GetTimeStamp()

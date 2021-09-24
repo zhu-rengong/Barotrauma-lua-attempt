@@ -365,7 +365,7 @@ namespace Barotrauma
                     TaskPool.Update();
                     CoroutineManager.Update((float)Timing.Step, (float)Timing.Step);
 
-                    GameMain.Lua.hook.Call("think", new object[] { elapsedTime, Timing.TotalTime });
+                    GameMain.Lua.hook.Call("think", new object[] { });
 
                     Timing.Accumulator -= Timing.Step;
                 }

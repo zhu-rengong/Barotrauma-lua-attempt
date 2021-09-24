@@ -204,15 +204,15 @@ namespace Barotrauma
 		private void AddCallMetaMember(IUserDataDescriptor IUDD)
 		{
 			var descriptor = (StandardUserDataDescriptor)IUDD;
+			descriptor.RemoveMetaMember("__call");
 			descriptor.AddMetaMember("__call", new ObjectCallbackMemberDescriptor("__call", HandleCall));
 		}
 
 		public void Stop()
 		{
-
-			lua = null;
-			hook = null;
-			game = null;
+			hook = new LuaHook(null);
+			game = new LuaGame(null);
+			networking = new LuaNetworking(null);
 			luaScriptLoader = null;
 
 			luaSetup = null;
@@ -321,8 +321,14 @@ namespace Barotrauma
 			AddCallMetaMember(UserData.RegisterType<Vector4>());
 			AddCallMetaMember(UserData.RegisterType<CharacterInfo>());
 			AddCallMetaMember(UserData.RegisterType<Signal>());
+			AddCallMetaMember(UserData.RegisterType<Color>());
 
+#if SERVER
 
+#elif CLIENT
+			UserData.RegisterType<LuaGUI>();
+			UserData.RegisterType<ChatBox>();
+#endif
 			lua = new Script(CoreModules.Preset_SoftSandbox);
 
 			lua.Options.DebugPrint = PrintMessage;
@@ -373,6 +379,7 @@ namespace Barotrauma
 			lua.Globals["Vector2"] = UserData.CreateStatic<Vector2>();
 			lua.Globals["Vector3"] = UserData.CreateStatic<Vector3>();
 			lua.Globals["Vector4"] = UserData.CreateStatic<Vector4>();
+			lua.Globals["Color"] = UserData.CreateStatic<Color>();
 			lua.Globals["ChatMessage"] = UserData.CreateStatic<ChatMessage>();
 			lua.Globals["Hull"] = UserData.CreateStatic<Hull>();
 			lua.Globals["InvSlotType"] = UserData.CreateStatic<InvSlotType>();
@@ -383,6 +390,13 @@ namespace Barotrauma
 			lua.Globals["DeliveryMethod"] = UserData.CreateStatic<DeliveryMethod>();
 			lua.Globals["ClientPacketHeader"] = UserData.CreateStatic<ClientPacketHeader>();
 			lua.Globals["ServerPacketHeader"] = UserData.CreateStatic<ServerPacketHeader>();
+
+#if SERVER
+
+#elif CLIENT
+			lua.Globals["GUI"] = new LuaGUI(this);
+#endif
+
 
 			// obsolete
 			lua.Globals["CreateVector2"] = (Func<float, float, Vector2>)CreateVector2;
@@ -424,7 +438,9 @@ namespace Barotrauma
 
 		public LuaSetup()
 		{
-
+			hook = new LuaHook(null);
+			game = new LuaGame(null);
+			networking = new LuaNetworking(null);
 		}
 
 	}

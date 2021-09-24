@@ -554,8 +554,9 @@ namespace Barotrauma
 
 			public object Call(string name, object[] args)
 			{
+				if (env == null) return null;
 				if (name == null) return null;
-				if(args == null) { args = new object[] { }; }
+				if (args == null) { args = new object[] { }; }
 
 				if (!hookFunctions.ContainsKey(name))
 					return null;
