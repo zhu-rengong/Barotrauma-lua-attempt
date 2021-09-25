@@ -420,6 +420,20 @@ namespace Barotrauma
                 }
             };
 #endif
+            new GUIButton(new RectTransform(new Point(300, 30), Frame.RectTransform, Anchor.TopRight) { AbsoluteOffset = new Point(40, 230) },
+    "Remove Client-Side Lua", style: "GUIButtonLarge", color: GUI.Style.Red)
+            {
+                IgnoreLayoutGroups = true,
+                UserData = Tab.Empty,
+                ToolTip = "Remove Client-Side Lua.",
+                OnClicked = (tb, userdata) =>
+                {
+                    return false;
+                }
+            };
+            
+            
+
             var minButtonSize = new Point(120, 20);
             var maxButtonSize = new Point(480, 80);
 

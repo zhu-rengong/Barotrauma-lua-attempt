@@ -198,7 +198,16 @@ namespace Barotrauma
 
 			code = code + ")";
 
-			return lua.DoString(code, tbl);
+			try
+			{
+				return lua.DoString(code, tbl);
+			}
+			catch(Exception e)
+			{
+				HandleLuaException(e);
+			}
+
+			return null;
 		}
 
 		private void AddCallMetaMember(IUserDataDescriptor IUDD)
@@ -322,12 +331,20 @@ namespace Barotrauma
 			AddCallMetaMember(UserData.RegisterType<CharacterInfo>());
 			AddCallMetaMember(UserData.RegisterType<Signal>());
 			AddCallMetaMember(UserData.RegisterType<Color>());
+			AddCallMetaMember(UserData.RegisterType<Point>());
 
 #if SERVER
 
 #elif CLIENT
 			UserData.RegisterType<LuaGUI>();
 			UserData.RegisterType<ChatBox>();
+			UserData.RegisterType<Anchor>();
+
+			AddCallMetaMember(UserData.RegisterType<GUILayoutGroup>());
+			AddCallMetaMember(UserData.RegisterType<GUITextBox>());
+			AddCallMetaMember(UserData.RegisterType<GUIButton>());
+			AddCallMetaMember(UserData.RegisterType<RectTransform>());
+			AddCallMetaMember(UserData.RegisterType<GUIFrame>());
 #endif
 			lua = new Script(CoreModules.Preset_SoftSandbox);
 
@@ -380,6 +397,7 @@ namespace Barotrauma
 			lua.Globals["Vector3"] = UserData.CreateStatic<Vector3>();
 			lua.Globals["Vector4"] = UserData.CreateStatic<Vector4>();
 			lua.Globals["Color"] = UserData.CreateStatic<Color>();
+			lua.Globals["Point"] = UserData.CreateStatic<Point>();
 			lua.Globals["ChatMessage"] = UserData.CreateStatic<ChatMessage>();
 			lua.Globals["Hull"] = UserData.CreateStatic<Hull>();
 			lua.Globals["InvSlotType"] = UserData.CreateStatic<InvSlotType>();
