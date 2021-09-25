@@ -288,6 +288,20 @@ namespace Barotrauma
 				}
 				return enabledPackages;
 			}
+
+			public void AddCommand(string name, string help, object onExecute, object getValidArgs = null, bool isCheat = false)
+			{
+				DebugConsole.Commands.Add(new DebugConsole.Command(name, help, (string[] arg1) => { env.CallFunction(onExecute, new object[] { arg1 }); }, 
+					() => {
+						var result = env.CallFunction(getValidArgs, new object[] { });
+						if (result == null || !(result is string[][])) { return null; }
+						return (string[][])result;
+
+					}, isCheat = false));
+			}
+
+			public void AssignOnExecute(string names, object onExecute) => DebugConsole.AssignOnExecute(names, (string[] a) => { env.CallFunction(onExecute, new object[] { a }); });
+
 		}
 
 

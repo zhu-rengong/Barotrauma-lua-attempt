@@ -408,7 +408,7 @@ namespace Barotrauma
 			lua.Globals["DeliveryMethod"] = UserData.CreateStatic<DeliveryMethod>();
 			lua.Globals["ClientPacketHeader"] = UserData.CreateStatic<ClientPacketHeader>();
 			lua.Globals["ServerPacketHeader"] = UserData.CreateStatic<ServerPacketHeader>();
-
+			
 #if SERVER
 
 #elif CLIENT

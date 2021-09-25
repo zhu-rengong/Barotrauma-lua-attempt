@@ -310,7 +310,7 @@ namespace Barotrauma
             return client;
         }
 
-        private static void AssignOnClientRequestExecute(string names, Action<Client, Vector2, string[]> onClientRequestExecute)
+        public static void AssignOnClientRequestExecute(string names, Action<Client, Vector2, string[]> onClientRequestExecute)
         {
             var matchingCommand = commands.Find(c => c.names.Intersect(names.Split('|')).Count() > 0);
             if (matchingCommand == null)

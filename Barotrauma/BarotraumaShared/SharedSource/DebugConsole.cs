@@ -113,7 +113,7 @@ namespace Barotrauma
         private static readonly int messagesPerFile = 5000;
         public const string SavePath = "ConsoleLogs";
 
-        private static void AssignOnExecute(string names, Action<string[]> onExecute)
+        public static void AssignOnExecute(string names, Action<string[]> onExecute)
         {
             var matchingCommand = commands.Find(c => c.names.Intersect(names.Split('|')).Count() > 0);
             if (matchingCommand == null)
