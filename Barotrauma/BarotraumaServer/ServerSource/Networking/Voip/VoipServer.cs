@@ -96,7 +96,7 @@ namespace Barotrauma.Networking
             {
                 var should = new LuaResult(GameMain.Lua.hook.Call("canUseVoiceRadio", new object[] { sender, recipient }));
 
-                if (!should.IsNull() && should.Bool())
+                if (!should.IsNull())
                     return should.Bool();
 
                 if (recipientRadio.CanReceive(senderRadio)) { return true; }
