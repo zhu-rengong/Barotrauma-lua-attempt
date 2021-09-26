@@ -405,7 +405,7 @@ namespace Barotrauma.Items.Components
         public virtual void Update(float deltaTime, Camera cam) 
         {
 #if SERVER
-            GameMain.Lua.hook.Call("itemThink." + item.prefab.Identifier, item);
+            GameMain.Lua.hook.Call("itemThink." + item.prefab.Identifier, new object[]{item});
 #endif
             ApplyStatusEffects(ActionType.OnActive, deltaTime);
         }
@@ -414,7 +414,7 @@ namespace Barotrauma.Items.Components
         public virtual void UpdateBroken(float deltaTime, Camera cam)
         {
 #if SERVER
-            GameMain.Lua.hook.Call("itemThink." + item.prefab.Identifier, item);
+            GameMain.Lua.hook.Call("itemThink." + item.prefab.Identifier, new object[]{item});
 #endif
 #if CLIENT
             StopSounds(ActionType.OnActive);
