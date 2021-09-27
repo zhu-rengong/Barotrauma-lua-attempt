@@ -240,6 +240,7 @@ namespace Barotrauma
 
 			UserData.RegisterType<TraitorMessageType>();
 			UserData.RegisterType<JobPrefab>();
+			UserData.RegisterType<Job>();
 			UserData.RegisterType<Rectangle>();
 			UserData.RegisterType<Point>();
 			UserData.RegisterType<Level.InterestingPosition>();
