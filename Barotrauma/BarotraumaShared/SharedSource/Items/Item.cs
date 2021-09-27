@@ -1564,6 +1564,8 @@ namespace Barotrauma
 
             aiTarget?.Update(deltaTime);
 
+            GameMain.Lua.hook.Call("itemThink." + prefab.Identifier, new object[] { this });
+
             if (!isActive) { return; }
 
             ApplyStatusEffects(ActionType.Always, deltaTime, character: (parentInventory as CharacterInventory)?.Owner as Character);

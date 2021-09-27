@@ -404,18 +404,12 @@ namespace Barotrauma.Items.Components
         //called when isActive is true and condition > 0.0f
         public virtual void Update(float deltaTime, Camera cam) 
         {
-#if SERVER
-            GameMain.Lua.hook.Call("itemThink." + item.prefab.Identifier, new object[]{item});
-#endif
             ApplyStatusEffects(ActionType.OnActive, deltaTime);
         }
 
         //called when isActive is true and condition == 0.0f
         public virtual void UpdateBroken(float deltaTime, Camera cam)
         {
-#if SERVER
-            GameMain.Lua.hook.Call("itemThink." + item.prefab.Identifier, new object[]{item});
-#endif
 #if CLIENT
             StopSounds(ActionType.OnActive);
 #endif
