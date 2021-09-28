@@ -325,6 +325,8 @@ namespace Barotrauma
 			UserData.RegisterType<ServerPacketHeader>();
 			UserData.RegisterType<ClientPacketHeader>();
 			UserData.RegisterType<DeliveryMethod>();
+			UserData.RegisterType<RelayComponent>();
+			UserData.RegisterType<MemoryComponent>();
 
 			AddCallMetaMember(UserData.RegisterType<Vector2>());
 			AddCallMetaMember(UserData.RegisterType<Vector3>());
