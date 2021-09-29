@@ -1564,7 +1564,7 @@ namespace Barotrauma
 
             aiTarget?.Update(deltaTime);
 
-            GameMain.Lua.hook.Call("itemThink." + prefab.Identifier, new object[] { this });
+            GameMain.Lua.hook.Call("itemThink." + prefab.Identifier, new object[] { this, deltaTime });
 
             if (!isActive) { return; }
 
