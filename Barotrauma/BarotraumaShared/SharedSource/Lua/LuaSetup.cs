@@ -327,6 +327,9 @@ namespace Barotrauma
 			UserData.RegisterType<DeliveryMethod>();
 			UserData.RegisterType<RelayComponent>();
 			UserData.RegisterType<MemoryComponent>();
+			UserData.RegisterType<Rand.RandSync>();
+			UserData.RegisterType<Skill>();
+			UserData.RegisterType<SkillPrefab>();
 
 			AddCallMetaMember(UserData.RegisterType<Vector2>());
 			AddCallMetaMember(UserData.RegisterType<Vector3>());
@@ -411,7 +414,8 @@ namespace Barotrauma
 			lua.Globals["DeliveryMethod"] = UserData.CreateStatic<DeliveryMethod>();
 			lua.Globals["ClientPacketHeader"] = UserData.CreateStatic<ClientPacketHeader>();
 			lua.Globals["ServerPacketHeader"] = UserData.CreateStatic<ServerPacketHeader>();
-			
+			lua.Globals["RandSync"] = UserData.CreateStatic<Rand.RandSync>();
+
 #if SERVER
 
 #elif CLIENT
@@ -434,7 +438,9 @@ namespace Barotrauma
 
 			lua.Globals["SERVER"] = isServer;
 			lua.Globals["CLIENT"] = !isServer;
-			
+
+			LuaDocs.GenerateDocs(typeof(JobPrefab));
+
 			if (File.Exists("Lua/MoonsharpSetup.lua")) // try the default loader
 				DoFile("Lua/MoonsharpSetup.lua");
 			else if (File.Exists("Mods/LuaForBarotrauma/Lua/MoonsharpSetup.lua")) // in case its the workshop version

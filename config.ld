@@ -62,6 +62,9 @@ tparam_alias("Vector4", "Vector4")
 tparam_alias("CauseOfDeath", "CauseOfDeath")
 tparam_alias("CharacterInventory", "CharacterInventory")
 tparam_alias("PhysicsBody", "PhysicsBody")
+tparam_alias("JobPrefab", "JobPrefab")
+tparam_alias("Job", "Job")
+tparam_alias("Inventory", "Inventory")
 
 
 tparam_alias("string", "string")
