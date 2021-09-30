@@ -27,7 +27,7 @@ jobs:
         run: luarocks make
 
       - name: Build docs
-        run: ldoc . --fatalwarnings
+        run: ldoc .
 
       - name: Copy assets
         run: |
