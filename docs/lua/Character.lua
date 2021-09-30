@@ -35,259 +35,1412 @@ function TeleportTo(position) end
 -- @realm shared
 -- @Character Character.CharacterList
 
+--------- AUTO DOCS ------------
 
+--- GetVisibleHulls
+-- @realm shared
+-- @treturn table
+function GetVisibleHulls() end
+
+--- GetRelativeSimPosition
+-- @realm shared
+-- @tparam ISpatialEntity target
+-- @tparam Nullable`1 worldPos
+-- @treturn Vector2
+function GetRelativeSimPosition(target, worldPos) end
+
+--- HasJob
+-- @realm shared
+-- @tparam string identifier
+-- @treturn bool
+function HasJob(identifier) end
+
+--- IsProtectedFromPressure
+-- @realm shared
+-- @treturn bool
+function IsProtectedFromPressure() end
+
+--- ResetNetState
+-- @realm shared
+function ResetNetState() end
+
+--- StackHealthMultiplier
+-- @realm shared
+-- @tparam number val
+function StackHealthMultiplier(val) end
+
+--- AddStaticHealthMultiplier
+-- @realm shared
+-- @tparam number newMultiplier
+function AddStaticHealthMultiplier(newMultiplier) end
+
+--- GetTemporarySpeedReduction
+-- @realm shared
+-- @treturn number
+function GetTemporarySpeedReduction() end
+
+--- GetRightHandPenalty
+-- @realm shared
+-- @treturn number
+function GetRightHandPenalty() end
+
+--- GetLeftHandPenalty
+-- @realm shared
+-- @treturn number
+function GetLeftHandPenalty() end
+
+--- GetLegPenalty
+-- @realm shared
+-- @tparam number startSum
+-- @treturn number
+function GetLegPenalty(startSum) end
+
+--- ApplyTemporarySpeedLimits
+-- @realm shared
+-- @tparam number speed
+-- @treturn number
+function ApplyTemporarySpeedLimits(speed) end
+
+--- Control
+-- @realm shared
+-- @tparam number deltaTime
+-- @tparam Camera cam
+function Control(deltaTime, cam) end
+
+--- SetAttackTarget
+-- @realm shared
+-- @tparam Limb attackLimb
+-- @tparam IDamageable damageTarget
+-- @tparam Vector2 attackPos
+function SetAttackTarget(attackLimb, damageTarget, attackPos) end
+
+--- CanSeeCharacter
+-- @realm shared
+-- @tparam Character target
+-- @treturn bool
+function CanSeeCharacter(target) end
+
+--- CanSeeTarget
+-- @realm shared
+-- @tparam ISpatialEntity target
+-- @tparam ISpatialEntity seeingEntity
+-- @treturn bool
+function CanSeeTarget(target, seeingEntity) end
+
+--- IsFacing
+-- @realm shared
+-- @tparam Vector2 targetWorldPos
+-- @treturn bool
+function IsFacing(targetWorldPos) end
+
+--- HasItem
+-- @realm shared
+-- @tparam Item item
+-- @tparam bool requireEquipped
+-- @tparam Nullable`1 slotType
+-- @treturn bool
+function HasItem(item, requireEquipped, slotType) end
+
+--- HasEquippedItem
+-- @realm shared
+-- @tparam Item item
+-- @tparam Nullable`1 slotType
+-- @treturn bool
+function HasEquippedItem(item, slotType) end
+
+--- HasEquippedItem
+-- @realm shared
+-- @tparam string tagOrIdentifier
+-- @tparam bool allowBroken
+-- @tparam Nullable`1 slotType
+-- @treturn bool
+function HasEquippedItem(tagOrIdentifier, allowBroken, slotType) end
+
+--- GetEquippedItem
+-- @realm shared
+-- @tparam string tagOrIdentifier
+-- @tparam Nullable`1 slotType
+-- @treturn Item
+function GetEquippedItem(tagOrIdentifier, slotType) end
+
+--- CanAccessInventory
+-- @realm shared
+-- @tparam Inventory inventory
+-- @treturn bool
+function CanAccessInventory(inventory) end
+
+--- FindItem
+-- @realm shared
+-- @tparam Int32& itemIndex
+-- @tparam Item& targetItem
+-- @tparam IEnumerable`1 identifiers
+-- @tparam bool ignoreBroken
+-- @tparam IEnumerable`1 ignoredItems
+-- @tparam IEnumerable`1 ignoredContainerIdentifiers
+-- @tparam Func`2 customPredicate
+-- @tparam Func`2 customPriorityFunction
+-- @tparam number maxItemDistance
+-- @tparam ISpatialEntity positionalReference
+-- @treturn bool
+function FindItem(itemIndex, targetItem, identifiers, ignoreBroken, ignoredItems, ignoredContainerIdentifiers, customPredicate, customPriorityFunction, maxItemDistance, positionalReference) end
+
+--- IsItemTakenBySomeoneElse
+-- @realm shared
+-- @tparam Item item
+-- @treturn bool
+function IsItemTakenBySomeoneElse(item) end
+
+--- CanInteractWith
+-- @realm shared
+-- @tparam Character c
+-- @tparam number maxDist
+-- @tparam bool checkVisibility
+-- @tparam bool skipDistanceCheck
+-- @treturn bool
+function CanInteractWith(c, maxDist, checkVisibility, skipDistanceCheck) end
+
+--- CanInteractWith
+-- @realm shared
+-- @tparam Item item
+-- @tparam bool checkLinked
+-- @treturn bool
+function CanInteractWith(item, checkLinked) end
+
+--- CanInteractWith
+-- @realm shared
+-- @tparam Item item
+-- @tparam Single& distanceToItem
+-- @tparam bool checkLinked
+-- @treturn bool
+function CanInteractWith(item, distanceToItem, checkLinked) end
+
+--- SetCustomInteract
+-- @realm shared
+-- @tparam Action`2 onCustomInteract
+-- @tparam string hudText
+function SetCustomInteract(onCustomInteract, hudText) end
+
+--- SelectCharacter
+-- @realm shared
+-- @tparam Character character
+function SelectCharacter(character) end
+
+--- DeselectCharacter
+-- @realm shared
+function DeselectCharacter() end
+
+--- DoInteractionUpdate
+-- @realm shared
+-- @tparam number deltaTime
+-- @tparam Vector2 mouseSimPos
+function DoInteractionUpdate(deltaTime, mouseSimPos) end
+
+--- UpdateAnimAll
+-- @realm shared
+-- @tparam number deltaTime
+function Character.UpdateAnimAll(deltaTime) end
+
+--- UpdateAll
+-- @realm shared
+-- @tparam number deltaTime
+-- @tparam Camera cam
+function Character.UpdateAll(deltaTime, cam) end
+
+--- Update
+-- @realm shared
+-- @tparam number deltaTime
+-- @tparam Camera cam
+function Update(deltaTime, cam) end
+
+--- AddAttacker
+-- @realm shared
+-- @tparam Character character
+-- @tparam number damage
+function AddAttacker(character, damage) end
+
+--- ForgiveAttacker
+-- @realm shared
+-- @tparam Character character
+function ForgiveAttacker(character) end
+
+--- DespawnNow
+-- @realm shared
+-- @tparam bool createNetworkEvents
+function DespawnNow(createNetworkEvents) end
+
+--- RemoveByPrefab
+-- @realm shared
+-- @tparam CharacterPrefab prefab
+function Character.RemoveByPrefab(prefab) end
+
+--- CanHearCharacter
+-- @realm shared
+-- @tparam Character speaker
+-- @treturn bool
+function CanHearCharacter(speaker) end
+
+--- SetOrder
+-- @realm shared
+-- @tparam Order order
+-- @tparam string orderOption
+-- @tparam number priority
+-- @tparam Character orderGiver
+-- @tparam bool speak
+-- @tparam bool force
+function SetOrder(order, orderOption, priority, orderGiver, speak, force) end
+
+--- SetOrder
+-- @realm shared
+-- @tparam OrderInfo orderInfo
+-- @tparam Character orderGiver
+-- @tparam bool speak
+-- @tparam bool force
+function SetOrder(orderInfo, orderGiver, speak, force) end
+
+--- GetCurrentOrderWithTopPriority
+-- @realm shared
+-- @treturn Nullable`1
+function GetCurrentOrderWithTopPriority() end
+
+--- GetCurrentOrder
+-- @realm shared
+-- @tparam Order order
+-- @tparam string option
+-- @treturn Nullable`1
+function GetCurrentOrder(order, option) end
+
+--- DisableLine
+-- @realm shared
+-- @tparam string identifier
+function DisableLine(identifier) end
+
+--- Speak
+-- @realm shared
+-- @tparam string message
+-- @tparam Nullable`1 messageType
+-- @tparam number delay
+-- @tparam string identifier
+-- @tparam number minDurationBetweenSimilar
+function Speak(message, messageType, delay, identifier, minDurationBetweenSimilar) end
+
+--- ShowSpeechBubble
+-- @realm shared
+-- @tparam number duration
+-- @tparam Color color
+function ShowSpeechBubble(duration, color) end
+
+--- SetAllDamage
+-- @realm shared
+-- @tparam number damageAmount
+-- @tparam number bleedingDamageAmount
+-- @tparam number burnDamageAmount
+function SetAllDamage(damageAmount, bleedingDamageAmount, burnDamageAmount) end
+
+--- AddDamage
+-- @realm shared
+-- @tparam Character attacker
+-- @tparam Vector2 worldPosition
+-- @tparam Attack attack
+-- @tparam number deltaTime
+-- @tparam bool playSound
+-- @treturn AttackResult
+function AddDamage(attacker, worldPosition, attack, deltaTime, playSound) end
+
+--- ApplyAttack
+-- @realm shared
+-- @tparam Character attacker
+-- @tparam Vector2 worldPosition
+-- @tparam Attack attack
+-- @tparam number deltaTime
+-- @tparam bool playSound
+-- @tparam Limb targetLimb
+-- @tparam number penetration
+-- @treturn AttackResult
+function ApplyAttack(attacker, worldPosition, attack, deltaTime, playSound, targetLimb, penetration) end
+
+--- TrySeverLimbJoints
+-- @realm shared
+-- @tparam Limb targetLimb
+-- @tparam number severLimbsProbability
+-- @tparam number damage
+-- @tparam bool allowBeheading
+function TrySeverLimbJoints(targetLimb, severLimbsProbability, damage, allowBeheading) end
+
+--- AddDamage
+-- @realm shared
+-- @tparam Vector2 worldPosition
+-- @tparam IEnumerable`1 afflictions
+-- @tparam number stun
+-- @tparam bool playSound
+-- @tparam number attackImpulse
+-- @tparam Character attacker
+-- @treturn AttackResult
+function AddDamage(worldPosition, afflictions, stun, playSound, attackImpulse, attacker) end
+
+--- AddDamage
+-- @realm shared
+-- @tparam Vector2 worldPosition
+-- @tparam IEnumerable`1 afflictions
+-- @tparam number stun
+-- @tparam bool playSound
+-- @tparam number attackImpulse
+-- @tparam Limb& hitLimb
+-- @tparam Character attacker
+-- @tparam number damageMultiplier
+-- @treturn AttackResult
+function AddDamage(worldPosition, afflictions, stun, playSound, attackImpulse, hitLimb, attacker, damageMultiplier) end
+
+--- RecordKill
+-- @realm shared
+-- @tparam Character target
+function RecordKill(target) end
+
+--- AddEncounter
+-- @realm shared
+-- @tparam Character other
+function AddEncounter(other) end
+
+--- DamageLimb
+-- @realm shared
+-- @tparam Vector2 worldPosition
+-- @tparam Limb hitLimb
+-- @tparam IEnumerable`1 afflictions
+-- @tparam number stun
+-- @tparam bool playSound
+-- @tparam number attackImpulse
+-- @tparam Character attacker
+-- @tparam number damageMultiplier
+-- @tparam bool allowStacking
+-- @tparam number penetration
+-- @treturn AttackResult
+function DamageLimb(worldPosition, hitLimb, afflictions, stun, playSound, attackImpulse, attacker, damageMultiplier, allowStacking, penetration) end
+
+--- TryAdjustAttackerSkill
+-- @realm shared
+-- @tparam Character attacker
+-- @tparam number healthChange
+function TryAdjustAttackerSkill(attacker, healthChange) end
+
+--- SetStun
+-- @realm shared
+-- @tparam number newStun
+-- @tparam bool allowStunDecrease
+-- @tparam bool isNetworkMessage
+function SetStun(newStun, allowStunDecrease, isNetworkMessage) end
+
+--- ApplyStatusEffects
+-- @realm shared
+-- @tparam ActionType actionType
+-- @tparam number deltaTime
+function ApplyStatusEffects(actionType, deltaTime) end
+
+--- BreakJoints
+-- @realm shared
+function BreakJoints() end
+
+--- Kill
+-- @realm shared
+-- @tparam CauseOfDeathType causeOfDeath
+-- @tparam Affliction causeOfDeathAffliction
+-- @tparam bool isNetworkMessage
+-- @tparam bool log
+function Kill(causeOfDeath, causeOfDeathAffliction, isNetworkMessage, log) end
+
+--- Revive
+-- @realm shared
+function Revive() end
+
+--- Remove
+-- @realm shared
+function Remove() end
+
+--- SaveInventory
+-- @realm shared
+-- @tparam Inventory inventory
+-- @tparam XElement parentElement
+function Character.SaveInventory(inventory, parentElement) end
+
+--- SaveInventory
+-- @realm shared
+function SaveInventory() end
+
+--- SpawnInventoryItems
+-- @realm shared
+-- @tparam Inventory inventory
+-- @tparam XElement itemData
+function SpawnInventoryItems(inventory, itemData) end
+
+--- GetAttackContexts
+-- @realm shared
+-- @treturn IEnumerable`1
+function GetAttackContexts() end
+
+--- Create
+-- @realm shared
+-- @tparam CharacterInfo characterInfo
+-- @tparam Vector2 position
+-- @tparam string seed
+-- @tparam number id
+-- @tparam bool isRemotePlayer
+-- @tparam bool hasAi
+-- @tparam RagdollParams ragdoll
+-- @treturn Character
+function Character.Create(characterInfo, position, seed, id, isRemotePlayer, hasAi, ragdoll) end
+
+--- Create
+-- @realm shared
+-- @tparam string speciesName
+-- @tparam Vector2 position
+-- @tparam string seed
+-- @tparam CharacterInfo characterInfo
+-- @tparam number id
+-- @tparam bool isRemotePlayer
+-- @tparam bool hasAi
+-- @tparam bool createNetworkEvent
+-- @tparam RagdollParams ragdoll
+-- @treturn Character
+function Character.Create(speciesName, position, seed, characterInfo, id, isRemotePlayer, hasAi, createNetworkEvent, ragdoll) end
+
+--- ReloadHead
+-- @realm shared
+-- @tparam Nullable`1 headId
+-- @tparam number hairIndex
+-- @tparam number beardIndex
+-- @tparam number moustacheIndex
+-- @tparam number faceAttachmentIndex
+function ReloadHead(headId, hairIndex, beardIndex, moustacheIndex, faceAttachmentIndex) end
+
+--- LoadHeadAttachments
+-- @realm shared
+function LoadHeadAttachments() end
+
+--- IsKeyHit
+-- @realm shared
+-- @tparam InputType inputType
+-- @treturn bool
+function IsKeyHit(inputType) end
+
+--- IsKeyDown
+-- @realm shared
+-- @tparam InputType inputType
+-- @treturn bool
+function IsKeyDown(inputType) end
+
+--- SetInput
+-- @realm shared
+-- @tparam InputType inputType
+-- @tparam bool hit
+-- @tparam bool held
+function SetInput(inputType, hit, held) end
+
+--- ClearInput
+-- @realm shared
+-- @tparam InputType inputType
+function ClearInput(inputType) end
+
+--- ClearInputs
+-- @realm shared
+function ClearInputs() end
+
+--- ToString
+-- @realm shared
+-- @treturn string
+function ToString() end
+
+--- GiveJobItems
+-- @realm shared
+-- @tparam WayPoint spawnPoint
+function GiveJobItems(spawnPoint) end
+
+--- GiveIdCardTags
+-- @realm shared
+-- @tparam WayPoint spawnPoint
+function GiveIdCardTags(spawnPoint) end
+
+--- GetSkillLevel
+-- @realm shared
+-- @tparam string skillIdentifier
+-- @treturn number
+function GetSkillLevel(skillIdentifier) end
+
+--- GetTargetMovement
+-- @realm shared
+-- @treturn Vector2
+function GetTargetMovement() end
+
+--- ApplyMovementLimits
+-- @realm shared
+-- @tparam Vector2 targetMovement
+-- @tparam number currentSpeed
+-- @treturn Vector2
+function ApplyMovementLimits(targetMovement, currentSpeed) end
+
+--- StackSpeedMultiplier
+-- @realm shared
+-- @tparam number val
+function StackSpeedMultiplier(val) end
+
+--- ResetSpeedMultiplier
+-- @realm shared
+function ResetSpeedMultiplier() end
+
+--- GetPositionUpdateInterval
+-- @realm shared
+-- @tparam Client recipient
+-- @treturn number
+function GetPositionUpdateInterval(recipient) end
+
+--- ServerRead
+-- @realm shared
+-- @tparam ClientNetObject type
+-- @tparam IReadMessage msg
+-- @tparam Client c
+function ServerRead(type, msg, c) end
+
+--- ServerWrite
+-- @realm shared
+-- @tparam IWriteMessage msg
+-- @tparam Client c
+-- @tparam Object[] extraData
+function ServerWrite(msg, c, extraData) end
+
+--- WriteSpawnData
+-- @realm shared
+-- @tparam IWriteMessage msg
+-- @tparam number entityId
+-- @tparam bool restrictMessageSize
+function WriteSpawnData(msg, entityId, restrictMessageSize) end
+
+--- SetOriginalTeam
+-- @realm shared
+-- @tparam CharacterTeamType newTeam
+function SetOriginalTeam(newTeam) end
+
+--- HasTeamChange
+-- @realm shared
+-- @tparam string identifier
+-- @treturn bool
+function HasTeamChange(identifier) end
+
+--- TryAddNewTeamChange
+-- @realm shared
+-- @tparam string identifier
+-- @tparam ActiveTeamChange newTeamChange
+-- @treturn bool
+function TryAddNewTeamChange(identifier, newTeamChange) end
+
+--- TryRemoveTeamChange
+-- @realm shared
+-- @tparam string identifier
+-- @treturn bool
+function TryRemoveTeamChange(identifier) end
+
+--- UpdateTeam
+-- @realm shared
+function UpdateTeam() end
+
+--- FreeID
+-- @realm shared
+function FreeID() end
+
+--- GetType
+-- @realm shared
+-- @treturn Type
+function GetType() end
+
+--- Equals
+-- @realm shared
+-- @tparam Object obj
+-- @treturn bool
+function Equals(obj) end
+
+--- GetHashCode
+-- @realm shared
+-- @treturn number
+function GetHashCode() end
 
 ---
--- IsRemotelyControlled, returns a bool.
+-- Enabled, Field of type bool
+-- @realm shared
+-- @bool Enabled
+
+---
+-- IsRemotelyControlled, Field of type bool
 -- @realm shared
 -- @bool IsRemotelyControlled
 
 ---
--- IsObserving, returns a bool.
+-- IsRemotePlayer, Field of type bool
 -- @realm shared
--- @bool IsObserving
+-- @bool IsRemotePlayer
 
 ---
--- IsBot, returns a bool.
+-- IsLocalPlayer, Field of type bool
+-- @realm shared
+-- @bool IsLocalPlayer
+
+---
+-- IsPlayer, Field of type bool
+-- @realm shared
+-- @bool IsPlayer
+
+---
+-- IsCommanding, Field of type bool
+-- @realm shared
+-- @bool IsCommanding
+
+---
+-- IsBot, Field of type bool
 -- @realm shared
 -- @bool IsBot
 
 ---
--- IsDead, returns a bool.
+-- IsEscorted, Field of type bool
 -- @realm shared
--- @bool IsDead
+-- @bool IsEscorted
 
 ---
--- IsHuman, returns a bool.
+-- SerializableProperties, Field of type table
 -- @realm shared
--- @bool IsHuman
+-- @table SerializableProperties
 
 ---
--- IsMale, returns a bool.
+-- Keys, Field of type Key[]
 -- @realm shared
--- @bool IsMale
+-- @Key[] Keys
 
 ---
--- IsFemale, returns a bool.
+-- TeamID, Field of type CharacterTeamType
 -- @realm shared
--- @bool IsFemale
+-- @CharacterTeamType TeamID
 
 ---
--- CanSpeak, returns a bool.
+-- IsOnPlayerTeam, Field of type bool
+-- @realm shared
+-- @bool IsOnPlayerTeam
+
+---
+-- IsInstigator, Field of type bool
+-- @realm shared
+-- @bool IsInstigator
+
+---
+-- LastAttackers, Field of type IEnumerable`1
+-- @realm shared
+-- @IEnumerable`1 LastAttackers
+
+---
+-- LastAttacker, Field of type Character
+-- @realm shared
+-- @Character LastAttacker
+
+---
+-- SpeciesName, Field of type string
+-- @realm shared
+-- @string SpeciesName
+
+---
+-- IsHumanoid, Field of type bool
+-- @realm shared
+-- @bool IsHumanoid
+
+---
+-- IsHusk, Field of type bool
+-- @realm shared
+-- @bool IsHusk
+
+---
+-- BloodDecalName, Field of type string
+-- @realm shared
+-- @string BloodDecalName
+
+---
+-- CanSpeak, Field of type bool
 -- @realm shared
 -- @bool CanSpeak
 
 ---
--- NeedsAir, returns a bool.
+-- NeedsAir, Field of type bool
 -- @realm shared
 -- @bool NeedsAir
 
 ---
--- NeedsWater, returns a bool.
+-- NeedsWater, Field of type bool
 -- @realm shared
 -- @bool NeedsWater
 
 ---
--- NeedsOxygen, returns a bool.
+-- NeedsOxygen, Field of type bool
 -- @realm shared
 -- @bool NeedsOxygen
 
 ---
--- IsTraitor, returns a bool.
+-- Noise, Field of type number
+-- @realm shared
+-- @number Noise
+
+---
+-- Visibility, Field of type number
+-- @realm shared
+-- @number Visibility
+
+---
+-- IsTraitor, Field of type bool
 -- @realm shared
 -- @bool IsTraitor
 
 ---
--- HideFace, returns a bool.
+-- IsHuman, Field of type bool
 -- @realm shared
--- @bool HideFace
+-- @bool IsHuman
 
 ---
--- LockHands, returns a bool.
+-- IsMale, Field of type bool
 -- @realm shared
--- @bool LockHands
+-- @bool IsMale
 
 ---
--- CanMove, returns a bool.
+-- IsFemale, Field of type bool
 -- @realm shared
--- @bool CanMove
+-- @bool IsFemale
 
 ---
--- CanInteract, returns a bool.
+-- CurrentOrders, Field of type table
 -- @realm shared
--- @bool CanInteract
+-- @table CurrentOrders
 
 ---
--- ObstructVision, returns a bool.
+-- IsDismissed, Field of type bool
 -- @realm shared
--- @bool ObstructVision
+-- @bool IsDismissed
 
 ---
--- IsRagdolled, returns a bool.
+-- ViewTarget, Field of type Entity
 -- @realm shared
--- @bool IsRagdolled
+-- @Entity ViewTarget
 
 ---
--- IsIncapacitated, returns a bool.
+-- AimRefPosition, Field of type Vector2
 -- @realm shared
--- @bool IsIncapacitated
+-- @Vector2 AimRefPosition
 
 ---
--- IsUnconscious, returns a bool.
+-- Info, Field of type CharacterInfo
 -- @realm shared
--- @bool IsUnconscious
+-- @CharacterInfo Info
 
 ---
--- IsPet, returns a bool.
+-- VariantOf, Field of type string
 -- @realm shared
--- @bool IsPet
+-- @string VariantOf
 
 ---
--- UseHullOxygen, returns a bool.
--- @realm shared
--- @bool UseHullOxygen
-
----
--- CanBeSelected, returns a bool.
--- @realm shared
--- @bool CanBeSelected
-
----
--- CanBeDragged, returns a bool.
--- @realm shared
--- @bool CanBeDragged
-
----
--- CanInventoryBeAccessed, returns a bool.
--- @realm shared
--- @bool CanInventoryBeAccessed
-
----
--- GodMode, returns a bool.
--- @realm shared
--- @bool GodMode
-
----
--- IsInFriendlySub, returns a bool.
--- @realm shared
--- @bool IsInFriendlySub
-
----
--- WorldPosition, Vector2 position of the Character in the world
--- @realm shared
--- @Vector2 WorldPosition
-
----
--- Position, returns a Vector2.
--- @realm shared
--- @Vector2 Position
-
----
--- DrawPosition, returns a Vector2.
--- @realm shared
--- @Vector2 DrawPosition
-
----
--- CursorPosition, returns a Vector2.
--- @realm shared
--- @Vector2 CursorPosition
-
----
--- SmoothedCursorPosition, returns a Vector2.
--- @realm shared
--- @Vector2 SmoothedCursorPosition
-
----
--- CursorWorldPosition, returns a Vector2.
--- @realm shared
--- @Vector2 CursorWorldPosition
-
----
--- LowPassMultiplier, returns a number.
--- @realm shared
--- @number LowPassMultiplier
-
----
--- Oxygen, returns a number.
--- @realm shared
--- @number Oxygen
-
----
--- OxygenAvailable, returns a number.
--- @realm shared
--- @number OxygenAvailable
-
----
--- Stun, returns a number.
--- @realm shared
--- @number Stun
-
----
--- Vitality, returns a number.
--- @realm shared
--- @number Vitality
-
----
--- MaxVitality, returns a number.
--- @realm shared
--- @number MaxVitality
-
----
--- Health, returns a number.
--- @realm shared
--- @number Health
-
----
--- HealthPercentage, returns a number.
--- @realm shared
--- @number HealthPercentage
-
----
--- SpeechImpediment, returns a number.
--- @realm shared
--- @number SpeechImpediment
-
----
--- PressureTimer, returns a number.
--- @realm shared
--- @number PressureTimer
-
----
--- CurrentSpeed, returns a number.
--- @realm shared
--- @number CurrentSpeed
-
----
--- FocusedItem, returns a Item.
--- @realm shared
--- @Item FocusedItem
-
----
--- PickingItem, returns a Item.
--- @realm shared
--- @Item PickingItem
-
----
--- Name, returns a string.
+-- Name, Field of type string
 -- @realm shared
 -- @string Name
 
 ---
--- DisplayName, returns a string.
+-- DisplayName, Field of type string
 -- @realm shared
 -- @string DisplayName
 
 ---
--- LogName, returns a string.
+-- LogName, Field of type string
 -- @realm shared
 -- @string LogName
 
 ---
--- Inventory, returns a CharacterInventory.
+-- HideFace, Field of type bool
+-- @realm shared
+-- @bool HideFace
+
+---
+-- ConfigPath, Field of type string
+-- @realm shared
+-- @string ConfigPath
+
+---
+-- Mass, Field of type number
+-- @realm shared
+-- @number Mass
+
+---
+-- Inventory, Field of type CharacterInventory
 -- @realm shared
 -- @CharacterInventory Inventory
 
 ---
--- CauseOfDeath, returns a CauseOfDeath.
+-- AllowCustomInteract, Field of type bool
+-- @realm shared
+-- @bool AllowCustomInteract
+
+---
+-- LockHands, Field of type bool
+-- @realm shared
+-- @bool LockHands
+
+---
+-- AllowInput, Field of type bool
+-- @realm shared
+-- @bool AllowInput
+
+---
+-- CanMove, Field of type bool
+-- @realm shared
+-- @bool CanMove
+
+---
+-- CanInteract, Field of type bool
+-- @realm shared
+-- @bool CanInteract
+
+---
+-- CursorPosition, Field of type Vector2
+-- @realm shared
+-- @Vector2 CursorPosition
+
+---
+-- SmoothedCursorPosition, Field of type Vector2
+-- @realm shared
+-- @Vector2 SmoothedCursorPosition
+
+---
+-- CursorWorldPosition, Field of type Vector2
+-- @realm shared
+-- @Vector2 CursorWorldPosition
+
+---
+-- FocusedCharacter, Field of type Character
+-- @realm shared
+-- @Character FocusedCharacter
+
+---
+-- SelectedCharacter, Field of type Character
+-- @realm shared
+-- @Character SelectedCharacter
+
+---
+-- SelectedBy, Field of type Character
+-- @realm shared
+-- @Character SelectedBy
+
+---
+-- HeldItems, Field of type IEnumerable`1
+-- @realm shared
+-- @IEnumerable`1 HeldItems
+
+---
+-- LowPassMultiplier, Field of type number
+-- @realm shared
+-- @number LowPassMultiplier
+
+---
+-- ObstructVision, Field of type bool
+-- @realm shared
+-- @bool ObstructVision
+
+---
+-- PressureProtection, Field of type number
+-- @realm shared
+-- @number PressureProtection
+
+---
+-- IsIncapacitated, Field of type bool
+-- @realm shared
+-- @bool IsIncapacitated
+
+---
+-- IsUnconscious, Field of type bool
+-- @realm shared
+-- @bool IsUnconscious
+
+---
+-- IsPet, Field of type bool
+-- @realm shared
+-- @bool IsPet
+
+---
+-- Oxygen, Field of type number
+-- @realm shared
+-- @number Oxygen
+
+---
+-- OxygenAvailable, Field of type number
+-- @realm shared
+-- @number OxygenAvailable
+
+---
+-- UseHullOxygen, Field of type bool
+-- @realm shared
+-- @bool UseHullOxygen
+
+---
+-- Stun, Field of type number
+-- @realm shared
+-- @number Stun
+
+---
+-- CharacterHealth, Field of type CharacterHealth
+-- @realm shared
+-- @CharacterHealth CharacterHealth
+
+---
+-- Vitality, Field of type number
+-- @realm shared
+-- @number Vitality
+
+---
+-- Health, Field of type number
+-- @realm shared
+-- @number Health
+
+---
+-- HealthPercentage, Field of type number
+-- @realm shared
+-- @number HealthPercentage
+
+---
+-- MaxVitality, Field of type number
+-- @realm shared
+-- @number MaxVitality
+
+---
+-- Bloodloss, Field of type number
+-- @realm shared
+-- @number Bloodloss
+
+---
+-- Bleeding, Field of type number
+-- @realm shared
+-- @number Bleeding
+
+---
+-- SpeechImpediment, Field of type number
+-- @realm shared
+-- @number SpeechImpediment
+
+---
+-- PressureTimer, Field of type number
+-- @realm shared
+-- @number PressureTimer
+
+---
+-- DisableImpactDamageTimer, Field of type number
+-- @realm shared
+-- @number DisableImpactDamageTimer
+
+---
+-- CurrentSpeed, Field of type number
+-- @realm shared
+-- @number CurrentSpeed
+
+---
+-- SelectedConstruction, Field of type Item
+-- @realm shared
+-- @Item SelectedConstruction
+
+---
+-- FocusedItem, Field of type Item
+-- @realm shared
+-- @Item FocusedItem
+
+---
+-- PickingItem, Field of type Item
+-- @realm shared
+-- @Item PickingItem
+
+---
+-- AIController, Field of type AIController
+-- @realm shared
+-- @AIController AIController
+
+---
+-- IsDead, Field of type bool
+-- @realm shared
+-- @bool IsDead
+
+---
+-- IsObserving, Field of type bool
+-- @realm shared
+-- @bool IsObserving
+
+---
+-- EnableDespawn, Field of type bool
+-- @realm shared
+-- @bool EnableDespawn
+
+---
+-- CauseOfDeath, Field of type CauseOfDeath
 -- @realm shared
 -- @CauseOfDeath CauseOfDeath
+
+---
+-- CanBeSelected, Field of type bool
+-- @realm shared
+-- @bool CanBeSelected
+
+---
+-- CanBeDragged, Field of type bool
+-- @realm shared
+-- @bool CanBeDragged
+
+---
+-- CanInventoryBeAccessed, Field of type bool
+-- @realm shared
+-- @bool CanInventoryBeAccessed
+
+---
+-- CanAim, Field of type bool
+-- @realm shared
+-- @bool CanAim
+
+---
+-- InWater, Field of type bool
+-- @realm shared
+-- @bool InWater
+
+---
+-- SimPosition, Field of type Vector2
+-- @realm shared
+-- @Vector2 SimPosition
+
+---
+-- Position, Field of type Vector2
+-- @realm shared
+-- @Vector2 Position
+
+---
+-- DrawPosition, Field of type Vector2
+-- @realm shared
+-- @Vector2 DrawPosition
+
+---
+-- IsInFriendlySub, Field of type bool
+-- @realm shared
+-- @bool IsInFriendlySub
+
+---
+-- OverrideMovement, Field of type Nullable`1
+-- @realm shared
+-- @Nullable`1 OverrideMovement
+
+---
+-- ForceRun, Field of type bool
+-- @realm shared
+-- @bool ForceRun
+
+---
+-- IsClimbing, Field of type bool
+-- @realm shared
+-- @bool IsClimbing
+
+---
+-- CanRun, Field of type bool
+-- @realm shared
+-- @bool CanRun
+
+---
+-- SpeedMultiplier, Field of type number
+-- @realm shared
+-- @number SpeedMultiplier
+
+---
+-- PropulsionSpeedMultiplier, Field of type number
+-- @realm shared
+-- @number PropulsionSpeedMultiplier
+
+---
+-- HealthMultiplier, Field of type number
+-- @realm shared
+-- @number HealthMultiplier
+
+---
+-- StaticHealthMultiplier, Field of type number
+-- @realm shared
+-- @number StaticHealthMultiplier
+
+---
+-- IsKnockedDown, Field of type bool
+-- @realm shared
+-- @bool IsKnockedDown
+
+---
+-- IsCaptain, Field of type bool
+-- @realm shared
+-- @bool IsCaptain
+
+---
+-- IsEngineer, Field of type bool
+-- @realm shared
+-- @bool IsEngineer
+
+---
+-- IsMechanic, Field of type bool
+-- @realm shared
+-- @bool IsMechanic
+
+---
+-- IsMedic, Field of type bool
+-- @realm shared
+-- @bool IsMedic
+
+---
+-- IsSecurity, Field of type bool
+-- @realm shared
+-- @bool IsSecurity
+
+---
+-- IsAssistant, Field of type bool
+-- @realm shared
+-- @bool IsAssistant
+
+---
+-- IsWatchman, Field of type bool
+-- @realm shared
+-- @bool IsWatchman
+
+---
+-- IsVip, Field of type bool
+-- @realm shared
+-- @bool IsVip
+
+---
+-- IsPrisoner, Field of type bool
+-- @realm shared
+-- @bool IsPrisoner
+
+---
+-- UniqueNameColor, Field of type Nullable`1
+-- @realm shared
+-- @Nullable`1 UniqueNameColor
+
+---
+-- HealthUpdateInterval, Field of type number
+-- @realm shared
+-- @number HealthUpdateInterval
+
+---
+-- MemState, Field of type table
+-- @realm shared
+-- @table MemState
+
+---
+-- MemLocalState, Field of type table
+-- @realm shared
+-- @table MemLocalState
+
+---
+-- Removed, Field of type bool
+-- @realm shared
+-- @bool Removed
+
+---
+-- IdFreed, Field of type bool
+-- @realm shared
+-- @bool IdFreed
+
+---
+-- WorldPosition, Field of type Vector2
+-- @realm shared
+-- @Vector2 WorldPosition
+
+---
+-- Submarine, Field of type Submarine
+-- @realm shared
+-- @Submarine Submarine
+
+---
+-- AiTarget, Field of type AITarget
+-- @realm shared
+-- @AITarget AiTarget
+
+---
+-- SpawnTime, Field of type number
+-- @realm shared
+-- @number SpawnTime
+
+---
+-- OwnerClientEndPoint, Field of type string
+-- @realm shared
+-- @string OwnerClientEndPoint
+
+---
+-- OwnerClientName, Field of type string
+-- @realm shared
+-- @string OwnerClientName
+
+---
+-- ClientDisconnected, Field of type bool
+-- @realm shared
+-- @bool ClientDisconnected
+
+---
+-- KillDisconnectedTimer, Field of type number
+-- @realm shared
+-- @number KillDisconnectedTimer
+
+---
+-- HealthUpdatePending, Field of type bool
+-- @realm shared
+-- @bool HealthUpdatePending
+
+---
+-- PreviousHull, Field of type Hull
+-- @realm shared
+-- @Hull PreviousHull
+
+---
+-- CurrentHull, Field of type Hull
+-- @realm shared
+-- @Hull CurrentHull
+
+---
+-- Properties, Field of type table
+-- @realm shared
+-- @table Properties
+
+---
+-- Prefab, Field of type HumanPrefab
+-- @realm shared
+-- @HumanPrefab Prefab
+
+---
+-- CombatAction, Field of type CombatAction
+-- @realm shared
+-- @CombatAction CombatAction
+
+---
+-- AnimController, Field of type AnimController
+-- @realm shared
+-- @AnimController AnimController
+
+---
+-- Seed, Field of type string
+-- @realm shared
+-- @string Seed
+
+---
+-- LastDamageSource, Field of type Entity
+-- @realm shared
+-- @Entity LastDamageSource
+
+---
+-- LastDamage, Field of type AttackResult
+-- @realm shared
+-- @AttackResult LastDamage
+
+---
+-- InvisibleTimer, Field of type number
+-- @realm shared
+-- @number InvisibleTimer
+
+---
+-- Params, Field of type CharacterParams
+-- @realm shared
+-- @CharacterParams Params
+
+---
+-- TraitorCurrentObjective, Field of type string
+-- @realm shared
+-- @string TraitorCurrentObjective
+
+---
+-- ResetInteract, Field of type bool
+-- @realm shared
+-- @bool ResetInteract
+
+---
+-- customInteractHUDText, Field of type string
+-- @realm shared
+-- @string customInteractHUDText
+
+---
+-- ActiveConversation, Field of type ConversationAction
+-- @realm shared
+-- @ConversationAction ActiveConversation
+
+---
+-- RequireConsciousnessForCustomInteract, Field of type bool
+-- @realm shared
+-- @bool RequireConsciousnessForCustomInteract
+
+---
+-- KnockbackCooldownTimer, Field of type number
+-- @realm shared
+-- @number KnockbackCooldownTimer
+
+---
+-- IsRagdolled, Field of type bool
+-- @realm shared
+-- @bool IsRagdolled
+
+---
+-- IsForceRagdolled, Field of type bool
+-- @realm shared
+-- @bool IsForceRagdolled
+
+---
+-- dontFollowCursor, Field of type bool
+-- @realm shared
+-- @bool dontFollowCursor
+
+---
+-- DisableHealthWindow, Field of type bool
+-- @realm shared
+-- @bool DisableHealthWindow
+
+---
+-- GodMode, Field of type bool
+-- @realm shared
+-- @bool GodMode
+
+---
+-- CampaignInteractionType, Field of type InteractionType
+-- @realm shared
+-- @InteractionType CampaignInteractionType
+
+---
+-- OnDeath, Field of type OnDeathHandler
+-- @realm shared
+-- @OnDeathHandler OnDeath
+
+---
+-- OnAttacked, Field of type OnAttackedHandler
+-- @realm shared
+-- @OnAttackedHandler OnAttacked
+
+---
+-- LastNetworkUpdateID, Field of type number
+-- @realm shared
+-- @number LastNetworkUpdateID
+
+---
+-- LastProcessedID, Field of type number
+-- @realm shared
+-- @number LastProcessedID
+
+---
+-- healthUpdateTimer, Field of type number
+-- @realm shared
+-- @number healthUpdateTimer
+
+---
+-- isSynced, Field of type bool
+-- @realm shared
+-- @bool isSynced
+
+---
+-- Character.Controlled, Field of type Character
+-- @realm shared
+-- @Character Character.Controlled
+
+---
+-- Character.KnockbackCooldown, Field of type number
+-- @realm shared
+-- @number Character.KnockbackCooldown
+
+---
+-- ID, Field of type number
+-- @realm shared
+-- @number ID
+
