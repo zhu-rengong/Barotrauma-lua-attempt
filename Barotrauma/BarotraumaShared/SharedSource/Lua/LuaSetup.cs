@@ -274,6 +274,7 @@ namespace Barotrauma
 			UserData.RegisterType<InputType>();
 			UserData.RegisterType<AttackResult>();
 			UserData.RegisterType<Entity>();
+			UserData.RegisterType<EntitySpawner>();
 			UserData.RegisterType<MapEntity>();
 			UserData.RegisterType<MapEntityPrefab>();
 			UserData.RegisterType<CauseOfDeath>();
@@ -293,7 +294,6 @@ namespace Barotrauma
 			UserData.RegisterType<Hull>();
 			UserData.RegisterType<Gap>();
 			UserData.RegisterType<PhysicsBody>();
-			UserData.RegisterType<SubmarineBody>();
 			UserData.RegisterType<InvSlotType>();
 			UserData.RegisterType<ItemPrefab>();
 			UserData.RegisterType<SerializableProperty>();
@@ -303,7 +303,6 @@ namespace Barotrauma
 			UserData.RegisterType<Fabricator>();
 			UserData.RegisterType<Pair<JobPrefab, int>>();
 			UserData.RegisterType<ContentPackage>();
-			UserData.RegisterType<SubmarineInfo>();
 			UserData.RegisterType<SubmarineBody>();
 			UserData.RegisterType<Explosion>();
 			UserData.RegisterType<AIController>();
@@ -338,6 +337,7 @@ namespace Barotrauma
 			AddCallMetaMember(UserData.RegisterType<Signal>());
 			AddCallMetaMember(UserData.RegisterType<Color>());
 			AddCallMetaMember(UserData.RegisterType<Point>());
+			AddCallMetaMember(UserData.RegisterType<SubmarineInfo>());
 
 #if SERVER
 
@@ -415,6 +415,7 @@ namespace Barotrauma
 			lua.Globals["ClientPacketHeader"] = UserData.CreateStatic<ClientPacketHeader>();
 			lua.Globals["ServerPacketHeader"] = UserData.CreateStatic<ServerPacketHeader>();
 			lua.Globals["RandSync"] = UserData.CreateStatic<Rand.RandSync>();
+			lua.Globals["SubmarineInfo"] = UserData.CreateStatic<SubmarineInfo>();
 
 #if SERVER
 

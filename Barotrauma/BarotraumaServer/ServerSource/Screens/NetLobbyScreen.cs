@@ -217,6 +217,11 @@ namespace Barotrauma
             return subs;
         }
 
+        public void AddSub(SubmarineInfo sub)
+		{
+            subs.Add(sub);
+		}
+
         public string LevelSeed
         {
             get

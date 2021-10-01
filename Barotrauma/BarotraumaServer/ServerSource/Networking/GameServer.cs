@@ -1826,7 +1826,7 @@ namespace Barotrauma.Networking
             }
         }
 
-        private void ClientWriteLobby(Client c)
+        public void ClientWriteLobby(Client c)
         {
             bool isInitialUpdate = false;
 

@@ -12,8 +12,28 @@ namespace Barotrauma
 
 		public static void RegisterAll()
 		{
+            RegisterSimpleAction<Item>();
+            RegisterSimpleAction();
+        }
 
-		}
+        public static void RegisterSimpleAction<T>()
+        {
+            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(Action<T>), v =>
+            {
+                var function = v.Function;
+                return (Action<T>)(p => function.Call(p));
+            });
+        }
 
-	}
+
+
+        public static void RegisterSimpleAction()
+        {
+            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(Action), v => 
+            {
+                var function = v.Function;
+                return (Action)(() => function.Call());
+            });
+        }
+    }
 }

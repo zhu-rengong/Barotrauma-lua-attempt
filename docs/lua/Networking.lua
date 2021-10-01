@@ -17,7 +17,7 @@ function Networking.RequestPostHTTP(url, callback, textData, contentType) end
 function Networking.RequestGetHTTP(url, callback) end
 
 --- Creates a new net message, returns an IWriteMessage
--- treturn IWriteMessage netMessage
+-- @treturn IWriteMessage netMessage
 -- @realm shared 
 function Networking.Start(netMessageName) end
 
