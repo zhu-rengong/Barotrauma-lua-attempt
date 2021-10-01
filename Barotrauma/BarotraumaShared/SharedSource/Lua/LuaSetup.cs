@@ -12,6 +12,10 @@ using System.Linq;
 using MoonSharp.Interpreter.Interop;
 using System.Reflection;
 
+#if CLIENT
+using Microsoft.Xna.Framework.Graphics;
+#endif
+
 namespace Barotrauma
 {
 	partial class LuaSetup
@@ -219,6 +223,8 @@ namespace Barotrauma
 
 		public void Stop()
 		{
+			hook.Call("stop", new object[] { });
+
 			hook = new LuaHook(null);
 			game = new LuaGame(null);
 			networking = new LuaNetworking(null);
@@ -229,6 +235,8 @@ namespace Barotrauma
 
 		public void Initialize()
 		{
+			Stop();
+
 			luaSetup = this;
 
 			PrintMessage("Lua!");
@@ -241,7 +249,6 @@ namespace Barotrauma
 			UserData.RegisterType<TraitorMessageType>();
 			UserData.RegisterType<JobPrefab>();
 			UserData.RegisterType<Job>();
-			UserData.RegisterType<Rectangle>();
 			UserData.RegisterType<Point>();
 			UserData.RegisterType<Level.InterestingPosition>();
 			UserData.RegisterType<Level.PositionType>();
@@ -337,6 +344,7 @@ namespace Barotrauma
 			AddCallMetaMember(UserData.RegisterType<Signal>());
 			AddCallMetaMember(UserData.RegisterType<Color>());
 			AddCallMetaMember(UserData.RegisterType<Point>());
+			AddCallMetaMember(UserData.RegisterType<Rectangle>());
 			AddCallMetaMember(UserData.RegisterType<SubmarineInfo>());
 			
 #if SERVER
@@ -344,13 +352,24 @@ namespace Barotrauma
 #elif CLIENT
 			UserData.RegisterType<LuaGUI>();
 			UserData.RegisterType<ChatBox>();
+			UserData.RegisterType<GUICanvas>();
 			UserData.RegisterType<Anchor>();
+			UserData.RegisterType<Alignment>();
+			UserData.RegisterType<Pivot>();
+			UserData.RegisterType<Texture2D>();
+
+			AddCallMetaMember(UserData.RegisterType<Sprite>());
 
 			AddCallMetaMember(UserData.RegisterType<GUILayoutGroup>());
 			AddCallMetaMember(UserData.RegisterType<GUITextBox>());
+			AddCallMetaMember(UserData.RegisterType<GUITextBlock>());
 			AddCallMetaMember(UserData.RegisterType<GUIButton>());
 			AddCallMetaMember(UserData.RegisterType<RectTransform>());
 			AddCallMetaMember(UserData.RegisterType<GUIFrame>());
+			AddCallMetaMember(UserData.RegisterType<GUITickBox>());
+			AddCallMetaMember(UserData.RegisterType<GUICustomComponent>());
+			AddCallMetaMember(UserData.RegisterType<GUIImage>());
+			AddCallMetaMember(UserData.RegisterType<GUIListBox>());
 #endif
 			lua = new Script(CoreModules.Preset_SoftSandbox);
 
@@ -416,11 +435,14 @@ namespace Barotrauma
 			lua.Globals["ServerPacketHeader"] = UserData.CreateStatic<ServerPacketHeader>();
 			lua.Globals["RandSync"] = UserData.CreateStatic<Rand.RandSync>();
 			lua.Globals["SubmarineInfo"] = UserData.CreateStatic<SubmarineInfo>();
+			lua.Globals["Rectangle"] = UserData.CreateStatic<Rectangle>();
 
 #if SERVER
 
 #elif CLIENT
 			lua.Globals["GUI"] = new LuaGUI(this);
+			lua.Globals["Sprite"] = UserData.CreateStatic<Sprite>();
+
 #endif
 
 

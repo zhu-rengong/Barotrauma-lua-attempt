@@ -16,7 +16,18 @@ namespace Barotrauma
             RegisterAction<Character>();
             RegisterAction<Entity>();
             RegisterAction();
+
+
+#if CLIENT
+            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(GUIButton.OnClickedHandler), v =>
+            {
+
+                var function = v.Function;
+                return (GUIButton.OnClickedHandler)((GUIButton a, object b) => new LuaResult(function.Call(a, b)).Bool());
+            });
+#endif
         }
+
 
         public static void RegisterAction<T>()
         {
@@ -27,8 +38,6 @@ namespace Barotrauma
             });
         }
 
-
-
         public static void RegisterAction()
         {
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(Action), v => 
@@ -37,5 +46,7 @@ namespace Barotrauma
                 return (Action)(() => function.Call());
             });
         }
+
     }
+
 }
