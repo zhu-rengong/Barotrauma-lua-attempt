@@ -462,6 +462,8 @@ namespace Barotrauma
 			}
 
 #if SERVER
+			public void ClientWriteLobby(Client client) => GameMain.Server.ClientWriteLobby(client);
+
 			public void Send(IWriteMessage netMessage, NetworkConnection connection = null, DeliveryMethod deliveryMethod = DeliveryMethod.Reliable)
 			{
 				if (connection == null)

@@ -338,7 +338,7 @@ namespace Barotrauma
 			AddCallMetaMember(UserData.RegisterType<Color>());
 			AddCallMetaMember(UserData.RegisterType<Point>());
 			AddCallMetaMember(UserData.RegisterType<SubmarineInfo>());
-
+			
 #if SERVER
 
 #elif CLIENT

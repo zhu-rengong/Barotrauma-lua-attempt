@@ -12,11 +12,13 @@ namespace Barotrauma
 
 		public static void RegisterAll()
 		{
-            RegisterSimpleAction<Item>();
-            RegisterSimpleAction();
+            RegisterAction<Item>();
+            RegisterAction<Character>();
+            RegisterAction<Entity>();
+            RegisterAction();
         }
 
-        public static void RegisterSimpleAction<T>()
+        public static void RegisterAction<T>()
         {
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(Action<T>), v =>
             {
@@ -27,7 +29,7 @@ namespace Barotrauma
 
 
 
-        public static void RegisterSimpleAction()
+        public static void RegisterAction()
         {
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(Action), v => 
             {

@@ -28,8 +28,6 @@ namespace Barotrauma
 
 			public ServerSettings ServerSettings => GameMain.Server.ServerSettings;
 
-			public void ClientWriteLobby(Client client) => GameMain.Server.ClientWriteLobby(client);
-
 			public static void SendMessage(string msg, ChatMessageType? messageType = null, Client sender = null, Character character = null)
 			{
 				GameMain.Server.SendChatMessage(msg, messageType, sender, character);
