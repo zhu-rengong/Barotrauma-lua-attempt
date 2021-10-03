@@ -64,14 +64,6 @@ namespace Barotrauma
 				}
 			}
 
-			public EntitySpawner Spawner
-			{
-				get
-				{
-					return Entity.Spawner;
-				}
-			}
-
 			public GameSession GameSession
 			{
 				get

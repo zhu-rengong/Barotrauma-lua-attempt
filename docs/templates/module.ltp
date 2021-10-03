@@ -6,10 +6,38 @@
 
 <p>{* ldoc.markup(mod.description) *}</p>
 
-{% for kind, items in mod.kinds() do %}
+{% 
+	local kinds = {}
+	local kindsIpairs = {}
+	for kind, items in mod.kinds() do
+		local name = kind
+		if kind == "Tables" then
+			name = "Fields"
+		end
+
+		for item in items() do
+			if kinds[name] == nil then 
+				kinds[name] = {} 
+				
+				local value = {}
+				value.kind = name
+				value.items = kinds[name]
+				table.insert(kindsIpairs, value)
+			end
+			kinds[name][item] = true
+		end
+	end
+
+
+%}
+
+{% for i, value in ipairs(kindsIpairs) do 
+	local kind = value.kind
+	local items = value.items
+%}
 	<h1 class="title">{{kind}}</h1>
 
-	{% for item in items() do %}
+	{% for item, _ in pairs(items) do %}
 		<section class="method" id="{{item.name}}">
 			<header>
 				<a class="anchor">

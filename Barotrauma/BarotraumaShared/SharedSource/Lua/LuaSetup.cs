@@ -436,6 +436,7 @@ namespace Barotrauma
 			lua.Globals["RandSync"] = UserData.CreateStatic<Rand.RandSync>();
 			lua.Globals["SubmarineInfo"] = UserData.CreateStatic<SubmarineInfo>();
 			lua.Globals["Rectangle"] = UserData.CreateStatic<Rectangle>();
+			lua.Globals["Entity"] = UserData.CreateStatic<Entity>();
 
 #if SERVER
 
@@ -462,7 +463,7 @@ namespace Barotrauma
 			lua.Globals["SERVER"] = isServer;
 			lua.Globals["CLIENT"] = !isServer;
 
-			LuaDocs.GenerateDocs(typeof(JobPrefab));
+			LuaDocs.GenerateDocs(typeof(EntitySpawner));
 
 			if (File.Exists("Lua/MoonsharpSetup.lua")) // try the default loader
 				DoFile("Lua/MoonsharpSetup.lua");

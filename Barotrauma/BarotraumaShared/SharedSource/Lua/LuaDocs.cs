@@ -48,6 +48,12 @@ namespace Barotrauma
 					return "table";
 			}
 
+			if (type.StartsWith("Action"))
+				return "function";
+
+			if (type.StartsWith("Func"))
+				return "function";
+
 			return type;
 		}
 
