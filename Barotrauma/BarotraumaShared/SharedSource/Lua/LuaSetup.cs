@@ -96,6 +96,8 @@ namespace Barotrauma
 
 		public DynValue DoFile(string file, Table globalContext = null, string codeStringFriendly = null)
 		{
+			if(!LuaFile.IsPathAllowedLuaException(file)) return null;
+
 			try
 			{
 				return lua.DoFile(file, globalContext, codeStringFriendly);
@@ -127,6 +129,8 @@ namespace Barotrauma
 
 		public DynValue LoadFile(string file, Table globalContext = null, string codeStringFriendly = null)
 		{
+			if (!LuaFile.IsPathAllowedLuaException(file)) return null;
+
 			try
 			{
 				return lua.LoadFile(file, globalContext, codeStringFriendly);
