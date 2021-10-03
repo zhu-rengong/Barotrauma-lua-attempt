@@ -109,7 +109,7 @@ namespace Barotrauma.Networking
 
             c.ChatSpamSpeed += similarity + 0.5f;
 
-            if (c.ChatSpamTimer > 0.0f && !isOwner)
+            if (c.ChatSpamTimer > 0.0f && !isOwner && !GameMain.Lua.game.disableSpamFilter)
             {
                 ChatMessage denyMsg = Create("", TextManager.Get("SpamFilterBlocked"), ChatMessageType.Server, null);
                 c.ChatSpamTimer = 10.0f;
