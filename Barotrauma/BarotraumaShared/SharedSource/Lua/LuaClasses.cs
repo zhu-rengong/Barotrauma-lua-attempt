@@ -80,6 +80,14 @@ namespace Barotrauma
 				}
 			}
 
+			public GameScreen GameScreen
+			{
+				get
+				{
+					return GameMain.GameScreen;
+				}
+			}
+
 			public void OverrideTraitors(bool o)
 			{
 				overrideTraitors = o;

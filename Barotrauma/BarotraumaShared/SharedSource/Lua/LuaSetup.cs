@@ -14,6 +14,8 @@ using System.Reflection;
 
 #if CLIENT
 using Microsoft.Xna.Framework.Graphics;
+using EventInput;
+using Microsoft.Xna.Framework.Input;
 #endif
 
 namespace Barotrauma
@@ -165,13 +167,21 @@ namespace Barotrauma
 				return DynValue.Nil;
 
 			return UserData.Create(o);
-
 		}
 
 
-		public object CallFunction(object function, object[] arguments)
+		public object CallFunction(object function, params object[] arguments)
 		{
-			return lua.Call(function, arguments);
+			try
+			{
+				return lua.Call(function, arguments);
+			}
+			catch (Exception e)
+			{
+				HandleLuaException(e);
+			}
+
+			return null;
 		}
 
 		public void SetModulePaths(string[] str)
@@ -235,6 +245,7 @@ namespace Barotrauma
 			luaScriptLoader = null;
 
 			luaSetup = null;
+
 		}
 
 		public void Initialize()
@@ -341,6 +352,10 @@ namespace Barotrauma
 			UserData.RegisterType<Skill>();
 			UserData.RegisterType<SkillPrefab>();
 
+			UserData.RegisterType<Screen>();
+			UserData.RegisterType<GameScreen>();
+			UserData.RegisterType<Camera>();
+
 			AddCallMetaMember(UserData.RegisterType<Vector2>());
 			AddCallMetaMember(UserData.RegisterType<Vector3>());
 			AddCallMetaMember(UserData.RegisterType<Vector4>());
@@ -350,7 +365,7 @@ namespace Barotrauma
 			AddCallMetaMember(UserData.RegisterType<Point>());
 			AddCallMetaMember(UserData.RegisterType<Rectangle>());
 			AddCallMetaMember(UserData.RegisterType<SubmarineInfo>());
-			
+
 #if SERVER
 
 #elif CLIENT
@@ -361,9 +376,12 @@ namespace Barotrauma
 			UserData.RegisterType<Alignment>();
 			UserData.RegisterType<Pivot>();
 			UserData.RegisterType<Texture2D>();
+			UserData.RegisterType<KeyEventArgs>();
+			UserData.RegisterType<Key>();
+			UserData.RegisterType<Keys>();
+			UserData.RegisterType<PlayerInput>();
 
 			AddCallMetaMember(UserData.RegisterType<Sprite>());
-
 			AddCallMetaMember(UserData.RegisterType<GUILayoutGroup>());
 			AddCallMetaMember(UserData.RegisterType<GUITextBox>());
 			AddCallMetaMember(UserData.RegisterType<GUITextBlock>());
@@ -374,9 +392,12 @@ namespace Barotrauma
 			AddCallMetaMember(UserData.RegisterType<GUICustomComponent>());
 			AddCallMetaMember(UserData.RegisterType<GUIImage>());
 			AddCallMetaMember(UserData.RegisterType<GUIListBox>());
+			AddCallMetaMember(UserData.RegisterType<GUIScrollBar>());
+
+
 #endif
 			lua = new Script(CoreModules.Preset_SoftSandbox);
-
+			
 			lua.Options.DebugPrint = PrintMessage;
 
 			lua.Options.ScriptLoader = luaScriptLoader;
@@ -447,10 +468,9 @@ namespace Barotrauma
 #elif CLIENT
 			lua.Globals["GUI"] = new LuaGUI(this);
 			lua.Globals["Sprite"] = UserData.CreateStatic<Sprite>();
-
+			lua.Globals["Keys"] = UserData.CreateStatic<Keys>();
+			lua.Globals["PlayerInput"] = UserData.CreateStatic<PlayerInput>();
 #endif
-
-
 			// obsolete
 			lua.Globals["CreateVector2"] = (Func<float, float, Vector2>)CreateVector2;
 			lua.Globals["CreateVector3"] = (Func<float, float, float, Vector3>)CreateVector3;

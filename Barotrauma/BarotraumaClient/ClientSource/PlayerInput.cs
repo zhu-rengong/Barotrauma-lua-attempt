@@ -171,7 +171,7 @@ namespace Barotrauma
         }
     }
 
-    public static class PlayerInput
+    public class PlayerInput
     {
         static MouseState mouseState, oldMouseState;
         static MouseState latestMouseState; //the absolute latest state, do NOT use for player interaction
@@ -501,6 +501,8 @@ namespace Barotrauma
             {
                 allowInput = true;
             }
+
+            GameMain.Lua.hook.Call("keyUpdate", new object[] { deltaTime  });
 
             oldMouseState = mouseState;
             mouseState = latestMouseState;

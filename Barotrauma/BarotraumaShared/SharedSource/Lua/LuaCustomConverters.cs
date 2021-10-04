@@ -17,13 +17,24 @@ namespace Barotrauma
             RegisterAction<Entity>();
             RegisterAction();
 
-
 #if CLIENT
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(GUIButton.OnClickedHandler), v =>
             {
 
                 var function = v.Function;
-                return (GUIButton.OnClickedHandler)((GUIButton a, object b) => new LuaResult(function.Call(a, b)).Bool());
+                return (GUIButton.OnClickedHandler)((GUIButton a, object b) => new LuaResult(LuaSetup.luaSetup.CallFunction(function, a, b)).Bool());
+            });
+
+            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(GUITextBox.OnTextChangedHandler), v =>
+            {
+                var function = v.Function;
+                return (GUITextBox.OnTextChangedHandler)((GUITextBox a, string b) => new LuaResult(LuaSetup.luaSetup.CallFunction(function, a, b)).Bool());
+            });
+
+            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(GUITextBox.OnEnterHandler), v =>
+            {
+                var function = v.Function;
+                return (GUITextBox.OnEnterHandler)((GUITextBox a, string b) => new LuaResult(LuaSetup.luaSetup.CallFunction(function, a, b)).Bool());
             });
 #endif
         }

@@ -25,6 +25,9 @@ namespace Barotrauma
 				TickBox = UserData.CreateStatic<GUITickBox>();
 				Image = UserData.CreateStatic<GUIImage>();
 				ListBox = UserData.CreateStatic<GUIListBox>();
+				ScrollBar = UserData.CreateStatic<GUIScrollBar>();
+
+				Screen = UserData.CreateStatic<Screen>();
 
 				Anchor = UserData.CreateStatic<Anchor>();
 				Alignment = UserData.CreateStatic<Alignment>();
@@ -40,6 +43,8 @@ namespace Barotrauma
 				}
 			}
 
+			public static object Screen;
+
 			public static object RectTransform;
 			public static object LayoutGroup;
 			public static object Button;
@@ -50,6 +55,7 @@ namespace Barotrauma
 			public static object TickBox;
 			public static object Image;
 			public static object ListBox;
+			public static object ScrollBar;
 
 			public static object Pivot;
 			public static object Anchor;
