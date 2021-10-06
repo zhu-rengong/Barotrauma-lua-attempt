@@ -420,19 +420,28 @@ namespace Barotrauma
                 }
             };
 #endif
-            new GUIButton(new RectTransform(new Point(300, 30), Frame.RectTransform, Anchor.TopRight) { AbsoluteOffset = new Point(40, 230) },
-    "Remove Client-Side Lua", style: "GUIButtonLarge", color: GUI.Style.Red)
+
+            new GUIButton(new RectTransform(new Point(300, 30), Frame.RectTransform, Anchor.TopLeft) { AbsoluteOffset = new Point(20, 50) },
+    "Remove Client-Side Lua", style: "MainMenuGUIButton", color: GUI.Style.Red)
             {
                 IgnoreLayoutGroups = true,
                 UserData = Tab.Empty,
                 ToolTip = "Remove Client-Side Lua.",
                 OnClicked = (tb, userdata) =>
                 {
-                    return false;
+					if (!File.Exists("Barotrauma.dll.original"))
+					{
+                        new GUIMessageBox("", "Error: Barotrauma.dll.original not found, Github version? Use Steam validate files instead.");
+					}
+
+                    return true;
                 }
             };
-            
-            
+
+            new GUITextBlock(new RectTransform(new Point(300, 30), Frame.RectTransform, Anchor.TopLeft) { AbsoluteOffset = new Point(10, 10) }, "Using LuaForBarotrauma version " + AssemblyInfo.GitRevision, Color.Red)
+            {
+                IgnoreLayoutGroups = false
+            };
 
             var minButtonSize = new Point(120, 20);
             var maxButtonSize = new Point(480, 80);

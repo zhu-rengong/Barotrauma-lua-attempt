@@ -254,7 +254,7 @@ namespace Barotrauma
 
 			luaSetup = this;
 
-			PrintMessage("Lua!");
+			PrintMessage("Lua! Version " + AssemblyInfo.GitRevision);
 
 			luaScriptLoader = new LuaScriptLoader(this);
 			luaScriptLoader.ModulePaths = new string[] { };
@@ -487,7 +487,7 @@ namespace Barotrauma
 			lua.Globals["SERVER"] = isServer;
 			lua.Globals["CLIENT"] = !isServer;
 
-			LuaDocs.GenerateDocs(typeof(EntitySpawner));
+			// LuaDocs.GenerateDocs(typeof(EntitySpawner));
 
 			if (File.Exists("Lua/MoonsharpSetup.lua")) // try the default loader
 				DoFile("Lua/MoonsharpSetup.lua");
