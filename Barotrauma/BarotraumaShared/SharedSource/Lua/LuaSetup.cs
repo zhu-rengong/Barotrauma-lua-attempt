@@ -398,7 +398,7 @@ namespace Barotrauma
 			AddCallMetaMember(UserData.RegisterType<GUIImage>());
 			AddCallMetaMember(UserData.RegisterType<GUIListBox>());
 			AddCallMetaMember(UserData.RegisterType<GUIScrollBar>());
-
+			 
 
 #endif
 			lua = new Script(CoreModules.Preset_SoftSandbox);
