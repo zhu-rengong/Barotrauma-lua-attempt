@@ -3097,20 +3097,38 @@ namespace Barotrauma
                 }
             });
 
-            commands.Add(new Command("lua_cl", "lua_cl: runs a string on the client", (string[] args) =>
+            commands.Add(new Command("cl_lua", "lua_cl: runs a string on the client", (string[] args) =>
             {
-                if (GameMain.Client != null)
-                    GameMain.Lua.DoString(string.Join(" ", args));
-                else
-                    ThrowError("Client not connected to any server.");
+                if (GameMain.Client == null)
+                {
+                    ThrowError("Client not connected to a server.");
+                    return;
+                }
+
+                if (!GameMain.Client.HasPermission(ClientPermissions.ConsoleCommands))
+                {
+                    ThrowError("Command not permitted.");
+                    return;
+                }
+
+                GameMain.Lua.DoString(string.Join(" ", args));
             }));
 
-            commands.Add(new Command("reloadlua_cl", "reloads lua on the client", (string[] args) =>
+            commands.Add(new Command("cl_reloadlua", "reloads lua on the client", (string[] args) =>
             {
-                if (GameMain.Client != null)
-                    GameMain.Lua.Initialize();
-                else
-                    ThrowError("Client not connected to any server.");
+                if (GameMain.Client == null)
+                {
+                    ThrowError("Client not connected to a server.");
+                    return;
+                }
+
+                if (!GameMain.Client.HasPermission(ClientPermissions.ConsoleCommands))
+                {
+                    ThrowError("Command not permitted.");
+                    return;
+                }
+
+                GameMain.Lua.Initialize();
             }));
         }
 

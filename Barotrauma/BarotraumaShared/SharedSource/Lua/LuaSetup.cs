@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Linq;
 using MoonSharp.Interpreter.Interop;
 using System.Reflection;
+using FarseerPhysics.Dynamics;
 
 #if CLIENT
 using Microsoft.Xna.Framework.Graphics;
@@ -251,7 +252,7 @@ namespace Barotrauma
 		public void Initialize()
 		{
 			Stop();
-
+			
 			luaSetup = this;
 
 			PrintMessage("Lua! Version " + AssemblyInfo.GitRevision);
@@ -351,6 +352,10 @@ namespace Barotrauma
 			UserData.RegisterType<Rand.RandSync>();
 			UserData.RegisterType<Skill>();
 			UserData.RegisterType<SkillPrefab>();
+
+			UserData.RegisterType<World>();
+			UserData.RegisterType<Fixture>();
+			UserData.RegisterType(typeof(Physics));
 
 			UserData.RegisterType<Screen>();
 			UserData.RegisterType<GameScreen>();
@@ -462,6 +467,7 @@ namespace Barotrauma
 			lua.Globals["SubmarineInfo"] = UserData.CreateStatic<SubmarineInfo>();
 			lua.Globals["Rectangle"] = UserData.CreateStatic<Rectangle>();
 			lua.Globals["Entity"] = UserData.CreateStatic<Entity>();
+			lua.Globals["Physics"] = UserData.CreateStatic(typeof(Physics));
 
 #if SERVER
 

@@ -10,6 +10,7 @@ using System.IO;
 using System.Net;
 using System.Linq;
 using System.Xml.Linq;
+using FarseerPhysics.Dynamics;
 
 namespace Barotrauma
 {
@@ -85,6 +86,14 @@ namespace Barotrauma
 				get
 				{
 					return GameMain.GameScreen;
+				}
+			}
+
+			public World World
+			{
+				get
+				{
+					return GameMain.World;
 				}
 			}
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using MoonSharp.Interpreter;
 using Microsoft.Xna.Framework;
+using FarseerPhysics.Dynamics;
 
 namespace Barotrauma
 {
@@ -16,6 +17,13 @@ namespace Barotrauma
             RegisterAction<Character>();
             RegisterAction<Entity>();
             RegisterAction();
+
+
+            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(Func<Fixture, Vector2, Vector2, float, float>), v =>
+            {
+                var function = v.Function;
+                return (Func<Fixture, Vector2, Vector2, float, float>)((Fixture a, Vector2 b, Vector2 c, float d) => new LuaResult(function.Call(a, b, c, d)).Float());
+            });
 
 #if CLIENT
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(GUIButton.OnClickedHandler), v =>
@@ -38,7 +46,6 @@ namespace Barotrauma
             });
 #endif
         }
-
 
         public static void RegisterAction<T>()
         {
