@@ -431,8 +431,40 @@ namespace Barotrauma
                 {
 					if (!File.Exists("Barotrauma.dll.original"))
 					{
-                        new GUIMessageBox("", "Error: Barotrauma.dll.original not found, Github version? Use Steam validate files instead.");
+                        new GUIMessageBox("Error", "Error: Barotrauma.dll.original not found, Github version? Use Steam validate files instead.");
+
+                        return false;
 					}
+
+                    if (!File.Exists("Barotrauma.deps.json.original"))
+                    {
+                        new GUIMessageBox("Error", "Error: Barotrauma.deps.json.original not found, Github version? Use Steam validate files instead.");
+
+                        return false;
+                    }
+
+                    var msg = new GUIMessageBox("Confirm", "Are you sure you want to remove Client-Side Lua?", new string[] { "Remove", "Cancel" });
+
+                    msg.Buttons[0].OnClicked = (GUIButton button, object obj) =>
+                    {
+                        File.Delete("Barotrauma.dll");
+                        File.Delete("Barotrauma.deps.json");
+
+                        File.Move("Barotrauma.dll.original", "Barotrauma.dll");
+                        File.Move("Barotrauma.deps.json.original", "Barotrauma.deps.json");
+
+                        new GUIMessageBox("Restart", "Restart your game to apply the changes.");
+
+                        msg.Close();
+
+                        return true;
+                    };
+
+                    msg.Buttons[1].OnClicked = (GUIButton button, object obj) =>
+                    {
+                        msg.Close();
+                        return true;
+                    };
 
                     return true;
                 }

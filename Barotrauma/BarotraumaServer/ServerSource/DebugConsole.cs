@@ -1253,6 +1253,10 @@ namespace Barotrauma
                 GameMain.Lua.Initialize();
             }));
 
+            commands.Add(new Command("install_cl_lua", "Installs client-side lua into your client.", (string[] args) =>
+            {
+                LuaSetup.InstallClientSideLua();
+            }));
 
             commands.Add(new Command("randomizeseed", "randomizeseed: Toggles level seed randomization on/off.", (string[] args) =>
             {

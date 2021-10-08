@@ -12,6 +12,7 @@ using System.Linq;
 using MoonSharp.Interpreter.Interop;
 using System.Reflection;
 using FarseerPhysics.Dynamics;
+using System.IO.Compression;
 
 #if CLIENT
 using Microsoft.Xna.Framework.Graphics;
@@ -236,6 +237,41 @@ namespace Barotrauma
 			descriptor.AddMetaMember("__call", new ObjectCallbackMemberDescriptor("__call", HandleCall));
 		}
 
+#if SERVER
+		public static void InstallClientSideLua()
+		{
+			if (!File.Exists("Mods/LuaForBarotrauma/clientside_files.zip"))
+			{
+				GameMain.Server.SendChatMessage("clientside_files.zip doesn't exist, Github version?", ChatMessageType.ServerMessageBox);
+
+				return;
+			}
+
+			try
+			{
+
+				ZipFile.ExtractToDirectory("Mods/LuaForBarotrauma/clientside_files.zip", ".", true);
+
+				File.Move("Barotrauma.dll", "Barotrauma.dll.temp");
+				File.Move("Barotrauma.deps.json", "Barotrauma.deps.json.temp");
+
+				File.Move("Barotrauma.dll.original", "Barotrauma.dll");
+				File.Move("Barotrauma.deps.json.original", "Barotrauma.deps.json");
+
+				File.Move("Barotrauma.dll.temp", "Barotrauma.dll.original");
+				File.Move("Barotrauma.deps.json.temp", "Barotrauma.deps.json.original");
+			}catch(Exception e)
+			{
+				LuaSetup.luaSetup.HandleLuaException(e);
+
+				return;
+			}
+
+			GameMain.Server.SendChatMessage("Client-Side Lua installed, restart your game to apply changes.", ChatMessageType.ServerMessageBox);
+		}
+
+#endif
+
 		public void Stop()
 		{
 			hook.Call("stop", new object[] { });
@@ -398,7 +434,7 @@ namespace Barotrauma
 			AddCallMetaMember(UserData.RegisterType<GUIImage>());
 			AddCallMetaMember(UserData.RegisterType<GUIListBox>());
 			AddCallMetaMember(UserData.RegisterType<GUIScrollBar>());
-			 
+
 
 #endif
 			lua = new Script(CoreModules.Preset_SoftSandbox);
