@@ -447,15 +447,23 @@ namespace Barotrauma
 
                     msg.Buttons[0].OnClicked = (GUIButton button, object obj) =>
                     {
-                        File.Delete("Barotrauma.dll");
-                        File.Delete("Barotrauma.deps.json");
+                        msg.Close();
 
-                        File.Move("Barotrauma.dll.original", "Barotrauma.dll");
-                        File.Move("Barotrauma.deps.json.original", "Barotrauma.deps.json");
+                        try
+                        {
+                            System.IO.File.Move("Barotrauma.dll", "Barotrauma.dll.todelete", true);
+                            System.IO.File.Move("Barotrauma.deps.json", "Barotrauma.deps.json.todelete", true);
+
+                            System.IO.File.Move("Barotrauma.dll.original", "Barotrauma.dll", true);
+                            System.IO.File.Move("Barotrauma.deps.json.original", "Barotrauma.deps.json", true);
+
+                        }catch(Exception e)
+						{
+                            new GUIMessageBox("Error", "Error: " + e.ToString());
+                            return false;
+                        }
 
                         new GUIMessageBox("Restart", "Restart your game to apply the changes.");
-
-                        msg.Close();
 
                         return true;
                     };

@@ -252,15 +252,18 @@ namespace Barotrauma
 
 				ZipFile.ExtractToDirectory("Mods/LuaForBarotrauma/clientside_files.zip", ".", true);
 
-				File.Move("Barotrauma.dll", "Barotrauma.dll.temp");
-				File.Move("Barotrauma.deps.json", "Barotrauma.deps.json.temp");
+				File.Move("Barotrauma.dll", "Barotrauma.dll.temp", true);
+				File.Move("Barotrauma.deps.json", "Barotrauma.deps.json.temp", true);
+				File.Move("RestSharp.dll", "RestSharp.dll.temp", true);
 
 				File.Move("Barotrauma.dll.original", "Barotrauma.dll");
 				File.Move("Barotrauma.deps.json.original", "Barotrauma.deps.json");
+				File.Move("RestSharp.dll.original", "RestSharp.dll", true);
 
-				File.Move("Barotrauma.dll.temp", "Barotrauma.dll.original");
-				File.Move("Barotrauma.deps.json.temp", "Barotrauma.deps.json.original");
-			}catch(Exception e)
+				File.Move("Barotrauma.dll.temp", "Barotrauma.dll.original", true);
+				File.Move("Barotrauma.deps.json.temp", "Barotrauma.deps.json.original", true);
+			}
+			catch (Exception e)
 			{
 				LuaSetup.luaSetup.HandleLuaException(e);
 
