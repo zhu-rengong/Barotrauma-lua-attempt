@@ -388,6 +388,7 @@ namespace Barotrauma
 			UserData.RegisterType<DeliveryMethod>();
 			UserData.RegisterType<RelayComponent>();
 			UserData.RegisterType<MemoryComponent>();
+			UserData.RegisterType<Engine>();
 			UserData.RegisterType<Rand.RandSync>();
 			UserData.RegisterType<Skill>();
 			UserData.RegisterType<SkillPrefab>();
