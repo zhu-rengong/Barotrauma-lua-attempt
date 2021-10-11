@@ -392,6 +392,8 @@ namespace Barotrauma
 			UserData.RegisterType<Rand.RandSync>();
 			UserData.RegisterType<Skill>();
 			UserData.RegisterType<SkillPrefab>();
+			UserData.RegisterType<TraitorMissionPrefab>();
+			UserData.RegisterType<TraitorMissionResult>();
 
 			UserData.RegisterType<World>();
 			UserData.RegisterType<Fixture>();
@@ -412,7 +414,8 @@ namespace Barotrauma
 			AddCallMetaMember(UserData.RegisterType<SubmarineInfo>());
 
 #if SERVER
-
+			UserData.RegisterType<Traitor>();
+			UserData.RegisterType<Traitor.TraitorMission>();
 #elif CLIENT
 			UserData.RegisterType<LuaGUI>();
 			UserData.RegisterType<ChatBox>();
