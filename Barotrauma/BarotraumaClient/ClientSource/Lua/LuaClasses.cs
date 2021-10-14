@@ -26,6 +26,7 @@ namespace Barotrauma
 				Image = UserData.CreateStatic<GUIImage>();
 				ListBox = UserData.CreateStatic<GUIListBox>();
 				ScrollBar = UserData.CreateStatic<GUIScrollBar>();
+				DropDown = UserData.CreateStatic<GUIDropDown>();
 
 				Screen = UserData.CreateStatic<Screen>();
 
@@ -56,6 +57,7 @@ namespace Barotrauma
 			public static object Image;
 			public static object ListBox;
 			public static object ScrollBar;
+			public static object DropDown;
 
 			public static object Pivot;
 			public static object Anchor;

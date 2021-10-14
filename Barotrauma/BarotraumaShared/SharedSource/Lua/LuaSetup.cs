@@ -441,6 +441,7 @@ namespace Barotrauma
 			AddCallMetaMember(UserData.RegisterType<GUIImage>());
 			AddCallMetaMember(UserData.RegisterType<GUIListBox>());
 			AddCallMetaMember(UserData.RegisterType<GUIScrollBar>());
+			AddCallMetaMember(UserData.RegisterType<GUIDropDown>());
 
 
 #endif
