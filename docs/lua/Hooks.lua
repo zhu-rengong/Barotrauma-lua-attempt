@@ -105,10 +105,27 @@ function itemDrop(item, character) end
 -- @realm shared
 function itemEquip(item, character) end
 
-
 --- Same as itemEquip, but for unequipping.
 -- @realm shared
 function itemUnequip(item, character) end
+
+--- Gets called every time an item is interacted, eg: picking item on ground, fixing something with wrench
+-- @realm shared
+function itemInteract(item, characterPicker, ignoreRequiredItemsBool, forceSelectKeyBool, forceActionKeyBool) end
+
+--- Gets called every time two items are combined, eg: drag an half empty magazine to another half empty magazine to combine
+-- @realm shared
+function itemCombine(item, otherItem, userCharacter) end
+
+
+--- Gets called every time an item is moved from one inventory slot to another, return true to cancel
+-- @realm shared
+function inventoryPutItem(inventory, item, characterUser, index, removeItemBool) end
+
+--- Gets called every time items are swapped, return true to cancel
+-- @realm shared
+function inventoryItemSwap(inventory, item, characterUser, index, swapWholeStackBool) end
+
 --- 
 -- @realm shared
 function changeFallDamage() end
