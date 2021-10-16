@@ -523,6 +523,11 @@ namespace Barotrauma
                 return;
             }
 
+            var should = new LuaResult(GameMain.Lua.hook.Call("inventoryPutItem", new object[] { this, item, user, i, removeItem }));
+
+            if (should.Bool())
+                return;
+
             if (Owner == null) { return; }
 
             Inventory prevInventory = item.ParentInventory;
@@ -623,6 +628,11 @@ namespace Barotrauma
         protected bool TrySwapping(int index, Item item, Character user, bool createNetworkEvent, bool swapWholeStack)
         {
             if (item?.ParentInventory == null || !slots[index].Any()) { return false; }
+
+            var should = new LuaResult(GameMain.Lua.hook.Call("inventoryItemSwap", new object[] { this, item, user, index, swapWholeStack }));
+
+            if (!should.IsNull())
+                return should.Bool();
 
             //swap to InvSlotType.Any if possible
             Inventory otherInventory = item.ParentInventory;

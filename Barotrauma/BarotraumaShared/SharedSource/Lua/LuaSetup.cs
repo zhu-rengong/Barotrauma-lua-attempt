@@ -348,6 +348,7 @@ namespace Barotrauma
 			UserData.RegisterType<Holdable>();
 			UserData.RegisterType<CustomInterface>();
 			UserData.RegisterType<Inventory>();
+			UserData.RegisterType<ItemInventory>();
 			UserData.RegisterType<ItemContainer>();
 			UserData.RegisterType<PowerContainer>();
 			UserData.RegisterType<Pickable>();
@@ -442,8 +443,6 @@ namespace Barotrauma
 			AddCallMetaMember(UserData.RegisterType<GUIListBox>());
 			AddCallMetaMember(UserData.RegisterType<GUIScrollBar>());
 			AddCallMetaMember(UserData.RegisterType<GUIDropDown>());
-
-
 #endif
 			lua = new Script(CoreModules.Preset_SoftSandbox);
 			

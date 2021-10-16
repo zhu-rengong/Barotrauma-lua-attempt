@@ -2089,6 +2089,11 @@ namespace Barotrauma
 
         public bool TryInteract(Character picker, bool ignoreRequiredItems = false, bool forceSelectKey = false, bool forceActionKey = false)
         {
+            var should = new LuaResult(GameMain.Lua.hook.Call("itemInteract", new object[] { this, picker, ignoreRequiredItems, forceSelectKey, forceActionKey }));
+
+            if (!should.IsNull())
+                return should.Bool();
+
             if (CampaignInteractionType != CampaignMode.InteractionType.None) { return false; }
 
             bool picked = false, selected = false;
@@ -2349,6 +2354,11 @@ namespace Barotrauma
 
         public bool Combine(Item item, Character user)
         {
+            var should = new LuaResult(GameMain.Lua.hook.Call("itemCombine", new object[] { this, item, user }));
+
+            if (!should.IsNull())
+                return should.Bool();
+
             if (item == this) { return false; }
             bool isCombined = false;
             foreach (ItemComponent ic in components)
