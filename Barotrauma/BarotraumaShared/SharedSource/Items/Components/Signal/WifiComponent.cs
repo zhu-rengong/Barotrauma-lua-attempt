@@ -60,6 +60,8 @@ namespace Barotrauma.Items.Components
             set;
         }
 
+        private bool linkToChat = false;
+
         [ConditionallyEditable(ConditionallyEditable.ConditionType.AllowLinkingWifiToChat)]
         [Serialize(false, false, description: "If enabled, any signals received from another chat-linked wifi component are displayed " +
             "as chat messages in the chatbox of the player holding the item.", alwaysUseInstanceValues: true)]
@@ -68,13 +70,14 @@ namespace Barotrauma.Items.Components
 #if SERVER
             get
 			{
-                return GameMain.Lua.game.allowWifiChat;
-			}
+                if(GameMain.Lua.game.allowWifiChat) return true;
+                return linkToChat;
+            }
 
 			set
 			{
-
-			}
+                linkToChat = value;
+            }
 #else
             get;
             set;
