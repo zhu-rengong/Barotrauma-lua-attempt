@@ -1190,6 +1190,10 @@ namespace Barotrauma.Networking
                         {
                             c.Character.ServerRead(objHeader, inc, c);
                         }
+                        else
+                        {
+                            DebugConsole.AddWarning($"Received character inputs from a client who's not controlling a character ({c.Name}).");
+                        }
                         break;
                     case ClientNetObject.ENTITY_STATE:
                         entityEventManager.Read(inc, c);
@@ -1327,7 +1331,7 @@ namespace Barotrauma.Networking
                             Log("Client \"" + GameServer.ClientLogName(sender) + "\" ended the round.", ServerLog.MessageType.ServerMessage);
                             if (mpCampaign != null && Level.IsLoadedOutpost)
                             {
-                                mpCampaign.SaveInventories();
+                                mpCampaign.SavePlayers();
                                 GameMain.GameSession.SubmarineInfo = new SubmarineInfo(GameMain.GameSession.Submarine);
                                 SaveUtil.SaveGame(GameMain.GameSession.SavePath);
                             }
@@ -2363,8 +2367,16 @@ namespace Barotrauma.Networking
                         characterData.ApplyHealthData(spawnedCharacter);
                         characterData.ApplyOrderData(spawnedCharacter);
                         spawnedCharacter.GiveIdCardTags(mainSubWaypoints[i]);
+                        spawnedCharacter.LoadTalents();
+
                         characterData.HasSpawned = true;
                     }
+                    if (GameMain.GameSession?.GameMode is MultiPlayerCampaign mpCampaign && spawnedCharacter.Info != null)
+                    {
+                        spawnedCharacter.Info.SetExperience(Math.Max(spawnedCharacter.Info.ExperiencePoints, mpCampaign.GetSavedExperiencePoints(teamClients[i])));
+                        mpCampaign.ClearSavedExperiencePoints(teamClients[i]);
+                    }
+
                     spawnedCharacter.OwnerClientEndPoint = teamClients[i].Connection.EndPointString;
                     spawnedCharacter.OwnerClientName = teamClients[i].Name;
                 }
@@ -2375,6 +2387,8 @@ namespace Barotrauma.Networking
                     spawnedCharacter.TeamID = teamID;
                     spawnedCharacter.GiveJobItems(mainSubWaypoints[i]);
                     spawnedCharacter.GiveIdCardTags(mainSubWaypoints[i]);
+                    // talents are only avilable for players in online sessions, but modders or someone else might want to have them loaded anyway
+                    spawnedCharacter.LoadTalents();
                 }
             }
 
@@ -2447,6 +2461,7 @@ namespace Barotrauma.Networking
             GameMain.Lua.hook.Call("roundStart", new object[] { });
 
 
+            startGameCoroutine = null;
             yield return CoroutineStatus.Success;
         }
 
@@ -2471,6 +2486,7 @@ namespace Barotrauma.Networking
             msg.Write(serverSettings.AllowRespawn && missionAllowRespawn);
             msg.Write(serverSettings.AllowDisguises);
             msg.Write(serverSettings.AllowRewiring);
+            msg.Write(serverSettings.AllowFriendlyFire);
             msg.Write(serverSettings.LockAllDefaultWires);
             msg.Write(serverSettings.AllowRagdollButton);
             msg.Write(serverSettings.UseRespawnShuttle);
@@ -2638,8 +2654,8 @@ namespace Barotrauma.Networking
                 }
             }
 
-            Submarine.Unload();
             entityEventManager.Clear();
+            Submarine.Unload();
             GameMain.NetLobbyScreen.Select();
             Log("Round ended.", ServerLog.MessageType.ServerMessage);
 
@@ -3175,28 +3191,19 @@ namespace Barotrauma.Networking
         public void SendOrderChatMessage(OrderChatMessage message)
         {
             if (message.Sender == null || message.Sender.SpeechImpediment >= 100.0f) { return; }
-            //ChatMessageType messageType = ChatMessage.CanUseRadio(message.Sender) ? ChatMessageType.Radio : ChatMessageType.Default;
-
             //check which clients can receive the message and apply distance effects
             foreach (Client client in ConnectedClients)
             {
-                string modifiedMessage = message.Text;
-
-                if (message.Sender != null &&
-                    client.Character != null && !client.Character.IsDead)
+                if (message.Sender != null && client.Character != null && !client.Character.IsDead)
                 {
                     //too far to hear the msg -> don't send
                     if (!client.Character.CanHearCharacter(message.Sender)) { continue; }
                 }
-
                 SendDirectChatMessage(new OrderChatMessage(message.Order, message.OrderOption, message.OrderPriority, message.TargetEntity, message.TargetCharacter, message.Sender), client);
             }
-
-            string myReceivedMessage = message.Text;
-
-            if (!string.IsNullOrWhiteSpace(myReceivedMessage))
+            if (!string.IsNullOrWhiteSpace(message.Text))
             {
-                AddChatMessage(new OrderChatMessage(message.Order, message.OrderOption, message.OrderPriority, myReceivedMessage, message.TargetEntity, message.TargetCharacter, message.Sender));
+                AddChatMessage(new OrderChatMessage(message.Order, message.OrderOption, message.OrderPriority, message.Text, message.TargetEntity, message.TargetCharacter, message.Sender));
             }
         }
 
@@ -3492,15 +3499,15 @@ namespace Barotrauma.Networking
             }
             catch (Exception e)
             {
-                //gender = Gender.Male;
-                //race = Race.White;
-                //headSpriteId = 0;
                 DebugConsole.Log("Received invalid characterinfo from \"" + sender.Name + "\"! { " + e.Message + " }");
             }
             int hairIndex = message.ReadByte();
             int beardIndex = message.ReadByte();
             int moustacheIndex = message.ReadByte();
             int faceAttachmentIndex = message.ReadByte();
+            Color skinColor = message.ReadColorR8G8B8();
+            Color hairColor = message.ReadColorR8G8B8();
+            Color facialHairColor = message.ReadColorR8G8B8();
 
             List<Pair<JobPrefab, int>> jobPreferences = new List<Pair<JobPrefab, int>>();
             int count = message.ReadByte();
@@ -3517,6 +3524,9 @@ namespace Barotrauma.Networking
 
             sender.CharacterInfo = new CharacterInfo(CharacterPrefab.HumanSpeciesName, sender.Name);
             sender.CharacterInfo.RecreateHead(headSpriteId, race, gender, hairIndex, beardIndex, moustacheIndex, faceAttachmentIndex);
+            sender.CharacterInfo.SkinColor = skinColor;
+            sender.CharacterInfo.HairColor = hairColor;
+            sender.CharacterInfo.FacialHairColor = facialHairColor;
 
             if (jobPreferences.Count > 0)
             {
@@ -3816,7 +3826,7 @@ namespace Barotrauma.Networking
             return preferredClient;
         }
 
-        public void UpdateMissionState(Mission mission, int state)
+        public void UpdateMissionState(Mission mission)
         {
             foreach (var client in connectedClients)
             {
@@ -3824,7 +3834,7 @@ namespace Barotrauma.Networking
                 msg.Write((byte)ServerPacketHeader.MISSION);
                 int missionIndex = GameMain.GameSession.GetMissionIndex(mission);
                 msg.Write((byte)(missionIndex == -1 ? 255: missionIndex));
-                msg.Write((ushort)state);
+                mission?.ServerWrite(msg);
                 serverPeer.Send(msg, client.Connection, DeliveryMethod.Reliable);
             }
         }
