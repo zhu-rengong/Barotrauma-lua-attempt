@@ -60,6 +60,7 @@ namespace Barotrauma.Items.Components
             set;
         }
 
+
         private bool linkToChat = false;
 
         [ConditionallyEditable(ConditionallyEditable.ConditionType.AllowLinkingWifiToChat)]
