@@ -368,15 +368,27 @@ namespace Barotrauma
 			UserData.RegisterType<ContentPackage>();
 			UserData.RegisterType<SubmarineBody>();
 			UserData.RegisterType<Explosion>();
+			UserData.RegisterType<ServerSettings>();
+
 			UserData.RegisterType<AIController>();
 			UserData.RegisterType<EnemyAIController>();
 			UserData.RegisterType<HumanAIController>();
 			UserData.RegisterType<AICharacter>();
 			UserData.RegisterType<AITarget>();
 			UserData.RegisterType<AITargetMemory>();
-			UserData.RegisterType<ServerSettings>();
+
+			UserData.RegisterType<TalentPrefab>();
+			UserData.RegisterType<TalentOption>();
+			UserData.RegisterType<TalentSubTree>();
+			UserData.RegisterType<TalentTree>();
+			UserData.RegisterType<CharacterTalent>();
+
 			UserData.RegisterType<PrefabCollection<ItemPrefab>>();
 			UserData.RegisterType<PrefabCollection<JobPrefab>>();
+			UserData.RegisterType<PrefabCollection<CharacterPrefab>>();
+			UserData.RegisterType<PrefabCollection<AfflictionPrefab>>();
+			UserData.RegisterType<PrefabCollection<TalentPrefab>>();
+
 			UserData.RegisterType<GameSession>();
 			UserData.RegisterType<CampaignMode>();
 			UserData.RegisterType<InputType>();
