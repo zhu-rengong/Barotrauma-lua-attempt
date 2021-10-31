@@ -401,6 +401,7 @@ namespace Barotrauma
 				var descriptor = (StandardUserDataDescriptor)UserData.RegisterType<NetLobbyScreen>();
 				var type = typeof(NetLobbyScreen);
 				var field = type.GetField("subs", BindingFlags.NonPublic | BindingFlags.Instance);
+				descriptor.RemoveMember("subs");
 				descriptor.AddMember("subs", new FieldMemberDescriptor(field, InteropAccessMode.Default));
 			}
 
@@ -566,6 +567,8 @@ namespace Barotrauma
 				DoFile("Mods/LuaForBarotrauma/Lua/MoonsharpSetup.lua");
 			else // fallback to c# script loading
 			{
+				PrintMessage("Lua/MoonSharp.lua not found, loading Mods directly, things can break!");
+
 				List<string> modulePaths = new List<string>();
 
 				foreach (string d in Directory.GetDirectories("Mods"))
