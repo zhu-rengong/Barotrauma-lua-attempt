@@ -301,22 +301,6 @@ namespace Barotrauma
 
 			LuaCustomConverters.RegisterAll();
 
-			UserData.RegisterType<TraitorMessageType>();
-			UserData.RegisterType<JobPrefab>();
-			UserData.RegisterType<Job>();
-			UserData.RegisterType<Point>();
-			UserData.RegisterType<Level.InterestingPosition>();
-			UserData.RegisterType<Level.PositionType>();
-			UserData.RegisterType<Level>();
-			UserData.RegisterType<Items.Components.Steering>();
-			UserData.RegisterType<ServerLog.MessageType>();
-			UserData.RegisterType<SpawnType>();
-			UserData.RegisterType<ChatMessageType>();
-			UserData.RegisterType<WayPoint>();
-			UserData.RegisterType<Character>();
-			UserData.RegisterType<Item>();
-			UserData.RegisterType<Submarine>();
-			UserData.RegisterType<Client>();
 			UserData.RegisterType<LuaPlayer>();
 			UserData.RegisterType<LuaHook>();
 			UserData.RegisterType<LuaGame>();
@@ -324,7 +308,26 @@ namespace Barotrauma
 			UserData.RegisterType<LuaTimer>();
 			UserData.RegisterType<LuaFile>();
 			UserData.RegisterType<LuaNetworking>();
+
 			UserData.RegisterType<CauseOfDeathType>();
+			UserData.RegisterType<Level.InterestingPosition>();
+			UserData.RegisterType<Level.PositionType>();
+			UserData.RegisterType<TraitorMessageType>();
+			UserData.RegisterType<SpawnType>();
+			UserData.RegisterType<ChatMessageType>();
+			UserData.RegisterType<InputType>();
+
+			UserData.RegisterType<JobPrefab>();
+			UserData.RegisterType<Job>();
+			UserData.RegisterType<Point>();
+			UserData.RegisterType<Level>();
+			UserData.RegisterType<Items.Components.Steering>();
+			UserData.RegisterType<ServerLog.MessageType>();
+			UserData.RegisterType<WayPoint>();
+			UserData.RegisterType<Character>();
+			UserData.RegisterType<Item>();
+			UserData.RegisterType<Submarine>();
+			UserData.RegisterType<Client>();
 			UserData.RegisterType<AfflictionPrefab>();
 			UserData.RegisterType<Affliction>();
 			UserData.RegisterType<CharacterHealth>();
@@ -333,7 +336,6 @@ namespace Barotrauma
 			UserData.RegisterType<Ragdoll>();
 			UserData.RegisterType<ChatMessage>();
 			UserData.RegisterType<CharacterHealth.LimbHealth>();
-			UserData.RegisterType<InputType>();
 			UserData.RegisterType<AttackResult>();
 			UserData.RegisterType<Entity>();
 			UserData.RegisterType<EntitySpawner>();
@@ -342,17 +344,6 @@ namespace Barotrauma
 			UserData.RegisterType<CauseOfDeath>();
 			UserData.RegisterType<CharacterTeamType>();
 			UserData.RegisterType<Connection>();
-			UserData.RegisterType<ItemComponent>();
-			UserData.RegisterType<WifiComponent>();
-			UserData.RegisterType<LightComponent>();
-			UserData.RegisterType<Holdable>();
-			UserData.RegisterType<CustomInterface>();
-			UserData.RegisterType<Inventory>();
-			UserData.RegisterType<ItemInventory>();
-			UserData.RegisterType<ItemContainer>();
-			UserData.RegisterType<PowerContainer>();
-			UserData.RegisterType<Pickable>();
-			UserData.RegisterType<Reactor>();
 			UserData.RegisterType<CharacterInventory>();
 			UserData.RegisterType<Hull>();
 			UserData.RegisterType<Gap>();
@@ -369,6 +360,18 @@ namespace Barotrauma
 			UserData.RegisterType<SubmarineBody>();
 			UserData.RegisterType<Explosion>();
 			UserData.RegisterType<ServerSettings>();
+
+			UserData.RegisterType<ItemComponent>();
+			UserData.RegisterType<WifiComponent>();
+			UserData.RegisterType<LightComponent>();
+			UserData.RegisterType<Holdable>();
+			UserData.RegisterType<CustomInterface>();
+			UserData.RegisterType<Inventory>();
+			UserData.RegisterType<ItemInventory>();
+			UserData.RegisterType<ItemContainer>();
+			UserData.RegisterType<PowerContainer>();
+			UserData.RegisterType<Pickable>();
+			UserData.RegisterType<Reactor>();
 
 			UserData.RegisterType<AIController>();
 			UserData.RegisterType<EnemyAIController>();
@@ -389,11 +392,18 @@ namespace Barotrauma
 			UserData.RegisterType<PrefabCollection<AfflictionPrefab>>();
 			UserData.RegisterType<PrefabCollection<TalentPrefab>>();
 
+			UserData.RegisterType<Screen>();
+			UserData.RegisterType<GameScreen>();
 			UserData.RegisterType<GameSession>();
 			UserData.RegisterType<CampaignMode>();
-			UserData.RegisterType<InputType>();
-			UserData.RegisterType<Key>();
-			UserData.RegisterType<NetLobbyScreen>();
+
+			{
+				var descriptor = (StandardUserDataDescriptor)UserData.RegisterType<NetLobbyScreen>();
+				var type = typeof(NetLobbyScreen);
+				var field = type.GetField("subs", BindingFlags.NonPublic | BindingFlags.Instance);
+				descriptor.AddMember("subs", new FieldMemberDescriptor(field, InteropAccessMode.Default));
+			}
+
 			UserData.RegisterType<IWriteMessage>();
 			UserData.RegisterType<IReadMessage>();
 			UserData.RegisterType<ServerPacketHeader>();
@@ -412,9 +422,9 @@ namespace Barotrauma
 			UserData.RegisterType<Fixture>();
 			UserData.RegisterType(typeof(Physics));
 
-			UserData.RegisterType<Screen>();
-			UserData.RegisterType<GameScreen>();
 			UserData.RegisterType<Camera>();
+			UserData.RegisterType<InputType>();
+			UserData.RegisterType<Key>();
 
 			AddCallMetaMember(UserData.RegisterType<Vector2>());
 			AddCallMetaMember(UserData.RegisterType<Vector3>());
