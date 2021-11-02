@@ -205,7 +205,7 @@ namespace Barotrauma.Networking
 
             GameMain.NetLobbyScreen.Select();
             GameMain.NetLobbyScreen.RandomizeSettings();
-            if (!string.IsNullOrEmpty(serverSettings.SelectedSubmarine)) 
+            if (!string.IsNullOrEmpty(serverSettings.SelectedSubmarine))
             {
                 SubmarineInfo sub = SubmarineInfo.SavedSubmarines.FirstOrDefault(s => s.Name == serverSettings.SelectedSubmarine);
                 if (sub != null) { GameMain.NetLobbyScreen.SelectedSub = sub; }
@@ -542,7 +542,7 @@ namespace Barotrauma.Networking
                     initiatedStartGame = false;
                 }
             }
-            else if (Screen.Selected == GameMain.NetLobbyScreen && !gameStarted && !initiatedStartGame && 
+            else if (Screen.Selected == GameMain.NetLobbyScreen && !gameStarted && !initiatedStartGame &&
                     (GameMain.NetLobbyScreen.SelectedMode != GameModePreset.MultiPlayerCampaign || GameMain.GameSession?.GameMode is MultiPlayerCampaign))
             {
                 if (serverSettings.AutoRestart)
@@ -979,9 +979,9 @@ namespace Barotrauma.Networking
                 {
                     var spawnData = entityEvent.Data[0] as EntitySpawner.SpawnOrRemove;
                     errorLines.Add(
-                        entityEvent.ID + ": " + 
-                        (spawnData.Remove ? "Remove " : "Create ") + 
-                        spawnData.Entity.ToString() + 
+                        entityEvent.ID + ": " +
+                        (spawnData.Remove ? "Remove " : "Create ") +
+                        spawnData.Entity.ToString() +
                         " (" + spawnData.OriginalID + ", " + spawnData.Entity.ID + ")");
                 }
             }
@@ -1230,7 +1230,7 @@ namespace Barotrauma.Networking
                 sender.WaitForNextRoundRespawn = null;
             }
         }
-        
+
         private void ClientReadServerCommand(IReadMessage inc)
         {
             Client sender = ConnectedClients.Find(x => x.Connection == inc.Sender);
@@ -1335,7 +1335,7 @@ namespace Barotrauma.Networking
                                 GameMain.GameSession.SubmarineInfo = new SubmarineInfo(GameMain.GameSession.Submarine);
                                 SaveUtil.SaveGame(GameMain.GameSession.SavePath);
                             }
-                            EndGame();                            
+                            EndGame();
                         }
                     }
                     else
@@ -1466,7 +1466,7 @@ namespace Barotrauma.Networking
                     }
                     break;
                 case ClientPermissions.ManageCampaign:
-                    (GameMain.GameSession.GameMode as MultiPlayerCampaign)?.ServerRead(inc, sender);                    
+                    (GameMain.GameSession.GameMode as MultiPlayerCampaign)?.ServerRead(inc, sender);
                     break;
                 case ClientPermissions.ConsoleCommands:
                     {
@@ -1822,7 +1822,7 @@ namespace Barotrauma.Networking
                 outmsg.Write(client.InGame);
                 outmsg.Write(client.Permissions != ClientPermissions.None);
                 outmsg.Write(client.Connection == OwnerConnection);
-                outmsg.Write(client.Connection != OwnerConnection && 
+                outmsg.Write(client.Connection != OwnerConnection &&
                     !client.HasPermission(ClientPermissions.Ban) &&
                     !client.HasPermission(ClientPermissions.Kick) &&
                     !client.HasPermission(ClientPermissions.Unban)); //is kicking the player allowed
@@ -2202,8 +2202,8 @@ namespace Barotrauma.Networking
             bool isOutpost = campaign != null && campaign.NextLevel?.Type == LevelData.LevelType.Outpost;
 
             if (serverSettings.AllowRespawn && missionAllowRespawn)
-            { 
-                respawnManager = new RespawnManager(this, serverSettings.UseRespawnShuttle && !isOutpost ? selectedShuttle : null); 
+            {
+                respawnManager = new RespawnManager(this, serverSettings.UseRespawnShuttle && !isOutpost ? selectedShuttle : null);
             }
             if (campaign != null)
             {
@@ -2295,7 +2295,7 @@ namespace Barotrauma.Networking
                     }
 
                     AssignBotJobs(bots, teamID);
-                    if (campaign != null) 
+                    if (campaign != null)
                     {
                         foreach (CharacterInfo bot in bots)
                         {
@@ -2312,7 +2312,7 @@ namespace Barotrauma.Networking
 
                 List<WayPoint> spawnWaypoints = null;
                 List<WayPoint> mainSubWaypoints = WayPoint.SelectCrewSpawnPoints(characterInfos, Submarine.MainSubs[n]).ToList();
-                if (Level.Loaded?.StartOutpost != null && 
+                if (Level.Loaded?.StartOutpost != null &&
                     Level.Loaded.Type == LevelData.LevelType.Outpost &&
                     (Level.Loaded.StartOutpost.Info.OutpostGenerationParams?.SpawnCrewInsideOutpost ?? false) &&
                     Level.Loaded.StartOutpost.GetConnectedSubs().Any(s => s.Info.Type == SubmarineType.Player))
@@ -2824,7 +2824,7 @@ namespace Barotrauma.Networking
 
             //reset karma to a neutral value, so if/when the ban is revoked the client wont get immediately punished by low karma again
             previousPlayer.Karma = Math.Max(previousPlayer.Karma, 50.0f);
-            
+
             if (!string.IsNullOrEmpty(previousPlayer.EndPoint) && (previousPlayer.SteamID == 0 || range))
             {
                 string ip = previousPlayer.EndPoint;
@@ -3172,7 +3172,7 @@ namespace Barotrauma.Networking
                     modifiedMessage,
                     (ChatMessageType)type,
                     senderCharacter,
-                    senderClient, 
+                    senderClient,
                     changeType);
                
                 SendDirectChatMessage(chatMsg, client);
@@ -3465,7 +3465,7 @@ namespace Barotrauma.Networking
                 {
                     newCharacter.LastNetworkUpdateID = client.Character.LastNetworkUpdateID;
                 }
-                
+
                 if (newCharacter.Info != null && newCharacter.Info.Character == null)
                 {
                     newCharacter.Info.Character = newCharacter;
@@ -3629,7 +3629,6 @@ namespace Barotrauma.Networking
             List<WayPoint> availableSpawnPoints = WayPoint.WayPointList.FindAll(wp =>
                 wp.SpawnType == SpawnType.Human &&
                 wp.Submarine != null && wp.Submarine.TeamID == teamID);
-            List<WayPoint> unassignedSpawnPoints = new List<WayPoint>(availableSpawnPoints);
 
             /*bool canAssign = false;
             do
@@ -3657,10 +3656,8 @@ namespace Barotrauma.Networking
             // First evaluate all the primary preferences, then all the secondary etc.
             for (int preferenceIndex = 0; preferenceIndex < 3; preferenceIndex++)
             {
-                if (unassignedSpawnPoints.None()) { break; }
                 for (int i = unassigned.Count - 1; i >= 0; i--)
                 {
-                    if (unassignedSpawnPoints.None()) { break; }
                     Client client = unassigned[i];
                     if (preferenceIndex >= client.JobPreferences.Count) { continue; }
                     var preferredJob = client.JobPreferences[preferenceIndex];
@@ -3670,21 +3667,10 @@ namespace Barotrauma.Networking
                         //can't assign this job if maximum number has reached or the clien't karma is too low
                         continue;
                     }
-                    //give the client their preferred job if there's a spawnpoint available for that job
-                    var matchingSpawnPoint = unassignedSpawnPoints.Find(s => s.AssignedJob == jobPrefab);
-                    if (matchingSpawnPoint == null && !availableSpawnPoints.Any(s => s.AssignedJob == jobPrefab))
-                    {
-                        //if the job is not available in any spawnpoint (custom job?), treat empty spawnpoints
-                        //as a matching ones
-                        matchingSpawnPoint = unassignedSpawnPoints.Find(s => s.AssignedJob == null);
-                    }
-                    if (matchingSpawnPoint != null)
-                    {
-                        unassignedSpawnPoints.Remove(matchingSpawnPoint);
-                        client.AssignedJob = preferredJob;
-                        assignedClientCount[jobPrefab]++;
-                        unassigned.RemoveAt(i);
-                    }
+
+                    client.AssignedJob = preferredJob;
+                    assignedClientCount[jobPrefab]++;
+                    unassigned.RemoveAt(i);
                 }
             }
 
@@ -3719,7 +3705,7 @@ namespace Barotrauma.Networking
                     {
                         c.AssignedJob = preferredJob;
                         assignedClientCount[preferredJob.First]++;
-                        break;                        
+                        break;
                     }
                 }
                 else //none of the client's preferred jobs available, choose a random job
@@ -3776,10 +3762,10 @@ namespace Barotrauma.Networking
                     unassignedBots[0].Job = new Job(jobPrefab, variant);
                     assignedPlayerCount[jobPrefab]++;
                     unassignedBots.Remove(unassignedBots[0]);
-                    canAssign = true;                    
+                    canAssign = true;
                 }
             } while (unassignedBots.Count > 0 && canAssign);
-            
+
             //find a suitable job for the rest of the bots
             foreach (CharacterInfo c in unassignedBots)
             {
@@ -3890,7 +3876,7 @@ namespace Barotrauma.Networking
                     string submarinesString = string.Empty;
                     for (int i = 0; i < GameMain.NetLobbyScreen.CampaignSubmarines.Count; i++)
                     {
-                        submarinesString += GameMain.NetLobbyScreen.CampaignSubmarines[i].Name + ServerSettings.SubmarineSeparatorChar;                       
+                        submarinesString += GameMain.NetLobbyScreen.CampaignSubmarines[i].Name + ServerSettings.SubmarineSeparatorChar;
                     }
                     submarinesString.Trim(ServerSettings.SubmarineSeparatorChar);
                     serverSettings.CampaignSubmarines = submarinesString;
