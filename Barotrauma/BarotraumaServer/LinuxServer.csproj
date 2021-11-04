@@ -74,6 +74,7 @@
     <ProjectReference Include="..\..\Libraries\Lidgren.Network\Lidgren.NetStandard.csproj" AdditionalProperties="Configuration=Debug" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Lib.Harmony" Version="2.1.1" />
     <PackageReference Include="MoonSharp" Version="2.0.0" />
   </ItemGroup>
 

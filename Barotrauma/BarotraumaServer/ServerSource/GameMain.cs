@@ -364,7 +364,7 @@ namespace Barotrauma
             {
                 DebugConsole.NewMessage("WARNING: Stopwatch frequency under 1500 ticks per second. Expect significant syncing accuracy issues.", Color.Yellow);
             }
-
+            Stopwatch performanceMeasurement = new Stopwatch();
             stopwatch = Stopwatch.StartNew();
             long prevTicks = stopwatch.ElapsedTicks;
             while (ShouldRun)
@@ -380,6 +380,8 @@ namespace Barotrauma
                 prevTicks = currTicks;
                 while (Timing.Accumulator >= Timing.Step)
                 {
+                    performanceMeasurement.Start();
+
                     Timing.TotalTime += Timing.Step;
                     DebugConsole.Update();
                     if (GameSession?.GameMode == null || !GameSession.GameMode.Paused)
@@ -393,6 +395,9 @@ namespace Barotrauma
                     CoroutineManager.Update((float)Timing.Step, (float)Timing.Step);
 
                     GameMain.Lua.hook.Call("think", new object[] { });
+                    performanceMeasurement.Stop();
+                    LuaSetup.LuaTimer.LastUpdateTime = performanceMeasurement.ElapsedMilliseconds;
+                    performanceMeasurement.Reset();
 
                     Timing.Accumulator -= Timing.Step;
                 }

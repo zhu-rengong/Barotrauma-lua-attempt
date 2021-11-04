@@ -11,6 +11,10 @@ using System.Net;
 using System.Linq;
 using System.Xml.Linq;
 using FarseerPhysics.Dynamics;
+using System.Reflection;
+using HarmonyLib;
+using MoonSharp.Interpreter.Interop;
+using System.Diagnostics;
 
 namespace Barotrauma
 {
@@ -32,7 +36,82 @@ namespace Barotrauma
 			return new Vector4(x, y, z, w);
 		}
 
-		private partial class LuaPlayer
+		partial class LuaUserData
+		{
+			public static Type GetType(string typeName)
+			{
+				var type = Type.GetType(typeName);
+				if (type != null) return type;
+				foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
+				{
+					type = a.GetType(typeName);
+					if (type != null)
+						return type;
+				}
+				return null;
+			}
+
+			public static IUserDataDescriptor RegisterType(string typeName)
+			{
+				Type type = GetType(typeName);
+
+				MethodInfo method = typeof(UserData).GetMethod(nameof(UserData.RegisterType), new Type[2] { typeof(InteropAccessMode), typeof(string) });
+				MethodInfo generic = method.MakeGenericMethod(type);
+				return (IUserDataDescriptor)generic.Invoke(null, new object[] { null, null });
+			}
+
+			public static object CreateStatic(string typeName)
+			{
+				Type type = GetType(typeName);
+
+				MethodInfo method = typeof(UserData).GetMethod(nameof(UserData.CreateStatic), 1, new Type[0]);
+				MethodInfo generic = method.MakeGenericMethod(type);
+				return generic.Invoke(null, null);
+			}
+
+			public static void AddCallMetaMember(IUserDataDescriptor IUDD)
+			{
+				var descriptor = (StandardUserDataDescriptor)IUDD;
+				descriptor.RemoveMetaMember("__call");
+				descriptor.AddMetaMember("__call", new ObjectCallbackMemberDescriptor("__call", LuaSetup.luaSetup.HandleCall));
+			}
+
+			public static void MakeFieldAccessible(IUserDataDescriptor IUUD, string methodName)
+			{
+				var descriptor = (StandardUserDataDescriptor)IUUD;
+				var field = IUUD.Type.GetField(methodName, BindingFlags.NonPublic | BindingFlags.Instance);
+				descriptor.RemoveMember(methodName);
+				descriptor.AddMember(methodName, new FieldMemberDescriptor(field, InteropAccessMode.Default));
+			}
+
+			public static void MakeMethodAccessible(IUserDataDescriptor IUUD, string methodName)
+			{
+				var descriptor = (StandardUserDataDescriptor)IUUD;
+				var method = IUUD.Type.GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance);
+				descriptor.RemoveMember(methodName);
+				descriptor.AddMember(methodName, new MethodMemberDescriptor(method, InteropAccessMode.Default));
+			}
+
+			public static void AddMethod(IUserDataDescriptor IUUD, string methodName, object function)
+			{
+				var descriptor = (StandardUserDataDescriptor)IUUD;
+				descriptor.RemoveMember(methodName);
+				descriptor.AddMember(methodName, new ObjectCallbackMemberDescriptor(methodName, (object arg1, ScriptExecutionContext arg2, CallbackArguments arg3) => 
+				{
+					if (luaSetup != null)
+						return luaSetup.CallFunction(function, arg3.GetArray());
+					return null;
+				}));
+			}
+
+			public static void RemoveMember(IUserDataDescriptor IUUD, string memberName)
+			{
+				var descriptor = (StandardUserDataDescriptor)IUUD;
+				descriptor.RemoveMember(memberName);
+			}
+		}
+
+		public partial class LuaPlayer
 		{
 
 		}
@@ -322,8 +401,10 @@ namespace Barotrauma
 		}
 
 
-		private partial class LuaTimer
+		public partial class LuaTimer
 		{
+			public static long LastUpdateTime = 0;
+
 			public LuaSetup env;
 
 			public LuaTimer(LuaSetup e)
@@ -331,12 +412,27 @@ namespace Barotrauma
 				env = e;
 			}
 
+			public static double Time
+			{
+				get
+				{
+					return GetTime();
+				}
+			}
+
 			public static double GetTime()
 			{
 				return Timing.TotalTime;
 			}
 
+			public static float GetUsageMemory()
+			{
+				Process proc = Process.GetCurrentProcess();
+				float memory = MathF.Round(proc.PrivateMemorySize64 / (1024 * 1024), 2);
+				proc.Dispose();
 
+				return memory;
+			}
 		}
 
 		private partial class LuaRandom
@@ -592,6 +688,7 @@ namespace Barotrauma
 			public LuaHook(LuaSetup e)
 			{
 				env = e;
+				methodNameToHookName = new Dictionary<string, string>();
 			}
 
 			public class HookFunction
@@ -608,7 +705,60 @@ namespace Barotrauma
 				}
 			}
 
-			public Dictionary<string, Dictionary<string, HookFunction>> hookFunctions = new Dictionary<string, Dictionary<string, HookFunction>>();
+			private Dictionary<string, Dictionary<string, HookFunction>> hookFunctions = new Dictionary<string, Dictionary<string, HookFunction>>();
+
+			private static Dictionary<string, string> methodNameToHookName;
+
+			public enum HookMethodType
+			{
+				Before, After
+			}
+
+			static void HookLuaPatchPrefix(MethodBase __originalMethod)
+			{
+				luaSetup.hook.Call(methodNameToHookName[__originalMethod.Name]);
+			}
+
+			static void HookLuaPatchPostfix(MethodBase __originalMethod)
+			{
+				luaSetup.hook.Call(methodNameToHookName[__originalMethod.Name]);
+			}
+
+			// not very useful until i find a way to use the transpiler to inject arguments into the call
+
+			public void HookMethod(string className, string methodName, string hookName, HookMethodType hookMethodType = HookMethodType.Before)
+			{
+				var classType = Type.GetType(className);
+				var methodInfos = classType.GetMethods();
+				HarmonyMethod harmonyMethod = new HarmonyMethod();
+
+				if (hookMethodType == HookMethodType.Before)
+				{
+					harmonyMethod = new HarmonyMethod(GetType().GetMethod("HookLuaPatchPrefix", BindingFlags.NonPublic | BindingFlags.Static));
+				}
+				else if (hookMethodType == HookMethodType.After)
+				{
+					harmonyMethod = new HarmonyMethod(GetType().GetMethod("HookLuaPatchPostfix", BindingFlags.NonPublic | BindingFlags.Static));
+				}
+
+				var foundAny = false;
+
+				foreach (var methodInfo in methodInfos)
+				{
+					if(methodInfo.Name == methodName)
+					{
+						if (hookMethodType == HookMethodType.Before)
+							env.harmony.Patch(methodInfo, harmonyMethod);
+						else if (hookMethodType == HookMethodType.After)
+							env.harmony.Patch(methodInfo, postfix: harmonyMethod);
+
+						foundAny = true;
+					}
+				}
+
+				if(foundAny)
+					methodNameToHookName.Add(methodName, hookName);
+			}
 
 			public void Add(string name, string hookName, object function)
 			{
@@ -632,7 +782,7 @@ namespace Barotrauma
 					hookFunctions[name].Remove(hookName);
 			}
 
-			public object Call(string name, object[] args)
+			public object Call(string name, params object[] args)
 			{
 				if (env == null) return null;
 				if (name == null) return null;
@@ -653,12 +803,16 @@ namespace Barotrauma
 							if (!result.IsNil())
 								lastResult = result;
 						}
-						//else if (hf.function is NLua.LuaFunction luaFunction)
-						//	lastResult = luaFunction.Call(args);
 					}
 					catch (Exception e)
 					{
-						env.HandleLuaException(e);
+						StringBuilder argsSb = new StringBuilder();
+						foreach(var arg in args)
+						{
+							argsSb.Append(arg + " ");
+						}
+						
+						env.HandleLuaException(e, $"Error in Hook '{name}'->'{hf.hookName}', with args '{argsSb}'");
 					}
 				}
 

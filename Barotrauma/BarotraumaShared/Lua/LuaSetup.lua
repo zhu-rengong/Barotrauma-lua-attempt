@@ -1,4 +1,14 @@
+-- Config
+
 local runDisabledMods = false
+local modulePaths = {"Lua/?.lua"}
+setmodulepaths(modulePaths)
+
+local defaultLib = require("DefaultLib")
+
+for key, value in pairs(defaultLib) do
+    _G[key] = value
+end
 
 if SERVER and Game.IsDedicated then
     runDisabledMods = true
@@ -29,8 +39,6 @@ local function runFolder(folder)
 
     end
 end
-
-local modulePaths = {}
 
 if not runDisabledMods then
 

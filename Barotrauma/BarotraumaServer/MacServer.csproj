@@ -89,6 +89,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Lib.Harmony" Version="2.1.1" />
     <PackageReference Include="MoonSharp" Version="2.0.0" />
   </ItemGroup>
   <Target Name="GetGitRevision" BeforeTargets="WriteGitRevision" Condition="'$(BuildHash)' == ''">
