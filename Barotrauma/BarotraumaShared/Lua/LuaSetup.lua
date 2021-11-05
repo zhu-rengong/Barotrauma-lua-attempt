@@ -1,14 +1,17 @@
 -- Config
-
 local runDisabledMods = false
 local modulePaths = {"Lua/?.lua"}
 setmodulepaths(modulePaths)
+
+-- Setup Libraries
 
 local defaultLib = require("DefaultLib")
 
 for key, value in pairs(defaultLib) do
     _G[key] = value
 end
+
+-- Execute Mods
 
 if SERVER and Game.IsDedicated then
     runDisabledMods = true
@@ -17,9 +20,9 @@ if SERVER and Game.IsDedicated then
 end
 
 if runDisabledMods then 
-    print("LUA LOADER: Mods will be executed regardless being enabled or not. Lua/MoonsharpSetup.lua")
+    print("LUA LOADER: Mods will be executed regardless being enabled or not. Lua/LuaSetup.lua")
 else
-    print("LUA LOADER: Only enabled mods will be executed. Lua/MoonsharpSetup.lua")
+    print("LUA LOADER: Only enabled mods will be executed. Lua/LuaSetup.lua")
 end
 
 local enabledPackages = Game.GetEnabledContentPackages()

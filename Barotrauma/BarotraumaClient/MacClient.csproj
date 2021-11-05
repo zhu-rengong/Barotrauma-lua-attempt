@@ -122,7 +122,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Lib.Harmony" Version="2.1.1" />
+    <PackageReference Include="MonoMod.Common" Version="21.10.22.1" />
     <PackageReference Include="MoonSharp" Version="2.0.0" />
     <PackageReference Include="NVorbis" Version="0.8.6" />
     <PackageReference Include="RestSharp" Version="106.6.10" />
@@ -134,6 +134,11 @@
       <Link>libsteam_api64.dylib</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>..\..\Libraries\0Harmony.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Update="libfreetype6.dylib">

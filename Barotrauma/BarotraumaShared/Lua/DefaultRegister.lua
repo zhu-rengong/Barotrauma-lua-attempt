@@ -4,6 +4,8 @@ end
 
 local AddCallMetaMember = LuaUserData.AddCallMetaMember
 
+LuaUserData.RegisterType("System.TimeSpan")
+
 RegisterBarotrauma("CauseOfDeathType")
 RegisterBarotrauma("Level+InterestingPosition")
 RegisterBarotrauma("Level+PositionType")
@@ -88,7 +90,10 @@ RegisterBarotrauma("GameSession")
 RegisterBarotrauma("CampaignMode")
 
 local descriptor = RegisterBarotrauma("NetLobbyScreen")
-LuaUserData.MakeFieldAccessible(descriptor, "subs")
+
+if SERVER then
+    LuaUserData.MakeFieldAccessible(descriptor, "subs")
+end
 
 RegisterBarotrauma("Networking.IWriteMessage")
 RegisterBarotrauma("Networking.IReadMessage")

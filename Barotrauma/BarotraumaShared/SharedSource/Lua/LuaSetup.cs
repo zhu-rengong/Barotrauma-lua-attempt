@@ -320,6 +320,7 @@ namespace Barotrauma
 			UserData.RegisterType<LuaFile>();
 			UserData.RegisterType<LuaNetworking>();
 			UserData.RegisterType<LuaUserData>();
+			UserData.RegisterType<LuaHook.HookMethodType>();
 			UserData.RegisterType<IUserDataDescriptor>();
 
 			UserData.RegisterType<PrefabCollection<ItemPrefab>>();
@@ -330,6 +331,11 @@ namespace Barotrauma
 
 			UserData.RegisterType<Pair<JobPrefab, int>>();
 
+#if SERVER
+
+#elif CLIENT
+			UserData.RegisterType<LuaGUI>();
+#endif
 
 			lua.Globals["setmodulepaths"] = (Action<string[]>)SetModulePaths;
 

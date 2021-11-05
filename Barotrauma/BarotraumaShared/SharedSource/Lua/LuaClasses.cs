@@ -15,6 +15,7 @@ using System.Reflection;
 using HarmonyLib;
 using MoonSharp.Interpreter.Interop;
 using System.Diagnostics;
+using System.Reflection.Emit;
 
 namespace Barotrauma
 {
@@ -714,31 +715,62 @@ namespace Barotrauma
 				Before, After
 			}
 
-			static void HookLuaPatchPrefix(MethodBase __originalMethod)
+			static bool HookLuaPatchPrefix(MethodBase __originalMethod, object[] __params)
 			{
-				luaSetup.hook.Call(methodNameToHookName[__originalMethod.Name]);
+				var result = new LuaResult(luaSetup.hook.Call(methodNameToHookName[__originalMethod.Name], __params));
+
+				if (!result.IsNull())
+				{
+					return false;
+				}
+
+				return true;
 			}
 
-			static void HookLuaPatchPostfix(MethodBase __originalMethod)
+			static bool HookLuaPatchRetPrefix(MethodBase __originalMethod, object[] __params, ref object __result)
 			{
-				luaSetup.hook.Call(methodNameToHookName[__originalMethod.Name]);
+				var result = new LuaResult(luaSetup.hook.Call(methodNameToHookName[__originalMethod.Name], __params));
+
+				if (!result.IsNull())
+				{
+					__result = result.Object();
+					return false;
+				}
+
+				return true;
 			}
 
-			// not very useful until i find a way to use the transpiler to inject arguments into the call
+			static void HookLuaPatchPostfix(MethodBase __originalMethod, object[] __params)
+			{
+				var result = new LuaResult(luaSetup.hook.Call(methodNameToHookName[__originalMethod.Name], __params));
+			}
+
+			static void HookLuaPatchRetPostfix(MethodBase __originalMethod, object[] __params, ref object __result)
+			{
+				var result = new LuaResult(luaSetup.hook.Call(methodNameToHookName[__originalMethod.Name], __params));
+
+				if (!result.IsNull())
+					__result = result.Object();
+			}
 
 			public void HookMethod(string className, string methodName, string hookName, HookMethodType hookMethodType = HookMethodType.Before)
 			{
 				var classType = Type.GetType(className);
 				var methodInfos = classType.GetMethods();
 				HarmonyMethod harmonyMethod = new HarmonyMethod();
+				HarmonyMethod harmonyMethodRet = new HarmonyMethod();
 
 				if (hookMethodType == HookMethodType.Before)
 				{
 					harmonyMethod = new HarmonyMethod(GetType().GetMethod("HookLuaPatchPrefix", BindingFlags.NonPublic | BindingFlags.Static));
+
+					harmonyMethodRet = new HarmonyMethod(GetType().GetMethod("HookLuaPatchRetPrefix", BindingFlags.NonPublic | BindingFlags.Static));
 				}
 				else if (hookMethodType == HookMethodType.After)
 				{
 					harmonyMethod = new HarmonyMethod(GetType().GetMethod("HookLuaPatchPostfix", BindingFlags.NonPublic | BindingFlags.Static));
+
+					harmonyMethodRet = new HarmonyMethod(GetType().GetMethod("HookLuaPatchRetPrefix", BindingFlags.NonPublic | BindingFlags.Static));
 				}
 
 				var foundAny = false;
@@ -748,9 +780,17 @@ namespace Barotrauma
 					if(methodInfo.Name == methodName)
 					{
 						if (hookMethodType == HookMethodType.Before)
-							env.harmony.Patch(methodInfo, harmonyMethod);
+							if (methodInfo.ReturnType == typeof(void))
+								env.harmony.Patch(methodInfo, harmonyMethod);
+							else
+								env.harmony.Patch(methodInfo, harmonyMethodRet);
+
+
 						else if (hookMethodType == HookMethodType.After)
-							env.harmony.Patch(methodInfo, postfix: harmonyMethod);
+							if (methodInfo.ReturnType == typeof(void))
+								env.harmony.Patch(methodInfo, postfix: harmonyMethod);
+							else
+								env.harmony.Patch(methodInfo, postfix: harmonyMethodRet);
 
 						foundAny = true;
 					}
@@ -766,7 +806,6 @@ namespace Barotrauma
 
 				if (!hookFunctions.ContainsKey(name))
 					hookFunctions.Add(name, new Dictionary<string, HookFunction>());
-
 
 				hookFunctions[name][hookName] = new HookFunction(name, hookName, function);
 			}
@@ -873,6 +912,16 @@ namespace Barotrauma
 			}
 
 			return 0f;
+		}
+
+		public object Object()
+		{
+			if(result is DynValue dynValue)
+			{
+				return dynValue.ToObject();
+			}
+
+			return null;
 		}
 	}
 }
