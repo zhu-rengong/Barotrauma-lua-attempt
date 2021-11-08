@@ -267,7 +267,7 @@ namespace Barotrauma.Networking
 
             otherClients = new List<Client>();
 
-            serverSettings = new ServerSettings(this, "Server", 0, 0, 0, false, false);
+            serverSettings = new ServerSettings(this, "Server", 0, 0, 0, false, false, System.Net.IPAddress.Any);
 
             if (steamId == 0)
             {
