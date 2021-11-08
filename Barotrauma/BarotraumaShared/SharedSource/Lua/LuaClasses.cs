@@ -427,6 +427,11 @@ namespace Barotrauma
 				}
 			}
 
+			public void Wait(object function, int millisecondDelay)
+			{
+				Task.Delay(millisecondDelay).ContinueWith(t => env.hook.EnqueueFunction(function));
+			}
+
 			public static double GetTime()
 			{
 				return Timing.TotalTime;
@@ -661,16 +666,16 @@ namespace Barotrauma
 						{ 
 							var httpResponse = httpWebRequest.EndGetResponse(result);
 							using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
-								env.CallFunction(callback, new object[] { streamReader.ReadToEnd() });
+								env.hook.EnqueueFunction(callback, streamReader.ReadToEnd() );
 						}catch(Exception e)
 						{
-							env.CallFunction(callback, new object[] { e.ToString() });
+							env.hook.EnqueueFunction(callback, e.ToString());
 						}
 					}), null);
 
 				}catch(Exception e)
 				{
-					env.CallFunction(callback, new object[] { e.ToString() });
+					env.hook.EnqueueFunction(callback, e.ToString());
 				}
 			}
 
@@ -686,16 +691,16 @@ namespace Barotrauma
 						{ 
 							var httpResponse = httpWebRequest.EndGetResponse(result);
 							using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
-								env.CallFunction(callback, new object[] { streamReader.ReadToEnd() });
+								env.hook.EnqueueFunction(callback, streamReader.ReadToEnd());
 						}catch (Exception e)
 						{
-							env.CallFunction(callback, new object[] { e.ToString() });
+							env.hook.EnqueueFunction(callback, e.ToString());
 						}
-			}), null);
+					}), null);
 				}
 				catch(Exception e)
 				{
-					env.CallFunction(callback, new object[] { e.ToString() });
+					env.hook.EnqueueFunction(callback, e.ToString());
 				}
 			}
 		}
@@ -727,6 +732,8 @@ namespace Barotrauma
 			private Dictionary<string, Dictionary<string, HookFunction>> hookFunctions = new Dictionary<string, Dictionary<string, HookFunction>>();
 
 			private static Dictionary<string, string> methodNameToHookName;
+
+			private Queue<Tuple<object, object[]>> queuedFunctionCalls = new Queue<Tuple<object, object[]>>();
 
 			public enum HookMethodType
 			{
@@ -818,6 +825,11 @@ namespace Barotrauma
 					methodNameToHookName.Add(methodName, hookName);
 			}
 
+			public void EnqueueFunction(object function, params object[] args)
+			{
+				queuedFunctionCalls.AddItem(new Tuple<object, object[]>(function, args));
+			}
+
 			public void Add(string name, string hookName, object function)
 			{
 				if (name == null && hookName == null && function == null) return;
@@ -837,6 +849,14 @@ namespace Barotrauma
 
 				if(hookFunctions[name].ContainsKey(hookName))
 					hookFunctions[name].Remove(hookName);
+			}
+
+			public void Update()
+			{
+				if (queuedFunctionCalls.TryDequeue(out Tuple<object, object[]> result))
+				{
+					env.CallFunction(result.Item1, result.Item2);
+				}
 			}
 
 			public object Call(string name, params object[] args)

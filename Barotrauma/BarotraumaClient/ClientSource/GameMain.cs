@@ -1017,6 +1017,7 @@ namespace Barotrauma
 
                 SoundManager?.Update();
 
+                GameMain.Lua.Update();
                 GameMain.Lua.hook.Call("think", new object[] { });
 
                 Timing.Accumulator -= Timing.Step;

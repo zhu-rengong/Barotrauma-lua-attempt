@@ -36,6 +36,11 @@ namespace Barotrauma
 
 		public LuaScriptLoader luaScriptLoader;
 
+		public void Update()
+		{
+			hook?.Update();
+		}
+
 		public void HandleLuaException(Exception ex, string extra = "")
 		{
 			if (!string.IsNullOrWhiteSpace(extra))
