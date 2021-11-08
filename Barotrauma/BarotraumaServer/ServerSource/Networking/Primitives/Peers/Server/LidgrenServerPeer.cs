@@ -37,7 +37,8 @@ namespace Barotrauma.Networking
                 AutoExpandMTU = false,
                 MaximumConnections = NetConfig.MaxPlayers * 2,
                 EnableUPnP = serverSettings.EnableUPnP,
-                Port = serverSettings.Port
+                Port = serverSettings.Port,
+                LocalAddress = serverSettings.ListenIPAddress
             };
 
             netPeerConfiguration.DisableMessageType(NetIncomingMessageType.DebugMessage |

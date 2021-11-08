@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading;
 using System.Xml.Linq;
 using MoonSharp.Interpreter;
+using System.Net;
 
 namespace Barotrauma.Networking
 {
@@ -114,7 +115,7 @@ namespace Barotrauma.Networking
         private readonly int? ownerKey;
         private readonly UInt64? ownerSteamId;
 
-        public GameServer(string name, int port, int queryPort = 0, bool isPublic = false, string password = "", bool attemptUPnP = false, int maxPlayers = 10, int? ownKey = null, UInt64? steamId = null)
+        public GameServer(string name, IPAddress listenIp, int port, int queryPort = 0, bool isPublic = false, string password = "", bool attemptUPnP = false, int maxPlayers = 10, int? ownKey = null, UInt64? steamId = null)
         {
             name = name.Replace(":", "");
             name = name.Replace(";", "");
@@ -127,7 +128,7 @@ namespace Barotrauma.Networking
 
             LastClientListUpdateID = 0;
 
-            serverSettings = new ServerSettings(this, name, port, queryPort, maxPlayers, isPublic, attemptUPnP);
+            serverSettings = new ServerSettings(this, name, port, queryPort, maxPlayers, isPublic, attemptUPnP, listenIp);
             KarmaManager.SelectPreset(serverSettings.KarmaPreset);
             serverSettings.SetPassword(password);
 

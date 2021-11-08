@@ -12,6 +12,7 @@ using System.Reflection;
 using System.Threading;
 using System.Xml.Linq;
 using MoonSharp.Interpreter;
+using System.Net;
 
 namespace Barotrauma
 {
@@ -221,6 +222,7 @@ namespace Barotrauma
             int maxPlayers = 10;
             int? ownerKey = null;
             UInt64 steamId = 0;
+            IPAddress listenIp = IPAddress.Any;
 
             XDocument doc = XMLExtensions.TryLoadXml(ServerSettings.SettingsFile);
             if (doc?.Root == null)
@@ -253,6 +255,12 @@ namespace Barotrauma
                     case "-name":
                         name = CommandLineArgs[i + 1];
                         i++;
+                        break;
+                    case "-ip":
+                        if (IPAddress.TryParse(CommandLineArgs[i + 1], out IPAddress address))
+                            listenIp = address;
+                        else
+                            DebugConsole.ThrowError($"Invalid Ip Address '{CommandLineArgs[i + 1]}'.");
                         break;
                     case "-port":
                         int.TryParse(CommandLineArgs[i + 1], out port);
@@ -302,6 +310,7 @@ namespace Barotrauma
 
             Server = new GameServer(
                 name,
+                listenIp,
                 port,
                 queryPort,
                 publiclyVisible,

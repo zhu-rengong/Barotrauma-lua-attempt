@@ -273,7 +273,7 @@ namespace Barotrauma.Networking
 
         partial void InitProjSpecific();
 
-        public ServerSettings(NetworkMember networkMember, string serverName, int port, int queryPort, int maxPlayers, bool isPublic, bool enableUPnP)
+        public ServerSettings(NetworkMember networkMember, string serverName, int port, int queryPort, int maxPlayers, bool isPublic, bool enableUPnP, IPAddress listenIp)
         {
             ServerLog = new ServerLog(serverName);
 
@@ -288,6 +288,7 @@ namespace Barotrauma.Networking
             InitProjSpecific();
 
             ServerName = serverName;
+            ListenIPAddress = listenIp;
             Port = port;
             QueryPort = queryPort;
             EnableUPnP = enableUPnP;
@@ -358,6 +359,8 @@ namespace Barotrauma.Networking
         public int Port;
 
         public int QueryPort;
+
+        public IPAddress ListenIPAddress;
 
         public bool EnableUPnP;
 
