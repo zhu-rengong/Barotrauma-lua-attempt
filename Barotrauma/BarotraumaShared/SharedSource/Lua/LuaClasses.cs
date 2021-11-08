@@ -131,6 +131,7 @@ namespace Barotrauma
 			public bool overrideRespawnSub = false;
 			public bool overrideSignalRadio = false;
 			public bool disableSpamFilter = false;
+			public bool disableDisconnectCharacter = false;
 
 			public bool RoundStarted
 			{
@@ -200,6 +201,11 @@ namespace Barotrauma
 			public void DisableSpamFilter(bool o)
 			{
 				disableSpamFilter = o;
+			}
+
+			public void DisableDisconnectCharacter(bool o)
+			{
+				disableDisconnectCharacter = o;
 			}
 
 			public static void Explode(Vector2 pos, float range = 100, float force = 30, float damage = 30, float structureDamage = 30, float itemDamage = 30, float empStrength = 0, float ballastFloraStrength = 0)
@@ -651,9 +657,15 @@ namespace Barotrauma
 
 					httpWebRequest.BeginGetResponse(new AsyncCallback((IAsyncResult result) => 
 					{
-						var httpResponse = httpWebRequest.EndGetResponse(result);
-						using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
-							env.CallFunction(callback, new object[] { streamReader.ReadToEnd() });
+						try 
+						{ 
+							var httpResponse = httpWebRequest.EndGetResponse(result);
+							using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+								env.CallFunction(callback, new object[] { streamReader.ReadToEnd() });
+						}catch(Exception e)
+						{
+							env.CallFunction(callback, new object[] { e.ToString() });
+						}
 					}), null);
 
 				}catch(Exception e)
@@ -670,10 +682,16 @@ namespace Barotrauma
 
 					httpWebRequest.BeginGetResponse(new AsyncCallback((IAsyncResult result) =>
 					{
-						var httpResponse = httpWebRequest.EndGetResponse(result);
-						using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
-							env.CallFunction(callback, new object[] { streamReader.ReadToEnd() });
-					}), null);
+						try 
+						{ 
+							var httpResponse = httpWebRequest.EndGetResponse(result);
+							using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+								env.CallFunction(callback, new object[] { streamReader.ReadToEnd() });
+						}catch (Exception e)
+						{
+							env.CallFunction(callback, new object[] { e.ToString() });
+						}
+			}), null);
 				}
 				catch(Exception e)
 				{
