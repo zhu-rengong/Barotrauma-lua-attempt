@@ -323,13 +323,7 @@ namespace Barotrauma
 			UserData.RegisterType<LuaHook.HookMethodType>();
 			UserData.RegisterType<IUserDataDescriptor>();
 
-			UserData.RegisterType<PrefabCollection<ItemPrefab>>();
-			UserData.RegisterType<PrefabCollection<JobPrefab>>();
-			UserData.RegisterType<PrefabCollection<CharacterPrefab>>();
-			UserData.RegisterType<PrefabCollection<AfflictionPrefab>>();
-			UserData.RegisterType<PrefabCollection<TalentPrefab>>();
 
-			UserData.RegisterType<Pair<JobPrefab, int>>();
 
 #if SERVER
 
