@@ -22,21 +22,6 @@ namespace Barotrauma
 
 	partial class LuaSetup
 	{
-		private static Vector2 CreateVector2(float x, float y)
-		{
-			return new Vector2(x, y);
-		}
-
-		private static Vector3 CreateVector3(float x, float y, float z)
-		{
-			return new Vector3(x, y, z);
-		}
-
-		private static Vector4 CreateVector4(float x, float y, float z, float w)
-		{
-			return new Vector4(x, y, z, w);
-		}
-
 		partial class LuaUserData
 		{
 			public static Type GetType(string typeName)
@@ -110,11 +95,6 @@ namespace Barotrauma
 				var descriptor = (StandardUserDataDescriptor)IUUD;
 				descriptor.RemoveMember(memberName);
 			}
-		}
-
-		public partial class LuaPlayer
-		{
-
 		}
 
 		public partial class LuaGame
