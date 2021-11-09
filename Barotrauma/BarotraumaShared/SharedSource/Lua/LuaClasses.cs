@@ -740,9 +740,22 @@ namespace Barotrauma
 				Before, After
 			}
 
-			static bool HookLuaPatchPrefix(MethodBase __originalMethod, object[] __params)
+			static bool HookLuaPatchPrefix(MethodBase __originalMethod, object[] __params, object __instance)
 			{
-				var result = new LuaResult(luaSetup.hook.Call(methodNameToHookName[__originalMethod.Name], __params));
+				object[] parameters;
+
+				if (__instance == null)
+				{
+					parameters = __params;
+				}
+				else
+				{
+					parameters = new object[__params.Length + 1];
+					__params.CopyTo(parameters, 1);
+					parameters[0] = __instance;
+				}
+
+				var result = new LuaResult(luaSetup.hook.Call(methodNameToHookName[__originalMethod.Name], parameters));
 
 				if (!result.IsNull())
 				{
@@ -752,9 +765,22 @@ namespace Barotrauma
 				return true;
 			}
 
-			static bool HookLuaPatchRetPrefix(MethodBase __originalMethod, object[] __params, ref object __result)
+			static bool HookLuaPatchRetPrefix(MethodBase __originalMethod, object[] __params, ref object __result, object __instance)
 			{
-				var result = new LuaResult(luaSetup.hook.Call(methodNameToHookName[__originalMethod.Name], __params));
+				object[] parameters;
+
+				if (__instance == null)
+				{
+					parameters = __params;
+				}
+				else
+				{
+					parameters = new object[__params.Length + 1];
+					__params.CopyTo(parameters, 1);
+					parameters[0] = __instance;
+				}
+
+				var result = new LuaResult(luaSetup.hook.Call(methodNameToHookName[__originalMethod.Name], parameters));
 
 				if (!result.IsNull())
 				{
@@ -765,14 +791,30 @@ namespace Barotrauma
 				return true;
 			}
 
-			static void HookLuaPatchPostfix(MethodBase __originalMethod, object[] __params)
+			static void HookLuaPatchPostfix(MethodBase __originalMethod, object[] __params, object __instance)
 			{
-				var result = new LuaResult(luaSetup.hook.Call(methodNameToHookName[__originalMethod.Name], __params));
+				if (__instance == null)
+					luaSetup.hook.Call(methodNameToHookName[__originalMethod.Name], __params);
+				else
+					luaSetup.hook.Call(methodNameToHookName[__originalMethod.Name], __instance, __params);
 			}
 
-			static void HookLuaPatchRetPostfix(MethodBase __originalMethod, object[] __params, ref object __result)
+			static void HookLuaPatchRetPostfix(MethodBase __originalMethod, object[] __params, ref object __result, object __instance)
 			{
-				var result = new LuaResult(luaSetup.hook.Call(methodNameToHookName[__originalMethod.Name], __params));
+				object[] parameters;
+
+				if (__instance == null)
+				{
+					parameters = __params;
+				}
+				else
+				{
+					parameters = new object[__params.Length + 1];
+					__params.CopyTo(parameters, 1);
+					parameters[0] = __instance;
+				}
+
+				var result = new LuaResult(luaSetup.hook.Call(methodNameToHookName[__originalMethod.Name], parameters));
 
 				if (!result.IsNull())
 					__result = result.Object();
