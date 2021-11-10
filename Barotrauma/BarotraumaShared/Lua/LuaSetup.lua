@@ -11,6 +11,8 @@ for key, value in pairs(defaultLib) do
     _G[key] = value
 end
 
+require("DefaultHook")
+
 -- Execute Mods
 
 if SERVER and Game.IsDedicated then

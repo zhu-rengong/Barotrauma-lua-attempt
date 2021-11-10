@@ -77,12 +77,12 @@ namespace Barotrauma
 				descriptor.AddMetaMember("__call", new ObjectCallbackMemberDescriptor("__call", LuaSetup.luaSetup.HandleCall));
 			}
 
-			public static void MakeFieldAccessible(IUserDataDescriptor IUUD, string methodName)
+			public static void MakeFieldAccessible(IUserDataDescriptor IUUD, string fieldName)
 			{
 				var descriptor = (StandardUserDataDescriptor)IUUD;
-				var field = IUUD.Type.GetField(methodName, BindingFlags.NonPublic | BindingFlags.Instance);
-				descriptor.RemoveMember(methodName);
-				descriptor.AddMember(methodName, new FieldMemberDescriptor(field, InteropAccessMode.Default));
+				var field = IUUD.Type.GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance);
+				descriptor.RemoveMember(fieldName);
+				descriptor.AddMember(fieldName, new FieldMemberDescriptor(field, InteropAccessMode.Default));
 			}
 
 			public static void MakeMethodAccessible(IUserDataDescriptor IUUD, string methodName)
@@ -712,7 +712,8 @@ namespace Barotrauma
 			public LuaHook(LuaSetup e)
 			{
 				env = e;
-				methodNameToHookName = new Dictionary<string, string>();
+				_methodPathToHookName = new Dictionary<string, string>();
+				_luaPatchParamsMap = new Dictionary<string, object>();
 			}
 
 			public class HookFunction
@@ -731,7 +732,8 @@ namespace Barotrauma
 
 			private Dictionary<string, Dictionary<string, HookFunction>> hookFunctions = new Dictionary<string, Dictionary<string, HookFunction>>();
 
-			private static Dictionary<string, string> methodNameToHookName;
+			private static Dictionary<string, string> _methodPathToHookName;
+			private static Dictionary<string, object> _luaPatchParamsMap;
 
 			private Queue<Tuple<object, object[]>> queuedFunctionCalls = new Queue<Tuple<object, object[]>>();
 
@@ -740,47 +742,48 @@ namespace Barotrauma
 				Before, After
 			}
 
-			static bool HookLuaPatchPrefix(MethodBase __originalMethod, object[] __params, object __instance)
+			static void _hookLuaPatchPreProcess(MethodBase __originalMethod, object[] __params, object __instance, out string hookName, out object[] parameters)
 			{
-				object[] parameters;
+				try
+				{
+					var @class = __originalMethod.DeclaringType;
+					var methodPath = $"{@class.Namespace}.{@class.Name}.{__originalMethod.Name}";
 
-				if (__instance == null)
-				{
-					parameters = __params;
-				}
-				else
-				{
+					hookName = _methodPathToHookName[methodPath];
+
+					// Regardless of whether __instance is null or not, it's necessaray to avoid the inability to distinguish parameters when adding hooks in lua.
 					parameters = new object[__params.Length + 1];
 					__params.CopyTo(parameters, 1);
 					parameters[0] = __instance;
+					// Map the parameters for compatibility
+					if (_luaPatchParamsMap.TryGetValue(methodPath, out object map))
+					{
+						var result = luaSetup.hook.env.lua.Call(map, parameters);
+						if (!result.IsNil()) parameters = result.ToObject<object[]>();
+					}
+
 				}
-
-				var result = new LuaResult(luaSetup.hook.Call(methodNameToHookName[__originalMethod.Name], parameters));
-
-				if (!result.IsNull())
+				catch (Exception ex)
 				{
-					return false;
+					parameters = null;
+					hookName = null;
+					DebugConsole.ThrowError(nameof(_hookLuaPatchPreProcess), ex);
 				}
+			}
 
-				return true;
+			static bool HookLuaPatchPrefix(MethodBase __originalMethod, object[] __params, object __instance)
+			{
+				_hookLuaPatchPreProcess(__originalMethod, __params, __instance, out string hookName, out object[] parameters);
+
+				var result = new LuaResult(luaSetup.hook.Call(hookName, parameters));
+				return result.IsNull();
 			}
 
 			static bool HookLuaPatchRetPrefix(MethodBase __originalMethod, object[] __params, ref object __result, object __instance)
 			{
-				object[] parameters;
+				_hookLuaPatchPreProcess(__originalMethod, __params, __instance, out string hookName, out object[] parameters);
 
-				if (__instance == null)
-				{
-					parameters = __params;
-				}
-				else
-				{
-					parameters = new object[__params.Length + 1];
-					__params.CopyTo(parameters, 1);
-					parameters[0] = __instance;
-				}
-
-				var result = new LuaResult(luaSetup.hook.Call(methodNameToHookName[__originalMethod.Name], parameters));
+				var result = new LuaResult(luaSetup.hook.Call(hookName, parameters));
 
 				if (!result.IsNull())
 				{
@@ -793,37 +796,26 @@ namespace Barotrauma
 
 			static void HookLuaPatchPostfix(MethodBase __originalMethod, object[] __params, object __instance)
 			{
-				if (__instance == null)
-					luaSetup.hook.Call(methodNameToHookName[__originalMethod.Name], __params);
-				else
-					luaSetup.hook.Call(methodNameToHookName[__originalMethod.Name], __instance, __params);
+				_hookLuaPatchPreProcess(__originalMethod, __params, __instance, out string hookName, out object[] parameters);
+				luaSetup.hook.Call(hookName, parameters);
 			}
+
+
 
 			static void HookLuaPatchRetPostfix(MethodBase __originalMethod, object[] __params, ref object __result, object __instance)
 			{
-				object[] parameters;
+				_hookLuaPatchPreProcess(__originalMethod, __params, __instance, out string hookName, out object[] parameters);
 
-				if (__instance == null)
-				{
-					parameters = __params;
-				}
-				else
-				{
-					parameters = new object[__params.Length + 1];
-					__params.CopyTo(parameters, 1);
-					parameters[0] = __instance;
-				}
-
-				var result = new LuaResult(luaSetup.hook.Call(methodNameToHookName[__originalMethod.Name], parameters));
+				var result = new LuaResult(luaSetup.hook.Call(hookName, parameters));
 
 				if (!result.IsNull())
 					__result = result.Object();
 			}
 
-			public void HookMethod(string className, string methodName, string hookName, HookMethodType hookMethodType = HookMethodType.Before)
+			public void HookMethod(string className, string methodName, string hookName, object paramsMap, HookMethodType hookMethodType = HookMethodType.Before)
 			{
-				var classType = Type.GetType(className);
-				var methodInfos = classType.GetMethods();
+				var @class = Type.GetType(className);
+				var methodInfos = @class.GetMethods();
 				HarmonyMethod harmonyMethod = new HarmonyMethod();
 				HarmonyMethod harmonyMethodRet = new HarmonyMethod();
 
@@ -840,11 +832,10 @@ namespace Barotrauma
 					harmonyMethodRet = new HarmonyMethod(GetType().GetMethod("HookLuaPatchRetPrefix", BindingFlags.NonPublic | BindingFlags.Static));
 				}
 
-				var foundAny = false;
 
 				foreach (var methodInfo in methodInfos)
 				{
-					if(methodInfo.Name == methodName)
+					if (methodInfo.Name == methodName)
 					{
 						if (hookMethodType == HookMethodType.Before)
 							if (methodInfo.ReturnType == typeof(void))
@@ -859,12 +850,22 @@ namespace Barotrauma
 							else
 								env.harmony.Patch(methodInfo, postfix: harmonyMethodRet);
 
-						foundAny = true;
+						var methodPath = $"{@class.Namespace}.{@class.Name}.{methodInfo.Name}";
+						if (_methodPathToHookName.TryAdd(methodPath, hookName))
+							DebugConsole.NewMessage($"Sucessfully added key-value in {nameof(_methodPathToHookName)}\n[{methodPath}, {hookName}]", Color.LightSkyBlue);
+						else DebugConsole.ThrowError($"Failed to add key-value in {nameof(_methodPathToHookName)}\n[{methodPath}, {hookName}]");
+
+						if (paramsMap != null)
+						{
+							if (_luaPatchParamsMap.TryAdd(methodPath, paramsMap))
+								DebugConsole.NewMessage($"Sucessfully added key-value in {nameof(_luaPatchParamsMap)}\n[{methodPath}, {paramsMap.ToString()}]", Color.LightSkyBlue);
+							else DebugConsole.ThrowError($"Failed to add key-value in {nameof(_luaPatchParamsMap)}\n[{methodPath}, {paramsMap.ToString()}]");
+
+						}
+						break;
 					}
 				}
 
-				if(foundAny)
-					methodNameToHookName.Add(methodName, hookName);
 			}
 
 			public void EnqueueFunction(object function, params object[] args)
