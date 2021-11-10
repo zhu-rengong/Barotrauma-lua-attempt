@@ -317,7 +317,6 @@ namespace Barotrauma
 			game = new LuaGame(this);
 			networking = new LuaNetworking(this);
 
-			UserData.RegisterType<LuaPlayer>();
 			UserData.RegisterType<LuaHook>();
 			UserData.RegisterType<LuaGame>();
 			UserData.RegisterType<LuaRandom>();
@@ -350,18 +349,12 @@ namespace Barotrauma
 			lua.Globals["load"] = (Func<string, Table, string, DynValue>)LoadString;
 			
 			lua.Globals["LuaUserData"] = UserData.CreateStatic<LuaUserData>();
-			lua.Globals["Player"] = new LuaPlayer();
 			lua.Globals["Game"] = game;
 			lua.Globals["Hook"] = hook;
 			lua.Globals["Random"] = new LuaRandom();
 			lua.Globals["Timer"] = new LuaTimer(this);
 			lua.Globals["File"] = UserData.CreateStatic<LuaFile>();
 			lua.Globals["Networking"] = networking;
-
-			// obsolete
-			lua.Globals["CreateVector2"] = (Func<float, float, Vector2>)CreateVector2;
-			lua.Globals["CreateVector3"] = (Func<float, float, float, Vector3>)CreateVector3;
-			lua.Globals["CreateVector4"] = (Func<float, float, float, float, Vector4>)CreateVector4;
 
 #if SERVER
 
