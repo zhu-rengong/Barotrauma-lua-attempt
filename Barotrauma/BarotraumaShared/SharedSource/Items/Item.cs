@@ -2304,6 +2304,11 @@ namespace Barotrauma
 
             if (condition == 0.0f) { return; }
 
+            var should = new LuaResult(GameMain.Lua.hook.Call("itemUse", new object[] { this, character, targetLimb }));
+
+            if (should.Bool())
+                return;
+
             bool remove = false;
 
             foreach (ItemComponent ic in components)
@@ -2336,6 +2341,11 @@ namespace Barotrauma
         public void SecondaryUse(float deltaTime, Character character = null)
         {
             if (condition == 0.0f) { return; }
+
+            var should = new LuaResult(GameMain.Lua.hook.Call("itemSecondaryUse", new object[] { this, character}));
+
+            if (should.Bool())
+                return;
 
             bool remove = false;
 
