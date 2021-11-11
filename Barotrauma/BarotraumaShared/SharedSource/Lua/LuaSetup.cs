@@ -324,7 +324,6 @@ namespace Barotrauma
 			UserData.RegisterType<LuaFile>();
 			UserData.RegisterType<LuaNetworking>();
 			UserData.RegisterType<LuaUserData>();
-			UserData.RegisterType<LuaHook.HookMethodType>();
 			UserData.RegisterType<IUserDataDescriptor>();
 
 
