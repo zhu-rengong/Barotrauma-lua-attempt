@@ -31,6 +31,9 @@ namespace Barotrauma.Networking
         {
             if (netServer != null) { return; }
 
+            var address = serverSettings.ListenIPAddress;
+            if (address == IPAddress.Any) address = IPAddress.IPv6Any;
+
             netPeerConfiguration = new NetPeerConfiguration("barotrauma")
             {
                 AcceptIncomingConnections = true,
@@ -38,7 +41,7 @@ namespace Barotrauma.Networking
                 MaximumConnections = NetConfig.MaxPlayers * 2,
                 EnableUPnP = serverSettings.EnableUPnP,
                 Port = serverSettings.Port,
-                LocalAddress = serverSettings.ListenIPAddress
+                LocalAddress = address
             };
 
             netPeerConfiguration.DisableMessageType(NetIncomingMessageType.DebugMessage |
