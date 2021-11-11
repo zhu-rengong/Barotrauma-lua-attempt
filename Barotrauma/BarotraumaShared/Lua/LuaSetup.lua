@@ -11,6 +11,12 @@ for key, value in pairs(defaultLib) do
     _G[key] = value
 end
 
+local compatibilityLib = require("CompatibilityLib")
+
+for key, value in pairs(compatibilityLib) do
+    _G[key] = value
+end
+
 require("DefaultHook")
 
 -- Execute Mods
