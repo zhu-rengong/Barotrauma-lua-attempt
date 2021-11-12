@@ -44,18 +44,47 @@ namespace Barotrauma
 		public void HandleLuaException(Exception ex, string extra = "")
 		{
 			if (!string.IsNullOrWhiteSpace(extra))
-				PrintMessage(extra);
+				PrintError(extra);
 
 			if (ex is InterpreterException)
 			{
 				if (((InterpreterException)ex).DecoratedMessage == null)
-					PrintMessage(((InterpreterException)ex).Message);
+					PrintError(((InterpreterException)ex).Message);
 				else
-					PrintMessage(((InterpreterException)ex).DecoratedMessage);
+					PrintError(((InterpreterException)ex).DecoratedMessage);
 			}
 			else
 			{
-				PrintMessage(ex.ToString());
+				PrintError(ex.ToString());
+			}
+		}
+
+		public void PrintError(object message)
+		{
+			if (message == null) { message = "nil"; }
+			string str = message.ToString();
+
+			for (int i = 0; i < str.Length; i += 1024)
+			{
+				string subStr = str.Substring(i, Math.Min(1024, str.Length - i));
+
+				string errorMsg = subStr;
+				if (i == 0)
+					errorMsg = "[LUA ERROR] " + errorMsg;
+
+				DebugConsole.ThrowError(errorMsg);
+
+#if SERVER
+				if (GameMain.Server != null)
+				{
+					foreach (var c in GameMain.Server.ConnectedClients)
+					{
+						GameMain.Server.SendDirectChatMessage(errorMsg, c, ChatMessageType.Console);
+					}
+
+					GameServer.Log(errorMsg, ServerLog.MessageType.Error);
+				}
+#endif
 			}
 		}
 
@@ -325,7 +354,7 @@ namespace Barotrauma
 			UserData.RegisterType<LuaNetworking>();
 			UserData.RegisterType<LuaUserData>();
 			UserData.RegisterType<IUserDataDescriptor>();
-
+			
 
 
 #if SERVER
