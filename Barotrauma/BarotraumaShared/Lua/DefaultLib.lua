@@ -44,6 +44,7 @@ defaultLib["SubmarineInfo"] = CreateStatic("SubmarineInfo")
 defaultLib["Rectangle"] = LuaUserData.CreateStatic("Microsoft.Xna.Framework.Rectangle")
 defaultLib["Entity"] = CreateStatic("Entity")
 defaultLib["Physics"] = CreateStatic("Physics")
+defaultLib["FireSource"] = CreateStatic("FireSource")
 
 if SERVER then
 

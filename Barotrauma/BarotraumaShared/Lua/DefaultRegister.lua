@@ -55,6 +55,7 @@ RegisterBarotrauma("Explosion")
 RegisterBarotrauma("Networking.ServerSettings")
 RegisterBarotrauma("Inventory")
 RegisterBarotrauma("ItemInventory")
+AddCallMetaMember(RegisterBarotrauma("FireSource"))
 
 RegisterBarotrauma("Items.Components.Fabricator")
 RegisterBarotrauma("Items.Components.ItemComponent")
