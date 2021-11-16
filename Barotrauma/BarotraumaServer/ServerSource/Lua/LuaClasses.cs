@@ -73,6 +73,11 @@ namespace Barotrauma
 				GameMain.Server.StartGame();
 			}
 
+			public static void EndGame()
+			{
+				GameMain.Server.EndGame();
+			}
+
 			public void AssignOnClientRequestExecute(string names, object onExecute) => DebugConsole.AssignOnClientRequestExecute(names, (Client a, Vector2 b, string[] c) => { env.CallFunction(onExecute, new object[] { a, b, c }); });
 		}
 	}
