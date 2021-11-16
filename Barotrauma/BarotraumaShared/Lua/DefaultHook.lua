@@ -22,3 +22,7 @@ end, Hook.HookMethodType.Before)
 Hook.HookMethod("Barotrauma.Item", "Unequip", function (instance, p)
 	Hook.Call("itemUnequip", instance, p.character)
 end, Hook.HookMethodType.Before)
+
+Hook.HookMethod("Barotrauma.Networking.GameServer", "AssignJobs", function (instance, a)
+	Hook.Call("jobAssigned", a)
+end, Hook.HookMethodType.Before)
