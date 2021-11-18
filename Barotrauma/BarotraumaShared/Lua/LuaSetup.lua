@@ -1,6 +1,6 @@
 -- Config
 local runDisabledMods = false
-local modulePaths = {"Lua/?.lua"}
+local modulePaths = {"Lua/?.lua", "Mods/LuaForBarotrauma/Lua/?.lua"}
 setmodulepaths(modulePaths)
 
 -- Setup Libraries
