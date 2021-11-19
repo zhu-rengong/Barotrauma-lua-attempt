@@ -55,7 +55,7 @@ luaPlayer.SetRadioRange = function (character, range)
 end
 
 luaPlayer.CheckPermission = function (client, permissions)
-    client.CheckPermission(permissions)
+    return client.CheckPermission(permissions)
 end
 
 compatibilityLib["Player"] = luaPlayer
