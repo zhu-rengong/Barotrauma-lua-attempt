@@ -395,7 +395,7 @@ namespace Barotrauma.Networking
                     Character character = Character.CharacterList[i];
                     if (character.IsDead || !character.ClientDisconnected) { continue; }
 
-                    if (GameMain.Lua.game.disableDisconnectCharacter)
+                    if (!GameMain.Lua.game.disableDisconnectCharacter)
                     {
                         character.KillDisconnectedTimer += deltaTime;
                         character.SetStun(1.0f);
