@@ -48,7 +48,7 @@ luaPlayer.SetRadioRange = function (character, range)
     if (character.Inventory == nil) then return end
 
     for item in character.Inventory.AllItems do
-        if item ~= nil and item.Name == "Headset" then
+        if item ~= nil and item.Prefab.Identifier == "headset" then
             item.GetComponentString("WifiComponent").Range = range;
         end
     end
