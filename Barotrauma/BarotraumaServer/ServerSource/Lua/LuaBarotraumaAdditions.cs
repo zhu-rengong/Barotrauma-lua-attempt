@@ -84,7 +84,7 @@ namespace Barotrauma
 
 		public static void AddToSpawnQueue(ItemPrefab itemPrefab, Inventory inventory, object spawned = null)
 		{
-			EntitySpawner.Spawner.AddToSpawnQueue(itemPrefab, inventory, onSpawned: (Item item) =>
+			EntitySpawner.Spawner.AddToSpawnQueue(itemPrefab, inventory, null, null, onSpawned: (Item item) =>
 			{
 				GameMain.Lua.CallFunction(spawned, new object[] { item });
 			});
