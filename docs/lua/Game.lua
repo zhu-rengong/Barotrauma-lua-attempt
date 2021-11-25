@@ -57,6 +57,14 @@ function Game.OverrideSignalRadio(override) end
 -- @realm server 
 function Game.DisableSpamFilter(override) end
 
+--- True to disable character disconnect logic, aka stop character from being automatically stunned and killed.
+-- @realm server 
+function Game.DisableDisconnectCharacter(override) end
+
+--- True to allow husks to carry control to players.
+-- @realm server 
+function Game.EnableControlHusk(override) end
+
 --- Log message to server logs.
 -- @realm server 
 function Game.Log(message, ServerLogMessageType) end
@@ -91,3 +99,15 @@ function Game.GetEnabledContentPackages() end
 --@treturn table Table containing ContentPackages
 -- @realm shared 
 function Game.GetEnabledPackagesDirectlyFromFile() end
+
+--- Adds a new command, onExecute is called with a table of strings.
+-- @realm shared 
+function Game.AddCommand(name, help, onExecute, getValidArgs, isCheat) end
+
+--- Assigns a command for server on execute, onExecute is called with a table of strings.
+-- @realm shared 
+function Game.AssignOnExecute(names, onExecute) end
+
+--- Assigns a command for client on execute, onExecute is called with a client, mouse position and a table of strings.
+-- @realm server
+function Game.AssignOnClientRequestExecute(names, onExecute) end

@@ -12,3 +12,15 @@ Timer = {}
 -- @treturn number current time in seconds
 -- @realm shared 
 function Timer.GetTime() end
+
+--- Calls a function after a certain amount of time.
+-- @realm shared 
+function Timer.Wait(func, milliseconds) end
+
+--- Calls a function after a certain amount of time.
+-- @realm shared
+function Timer.GetUsageMemory() end
+
+--- Same as GetTime()
+-- @realm shared 
+Timer.Time = 0

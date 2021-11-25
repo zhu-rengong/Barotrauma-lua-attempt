@@ -8,6 +8,7 @@ Barotrauma source code: [EntitySpawner.cs](https://github.com/evilfactory/Barotr
 -- @code Entity.Spawner
 -- @pragma nostrip
 
+
 --- CreateNetworkEvent
 -- @realm shared
 -- @tparam Entity entity
@@ -21,13 +22,19 @@ function CreateNetworkEvent(entity, remove) end
 -- @tparam Object[] extraData
 function ServerWrite(message, client, extraData) end
 
+--- ToString
+-- @realm shared
+-- @treturn string
+function ToString() end
+
 --- AddToSpawnQueue
 -- @realm shared
 -- @tparam ItemPrefab itemPrefab
 -- @tparam Vector2 worldPosition
 -- @tparam Nullable`1 condition
+-- @tparam Nullable`1 quality
 -- @tparam function onSpawned
-function AddToSpawnQueue(itemPrefab, worldPosition, condition, onSpawned) end
+function AddToSpawnQueue(itemPrefab, worldPosition, condition, quality, onSpawned) end
 
 --- AddToSpawnQueue
 -- @realm shared
@@ -35,18 +42,21 @@ function AddToSpawnQueue(itemPrefab, worldPosition, condition, onSpawned) end
 -- @tparam Vector2 position
 -- @tparam Submarine sub
 -- @tparam Nullable`1 condition
+-- @tparam Nullable`1 quality
 -- @tparam function onSpawned
-function AddToSpawnQueue(itemPrefab, position, sub, condition, onSpawned) end
+function AddToSpawnQueue(itemPrefab, position, sub, condition, quality, onSpawned) end
 
 --- AddToSpawnQueue
 -- @realm shared
 -- @tparam ItemPrefab itemPrefab
 -- @tparam Inventory inventory
 -- @tparam Nullable`1 condition
+-- @tparam Nullable`1 quality
 -- @tparam function onSpawned
 -- @tparam bool spawnIfInventoryFull
 -- @tparam bool ignoreLimbSlots
-function AddToSpawnQueue(itemPrefab, inventory, condition, onSpawned, spawnIfInventoryFull, ignoreLimbSlots) end
+-- @tparam InvSlotType slot
+function AddToSpawnQueue(itemPrefab, inventory, condition, quality, onSpawned, spawnIfInventoryFull, ignoreLimbSlots, slot) end
 
 --- AddToSpawnQueue
 -- @realm shared
@@ -104,10 +114,86 @@ function IsInRemoveQueue(entity) end
 -- @tparam bool createNetworkEvents
 function Update(createNetworkEvents) end
 
+--- Reset
+-- @realm shared
+function Reset() end
 
+--- FreeID
+-- @realm shared
+function FreeID() end
+
+--- Remove
+-- @realm shared
+function Remove() end
+
+--- GetType
+-- @realm shared
+-- @treturn Type
+function GetType() end
+
+--- Equals
+-- @realm shared
+-- @tparam Object obj
+-- @treturn bool
+function Equals(obj) end
+
+--- GetHashCode
+-- @realm shared
+-- @treturn number
+function GetHashCode() end
+
+---
+-- Removed, Field of type bool
+-- @realm shared
+-- @bool Removed
+
+---
+-- IdFreed, Field of type bool
+-- @realm shared
+-- @bool IdFreed
+
+---
+-- SimPosition, Field of type Vector2
+-- @realm shared
+-- @Vector2 SimPosition
+
+---
+-- Position, Field of type Vector2
+-- @realm shared
+-- @Vector2 Position
+
+---
+-- WorldPosition, Field of type Vector2
+-- @realm shared
+-- @Vector2 WorldPosition
+
+---
+-- DrawPosition, Field of type Vector2
+-- @realm shared
+-- @Vector2 DrawPosition
+
+---
+-- Submarine, Field of type Submarine
+-- @realm shared
+-- @Submarine Submarine
+
+---
+-- AiTarget, Field of type AITarget
+-- @realm shared
+-- @AITarget AiTarget
+
+---
+-- InDetectable, Field of type bool
+-- @realm shared
+-- @bool InDetectable
 
 ---
 -- SpawnTime, Field of type number
 -- @realm shared
 -- @number SpawnTime
+
+---
+-- ID, Field of type number
+-- @realm shared
+-- @number ID
 

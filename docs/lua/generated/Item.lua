@@ -46,7 +46,42 @@ function SendSignal(signalOrString, connectionOrConnectionName) end
 -- @Vector2 WorldPosition
 
 
------ AUTO DOCS ------
+--- GetConnectedComponentsRecursive
+-- @realm shared
+-- @tparam Connection c
+-- @treturn table
+function GetConnectedComponentsRecursive(c) end
+
+--- FindController
+-- @realm shared
+-- @tparam String[] tags
+-- @treturn Controller
+function FindController(tags) end
+
+--- TryFindController
+-- @realm shared
+-- @tparam Controller& controller
+-- @tparam String[] tags
+-- @treturn bool
+function TryFindController(controller, tags) end
+
+--- SendSignal
+-- @realm shared
+-- @tparam string signal
+-- @tparam string connectionName
+function SendSignal(signal, connectionName) end
+
+--- SendSignal
+-- @realm shared
+-- @tparam Signal signal
+-- @tparam string connectionName
+function SendSignal(signal, connectionName) end
+
+--- SendSignal
+-- @realm shared
+-- @tparam Signal signal
+-- @tparam Connection connection
+function SendSignal(signal, connection) end
 
 --- IsInsideTrigger
 -- @realm shared
@@ -173,6 +208,11 @@ function Remove() end
 -- @tparam ItemPrefab prefab
 function Item.RemoveByPrefab(prefab) end
 
+--- AddToRemoveQueue
+-- @realm shared
+-- @tparam Item item
+function Item.AddToRemoveQueue(item) end
+
 --- GetComponentString
 -- @realm shared
 -- @tparam string component
@@ -233,6 +273,12 @@ function GetComponent() end
 -- @realm shared
 -- @treturn IEnumerable`1
 function GetComponents() end
+
+--- GetQualityModifier
+-- @realm shared
+-- @tparam StatType statType
+-- @treturn number
+function GetQualityModifier(statType) end
 
 --- RemoveContained
 -- @realm shared
@@ -308,7 +354,7 @@ function GetRootInventoryOwner() end
 
 --- FindParentInventory
 -- @realm shared
--- @tparam Func`2 predicate
+-- @tparam function predicate
 -- @treturn Inventory
 function FindParentInventory(predicate) end
 
@@ -346,7 +392,7 @@ function HasTag(allowedTags) end
 
 --- ApplyStatusEffects
 -- @realm shared
--- @tparam ActionType type
+-- @tparam function type
 -- @tparam number deltaTime
 -- @tparam Character character
 -- @tparam Limb limb
@@ -358,7 +404,7 @@ function ApplyStatusEffects(type, deltaTime, character, limb, useTarget, isNetwo
 --- ApplyStatusEffect
 -- @realm shared
 -- @tparam StatusEffect effect
--- @tparam ActionType type
+-- @tparam function type
 -- @tparam number deltaTime
 -- @tparam Character character
 -- @tparam Limb limb
@@ -407,23 +453,6 @@ function FlipY(relativeToSub) end
 -- @tparam bool recursive
 -- @treturn table
 function GetConnectedComponents(recursive) end
-
---- GetConnectedComponentsRecursive
--- @realm shared
--- @tparam Connection c
--- @treturn table
-function GetConnectedComponentsRecursive(c) end
-
---- FindController
--- @realm shared
--- @treturn Controller
-function FindController() end
-
---- TryFindController
--- @realm shared
--- @tparam Controller& controller
--- @treturn bool
-function TryFindController(controller) end
 
 --- ServerWrite
 -- @realm shared
@@ -540,7 +569,7 @@ function RemoveLinked(e) end
 -- @realm shared
 -- @tparam HashSet`1 list
 -- @tparam Nullable`1 maxDepth
--- @tparam Func`2 filter
+-- @tparam function filter
 -- @treturn HashSet`1
 function GetLinkedEntities(list, maxDepth, filter) end
 
@@ -568,6 +597,11 @@ function GetHashCode() end
 -- Sprite, Field of type Sprite
 -- @realm shared
 -- @Sprite Sprite
+
+---
+-- Prefab, Field of type ItemPrefab
+-- @realm shared
+-- @ItemPrefab Prefab
 
 ---
 -- CurrentHull, Field of type Hull
@@ -765,6 +799,11 @@ function GetHashCode() end
 -- @number HealthMultiplier
 
 ---
+-- MaxRepairConditionMultiplier, Field of type number
+-- @realm shared
+-- @number MaxRepairConditionMultiplier
+
+---
 -- Condition, Field of type number
 -- @realm shared
 -- @number Condition
@@ -778,6 +817,11 @@ function GetHashCode() end
 -- Indestructible, Field of type bool
 -- @realm shared
 -- @bool Indestructible
+
+---
+-- AllowDeconstruct, Field of type bool
+-- @realm shared
+-- @bool AllowDeconstruct
 
 ---
 -- InvulnerableToDamage, Field of type bool
@@ -813,6 +857,11 @@ function GetHashCode() end
 -- UseInHealthInterface, Field of type bool
 -- @realm shared
 -- @bool UseInHealthInterface
+
+---
+-- Quality, Field of type number
+-- @realm shared
+-- @number Quality
 
 ---
 -- InWater, Field of type bool
@@ -985,11 +1034,6 @@ function GetHashCode() end
 -- @bool HiddenInGame
 
 ---
--- ParentRuin, Field of type Ruin
--- @realm shared
--- @Ruin ParentRuin
-
----
 -- RemoveIfLinkedOutpostDoorInUse, Field of type bool
 -- @realm shared
 -- @bool RemoveIfLinkedOutpostDoorInUse
@@ -1003,6 +1047,11 @@ function GetHashCode() end
 -- IdFreed, Field of type bool
 -- @realm shared
 -- @bool IdFreed
+
+---
+-- WorldPosition, Field of type Vector2
+-- @realm shared
+-- @Vector2 WorldPosition
 
 ---
 -- DrawPosition, Field of type Vector2
@@ -1020,6 +1069,11 @@ function GetHashCode() end
 -- @AITarget AiTarget
 
 ---
+-- InDetectable, Field of type bool
+-- @realm shared
+-- @bool InDetectable
+
+---
 -- SpawnTime, Field of type number
 -- @realm shared
 -- @number SpawnTime
@@ -1033,6 +1087,11 @@ function GetHashCode() end
 -- Visible, Field of type bool
 -- @realm shared
 -- @bool Visible
+
+---
+-- body, Field of type PhysicsBody
+-- @realm shared
+-- @PhysicsBody body
 
 ---
 -- StaticBodyConfig, Field of type XElement
@@ -1060,14 +1119,19 @@ function GetHashCode() end
 -- @HashSet`1 AvailableSwaps
 
 ---
+-- Item.ItemList, Field of type table
+-- @realm shared
+-- @table Item.ItemList
+
+---
 -- Item.ShowLinks, Field of type bool
 -- @realm shared
 -- @bool Item.ShowLinks
 
 ---
--- Item.connectionPairs, Field of type Pair`2[]
+-- Item.connectionPairs, Field of type ValueTuple`2[]
 -- @realm shared
--- @Pair`2[] Item.connectionPairs
+-- @ValueTuple`2[] Item.connectionPairs
 
 ---
 -- prefab, Field of type MapEntityPrefab
@@ -1085,9 +1149,9 @@ function GetHashCode() end
 -- @HashSet`1 disallowedUpgrades
 
 ---
--- linkedTo, Field of type ObservableCollection`1
+-- linkedTo, Field of type table
 -- @realm shared
--- @ObservableCollection`1 linkedTo
+-- @table linkedTo
 
 ---
 -- ShouldBeSaved, Field of type bool

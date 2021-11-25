@@ -401,7 +401,7 @@ namespace Barotrauma
 			lua.Globals["SERVER"] = isServer;
 			lua.Globals["CLIENT"] = !isServer;
 
-			// LuaDocs.GenerateDocs(typeof(EntitySpawner));
+			// LuaDocs.GenerateDocsAll();
 
 			if (File.Exists("Lua/LuaSetup.lua")) // try the default loader
 				DoFile("Lua/LuaSetup.lua");

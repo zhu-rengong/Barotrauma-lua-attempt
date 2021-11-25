@@ -183,14 +183,9 @@ function GetHashCode() end
 -- @table ItemSets
 
 ---
--- ItemIdentifiers, Field of type table
+-- PreviewItems, Field of type table
 -- @realm shared
--- @table ItemIdentifiers
-
----
--- ShowItemPreview, Field of type table
--- @realm shared
--- @table ShowItemPreview
+-- @table PreviewItems
 
 ---
 -- Skills, Field of type table

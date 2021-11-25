@@ -9,8 +9,6 @@ Barotrauma source code: [Character.cs](https://github.com/evilfactory/Barotrauma
 -- @pragma nostrip
 
 local Character = {}
--- @field public name string @add name field to class Car, you'll see it in code completion
-
 
 --- Creates a Character using CharacterInfo.
 -- @treturn Character
@@ -35,7 +33,42 @@ function TeleportTo(position) end
 -- @realm shared
 -- @Character Character.CharacterList
 
---------- AUTO DOCS ------------
+
+
+--- Revive
+-- @realm shared
+-- @tparam bool removeAllAfflictions
+function Revive(removeAllAfflictions) end
+
+--- Remove
+-- @realm shared
+function Remove() end
+
+--- TeleportTo
+-- @realm shared
+-- @tparam Vector2 worldPos
+function TeleportTo(worldPos) end
+
+--- SaveInventory
+-- @realm shared
+-- @tparam Inventory inventory
+-- @tparam XElement parentElement
+function Character.SaveInventory(inventory, parentElement) end
+
+--- SaveInventory
+-- @realm shared
+function SaveInventory() end
+
+--- SpawnInventoryItems
+-- @realm shared
+-- @tparam Inventory inventory
+-- @tparam XElement itemData
+function SpawnInventoryItems(inventory, itemData) end
+
+--- GetAttackContexts
+-- @realm shared
+-- @treturn IEnumerable`1
+function GetAttackContexts() end
 
 --- GetVisibleHulls
 -- @realm shared
@@ -60,9 +93,162 @@ function HasJob(identifier) end
 -- @treturn bool
 function IsProtectedFromPressure() end
 
+--- LoadTalents
+-- @realm shared
+function LoadTalents() end
+
+--- GiveTalent
+-- @realm shared
+-- @tparam string talentIdentifier
+-- @tparam bool addingFirstTime
+-- @treturn bool
+function GiveTalent(talentIdentifier, addingFirstTime) end
+
+--- GiveTalent
+-- @realm shared
+-- @tparam number talentIdentifier
+-- @tparam bool addingFirstTime
+-- @treturn bool
+function GiveTalent(talentIdentifier, addingFirstTime) end
+
+--- GiveTalent
+-- @realm shared
+-- @tparam TalentPrefab talentPrefab
+-- @tparam bool addingFirstTime
+-- @treturn bool
+function GiveTalent(talentPrefab, addingFirstTime) end
+
+--- HasTalent
+-- @realm shared
+-- @tparam string identifier
+-- @treturn bool
+function HasTalent(identifier) end
+
+--- GetFriendlyCrew
+-- @realm shared
+-- @tparam Character character
+-- @treturn IEnumerable`1
+function Character.GetFriendlyCrew(character) end
+
+--- HasTalents
+-- @realm shared
+-- @treturn bool
+function HasTalents() end
+
+--- CheckTalents
+-- @realm shared
+-- @tparam AbilityEffectType abilityEffectType
+-- @tparam AbilityObject abilityObject
+function CheckTalents(abilityEffectType, abilityObject) end
+
+--- CheckTalents
+-- @realm shared
+-- @tparam AbilityEffectType abilityEffectType
+function CheckTalents(abilityEffectType) end
+
+--- HasRecipeForItem
+-- @realm shared
+-- @tparam string recipeIdentifier
+-- @treturn bool
+function HasRecipeForItem(recipeIdentifier) end
+
+--- GiveMoney
+-- @realm shared
+-- @tparam number amount
+function GiveMoney(amount) end
+
+--- SetMoney
+-- @realm shared
+-- @tparam number amount
+function SetMoney(amount) end
+
+--- GetStatValue
+-- @realm shared
+-- @tparam StatTypes statType
+-- @treturn number
+function GetStatValue(statType) end
+
+--- OnWearablesChanged
+-- @realm shared
+function OnWearablesChanged() end
+
+--- ChangeStat
+-- @realm shared
+-- @tparam StatTypes statType
+-- @tparam number value
+function ChangeStat(statType, value) end
+
+--- GetSkillStatType
+-- @realm shared
+-- @tparam string skillIdentifier
+-- @treturn StatTypes
+function Character.GetSkillStatType(skillIdentifier) end
+
+--- AddAbilityFlag
+-- @realm shared
+-- @tparam AbilityFlags abilityFlag
+function AddAbilityFlag(abilityFlag) end
+
+--- RemoveAbilityFlag
+-- @realm shared
+-- @tparam AbilityFlags abilityFlag
+function RemoveAbilityFlag(abilityFlag) end
+
+--- HasAbilityFlag
+-- @realm shared
+-- @tparam AbilityFlags abilityFlag
+-- @treturn bool
+function HasAbilityFlag(abilityFlag) end
+
+--- GetAbilityResistance
+-- @realm shared
+-- @tparam AfflictionPrefab affliction
+-- @treturn number
+function GetAbilityResistance(affliction) end
+
+--- ChangeAbilityResistance
+-- @realm shared
+-- @tparam string resistanceId
+-- @tparam number value
+function ChangeAbilityResistance(resistanceId, value) end
+
+--- IsFriendly
+-- @realm shared
+-- @tparam Character other
+-- @treturn bool
+function IsFriendly(other) end
+
+--- IsFriendly
+-- @realm shared
+-- @tparam Character me
+-- @tparam Character other
+-- @treturn bool
+function Character.IsFriendly(me, other) end
+
 --- ResetNetState
 -- @realm shared
 function ResetNetState() end
+
+--- GetTargetMovement
+-- @realm shared
+-- @treturn Vector2
+function GetTargetMovement() end
+
+--- ApplyMovementLimits
+-- @realm shared
+-- @tparam Vector2 targetMovement
+-- @tparam number currentSpeed
+-- @treturn Vector2
+function ApplyMovementLimits(targetMovement, currentSpeed) end
+
+--- StackSpeedMultiplier
+-- @realm shared
+-- @tparam number val
+function StackSpeedMultiplier(val) end
+
+--- ResetSpeedMultiplier
+-- @realm shared
+function ResetSpeedMultiplier() end
 
 --- StackHealthMultiplier
 -- @realm shared
@@ -177,8 +363,8 @@ function CanAccessInventory(inventory) end
 -- @tparam bool ignoreBroken
 -- @tparam IEnumerable`1 ignoredItems
 -- @tparam IEnumerable`1 ignoredContainerIdentifiers
--- @tparam Func`2 customPredicate
--- @tparam Func`2 customPriorityFunction
+-- @tparam function customPredicate
+-- @tparam function customPriorityFunction
 -- @tparam number maxItemDistance
 -- @tparam ISpatialEntity positionalReference
 -- @treturn bool
@@ -216,7 +402,7 @@ function CanInteractWith(item, distanceToItem, checkLinked) end
 
 --- SetCustomInteract
 -- @realm shared
--- @tparam Action`2 onCustomInteract
+-- @tparam function onCustomInteract
 -- @tparam string hudText
 function SetCustomInteract(onCustomInteract, hudText) end
 
@@ -374,8 +560,9 @@ function TrySeverLimbJoints(targetLimb, severLimbsProbability, damage, allowBehe
 -- @tparam bool playSound
 -- @tparam number attackImpulse
 -- @tparam Character attacker
+-- @tparam number damageMultiplier
 -- @treturn AttackResult
-function AddDamage(worldPosition, afflictions, stun, playSound, attackImpulse, attacker) end
+function AddDamage(worldPosition, afflictions, stun, playSound, attackImpulse, attacker, damageMultiplier) end
 
 --- AddDamage
 -- @realm shared
@@ -412,8 +599,9 @@ function AddEncounter(other) end
 -- @tparam number damageMultiplier
 -- @tparam bool allowStacking
 -- @tparam number penetration
+-- @tparam bool shouldImplode
 -- @treturn AttackResult
-function DamageLimb(worldPosition, hitLimb, afflictions, stun, playSound, attackImpulse, attacker, damageMultiplier, allowStacking, penetration) end
+function DamageLimb(worldPosition, hitLimb, afflictions, stun, playSound, attackImpulse, attacker, damageMultiplier, allowStacking, penetration, shouldImplode) end
 
 --- TryAdjustAttackerSkill
 -- @realm shared
@@ -430,7 +618,7 @@ function SetStun(newStun, allowStunDecrease, isNetworkMessage) end
 
 --- ApplyStatusEffects
 -- @realm shared
--- @tparam ActionType actionType
+-- @tparam function actionType
 -- @tparam number deltaTime
 function ApplyStatusEffects(actionType, deltaTime) end
 
@@ -445,35 +633,6 @@ function BreakJoints() end
 -- @tparam bool isNetworkMessage
 -- @tparam bool log
 function Kill(causeOfDeath, causeOfDeathAffliction, isNetworkMessage, log) end
-
---- Revive
--- @realm shared
-function Revive() end
-
---- Remove
--- @realm shared
-function Remove() end
-
---- SaveInventory
--- @realm shared
--- @tparam Inventory inventory
--- @tparam XElement parentElement
-function Character.SaveInventory(inventory, parentElement) end
-
---- SaveInventory
--- @realm shared
-function SaveInventory() end
-
---- SpawnInventoryItems
--- @realm shared
--- @tparam Inventory inventory
--- @tparam XElement itemData
-function SpawnInventoryItems(inventory, itemData) end
-
---- GetAttackContexts
--- @realm shared
--- @treturn IEnumerable`1
-function GetAttackContexts() end
 
 --- Create
 -- @realm shared
@@ -555,34 +714,14 @@ function GiveJobItems(spawnPoint) end
 --- GiveIdCardTags
 -- @realm shared
 -- @tparam WayPoint spawnPoint
-function GiveIdCardTags(spawnPoint) end
+-- @tparam bool createNetworkEvent
+function GiveIdCardTags(spawnPoint, createNetworkEvent) end
 
 --- GetSkillLevel
 -- @realm shared
 -- @tparam string skillIdentifier
 -- @treturn number
 function GetSkillLevel(skillIdentifier) end
-
---- GetTargetMovement
--- @realm shared
--- @treturn Vector2
-function GetTargetMovement() end
-
---- ApplyMovementLimits
--- @realm shared
--- @tparam Vector2 targetMovement
--- @tparam number currentSpeed
--- @treturn Vector2
-function ApplyMovementLimits(targetMovement, currentSpeed) end
-
---- StackSpeedMultiplier
--- @realm shared
--- @tparam number val
-function StackSpeedMultiplier(val) end
-
---- ResetSpeedMultiplier
--- @realm shared
-function ResetSpeedMultiplier() end
 
 --- GetPositionUpdateInterval
 -- @realm shared
@@ -735,9 +874,24 @@ function GetHashCode() end
 -- @Character LastAttacker
 
 ---
+-- LastOrderedCharacter, Field of type Character
+-- @realm shared
+-- @Character LastOrderedCharacter
+
+---
+-- SecondLastOrderedCharacter, Field of type Character
+-- @realm shared
+-- @Character SecondLastOrderedCharacter
+
+---
 -- SpeciesName, Field of type string
 -- @realm shared
 -- @string SpeciesName
+
+---
+-- Group, Field of type string
+-- @realm shared
+-- @string Group
 
 ---
 -- IsHumanoid, Field of type bool
@@ -895,6 +1049,11 @@ function GetHashCode() end
 -- @bool CanInteract
 
 ---
+-- CanEat, Field of type bool
+-- @realm shared
+-- @bool CanEat
+
+---
 -- CursorPosition, Field of type Vector2
 -- @realm shared
 -- @Vector2 CursorPosition
@@ -943,6 +1102,11 @@ function GetHashCode() end
 -- PressureProtection, Field of type number
 -- @realm shared
 -- @number PressureProtection
+
+---
+-- InPressure, Field of type bool
+-- @realm shared
+-- @bool InPressure
 
 ---
 -- IsIncapacitated, Field of type bool
@@ -1005,6 +1169,21 @@ function GetHashCode() end
 -- @number MaxVitality
 
 ---
+-- MaxHealth, Field of type number
+-- @realm shared
+-- @number MaxHealth
+
+---
+-- AIState, Field of type AIState
+-- @realm shared
+-- @AIState AIState
+
+---
+-- IsLatched, Field of type bool
+-- @realm shared
+-- @bool IsLatched
+
+---
 -- Bloodloss, Field of type number
 -- @realm shared
 -- @number Bloodloss
@@ -1058,11 +1237,6 @@ function GetHashCode() end
 -- IsDead, Field of type bool
 -- @realm shared
 -- @bool IsDead
-
----
--- IsObserving, Field of type bool
--- @realm shared
--- @bool IsObserving
 
 ---
 -- EnableDespawn, Field of type bool
@@ -1255,6 +1429,11 @@ function GetHashCode() end
 -- @AITarget AiTarget
 
 ---
+-- InDetectable, Field of type bool
+-- @realm shared
+-- @bool InDetectable
+
+---
 -- SpawnTime, Field of type number
 -- @realm shared
 -- @number SpawnTime
@@ -1303,6 +1482,11 @@ function GetHashCode() end
 -- Prefab, Field of type HumanPrefab
 -- @realm shared
 -- @HumanPrefab Prefab
+
+---
+-- Latchers, Field of type HashSet`1
+-- @realm shared
+-- @HashSet`1 Latchers
 
 ---
 -- CombatAction, Field of type CombatAction
@@ -1433,6 +1617,11 @@ function GetHashCode() end
 -- Character.Controlled, Field of type Character
 -- @realm shared
 -- @Character Character.Controlled
+
+---
+-- Character.CharacterList, Field of type table
+-- @realm shared
+-- @table Character.CharacterList
 
 ---
 -- Character.KnockbackCooldown, Field of type number

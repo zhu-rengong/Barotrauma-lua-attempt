@@ -8,15 +8,6 @@ Barotrauma source code: [Entity.cs](https://github.com/evilfactory/Barotrauma-lu
 -- @code Entity
 -- @pragma nostrip
 
---- Remove
--- @realm shared
-function Remove() end
-
---- ToString
--- @realm shared
--- @treturn string
-function ToString() end
-
 --- GetEntities
 -- @realm shared
 -- @treturn IEnumerable`1
@@ -42,6 +33,10 @@ function Entity.RemoveAll() end
 -- @realm shared
 function FreeID() end
 
+--- Remove
+-- @realm shared
+function Remove() end
+
 --- DumpIds
 -- @realm shared
 -- @tparam number count
@@ -52,6 +47,11 @@ function Entity.DumpIds(count, filename) end
 -- @realm shared
 -- @treturn Type
 function GetType() end
+
+--- ToString
+-- @realm shared
+-- @treturn string
+function ToString() end
 
 --- Equals
 -- @realm shared
@@ -108,6 +108,11 @@ function GetHashCode() end
 -- AiTarget, Field of type AITarget
 -- @realm shared
 -- @AITarget AiTarget
+
+---
+-- InDetectable, Field of type bool
+-- @realm shared
+-- @bool InDetectable
 
 ---
 -- SpawnTime, Field of type number

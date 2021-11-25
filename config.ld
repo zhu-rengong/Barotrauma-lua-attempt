@@ -18,7 +18,7 @@ format = "markdown"
 ignore = true
 topics = "docs/manual"
 use_markdown_titles = true
-kind_names = {module = "Classes", topic = "Manual"}
+kind_names = {topic = "Manual", module = "Classes"}
 merge = true
 sort = true
 sort_modules = true
@@ -47,7 +47,6 @@ custom_display_name_handler = function(item, default_handler)
 	return default_handler(item)
 end
 
-
 new_type("code", "Code", true)
 new_type("enum", "Enum", true)
 
@@ -65,6 +64,7 @@ tparam_alias("PhysicsBody", "PhysicsBody")
 tparam_alias("JobPrefab", "JobPrefab")
 tparam_alias("Job", "Job")
 tparam_alias("Inventory", "Inventory")
+tparam_alias("Camera", "Camera")
 
 
 tparam_alias("string", "string")

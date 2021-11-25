@@ -38,15 +38,15 @@ function Hook.Remove(eventname, hookname) end
 -- end)
 function Hook.Call(eventname, parameters) end
 
+--- Game's fixed update rate, gets called normally 60 times a second.
+-- @realm shared
+function think() end
+
 --- Gets called everytime someone sends a chat message, return true to cancel message
 -- @tparam string message
 -- @tparam client sender
 -- @realm shared
 function chatMessage(message, sender) end
-
---- Called every update
--- @realm shared
-function think() end
 
 --- Called when a client connects
 -- @tparam client connectedClient
@@ -57,7 +57,6 @@ function clientConnected(connectedClient) end
 -- @tparam client disconnectedClient
 -- @realm shared
 function clientDisconnected(disconnectedClient) end
-
 
 --- Called on round start
 -- @realm shared
@@ -129,18 +128,55 @@ function inventoryItemSwap(inventory, item, characterUser, index, swapWholeStack
 --- 
 -- @realm shared
 function changeFallDamage() end
+
 --- Gets called every update when a gap passes oxygen
 -- @realm shared
 function gapOxygenUpdate(gap, hull1, hull2) end
+
 ---  Gets called everytime an Item receives a wire signal
 -- @realm shared
-function signalReceived(connection, signal) end
+function signalReceived(signal, connection) end
+
 ---  Same as signalReceived, but gets called only when needed by specifying your component, better performance.
 -- @realm shared
-function signalReceived.YourComponentIdentifier(connection, signal) end
+function signalReceived.YourComponentIdentifier(signal, connection) end
+
 --- Gets called everytime a WifiComponent starts transmitting a signal
 -- @realm shared
 function wifiSignalTransmitted(wifiComponent, signal, sentFromChat) end
---- Gets called everytime something is logged to the Server Log
+
+--- Gets called everytime something is logged to the Server Log, do not call print() inside this function, i repeat, do not call print() inside this function.
 -- @realm shared
 function serverLog(text, serverLogMessageType) end
+
+--- Called each time a new round start job has been assigned, this context allows for you to change the role before it's applied in game.
+-- @realm shared
+function jobAssigned(text, serverLogMessageType) end
+
+--- Check if a client is allowed to hear radio voice to another client, return true to allow, false to disallow.
+-- @realm shared
+function canUseVoiceRadio(sender, receiver) end
+
+--- Changes the local voice range, return a number to change the local voice range, 1 = normal, 0.5 = lower range, 2 = higher range.
+-- @realm shared
+function changeLocalVoiceRange(sender, receiver) end
+
+--- Called right before a message is going to be sent, return true to stop message from being sent.
+-- @realm shared
+function modifyChatMessage(chatMessage, wifiComponentSender) end
+
+--- Called when the script execution is terminating.
+-- @realm shared
+function stop() end
+
+---
+-- @realm shared
+function husk.clientControl(client, husk) end
+
+---
+-- @realm shared
+function traitor.traitorAssigned(traitor) end
+
+--- Return true to accept traitor candidate.
+-- @realm shared
+function traitor.findTraitorCandidate(character, team) end

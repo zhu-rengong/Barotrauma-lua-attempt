@@ -36,10 +36,6 @@ function ItemPrefab.GetItemPrefab(itemNameOrId) end
 -- @string Identifier
 
 
-
------- AUTO DOCS --------
-
-
 --- RemoveByFile
 -- @realm shared
 -- @tparam string filePath
@@ -140,6 +136,26 @@ function ItemPrefab.IsContainerPreferred(preferences, c) end
 -- @tparam IEnumerable`1 ids
 -- @treturn bool
 function ItemPrefab.IsContainerPreferred(preferences, ids) end
+
+--- GetItemPrefab
+-- @realm shared
+-- @tparam string itemNameOrId
+-- @treturn ItemPrefab
+function ItemPrefab.GetItemPrefab(itemNameOrId) end
+
+--- AddToSpawnQueue
+-- @realm shared
+-- @tparam ItemPrefab itemPrefab
+-- @tparam Vector2 position
+-- @tparam Object spawned
+function ItemPrefab.AddToSpawnQueue(itemPrefab, position, spawned) end
+
+--- AddToSpawnQueue
+-- @realm shared
+-- @tparam ItemPrefab itemPrefab
+-- @tparam Inventory inventory
+-- @tparam Object spawned
+function ItemPrefab.AddToSpawnQueue(itemPrefab, inventory, spawned) end
 
 --- Dispose
 -- @realm shared
@@ -262,6 +278,11 @@ function GetHashCode() end
 -- @bool HideConditionBar
 
 ---
+-- HideConditionInTooltip, Field of type bool
+-- @realm shared
+-- @bool HideConditionInTooltip
+
+---
 -- RequireBodyInsideTrigger, Field of type bool
 -- @realm shared
 -- @bool RequireBodyInsideTrigger
@@ -375,6 +396,16 @@ function GetHashCode() end
 -- UseContainedInventoryIconColor, Field of type bool
 -- @realm shared
 -- @bool UseContainedInventoryIconColor
+
+---
+-- AddedRepairSpeedMultiplier, Field of type number
+-- @realm shared
+-- @number AddedRepairSpeedMultiplier
+
+---
+-- CannotRepairFail, Field of type bool
+-- @realm shared
+-- @bool CannotRepairFail
 
 ---
 -- EquipConfirmationText, Field of type string
@@ -580,6 +611,11 @@ function GetHashCode() end
 -- IsOverride, Field of type bool
 -- @realm shared
 -- @bool IsOverride
+
+---
+-- VariantOf, Field of type ItemPrefab
+-- @realm shared
+-- @ItemPrefab VariantOf
 
 ---
 -- AllowAsExtraCargo, Field of type Nullable`1

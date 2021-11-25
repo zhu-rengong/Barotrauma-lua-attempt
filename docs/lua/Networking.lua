@@ -32,3 +32,8 @@ function Networking.Send(netMessage, connection, deliveryMethod) end
 --- Adds a function to listen for lua net messages
 -- @realm shared 
 function Networking.Receive(netMessageName, callback) end
+
+--- Writes again the lobby data of a client, useful for syncing submarine lists or other lobby options.
+-- @realm server 
+function Networking.ClientWriteLobby(client) end
+

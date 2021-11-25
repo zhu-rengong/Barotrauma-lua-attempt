@@ -10,6 +10,7 @@ Barotrauma source code: [Job.cs](https://github.com/evilfactory/Barotrauma-lua-a
 
 local Job = {}
 
+
 --- Random
 -- @realm shared
 -- @tparam RandSync randSync
@@ -26,7 +27,8 @@ function GetSkillLevel(skillIdentifier) end
 -- @realm shared
 -- @tparam string skillIdentifier
 -- @tparam number increase
-function IncreaseSkillLevel(skillIdentifier, increase) end
+-- @tparam bool increasePastMax
+function IncreaseSkillLevel(skillIdentifier, increase, increasePastMax) end
 
 --- GiveJobItems
 -- @realm shared

@@ -10,131 +10,88 @@ Barotrauma source code: [CharacterInfo.cs](https://github.com/evilfactory/Barotr
 
 local CharacterInfo = {}
 
---- ApplyHealthData
+--- RefreshHead
 -- @realm shared
--- @tparam Character character
--- @tparam XElement healthData
-function CharacterInfo.ApplyHealthData(character, healthData) end
-
---- ReloadHeadAttachments
--- @realm shared
-function ReloadHeadAttachments() end
-
---- ResetHeadAttachments
--- @realm shared
-function ResetHeadAttachments() end
-
---- ClearCurrentOrders
--- @realm shared
-function ClearCurrentOrders() end
-
---- Remove
--- @realm shared
-function Remove() end
-
---- Create
--- @realm shared
--- @tparam string speciesName
--- @tparam string name
--- @tparam JobPrefab jobPrefab
--- @tparam string ragdollFileName
--- @tparam number variant
--- @tparam RandSync randSync
--- @tparam string npcIdentifier
--- @treturn CharacterInfo
--- @usage 
--- local vsauce = CharacterInfo("human", "VSAUCE HERE")
--- local character = Character.Create(vsauce, Vector2(0, 0), "some random characters")
--- print(character)
-function CharacterInfo(speciesName, name, jobPrefab, ragdollFileName, variant, randSync, npcIdentifier) end
-
---- ServerWrite
--- @realm shared
--- @tparam IWriteMessage msg
-function ServerWrite(msg) end
-
---- CheckDisguiseStatus
--- @realm shared
--- @tparam bool handleBuff
--- @tparam IdCard idCard
-function CheckDisguiseStatus(handleBuff, idCard) end
-
---- GetRandomGender
--- @realm shared
--- @tparam RandSync randSync
--- @treturn Gender
-function GetRandomGender(randSync) end
-
---- GetRandomRace
--- @realm shared
--- @tparam RandSync randSync
--- @treturn Race
-function GetRandomRace(randSync) end
-
---- GetRandomHeadID
--- @realm shared
--- @tparam RandSync randSync
--- @treturn number
-function GetRandomHeadID(randSync) end
-
---- GetIdentifier
--- @realm shared
--- @treturn number
-function GetIdentifier() end
-
---- GetIdentifierUsingOriginalName
--- @realm shared
--- @treturn number
-function GetIdentifierUsingOriginalName() end
-
---- FilterByTypeAndHeadID
--- @realm shared
--- @tparam IEnumerable`1 elements
--- @tparam WearableType targetType
--- @tparam number headSpriteId
--- @treturn IEnumerable`1
-function FilterByTypeAndHeadID(elements, targetType, headSpriteId) end
-
---- FilterElementsByGenderAndRace
--- @realm shared
--- @tparam IEnumerable`1 elements
--- @tparam Gender gender
--- @tparam Race race
--- @treturn IEnumerable`1
-function FilterElementsByGenderAndRace(elements, gender, race) end
-
---- RecreateHead
--- @realm shared
--- @tparam number headID
--- @tparam Race race
--- @tparam Gender gender
--- @tparam number hairIndex
--- @tparam number beardIndex
--- @tparam number moustacheIndex
--- @tparam number faceAttachmentIndex
-function RecreateHead(headID, race, gender, hairIndex, beardIndex, moustacheIndex, faceAttachmentIndex) end
-
---- LoadHeadSprite
--- @realm shared
-function LoadHeadSprite() end
+function RefreshHead() end
 
 --- LoadHeadAttachments
 -- @realm shared
 function LoadHeadAttachments() end
 
+--- AddEmpty
+-- @realm shared
+-- @tparam IEnumerable`1 elements
+-- @tparam WearableType type
+-- @tparam number commonness
+-- @treturn table
+function CharacterInfo.AddEmpty(elements, type, commonness) end
+
+--- GetRandomElement
+-- @realm shared
+-- @tparam IEnumerable`1 elements
+-- @treturn XElement
+function GetRandomElement(elements) end
+
+--- IsValidIndex
+-- @realm shared
+-- @tparam number index
+-- @tparam table list
+-- @treturn bool
+function CharacterInfo.IsValidIndex(index, list) end
+
 --- IncreaseSkillLevel
 -- @realm shared
 -- @tparam string skillIdentifier
 -- @tparam number increase
--- @tparam Vector2 pos
-function IncreaseSkillLevel(skillIdentifier, increase, pos) end
+-- @tparam bool gainedFromApprenticeship
+function IncreaseSkillLevel(skillIdentifier, increase, gainedFromApprenticeship) end
 
 --- SetSkillLevel
 -- @realm shared
 -- @tparam string skillIdentifier
 -- @tparam number level
--- @tparam Vector2 pos
-function SetSkillLevel(skillIdentifier, level, pos) end
+function SetSkillLevel(skillIdentifier, level) end
+
+--- GiveExperience
+-- @realm shared
+-- @tparam number amount
+-- @tparam bool isMissionExperience
+function GiveExperience(amount, isMissionExperience) end
+
+--- SetExperience
+-- @realm shared
+-- @tparam number newExperience
+function SetExperience(newExperience) end
+
+--- GetTotalTalentPoints
+-- @realm shared
+-- @treturn number
+function GetTotalTalentPoints() end
+
+--- GetAvailableTalentPoints
+-- @realm shared
+-- @treturn number
+function GetAvailableTalentPoints() end
+
+--- GetProgressTowardsNextLevel
+-- @realm shared
+-- @treturn number
+function GetProgressTowardsNextLevel() end
+
+--- GetExperienceRequiredForCurrentLevel
+-- @realm shared
+-- @treturn number
+function GetExperienceRequiredForCurrentLevel() end
+
+--- GetExperienceRequiredToLevelUp
+-- @realm shared
+-- @treturn number
+function GetExperienceRequiredToLevelUp() end
+
+--- GetCurrentLevel
+-- @realm shared
+-- @treturn number
+function GetCurrentLevel() end
 
 --- Rename
 -- @realm shared
@@ -182,6 +139,177 @@ function ApplyOrderData() end
 -- @tparam XElement ordersElement
 -- @treturn table
 function CharacterInfo.LoadOrders(ordersElement) end
+
+--- ApplyHealthData
+-- @realm shared
+-- @tparam Character character
+-- @tparam XElement healthData
+function CharacterInfo.ApplyHealthData(character, healthData) end
+
+--- ClearCurrentOrders
+-- @realm shared
+function ClearCurrentOrders() end
+
+--- Remove
+-- @realm shared
+function Remove() end
+
+--- ClearSavedStatValues
+-- @realm shared
+function ClearSavedStatValues() end
+
+--- ClearSavedStatValues
+-- @realm shared
+-- @tparam StatTypes statType
+function ClearSavedStatValues(statType) end
+
+--- ResetSavedStatValue
+-- @realm shared
+-- @tparam string statIdentifier
+function ResetSavedStatValue(statIdentifier) end
+
+--- GetSavedStatValue
+-- @realm shared
+-- @tparam StatTypes statType
+-- @treturn number
+function GetSavedStatValue(statType) end
+
+--- GetSavedStatValue
+-- @realm shared
+-- @tparam StatTypes statType
+-- @tparam string statIdentifier
+-- @treturn number
+function GetSavedStatValue(statType, statIdentifier) end
+
+--- ChangeSavedStatValue
+-- @realm shared
+-- @tparam StatTypes statType
+-- @tparam number value
+-- @tparam string statIdentifier
+-- @tparam bool removeOnDeath
+-- @tparam bool removeAfterRound
+-- @tparam number maxValue
+-- @tparam bool setValue
+function ChangeSavedStatValue(statType, value, statIdentifier, removeOnDeath, removeAfterRound, maxValue, setValue) end
+
+--- Create
+-- @realm shared
+-- @tparam string speciesName
+-- @tparam string name
+-- @tparam JobPrefab jobPrefab
+-- @tparam string ragdollFileName
+-- @tparam number variant
+-- @tparam RandSync randSync
+-- @tparam string npcIdentifier
+-- @treturn CharacterInfo
+function CharacterInfo.Create(speciesName, name, jobPrefab, ragdollFileName, variant, randSync, npcIdentifier) end
+
+--- ServerWrite
+-- @realm shared
+-- @tparam IWriteMessage msg
+function ServerWrite(msg) end
+
+--- GetUnlockedTalentsInTree
+-- @realm shared
+-- @treturn IEnumerable`1
+function GetUnlockedTalentsInTree() end
+
+--- GetEndocrineTalents
+-- @realm shared
+-- @treturn IEnumerable`1
+function GetEndocrineTalents() end
+
+--- CheckDisguiseStatus
+-- @realm shared
+-- @tparam bool handleBuff
+-- @tparam IdCard idCard
+function CheckDisguiseStatus(handleBuff, idCard) end
+
+--- GetRandomName
+-- @realm shared
+-- @tparam RandSync randSync
+-- @treturn string
+function GetRandomName(randSync) end
+
+--- SelectRandomColor
+-- @realm shared
+-- @tparam ImmutableArray`1& array
+-- @treturn Color
+function CharacterInfo.SelectRandomColor(array) end
+
+--- GetRandomGender
+-- @realm shared
+-- @tparam RandSync randSync
+-- @treturn Gender
+function GetRandomGender(randSync) end
+
+--- GetRandomRace
+-- @realm shared
+-- @tparam RandSync randSync
+-- @treturn Race
+function GetRandomRace(randSync) end
+
+--- GetRandomHeadID
+-- @realm shared
+-- @tparam RandSync randSync
+-- @treturn number
+function GetRandomHeadID(randSync) end
+
+--- GetIdentifier
+-- @realm shared
+-- @treturn number
+function GetIdentifier() end
+
+--- GetIdentifierUsingOriginalName
+-- @realm shared
+-- @treturn number
+function GetIdentifierUsingOriginalName() end
+
+--- FilterByTypeAndHeadID
+-- @realm shared
+-- @tparam IEnumerable`1 elements
+-- @tparam WearableType targetType
+-- @tparam number headSpriteId
+-- @treturn IEnumerable`1
+function FilterByTypeAndHeadID(elements, targetType, headSpriteId) end
+
+--- FilterElementsByGenderAndRace
+-- @realm shared
+-- @tparam IEnumerable`1 elements
+-- @tparam Gender gender
+-- @tparam Race race
+-- @treturn IEnumerable`1
+function FilterElementsByGenderAndRace(elements, gender, race) end
+
+--- IsMatchingGender
+-- @realm shared
+-- @tparam Gender gender
+-- @tparam Gender myGender
+-- @treturn bool
+function CharacterInfo.IsMatchingGender(gender, myGender) end
+
+--- IsMatchingRace
+-- @realm shared
+-- @tparam Race race
+-- @tparam Race myRace
+-- @treturn bool
+function CharacterInfo.IsMatchingRace(race, myRace) end
+
+--- RecreateHead
+-- @realm shared
+-- @tparam HeadInfo headInfo
+function RecreateHead(headInfo) end
+
+--- RecreateHead
+-- @realm shared
+-- @tparam number headID
+-- @tparam Race race
+-- @tparam Gender gender
+-- @tparam number hairIndex
+-- @tparam number beardIndex
+-- @tparam number moustacheIndex
+-- @tparam number faceAttachmentIndex
+function RecreateHead(headID, race, gender, hairIndex, beardIndex, moustacheIndex, faceAttachmentIndex) end
 
 --- GetType
 -- @realm shared
@@ -233,6 +361,21 @@ function GetHashCode() end
 -- SpeciesName, Field of type string
 -- @realm shared
 -- @string SpeciesName
+
+---
+-- ExperiencePoints, Field of type number
+-- @realm shared
+-- @number ExperiencePoints
+
+---
+-- UnlockedTalents, Field of type HashSet`1
+-- @realm shared
+-- @HashSet`1 UnlockedTalents
+
+---
+-- AdditionalTalentPoints, Field of type number
+-- @realm shared
+-- @number AdditionalTalentPoints
 
 ---
 -- HeadSprite, Field of type Sprite
@@ -308,6 +451,21 @@ function GetHashCode() end
 -- FaceAttachmentIndex, Field of type number
 -- @realm shared
 -- @number FaceAttachmentIndex
+
+---
+-- HairColor, Field of type Color
+-- @realm shared
+-- @Color HairColor
+
+---
+-- FacialHairColor, Field of type Color
+-- @realm shared
+-- @Color FacialHairColor
+
+---
+-- SkinColor, Field of type Color
+-- @realm shared
+-- @Color SkinColor
 
 ---
 -- HairElement, Field of type XElement
@@ -428,6 +586,36 @@ function GetHashCode() end
 -- HasGenders, Field of type bool
 -- @realm shared
 -- @bool HasGenders
+
+---
+-- HasRaces, Field of type bool
+-- @realm shared
+-- @bool HasRaces
+
+---
+-- HairColors, Field of type ImmutableArray`1
+-- @realm shared
+-- @ImmutableArray`1 HairColors
+
+---
+-- FacialHairColors, Field of type ImmutableArray`1
+-- @realm shared
+-- @ImmutableArray`1 FacialHairColors
+
+---
+-- SkinColors, Field of type ImmutableArray`1
+-- @realm shared
+-- @ImmutableArray`1 SkinColors
+
+---
+-- MissionsCompletedSinceDeath, Field of type number
+-- @realm shared
+-- @number MissionsCompletedSinceDeath
+
+---
+-- SavedStatValues, Field of type table
+-- @realm shared
+-- @table SavedStatValues
 
 ---
 -- CharacterInfo.MaxCurrentOrders, Field of type number

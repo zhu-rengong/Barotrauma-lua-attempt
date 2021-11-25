@@ -57,16 +57,72 @@ namespace Barotrauma
 			return type;
 		}
 
-		public static void GenerateDocs(Type type)
+		public static string EscapeName(string n)
+		{
+			if (n == "end")
+				return "endparam";
+
+			return n;
+		}
+
+		public static void GenerateDocsAll()
+		{
+			GenerateDocs(typeof(Character), "Character.lua");
+			GenerateDocs(typeof(CharacterInfo), "CharacterInfo.lua");
+			GenerateDocs(typeof(Client), "Client.lua");
+			GenerateDocs(typeof(Entity), "Entity.lua");
+			GenerateDocs(typeof(EntitySpawner), "Entity.Spawner.lua", "Entity.Spawner");
+			GenerateDocs(typeof(Item), "Item.lua");
+			GenerateDocs(typeof(ItemPrefab), "ItemPrefab.lua");
+			GenerateDocs(typeof(Submarine), "Submarine.lua");
+			GenerateDocs(typeof(Job), "Job.lua");
+			GenerateDocs(typeof(JobPrefab), "JobPrefab.lua");
+			GenerateDocs(typeof(GameSession), "GameSession.lua", "Game.GameSession");
+			GenerateDocs(typeof(NetLobbyScreen), "NetLobbyScreen.lua", "Game.NetLobbyScreen");
+			GenerateDocs(typeof(GameScreen), "GameScreen.lua", "Game.GameScreen");
+			GenerateDocs(typeof(FarseerPhysics.Dynamics.World), "World.lua", "Game.World");
+		}
+
+		public static void GenerateDocs(Type type, string name, string? categoryName = null)
+		{
+			GenerateDocs(type, "../../../../docs/baseluadocs/" + name, "../../../../docs/lua/generated/" + name, categoryName);
+		}
+
+		public static void GenerateDocs(Type type, string baselua, string fileresult, string? categoryName = null)
 		{
 			var sb = new StringBuilder();
+
+			if (categoryName == null)
+				categoryName = type.Name;
+
+			var baseluatext = "";
+
+			if (!File.Exists(baselua))
+			{
+				const string EMPTY_TABLE = "{}";
+
+				baseluatext = @$"-- luacheck: ignore 111
+
+--[[--
+{type.FullName}
+]]
+-- @code {categoryName}
+-- @pragma nostrip
+local {type.Name} = {EMPTY_TABLE}";
+
+				File.WriteAllText(baselua, baseluatext);
+			}
+			else
+				baseluatext = File.ReadAllText(baselua);
+
+			sb.Append(baseluatext + "\n\n");
 
 			var members = type.GetMembers();
 
 			foreach(var member in members)
 			{
 				Console.WriteLine("'{0}' is a {1}", member.Name, member.MemberType);
-				
+
 				if (member.MemberType == MemberTypes.Method)
 				{
 					var method = (MethodInfo)member;
@@ -85,11 +141,11 @@ namespace Barotrauma
 						var parameter = parameters[i];
 
 						if(i == parameters.Length - 1)
-							paramNames = paramNames + parameter.Name;
+							paramNames = paramNames + EscapeName(parameter.Name);
 						else
-							paramNames = paramNames + parameter.Name + ", ";
+							paramNames = paramNames + EscapeName(parameter.Name) + ", ";
 
-						sb.Append($"-- @tparam {ConvertTypeName(parameter.ParameterType.Name)} {parameter.Name}\n");
+						sb.Append($"-- @tparam {ConvertTypeName(parameter.ParameterType.Name)} {EscapeName(parameter.Name)}\n");
 					}
 
 					if (method.ReturnType != typeof(void))
@@ -113,7 +169,7 @@ namespace Barotrauma
 					sb.Append($"---\n");
 					sb.Append($"-- ");
 
-					var name = field.Name;
+					var name = EscapeName(field.Name);
 
 					var returnName = ConvertTypeName(field.FieldType.Name);
 
@@ -135,7 +191,7 @@ namespace Barotrauma
 					sb.Append($"---\n");
 					sb.Append($"-- ");
 
-					var name = property.Name;
+					var name = EscapeName(property.Name);
 
 					var returnName = ConvertTypeName(property.PropertyType.Name);
 
@@ -151,7 +207,7 @@ namespace Barotrauma
 				}
 			}
 
-			File.WriteAllText("luadocs.lua", sb.ToString());
+			File.WriteAllText(fileresult, sb.ToString());
 		}
 	}
 }

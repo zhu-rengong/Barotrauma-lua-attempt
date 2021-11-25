@@ -31,24 +31,37 @@ function CheckPermission(permissions) end
 function Client.Unban(player, endpoint) end
 
 
-
----
--- List of all connected clients.
+--- SetClientCharacter
 -- @realm shared
--- @Character Client.ClientList Table containing characters
+-- @tparam Character character
+function SetClientCharacter(character) end
 
----
--- Character that the client is currently controlling.
+--- Kick
 -- @realm shared
--- @Character Character
+-- @tparam string reason
+function Kick(reason) end
 
+--- Ban
+-- @realm shared
+-- @tparam string reason
+-- @tparam bool range
+-- @tparam number seconds
+function Ban(reason, range, seconds) end
 
------------ AUTODOCS --------------
+--- Unban
+-- @realm shared
+-- @tparam string player
+-- @tparam string endpoint
+function Client.Unban(player, endpoint) end
 
+--- CheckPermission
+-- @realm shared
+-- @tparam ClientPermissions permissions
+-- @treturn bool
+function CheckPermission(permissions) end
 
 --- InitClientSync
 -- @realm shared
-
 function InitClientSync() end
 
 --- IsValidName
@@ -68,19 +81,16 @@ function EndpointMatches(endPoint) end
 -- @realm shared
 -- @tparam ClientPermissions permissions
 -- @tparam table permittedConsoleCommands
-
 function SetPermissions(permissions, permittedConsoleCommands) end
 
 --- GivePermission
 -- @realm shared
 -- @tparam ClientPermissions permission
-
 function GivePermission(permission) end
 
 --- RemovePermission
 -- @realm shared
 -- @tparam ClientPermissions permission
-
 function RemovePermission(permission) end
 
 --- HasPermission
@@ -99,24 +109,20 @@ function GetVote(voteType) end
 -- @realm shared
 -- @tparam VoteType voteType
 -- @tparam Object value
-
 function SetVote(voteType, value) end
 
 --- ResetVotes
 -- @realm shared
-
 function ResetVotes() end
 
 --- AddKickVote
 -- @realm shared
 -- @tparam Client voter
-
 function AddKickVote(voter) end
 
 --- RemoveKickVote
 -- @realm shared
 -- @tparam Client voter
-
 function RemoveKickVote(voter) end
 
 --- HasKickVoteFrom
@@ -134,13 +140,11 @@ function HasKickVoteFromID(id) end
 --- UpdateKickVotes
 -- @realm shared
 -- @tparam table connectedClients
-
 function Client.UpdateKickVotes(connectedClients) end
 
 --- WritePermissions
 -- @realm shared
 -- @tparam IWriteMessage msg
-
 function WritePermissions(msg) end
 
 --- ReadPermissions
@@ -148,13 +152,11 @@ function WritePermissions(msg) end
 -- @tparam IReadMessage inc
 -- @tparam ClientPermissions& permissions
 -- @tparam List`1& permittedCommands
-
 function Client.ReadPermissions(inc, permissions, permittedCommands) end
 
 --- ReadPermissions
 -- @realm shared
 -- @tparam IReadMessage inc
-
 function ReadPermissions(inc) end
 
 --- SanitizeName
@@ -165,7 +167,6 @@ function Client.SanitizeName(name) end
 
 --- Dispose
 -- @realm shared
-
 function Dispose() end
 
 --- GetType
@@ -203,6 +204,16 @@ function GetHashCode() end
 -- Karma, Field of type number
 -- @realm shared
 -- @number Karma
+
+---
+-- Client.ClientList, Field of type table
+-- @realm shared
+-- @table Client.ClientList
+
+---
+-- Character, Field of type Character
+-- @realm shared
+-- @Character Character
 
 ---
 -- SpectatePos, Field of type Nullable`1
