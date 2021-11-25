@@ -10,14 +10,26 @@ Barotrauma source code: [Character.cs](https://github.com/evilfactory/Barotrauma
 
 local Character = {}
 
+-- @remove function Character.Create(characterInfo, position, seed, id, isRemotePlayer, hasAi, ragdoll) end
+-- @remove function TeleportTo(worldPos) end
+
+-- @remove function TeleportTo(worldPos) end
+
 --- Creates a Character using CharacterInfo.
+-- @realm server
+-- @tparam CharacterInfo characterInfo
+-- @tparam Vector2 position
+-- @tparam string seed
+-- @tparam number id
+-- @tparam bool isRemotePlayer
+-- @tparam bool hasAi
+-- @tparam RagdollParams ragdoll
 -- @treturn Character
--- @realm server 
 -- @usage 
--- local vsauce = CharacterInfo("human", "VSAUCE HERE")
+-- local vsauce = CharacterInfo("human", "custom name")
 -- local character = Character.Create(vsauce, Vector2(0, 0), "some random characters")
 -- print(character)
-function Character.Create(characterInfo, position, seed, id, isRemotePlayer, hasAi, ragdollParams) end
+function Character.Create(characterInfo, position, seed, id, isRemotePlayer, hasAi, ragdoll) end
 
 
 --- Teleports a character to a position.
@@ -25,14 +37,12 @@ function Character.Create(characterInfo, position, seed, id, isRemotePlayer, has
 -- @tparam Vector2 position
 -- @usage 
 -- Character.CharacterList[1].TeleportTo(Vector2(0, 0)) -- teleports first created characters to 0, 0
-function TeleportTo(position) end
-
+function TeleportTo(worldPos) end
 
 ---
 -- Character.CharacterList, Table containing all characters.
 -- @realm shared
--- @Character Character.CharacterList
-
+-- @table Character.CharacterList
 
 
 --- Revive
@@ -43,11 +53,6 @@ function Revive(removeAllAfflictions) end
 --- Remove
 -- @realm shared
 function Remove() end
-
---- TeleportTo
--- @realm shared
--- @tparam Vector2 worldPos
-function TeleportTo(worldPos) end
 
 --- SaveInventory
 -- @realm shared
@@ -633,18 +638,6 @@ function BreakJoints() end
 -- @tparam bool isNetworkMessage
 -- @tparam bool log
 function Kill(causeOfDeath, causeOfDeathAffliction, isNetworkMessage, log) end
-
---- Create
--- @realm shared
--- @tparam CharacterInfo characterInfo
--- @tparam Vector2 position
--- @tparam string seed
--- @tparam number id
--- @tparam bool isRemotePlayer
--- @tparam bool hasAi
--- @tparam RagdollParams ragdoll
--- @treturn Character
-function Character.Create(characterInfo, position, seed, id, isRemotePlayer, hasAi, ragdoll) end
 
 --- Create
 -- @realm shared

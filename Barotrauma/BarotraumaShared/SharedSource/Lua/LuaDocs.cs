@@ -115,6 +115,17 @@ local {type.Name} = {EMPTY_TABLE}";
 			else
 				baseluatext = File.ReadAllText(baselua);
 
+			HashSet<string> removed = new HashSet<string>();
+			
+			foreach(var line in baseluatext.Split('\n'))
+			{
+				if(line.Contains("-- @remove "))
+				{
+					var replaced = line.Replace("-- @remove ", "").Replace("\r", "");
+					removed.Add(replaced);
+				}
+			}
+			
 			sb.Append(baseluatext + "\n\n");
 
 			var members = type.GetMembers();
@@ -130,8 +141,10 @@ local {type.Name} = {EMPTY_TABLE}";
 					if (method.Name.StartsWith("get_") || method.Name.StartsWith("set_"))
 						continue;
 
-					sb.Append($"--- {method.Name}\n");
-					sb.Append($"-- @realm shared\n");
+					var lsb = new StringBuilder();
+
+					lsb.Append($"--- {method.Name}\n");
+					lsb.Append($"-- @realm shared\n");
 
 					var paramNames = "";
 
@@ -145,29 +158,40 @@ local {type.Name} = {EMPTY_TABLE}";
 						else
 							paramNames = paramNames + EscapeName(parameter.Name) + ", ";
 
-						sb.Append($"-- @tparam {ConvertTypeName(parameter.ParameterType.Name)} {EscapeName(parameter.Name)}\n");
+						lsb.Append($"-- @tparam {ConvertTypeName(parameter.ParameterType.Name)} {EscapeName(parameter.Name)}\n");
 					}
 
 					if (method.ReturnType != typeof(void))
 					{
-						sb.Append($"-- @treturn {ConvertTypeName(method.ReturnType.Name)}\n");
+						lsb.Append($"-- @treturn {ConvertTypeName(method.ReturnType.Name)}\n");
 					}
 
-					if (method.IsStatic)
-						sb.Append($"function {type.Name}.{method.Name}({paramNames})");
-					else
-						sb.Append($"function {method.Name}({paramNames})");
-					sb.Append(" end\n");
+					string functionDecoration;
 
-					sb.Append("\n");
+					if (method.IsStatic)
+						functionDecoration = $"function {type.Name}.{method.Name}({paramNames}) end";
+					else
+						functionDecoration = $"function {method.Name}({paramNames}) end";
+
+					if (removed.Contains(functionDecoration))
+					{
+						continue;
+					}
+
+					lsb.Append(functionDecoration);
+
+					lsb.Append("\n\n");
+					sb.Append(lsb);
 				}
 
 				if (member.MemberType == MemberTypes.Field)
 				{
+					var lsb = new StringBuilder();
+
 					var field = (FieldInfo)member;
 
-					sb.Append($"---\n");
-					sb.Append($"-- ");
+					lsb.Append($"---\n");
+					lsb.Append($"-- ");
 
 					var name = EscapeName(field.Name);
 
@@ -176,20 +200,26 @@ local {type.Name} = {EMPTY_TABLE}";
 					if (field.IsStatic)
 						name = type.Name + "." + field.Name;
 
-					sb.Append(name);
-					sb.Append($", Field of type {returnName}\n");
-					sb.Append($"-- @realm shared\n");
-					sb.Append($"-- @{returnName} {name}\n");
+					if (removed.Contains(name))
+						continue;
 
-					sb.Append("\n");
+					lsb.Append(name);
+					lsb.Append($", Field of type {returnName}\n");
+					lsb.Append($"-- @realm shared\n");
+					lsb.Append($"-- @{returnName} {name}\n");
+
+					lsb.Append("\n");
+					sb.Append(lsb);
 				}
 
 				if (member.MemberType == MemberTypes.Property)
 				{
+					var lsb = new StringBuilder();
+
 					var property = (PropertyInfo)member;
 
-					sb.Append($"---\n");
-					sb.Append($"-- ");
+					lsb.Append($"---\n");
+					lsb.Append($"-- ");
 
 					var name = EscapeName(property.Name);
 
@@ -198,12 +228,16 @@ local {type.Name} = {EMPTY_TABLE}";
 					if (property.GetGetMethod().IsStatic)
 						name = type.Name + "." + property.Name;
 
-					sb.Append(name);
-					sb.Append($", Field of type {returnName}\n");
-					sb.Append($"-- @realm shared\n");
-					sb.Append($"-- @{returnName} {name}\n");
+					if (removed.Contains(name))
+						continue;
 
-					sb.Append("\n");
+					lsb.Append(name);
+					lsb.Append($", Field of type {returnName}\n");
+					lsb.Append($"-- @realm shared\n");
+					lsb.Append($"-- @{returnName} {name}\n");
+
+					lsb.Append("\n");
+					sb.Append(lsb);
 				}
 			}
 
