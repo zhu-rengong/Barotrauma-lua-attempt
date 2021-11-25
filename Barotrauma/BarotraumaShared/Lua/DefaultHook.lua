@@ -25,4 +25,4 @@ end, Hook.HookMethodType.Before)
 
 Hook.HookMethod("Barotrauma.Networking.GameServer", "AssignJobs", function (instance, a)
 	Hook.Call("jobAssigned", a)
-end, Hook.HookMethodType.Before)
+end, Hook.HookMethodType.After)
