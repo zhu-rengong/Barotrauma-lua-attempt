@@ -12,8 +12,7 @@ local Character = {}
 
 -- @remove function Character.Create(characterInfo, position, seed, id, isRemotePlayer, hasAi, ragdoll) end
 -- @remove function TeleportTo(worldPos) end
-
--- @remove function TeleportTo(worldPos) end
+-- @remove Character.CharacterList
 
 --- Creates a Character using CharacterInfo.
 -- @realm server
@@ -1610,11 +1609,6 @@ function GetHashCode() end
 -- Character.Controlled, Field of type Character
 -- @realm shared
 -- @Character Character.Controlled
-
----
--- Character.CharacterList, Field of type table
--- @realm shared
--- @table Character.CharacterList
 
 ---
 -- Character.KnockbackCooldown, Field of type number

@@ -10,6 +10,12 @@ Barotrauma source code: [Client.cs](https://github.com/evilfactory/Barotrauma-lu
 
 local Client = {}
 
+-- @remove function SetClientCharacter(character) end
+-- @remove function Kick(reason) end
+-- @remove function Ban(reason, range, seconds) end
+-- @remove function Client.Unban(player, endpoint) end
+-- @remove function CheckPermission(permissions) end
+
 --- Sets the client character.
 -- @realm server 
 function SetClientCharacter(character) end

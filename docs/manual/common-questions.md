@@ -47,9 +47,25 @@ end
 ## Running pairs() on an enumerator doesn't work!
 pairs() Returns an enumerator that iterates through the entire table keys, if you already have an enumerator, you can just pass it in directly.
 ```lua
--- get first item ever created and loop through all the values
+-- get first item ever created and loop through all the items stored inside it.
 for item in Item.ItemList[1].OwnInventory.AllItems do
 
 end
+```
+
+## How do i spawn an item?
+```lua
+local prefab = ItemPrefab.GetItemPrefab("screwdriver")
+local firstPlayerCharacter = Client.ClientList[1].Character
+
+-- Spawn on the world
+Entity.Spawner.AddToSpawnQueue(prefab, firstPlayerCharacter.WorldPosition, nil, nil, function(item)
+    print(item .. " Has been spawned.")
+end)
+
+-- Spawn inside an inventory
+Entity.Spawner.AddToSpawnQueue(prefab, firstPlayerCharacter.Inventory, nil, nil, function(item)
+    print(item .. " Has been spawned.")
+end)
 ```
 
