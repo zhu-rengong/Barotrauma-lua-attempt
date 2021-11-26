@@ -81,6 +81,9 @@ namespace Barotrauma
 			GenerateDocs(typeof(NetLobbyScreen), "NetLobbyScreen.lua", "Game.NetLobbyScreen");
 			GenerateDocs(typeof(GameScreen), "GameScreen.lua", "Game.GameScreen");
 			GenerateDocs(typeof(FarseerPhysics.Dynamics.World), "World.lua", "Game.World");
+			GenerateDocs(typeof(Inventory), "Inventory.lua", "Inventory");
+			GenerateDocs(typeof(ItemInventory), "ItemInventory.lua", "ItemInventory");
+			GenerateDocs(typeof(CharacterInventory), "CharacterInventory.lua", "CharacterInventory");
 		}
 
 		public static void GenerateDocs(Type type, string name, string? categoryName = null)
