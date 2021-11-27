@@ -72,6 +72,7 @@ RegisterBarotrauma("Items.Components.Reactor")
 RegisterBarotrauma("Items.Components.RelayComponent")
 RegisterBarotrauma("Items.Components.MemoryComponent")
 RegisterBarotrauma("Items.Components.Engine")
+RegisterBarotrauma("Items.Components.IdCard")
 
 RegisterBarotrauma("AIController")
 RegisterBarotrauma("EnemyAIController")
