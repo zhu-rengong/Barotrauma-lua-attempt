@@ -35,7 +35,7 @@ function Submarine.Load(info, unloadPrevious, linkedRemap) end
 --- RepositionEntities
 -- @realm shared
 -- @tparam Vector2 moveAmount
--- @tparam IEnumerable`1 entities
+-- @tparam Enumerable entities
 function Submarine.RepositionEntities(moveAmount, entities) end
 
 --- SaveToXElement
@@ -181,7 +181,7 @@ function Submarine.RectsOverlap(rect1, rect2, inclusive) end
 -- @realm shared
 -- @tparam Vector2 rayStart
 -- @tparam Vector2 rayEnd
--- @tparam IEnumerable`1 ignoredBodies
+-- @tparam Enumerable ignoredBodies
 -- @tparam Nullable`1 collisionCategory
 -- @tparam bool ignoreSensors
 -- @tparam Predicate`1 customPredicate
@@ -199,12 +199,12 @@ function Submarine.LastPickedBodyDist(body) end
 -- @realm shared
 -- @tparam Vector2 rayStart
 -- @tparam Vector2 rayEnd
--- @tparam IEnumerable`1 ignoredBodies
+-- @tparam Enumerable ignoredBodies
 -- @tparam Nullable`1 collisionCategory
 -- @tparam bool ignoreSensors
 -- @tparam Predicate`1 customPredicate
 -- @tparam bool allowInsideFixture
--- @treturn IEnumerable`1
+-- @treturn Enumerable
 function Submarine.PickBodies(rayStart, rayEnd, ignoredBodies, collisionCategory, ignoreSensors, customPredicate, allowInsideFixture) end
 
 --- CheckVisibility
@@ -331,8 +331,8 @@ function GetCargoContainers() end
 --- GetEntities
 -- @realm shared
 -- @tparam bool includingConnectedSubs
--- @tparam IEnumerable`1 list
--- @treturn IEnumerable`1
+-- @tparam Enumerable list
+-- @treturn Enumerable
 function GetEntities(includingConnectedSubs, list) end
 
 --- IsEntityFoundOnThisSub
@@ -385,14 +385,14 @@ function GetHashCode() end
 -- @Submarine Submarine.MainSub
 
 ---
--- Submarine.VisibleEntities, Field of type IEnumerable`1
+-- Submarine.VisibleEntities, Field of type Enumerable
 -- @realm shared
--- @IEnumerable`1 Submarine.VisibleEntities
+-- @Enumerable Submarine.VisibleEntities
 
 ---
--- DockedTo, Field of type IEnumerable`1
+-- DockedTo, Field of type Enumerable
 -- @realm shared
--- @IEnumerable`1 DockedTo
+-- @Enumerable DockedTo
 
 ---
 -- Submarine.LastPickedPosition, Field of type Vector2

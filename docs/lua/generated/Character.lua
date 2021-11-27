@@ -71,7 +71,7 @@ function SpawnInventoryItems(inventory, itemData) end
 
 --- GetAttackContexts
 -- @realm shared
--- @treturn IEnumerable`1
+-- @treturn Enumerable
 function GetAttackContexts() end
 
 --- GetVisibleHulls
@@ -131,7 +131,7 @@ function HasTalent(identifier) end
 --- GetFriendlyCrew
 -- @realm shared
 -- @tparam Character character
--- @treturn IEnumerable`1
+-- @treturn Enumerable
 function Character.GetFriendlyCrew(character) end
 
 --- HasTalents
@@ -363,10 +363,10 @@ function CanAccessInventory(inventory) end
 -- @realm shared
 -- @tparam Int32& itemIndex
 -- @tparam Item& targetItem
--- @tparam IEnumerable`1 identifiers
+-- @tparam Enumerable identifiers
 -- @tparam bool ignoreBroken
--- @tparam IEnumerable`1 ignoredItems
--- @tparam IEnumerable`1 ignoredContainerIdentifiers
+-- @tparam Enumerable ignoredItems
+-- @tparam Enumerable ignoredContainerIdentifiers
 -- @tparam function customPredicate
 -- @tparam function customPriorityFunction
 -- @tparam number maxItemDistance
@@ -559,7 +559,7 @@ function TrySeverLimbJoints(targetLimb, severLimbsProbability, damage, allowBehe
 --- AddDamage
 -- @realm shared
 -- @tparam Vector2 worldPosition
--- @tparam IEnumerable`1 afflictions
+-- @tparam Enumerable afflictions
 -- @tparam number stun
 -- @tparam bool playSound
 -- @tparam number attackImpulse
@@ -571,7 +571,7 @@ function AddDamage(worldPosition, afflictions, stun, playSound, attackImpulse, a
 --- AddDamage
 -- @realm shared
 -- @tparam Vector2 worldPosition
--- @tparam IEnumerable`1 afflictions
+-- @tparam Enumerable afflictions
 -- @tparam number stun
 -- @tparam bool playSound
 -- @tparam number attackImpulse
@@ -595,7 +595,7 @@ function AddEncounter(other) end
 -- @realm shared
 -- @tparam Vector2 worldPosition
 -- @tparam Limb hitLimb
--- @tparam IEnumerable`1 afflictions
+-- @tparam Enumerable afflictions
 -- @tparam number stun
 -- @tparam bool playSound
 -- @tparam number attackImpulse
@@ -856,9 +856,9 @@ function GetHashCode() end
 -- @bool IsInstigator
 
 ---
--- LastAttackers, Field of type IEnumerable`1
+-- LastAttackers, Field of type Enumerable
 -- @realm shared
--- @IEnumerable`1 LastAttackers
+-- @Enumerable LastAttackers
 
 ---
 -- LastAttacker, Field of type Character
@@ -1076,9 +1076,9 @@ function GetHashCode() end
 -- @Character SelectedBy
 
 ---
--- HeldItems, Field of type IEnumerable`1
+-- HeldItems, Field of type Enumerable
 -- @realm shared
--- @IEnumerable`1 HeldItems
+-- @Enumerable HeldItems
 
 ---
 -- LowPassMultiplier, Field of type number

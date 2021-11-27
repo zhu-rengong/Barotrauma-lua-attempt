@@ -28,7 +28,7 @@ function JobPrefab.Random(sync) end
 
 --- LoadAll
 -- @realm shared
--- @tparam IEnumerable`1 files
+-- @tparam Enumerable files
 function JobPrefab.LoadAll(files) end
 
 --- LoadFromFile

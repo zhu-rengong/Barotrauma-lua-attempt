@@ -77,7 +77,7 @@ function EnforceMissionOrder(missionIdentifiers) end
 
 --- GetSessionCrewCharacters
 -- @realm shared
--- @treturn IEnumerable`1
+-- @treturn Enumerable
 function GameSession.GetSessionCrewCharacters() end
 
 --- EndRound
@@ -131,9 +131,9 @@ function Equals(obj) end
 function GetHashCode() end
 
 ---
--- Missions, Field of type IEnumerable`1
+-- Missions, Field of type Enumerable
 -- @realm shared
--- @IEnumerable`1 Missions
+-- @Enumerable Missions
 
 ---
 -- IsRunning, Field of type bool

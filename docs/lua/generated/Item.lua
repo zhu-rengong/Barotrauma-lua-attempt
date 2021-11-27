@@ -271,7 +271,7 @@ function GetComponent() end
 
 --- GetComponents
 -- @realm shared
--- @treturn IEnumerable`1
+-- @treturn Enumerable
 function GetComponents() end
 
 --- GetQualityModifier
@@ -381,12 +381,12 @@ function ReplaceTag(tag, newTag) end
 
 --- GetTags
 -- @realm shared
--- @treturn IEnumerable`1
+-- @treturn Enumerable
 function GetTags() end
 
 --- HasTag
 -- @realm shared
--- @tparam IEnumerable`1 allowedTags
+-- @tparam Enumerable allowedTags
 -- @treturn bool
 function HasTag(allowedTags) end
 
@@ -879,9 +879,9 @@ function GetHashCode() end
 -- @string ConfigFile
 
 ---
--- AllowedSlots, Field of type IEnumerable`1
+-- AllowedSlots, Field of type Enumerable
 -- @realm shared
--- @IEnumerable`1 AllowedSlots
+-- @Enumerable AllowedSlots
 
 ---
 -- Connections, Field of type table
@@ -889,9 +889,9 @@ function GetHashCode() end
 -- @table Connections
 
 ---
--- ContainedItems, Field of type IEnumerable`1
+-- ContainedItems, Field of type Enumerable
 -- @realm shared
--- @IEnumerable`1 ContainedItems
+-- @Enumerable ContainedItems
 
 ---
 -- OwnInventory, Field of type ItemInventory
@@ -904,14 +904,14 @@ function GetHashCode() end
 -- @bool DisplaySideBySideWhenLinked
 
 ---
--- Repairables, Field of type IEnumerable`1
+-- Repairables, Field of type Enumerable
 -- @realm shared
--- @IEnumerable`1 Repairables
+-- @Enumerable Repairables
 
 ---
--- Components, Field of type IEnumerable`1
+-- Components, Field of type Enumerable
 -- @realm shared
--- @IEnumerable`1 Components
+-- @Enumerable Components
 
 ---
 -- Linkable, Field of type bool
@@ -939,9 +939,9 @@ function GetHashCode() end
 -- @ItemPrefab PendingItemSwap
 
 ---
--- AllPropertyObjects, Field of type IEnumerable`1
+-- AllPropertyObjects, Field of type Enumerable
 -- @realm shared
--- @IEnumerable`1 AllPropertyObjects
+-- @Enumerable AllPropertyObjects
 
 ---
 -- OrderedToBeIgnored, Field of type bool

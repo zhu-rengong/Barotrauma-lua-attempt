@@ -65,6 +65,7 @@ tparam_alias("JobPrefab", "JobPrefab")
 tparam_alias("Job", "Job")
 tparam_alias("Inventory", "Inventory")
 tparam_alias("Camera", "Camera")
+tparam_alias("Enumerable", "Enumerable")
 
 
 tparam_alias("string", "string")

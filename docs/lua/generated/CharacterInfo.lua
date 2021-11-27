@@ -20,7 +20,7 @@ function LoadHeadAttachments() end
 
 --- AddEmpty
 -- @realm shared
--- @tparam IEnumerable`1 elements
+-- @tparam Enumerable elements
 -- @tparam WearableType type
 -- @tparam number commonness
 -- @treturn table
@@ -28,7 +28,7 @@ function CharacterInfo.AddEmpty(elements, type, commonness) end
 
 --- GetRandomElement
 -- @realm shared
--- @tparam IEnumerable`1 elements
+-- @tparam Enumerable elements
 -- @treturn XElement
 function GetRandomElement(elements) end
 
@@ -211,12 +211,12 @@ function ServerWrite(msg) end
 
 --- GetUnlockedTalentsInTree
 -- @realm shared
--- @treturn IEnumerable`1
+-- @treturn Enumerable
 function GetUnlockedTalentsInTree() end
 
 --- GetEndocrineTalents
 -- @realm shared
--- @treturn IEnumerable`1
+-- @treturn Enumerable
 function GetEndocrineTalents() end
 
 --- CheckDisguiseStatus
@@ -267,18 +267,18 @@ function GetIdentifierUsingOriginalName() end
 
 --- FilterByTypeAndHeadID
 -- @realm shared
--- @tparam IEnumerable`1 elements
+-- @tparam Enumerable elements
 -- @tparam WearableType targetType
 -- @tparam number headSpriteId
--- @treturn IEnumerable`1
+-- @treturn Enumerable
 function FilterByTypeAndHeadID(elements, targetType, headSpriteId) end
 
 --- FilterElementsByGenderAndRace
 -- @realm shared
--- @tparam IEnumerable`1 elements
+-- @tparam Enumerable elements
 -- @tparam Gender gender
 -- @tparam Race race
--- @treturn IEnumerable`1
+-- @treturn Enumerable
 function FilterElementsByGenderAndRace(elements, gender, race) end
 
 --- IsMatchingGender
@@ -498,9 +498,9 @@ function GetHashCode() end
 -- @bool IsAttachmentsLoaded
 
 ---
--- Wearables, Field of type IEnumerable`1
+-- Wearables, Field of type Enumerable
 -- @realm shared
--- @IEnumerable`1 Wearables
+-- @Enumerable Wearables
 
 ---
 -- InventoryData, Field of type XElement

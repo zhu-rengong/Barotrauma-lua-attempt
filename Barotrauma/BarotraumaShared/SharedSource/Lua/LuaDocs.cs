@@ -54,6 +54,9 @@ namespace Barotrauma
 			if (type.StartsWith("Func"))
 				return "function";
 
+			if (type.StartsWith("IEnumerable"))
+				return "Enumerable";
+
 			return type;
 		}
 

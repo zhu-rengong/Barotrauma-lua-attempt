@@ -10,7 +10,7 @@ Barotrauma source code: [Entity.cs](https://github.com/evilfactory/Barotrauma-lu
 
 --- GetEntities
 -- @realm shared
--- @treturn IEnumerable`1
+-- @treturn Enumerable
 function Entity.GetEntities() end
 
 --- FindFreeID

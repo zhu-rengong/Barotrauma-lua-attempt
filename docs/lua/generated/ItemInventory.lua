@@ -49,7 +49,7 @@ function IsFull(takeStacksIntoAccount) end
 -- @realm shared
 -- @tparam Item item
 -- @tparam Character user
--- @tparam IEnumerable`1 allowedSlots
+-- @tparam Enumerable allowedSlots
 -- @tparam bool createNetworkEvent
 -- @tparam bool ignoreCondition
 -- @treturn bool
@@ -115,7 +115,7 @@ function GetItemAt(index) end
 --- GetItemsAt
 -- @realm shared
 -- @tparam number index
--- @treturn IEnumerable`1
+-- @treturn Enumerable
 function GetItemsAt(index) end
 
 --- FindIndex
@@ -240,14 +240,14 @@ function GetHashCode() end
 -- @ItemContainer Container
 
 ---
--- AllItems, Field of type IEnumerable`1
+-- AllItems, Field of type Enumerable
 -- @realm shared
--- @IEnumerable`1 AllItems
+-- @Enumerable AllItems
 
 ---
--- AllItemsMod, Field of type IEnumerable`1
+-- AllItemsMod, Field of type Enumerable
 -- @realm shared
--- @IEnumerable`1 AllItemsMod
+-- @Enumerable AllItemsMod
 
 ---
 -- Capacity, Field of type number

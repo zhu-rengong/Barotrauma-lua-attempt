@@ -48,7 +48,7 @@ function ItemPrefab.LoadFromFile(file) end
 
 --- LoadAll
 -- @realm shared
--- @tparam IEnumerable`1 files
+-- @tparam Enumerable files
 function ItemPrefab.LoadAll(files) end
 
 --- InitFabricationRecipes
@@ -125,15 +125,15 @@ function IsContainerPreferred(item, identifiersOrTags, isPreferencesDefined, isS
 
 --- IsContainerPreferred
 -- @realm shared
--- @tparam IEnumerable`1 preferences
+-- @tparam Enumerable preferences
 -- @tparam ItemContainer c
 -- @treturn bool
 function ItemPrefab.IsContainerPreferred(preferences, c) end
 
 --- IsContainerPreferred
 -- @realm shared
--- @tparam IEnumerable`1 preferences
--- @tparam IEnumerable`1 ids
+-- @tparam Enumerable preferences
+-- @tparam Enumerable ids
 -- @treturn bool
 function ItemPrefab.IsContainerPreferred(preferences, ids) end
 
@@ -195,7 +195,7 @@ function NameMatches(name, comparisonType) end
 
 --- NameMatches
 -- @realm shared
--- @tparam IEnumerable`1 allowedNames
+-- @tparam Enumerable allowedNames
 -- @tparam StringComparison comparisonType
 -- @treturn bool
 function NameMatches(allowedNames, comparisonType) end
@@ -478,9 +478,9 @@ function GetHashCode() end
 -- @bool AllowDroppingOnSwap
 
 ---
--- AllowDroppingOnSwapWith, Field of type IEnumerable`1
+-- AllowDroppingOnSwapWith, Field of type Enumerable
 -- @realm shared
--- @IEnumerable`1 AllowDroppingOnSwapWith
+-- @Enumerable AllowDroppingOnSwapWith
 
 ---
 -- Size, Field of type Vector2
