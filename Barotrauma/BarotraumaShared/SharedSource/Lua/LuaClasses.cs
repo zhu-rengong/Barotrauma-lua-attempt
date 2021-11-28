@@ -16,6 +16,8 @@ using HarmonyLib;
 using MoonSharp.Interpreter.Interop;
 using System.Diagnostics;
 using System.Reflection.Emit;
+using Barotrauma.Extensions;
+using System.Threading;
 
 namespace Barotrauma
 {
@@ -855,7 +857,7 @@ namespace Barotrauma
 
 			public void EnqueueFunction(object function, params object[] args)
 			{
-				queuedFunctionCalls.AddItem(new Tuple<object, object[]>(function, args));
+				queuedFunctionCalls.Enqueue(new Tuple<object, object[]>(function, args));
 			}
 
 			public void Add(string name, string hookName, object function)
