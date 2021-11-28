@@ -105,8 +105,6 @@ RegisterBarotrauma("Items.Components.Repairable")
 RegisterBarotrauma("Items.Components.RepairTool")
 RegisterBarotrauma("Items.Components.NameTag")
 RegisterBarotrauma("Items.Components.LevelResource")
-RegisterBarotrauma("Items.Components.NameTag")
-RegisterBarotrauma("Items.Components.NameTag")
 
 RegisterBarotrauma("AIController")
 RegisterBarotrauma("EnemyAIController")
