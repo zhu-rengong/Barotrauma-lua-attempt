@@ -151,13 +151,13 @@ function serverLog(text, serverLogMessageType) end
 
 --- Called each time a new round start job has been assigned, this context allows for you to change the role before it's applied in game.
 -- @realm shared
-function jobsAssigned() end
 -- @usage
 -- Hook.Add("jobsAssigned", "", function ()
 -- for key, value in pairs(Client.ClientList) do
 --    value.AssignedJob = {JobPrefab.Get("assistant"), 0}
 -- end
 -- end)
+function jobsAssigned() end
 
 --- Check if a client is allowed to hear radio voice to another client, return true to allow, false to disallow.
 -- @realm shared
