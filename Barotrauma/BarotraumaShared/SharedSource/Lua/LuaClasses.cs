@@ -381,19 +381,49 @@ namespace Barotrauma
 				return enabledPackages;
 			}
 
+			private List<DebugConsole.Command> luaAddedCommand = new List<DebugConsole.Command>();
+
+			public void RemoveCommand(string name)
+			{
+				for (var i = 0; i < DebugConsole.Commands.Count; i++)
+				{
+					foreach (var cmdname in DebugConsole.Commands[i].names)
+					{
+						if (cmdname == name)
+						{
+							luaAddedCommand.Remove(DebugConsole.Commands[i]);
+							DebugConsole.Commands.RemoveAt(i);
+							continue;
+						}
+					}
+				}
+			}
+
 			public void AddCommand(string name, string help, object onExecute, object getValidArgs = null, bool isCheat = false)
 			{
-				DebugConsole.Commands.Add(new DebugConsole.Command(name, help, (string[] arg1) => { env.CallFunction(onExecute, new object[] { arg1 }); }, 
-					() => {
+				var cmd = new DebugConsole.Command(name, help, (string[] arg1) => { env.CallFunction(onExecute, new object[] { arg1 }); },
+					() =>
+					{
 						var result = env.CallFunction(getValidArgs, new object[] { });
 						if (result == null || !(result is string[][])) { return null; }
 						return (string[][])result;
 
-					}, isCheat = false));
+					}, isCheat);
+
+				luaAddedCommand.Add(cmd);
+				DebugConsole.Commands.Add(cmd);
 			}
 
 			public void AssignOnExecute(string names, object onExecute) => DebugConsole.AssignOnExecute(names, (string[] a) => { env.CallFunction(onExecute, new object[] { a }); });
 
+
+			public void Stop()
+			{
+				foreach(var cmd in luaAddedCommand)
+				{
+					DebugConsole.Commands.Remove(cmd);
+				}
+			}
 		}
 
 

@@ -153,9 +153,9 @@ function serverLog(text, serverLogMessageType) end
 -- @realm shared
 -- @usage
 -- Hook.Add("jobsAssigned", "", function ()
--- for key, value in pairs(Client.ClientList) do
---    value.AssignedJob = {JobPrefab.Get("assistant"), 0}
--- end
+--   for key, value in pairs(Client.ClientList) do
+--     value.AssignedJob = {JobPrefab.Get("assistant"), 0}
+--   end
 -- end)
 function jobsAssigned() end
 

@@ -311,6 +311,7 @@ namespace Barotrauma
 
 		public void Stop()
 		{
+			game.Stop();
 			hook.Call("stop", new object[] { });
 
 			hook = new LuaHook(null);
