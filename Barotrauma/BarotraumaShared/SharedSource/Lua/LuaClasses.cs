@@ -512,6 +512,9 @@ namespace Barotrauma
 				if (path.StartsWith(Path.GetFullPath("Lua").CleanUpPath()))
 					return true;
 
+				if (path.StartsWith(Path.GetFullPath("Content").CleanUpPath()))
+					return true;
+
 				return false;
 			}
 
