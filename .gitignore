@@ -49,7 +49,7 @@ temp.txt
 docs/html
 # Private assets
 Barotrauma/BarotraumaShared/Content/*
-Barotrauma/BarotraumaShared/SharedSource/GameAnalyticsKeys.cs
+Barotrauma/**/GameAnalyticsKeys.cs
 .github/ISSUE_TEMPLATE/release-checklist.md
 
 #Rider
