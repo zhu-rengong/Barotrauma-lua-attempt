@@ -62,23 +62,6 @@ end)
 ```
 
 ```lua
-local enabledPackages = Game.GetEnabledContentPackages()
-local shouldRun = false
-
-for key, value in pairs(enabledPackages) do
-    if value.Name == "MyContentPackage" then
-        shouldRun = true
-    end
-end
-
-if Game.IsDedicated then shouldRun = true end
-
-if not shouldRun then
-    return
-end
-```
-
-```lua
 -- by jimmyl
 Hook.Add("chatMessage","controlhuskcommand",function(msg, client)
     if msg == "!controlhusk" then

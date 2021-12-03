@@ -78,6 +78,7 @@ namespace Barotrauma
 			GenerateDocs(typeof(Item), "Item.lua");
 			GenerateDocs(typeof(ItemPrefab), "ItemPrefab.lua");
 			GenerateDocs(typeof(Submarine), "Submarine.lua");
+			GenerateDocs(typeof(SubmarineInfo), "SubmarineInfo.lua");
 			GenerateDocs(typeof(Job), "Job.lua");
 			GenerateDocs(typeof(JobPrefab), "JobPrefab.lua");
 			GenerateDocs(typeof(GameSession), "GameSession.lua", "Game.GameSession");
@@ -87,6 +88,10 @@ namespace Barotrauma
 			GenerateDocs(typeof(Inventory), "Inventory.lua", "Inventory");
 			GenerateDocs(typeof(ItemInventory), "ItemInventory.lua", "ItemInventory");
 			GenerateDocs(typeof(CharacterInventory), "CharacterInventory.lua", "CharacterInventory");
+			GenerateDocs(typeof(Hull), "Hull.lua", "Hull");
+			GenerateDocs(typeof(Level), "Level.lua", "Level");
+			GenerateDocs(typeof(Affliction), "Affliction.lua", "Affliction");
+			GenerateDocs(typeof(AfflictionPrefab), "AfflictionPrefab.lua", "AfflictionPrefab");
 		}
 
 		public static void GenerateDocs(Type type, string name, string? categoryName = null)
