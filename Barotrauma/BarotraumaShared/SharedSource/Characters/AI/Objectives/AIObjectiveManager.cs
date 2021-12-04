@@ -63,8 +63,17 @@ namespace Barotrauma
             CreateAutonomousObjectives();
         }
 
+        public void AddObjective(AIObjective objective)
+		{
+            AddObjective<AIObjective>(objective);
+		}
+
         public void AddObjective<T>(T objective) where T : AIObjective
         {
+            var result = new LuaResult(GameMain.Lua.hook.Call("AI.AddObjective", this, objective));
+
+            if (result.Bool()) return;
+
             if (objective == null)
             {
 #if DEBUG
