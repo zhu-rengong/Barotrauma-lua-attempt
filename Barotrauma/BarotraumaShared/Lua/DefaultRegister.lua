@@ -169,6 +169,7 @@ RegisterBarotrauma("Networking.IReadMessage")
 RegisterBarotrauma("Networking.ServerPacketHeader")
 RegisterBarotrauma("Networking.ClientPacketHeader")
 RegisterBarotrauma("Networking.DeliveryMethod")
+
 RegisterBarotrauma("Rand+RandSync")
 RegisterBarotrauma("Skill")
 RegisterBarotrauma("SkillPrefab")
@@ -204,10 +205,14 @@ AddCallMetaMember(LuaUserData.RegisterType("Microsoft.Xna.Framework.Rectangle"))
 
 if SERVER then
 
+RegisterBarotrauma("Networking.ServerPeer")
+
 RegisterBarotrauma("Traitor")
 RegisterBarotrauma("Traitor+TraitorMission")
 
 elseif CLIENT then
+
+RegisterBarotrauma("Networking.ClientPeer")
 
 RegisterBarotrauma("LuaSetup+LuaGUI")
 RegisterBarotrauma("ChatBox")

@@ -161,6 +161,24 @@ namespace Barotrauma
 				}
 			}
 
+#if SERVER
+			public ServerPeer Peer
+			{
+				get
+				{
+					return GameMain.Server.ServerPeer;
+				}
+			}
+#else
+			public ClientPeer Peer
+			{
+				get
+				{
+					return GameMain.Client.ClientPeer;
+				}
+			}
+#endif
+
 			public void OverrideTraitors(bool o)
 			{
 				overrideTraitors = o;
