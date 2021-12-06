@@ -8,10 +8,17 @@ print(thisIsNil.what)
 print(thisIsNil.something())
 ```
 
-## Why i'm getting "cannot access field test of userdata<something>" errors?
+## Why i'm getting "Cannot access field test of userdata<something>" errors?
 Because you are trying to access a field in a C# class that doesn't exist.
 ```lua
 print(Item.thisDoesntExist)
+```
+
+## What is "Attempt to access instance member "Drop" from a static userdata"
+It means you are trying to access a member that requires an instance to accessed, for example:
+```lua
+Item.Drop() -- there's a static global class called Item, but because it's static, you can't call item specific things on it, this will error.
+Item.ItemList[1].Drop() -- this won't error, it will drop the first item ever created.
 ```
 
 ## I'm getting a super big error with things related to the C# side
@@ -19,7 +26,6 @@ It usually happens when you call something on the C# side and you provide nil in
 ```lua
 Game.SendMessage(nil)
 ```
-
 This will result in 
 ```
 [LUA ERROR] System.NullReferenceException: Object reference not set to an instance of an object.
@@ -60,12 +66,11 @@ local firstPlayerCharacter = Client.ClientList[1].Character
 
 -- Spawn on the world
 Entity.Spawner.AddToSpawnQueue(prefab, firstPlayerCharacter.WorldPosition, nil, nil, function(item)
-    print(item .. " Has been spawned.")
+    print(item.Name .. " Has been spawned.")
 end)
 
 -- Spawn inside an inventory
 Entity.Spawner.AddToSpawnQueue(prefab, firstPlayerCharacter.Inventory, nil, nil, function(item)
-    print(item .. " Has been spawned.")
+    print(item.Name .. " Has been spawned.")
 end)
 ```
-
