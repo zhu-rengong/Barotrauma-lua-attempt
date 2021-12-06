@@ -58,7 +58,7 @@ namespace Barotrauma
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(Action<T>), v =>
             {
                 var function = v.Function;
-                return (Action<T>)(p => function.Call(p));
+                return (Action<T>)(p => LuaSetup.luaSetup.CallFunction(function, p));
             });
         }
 
@@ -67,7 +67,7 @@ namespace Barotrauma
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(Action), v => 
             {
                 var function = v.Function;
-                return (Action)(() => function.Call());
+                return (Action)(() => LuaSetup.luaSetup.CallFunction(function));
             });
         }
 
