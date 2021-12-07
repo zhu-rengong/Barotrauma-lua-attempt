@@ -92,6 +92,7 @@ namespace Barotrauma
 			GenerateDocs(typeof(Level), "Level.lua", "Level");
 			GenerateDocs(typeof(Affliction), "Affliction.lua", "Affliction");
 			GenerateDocs(typeof(AfflictionPrefab), "AfflictionPrefab.lua", "AfflictionPrefab");
+			GenerateDocs(typeof(WayPoint), "WayPoint.lua", "WayPoint");
 		}
 
 		public static void GenerateDocs(Type type, string name, string? categoryName = null)

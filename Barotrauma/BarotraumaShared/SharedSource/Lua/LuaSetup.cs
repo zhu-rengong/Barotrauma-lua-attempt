@@ -384,7 +384,7 @@ namespace Barotrauma
 			lua.Globals["Timer"] = new LuaTimer(this);
 			lua.Globals["File"] = UserData.CreateStatic<LuaFile>();
 			lua.Globals["Networking"] = networking;
-
+			
 #if SERVER
 
 #elif CLIENT
@@ -402,7 +402,7 @@ namespace Barotrauma
 			lua.Globals["SERVER"] = isServer;
 			lua.Globals["CLIENT"] = !isServer;
 
-			// LuaDocs.GenerateDocsAll();
+			LuaDocs.GenerateDocsAll();
 
 			if (File.Exists("Lua/LuaSetup.lua")) // try the default loader
 				DoFile("Lua/LuaSetup.lua");
