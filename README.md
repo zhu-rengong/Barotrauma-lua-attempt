@@ -1,5 +1,5 @@
-# Barotrauma-Lua 
-This is a Barotrauma server-side modification that adds Lua modding support.
+# LuaForBarotrauma 
+This is a Barotrauma modification that adds Lua modding support.
 
 ### Documentation: https://evilfactory.github.io/Barotrauma-lua-attempt
 ### Discord: https://discord.gg/f9zvNNuxu9
