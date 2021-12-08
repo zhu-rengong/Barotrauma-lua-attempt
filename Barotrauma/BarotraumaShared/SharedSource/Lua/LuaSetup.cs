@@ -408,24 +408,8 @@ namespace Barotrauma
 				DoFile("Lua/LuaSetup.lua");
 			else if (File.Exists("Mods/LuaForBarotrauma/Lua/LuaSetup.lua")) // in case its the workshop version
 				DoFile("Mods/LuaForBarotrauma/Lua/LuaSetup.lua");
-			else // fallback to c# script loading
-			{
-				PrintMessage("Lua/LuaSetup.lua not found, loading Mods directly, things can break!");
-
-				List<string> modulePaths = new List<string>();
-
-				foreach (string d in Directory.GetDirectories("Mods"))
-				{
-					modulePaths.Add(d + "/Lua/?.lua");
-
-					if (Directory.Exists(d + "/Lua/Autorun"))
-					{
-						luaScriptLoader.RunFolder(d + "/Lua/Autorun");
-					}
-				}
-
-				luaScriptLoader.ModulePaths = modulePaths.ToArray();
-			}
+			else
+				PrintError("Lua loader not found! Lua/LuaSetup.lua, no lua scripts will be executed or work.");
 		}
 
 		public LuaSetup()
