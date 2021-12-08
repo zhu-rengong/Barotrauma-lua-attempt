@@ -60,6 +60,7 @@ defaultLib["Rectangle"] = LuaUserData.CreateStatic("Microsoft.Xna.Framework.Rect
 defaultLib["Entity"] = CreateStatic("Entity")
 defaultLib["Physics"] = CreateStatic("Physics")
 defaultLib["FireSource"] = CreateStatic("FireSource")
+defaultLib["TextManager"] = CreateStatic("TextManager")
 
 defaultLib["AIObjective"] = CreateStatic("AIObjective")
 defaultLib["AIObjectiveChargeBatteries"] = CreateStatic("AIObjectiveChargeBatteries")

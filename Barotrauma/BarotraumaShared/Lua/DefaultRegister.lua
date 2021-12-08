@@ -162,6 +162,8 @@ RegisterBarotrauma("GameScreen")
 RegisterBarotrauma("GameSession")
 RegisterBarotrauma("CampaignMode")
 
+RegisterBarotrauma("TextManager")
+
 local descriptor = RegisterBarotrauma("NetLobbyScreen")
 
 if SERVER then
