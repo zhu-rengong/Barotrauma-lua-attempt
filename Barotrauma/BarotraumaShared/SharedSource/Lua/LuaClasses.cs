@@ -422,6 +422,7 @@ namespace Barotrauma
 				var cmd = new DebugConsole.Command(name, help, (string[] arg1) => { env.CallFunction(onExecute, new object[] { arg1 }); },
 					() =>
 					{
+						if (getValidArgs == null) return null;
 						var result = env.CallFunction(getValidArgs, new object[] { });
 						if (result == null || !(result is string[][])) { return null; }
 						return (string[][])result;
