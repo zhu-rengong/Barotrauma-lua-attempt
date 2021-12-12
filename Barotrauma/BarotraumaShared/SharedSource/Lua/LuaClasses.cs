@@ -423,10 +423,10 @@ namespace Barotrauma
 					() =>
 					{
 						if (getValidArgs == null) return null;
-						var result = env.CallFunction(getValidArgs, new object[] { });
-						if (result == null || !(result is string[][])) { return null; }
-						return (string[][])result;
-
+						var result = new LuaResult(env.CallFunction(getValidArgs, new object[] { }));
+						var obj = result.Object();
+						if (obj is string[][]) return (string[][])obj;
+						return null;
 					}, isCheat);
 
 				luaAddedCommand.Add(cmd);
