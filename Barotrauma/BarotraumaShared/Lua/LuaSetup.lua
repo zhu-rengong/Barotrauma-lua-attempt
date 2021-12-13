@@ -21,6 +21,11 @@ require("DefaultHook")
 
 -- Execute Mods
 
+if CLIENT then
+    print("LUA LOADER: Client detected, disabling mod loading because it's incomplete.")
+    return
+end
+
 if SERVER and Game.IsDedicated then
     runDisabledMods = true
 
