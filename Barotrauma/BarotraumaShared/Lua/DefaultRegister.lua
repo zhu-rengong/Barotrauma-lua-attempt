@@ -15,7 +15,7 @@ RegisterBarotrauma("SpawnType")
 RegisterBarotrauma("Networking.ChatMessageType")
 RegisterBarotrauma("InputType")
 
-RegisterBarotrauma("Job")
+AddCallMetaMember(RegisterBarotrauma("Job"))
 RegisterBarotrauma("JobPrefab")
 RegisterBarotrauma("Level")
 RegisterBarotrauma("Networking.ServerLog+MessageType")
