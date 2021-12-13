@@ -1,5 +1,5 @@
 ## Installing Lua For Barotrauma
-1 - Download [latest version of Barotrauma Lua](https://github.com/evilfactory/Barotrauma-lua-attempt/releases/download/latest/barotrauma_lua_windows.zip)<br>
+1 - Download [latest version of Barotrauma Lua](https://github.com/evilfactory/Barotrauma-lua-attempt/releases/tag/latest), choose the correct platform in the assets drop down.<br>
 2 - Extract the zip file<br>
 3 - Find the Content folder in your original Barotrauma game: <br>
 
@@ -11,8 +11,11 @@
 
 ![](https://cdn.discordapp.com/attachments/799752463619325968/833133217300742154/unknown.png)
 
-5 - Done! Now run Barotrauma.exe to run the modded game <br>
+5 - Done! Now run DedicatedServer.exe to run the modded server.<br>
 
+### Linux notice
+Sometimes you will get steam initialization errors, most of the time it's because it's missing the linux64/steamclient.so binary, so you can just copy the binary from your steam instalation over to the folder and it should work.
 
-### Dedicated Servers
-For dedicated servers, it should be the same steps as before, just instead you execute DedicatedServer.exe
+## Adding to an existing server
+
+To install to an existing server, do the 1-2 steps from before and replace the following files in your existing server: **DedicatedServer.deps.json** **DedicatedServer.dll** **DedicatedServer.pdb** **DedicatedServer.runtimeconfig.dev.json** **DedicatedServer.runtimeconfig.json** and the entire **Lua/** folder
