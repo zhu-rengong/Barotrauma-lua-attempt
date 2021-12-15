@@ -820,7 +820,7 @@ namespace Barotrauma.Items.Components
             HintManager.OnStatusEffectApplied(this, type, character);
 #endif
         }
-
+        [MoonSharpHidden]
         public virtual void Load(XElement componentElement, bool usePrefabValues, IdRemap idRemap)
         {
             if (componentElement != null) 

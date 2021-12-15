@@ -2395,10 +2395,10 @@ namespace Barotrauma.Networking
                         spawnedCharacter.GiveIdCardTags(mainSubWaypoints[i]);
                         // talents are only avilable for players in online sessions, but modders or someone else might want to have them loaded anyway
                         spawnedCharacter.LoadTalents();
-                    }
 
-                    spawnedCharacter.OwnerClientEndPoint = teamClients[i].Connection.EndPointString;
-                    spawnedCharacter.OwnerClientName = teamClients[i].Name;
+                        spawnedCharacter.OwnerClientEndPoint = teamClients[i].Connection.EndPointString;
+                        spawnedCharacter.OwnerClientName = teamClients[i].Name;
+                    }
                 }
 
                 for (int i = teamClients.Count; i < teamClients.Count + bots.Count; i++)
