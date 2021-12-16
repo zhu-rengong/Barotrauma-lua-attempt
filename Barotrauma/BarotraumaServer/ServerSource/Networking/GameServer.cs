@@ -2393,11 +2393,11 @@ namespace Barotrauma.Networking
                         spawnedCharacter.TeamID = teamID;
                         spawnedCharacter.GiveJobItems(mainSubWaypoints[i]);
                         spawnedCharacter.GiveIdCardTags(mainSubWaypoints[i]);
+                        spawnedCharacter.Info.InventoryData = new XElement("inventory");
+                        spawnedCharacter.Info.StartItemsGiven = true;
+                        spawnedCharacter.SaveInventory();
                         // talents are only avilable for players in online sessions, but modders or someone else might want to have them loaded anyway
                         spawnedCharacter.LoadTalents();
-
-                        spawnedCharacter.OwnerClientEndPoint = teamClients[i].Connection.EndPointString;
-                        spawnedCharacter.OwnerClientName = teamClients[i].Name;
                     }
                 }
 
