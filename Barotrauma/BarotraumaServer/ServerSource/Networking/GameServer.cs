@@ -2261,7 +2261,6 @@ namespace Barotrauma.Networking
                 var result = new LuaResult(GameMain.Lua.hook.Call("jobsAssigned"));
 
                 List<CharacterInfo> characterInfos = new List<CharacterInfo>();
-
                 foreach (Client client in teamClients)
                 {
                     client.NeedsMidRoundSync = false;
@@ -2341,64 +2340,49 @@ namespace Barotrauma.Networking
                     spawnWaypoints = mainSubWaypoints;
                 }
                 Debug.Assert(spawnWaypoints.Count == mainSubWaypoints.Count);
-                if (!result.Bool())
+
+                for (int i = 0; i < teamClients.Count; i++)
                 {
-                    for (int i = 0; i < teamClients.Count; i++)
+                    Character spawnedCharacter = Character.Create(teamClients[i].CharacterInfo, spawnWaypoints[i].WorldPosition, teamClients[i].CharacterInfo.Name, isRemotePlayer: true, hasAi: false);
+                    spawnedCharacter.AnimController.Frozen = true;
+                    spawnedCharacter.TeamID = teamID;
+                    teamClients[i].Character = spawnedCharacter;
+                    var characterData = campaign?.GetClientCharacterData(teamClients[i]);
+                    if (characterData == null)
                     {
-                        Character spawnedCharacter = Character.Create(teamClients[i].CharacterInfo, spawnWaypoints[i].WorldPosition, teamClients[i].CharacterInfo.Name, isRemotePlayer: true, hasAi: false);
-                        spawnedCharacter.AnimController.Frozen = true;
-                        spawnedCharacter.TeamID = teamID;
-                        teamClients[i].Character = spawnedCharacter;
-                        var characterData = campaign?.GetClientCharacterData(teamClients[i]);
-                        if (characterData == null)
+                        spawnedCharacter.GiveJobItems(mainSubWaypoints[i]);
+                        if (campaign != null)
                         {
+                            characterData = campaign.SetClientCharacterData(teamClients[i]);
+                            characterData.HasSpawned = true;
+                        }
+                    }
+                    else
+                    {
+                        if (!characterData.HasItemData && !characterData.CharacterInfo.StartItemsGiven)
+                        {
+                            //clients who've chosen to spawn with the respawn penalty can have CharacterData without inventory data
                             spawnedCharacter.GiveJobItems(mainSubWaypoints[i]);
-                            if (campaign != null)
-                            {
-                                characterData = campaign.SetClientCharacterData(teamClients[i]);
-                                characterData.HasSpawned = true;
-                            }
                         }
                         else
                         {
-                            if (!characterData.HasItemData && !characterData.CharacterInfo.StartItemsGiven)
-                            {
-                                //clients who've chosen to spawn with the respawn penalty can have CharacterData without inventory data
-                                spawnedCharacter.GiveJobItems(mainSubWaypoints[i]);
-                            }
-                            else
-                            {
-                                characterData.SpawnInventoryItems(spawnedCharacter, spawnedCharacter.Inventory);
-                            }
-                            characterData.ApplyHealthData(spawnedCharacter);
-                            characterData.ApplyOrderData(spawnedCharacter);
-                            spawnedCharacter.GiveIdCardTags(mainSubWaypoints[i]);
-                            spawnedCharacter.LoadTalents();
-
-                            characterData.HasSpawned = true;
+                            characterData.SpawnInventoryItems(spawnedCharacter, spawnedCharacter.Inventory);
                         }
-                        if (GameMain.GameSession?.GameMode is MultiPlayerCampaign mpCampaign && spawnedCharacter.Info != null)
-                        {
-                            spawnedCharacter.Info.SetExperience(Math.Max(spawnedCharacter.Info.ExperiencePoints, mpCampaign.GetSavedExperiencePoints(teamClients[i])));
-                            mpCampaign.ClearSavedExperiencePoints(teamClients[i]);
-                        }
-
-                        spawnedCharacter.OwnerClientEndPoint = teamClients[i].Connection.EndPointString;
-                        spawnedCharacter.OwnerClientName = teamClients[i].Name;
-                    }
-
-                    for (int i = teamClients.Count; i < teamClients.Count + bots.Count; i++)
-                    {
-                        Character spawnedCharacter = Character.Create(characterInfos[i], spawnWaypoints[i].WorldPosition, characterInfos[i].Name, isRemotePlayer: false, hasAi: true);
-                        spawnedCharacter.TeamID = teamID;
-                        spawnedCharacter.GiveJobItems(mainSubWaypoints[i]);
+                        characterData.ApplyHealthData(spawnedCharacter);
+                        characterData.ApplyOrderData(spawnedCharacter);
                         spawnedCharacter.GiveIdCardTags(mainSubWaypoints[i]);
-                        spawnedCharacter.Info.InventoryData = new XElement("inventory");
-                        spawnedCharacter.Info.StartItemsGiven = true;
-                        spawnedCharacter.SaveInventory();
-                        // talents are only avilable for players in online sessions, but modders or someone else might want to have them loaded anyway
                         spawnedCharacter.LoadTalents();
+
+                        characterData.HasSpawned = true;
                     }
+                    if (GameMain.GameSession?.GameMode is MultiPlayerCampaign mpCampaign && spawnedCharacter.Info != null)
+                    {
+                        spawnedCharacter.Info.SetExperience(Math.Max(spawnedCharacter.Info.ExperiencePoints, mpCampaign.GetSavedExperiencePoints(teamClients[i])));
+                        mpCampaign.ClearSavedExperiencePoints(teamClients[i]);
+                    }
+
+                    spawnedCharacter.OwnerClientEndPoint = teamClients[i].Connection.EndPointString;
+                    spawnedCharacter.OwnerClientName = teamClients[i].Name;
                 }
 
                 for (int i = teamClients.Count; i < teamClients.Count + bots.Count; i++)
@@ -2472,7 +2456,6 @@ namespace Barotrauma.Networking
 
             Log("Round started.", ServerLog.MessageType.ServerMessage);
 
-
             gameStarted = true;
             initiatedStartGame = false;
             GameMain.ResetFrameTime();
@@ -2482,7 +2465,6 @@ namespace Barotrauma.Networking
             roundStartTime = DateTime.Now;
 
             GameMain.Lua.hook.Call("roundStart", new object[] { });
-
 
             startGameCoroutine = null;
             yield return CoroutineStatus.Success;
