@@ -1825,7 +1825,8 @@ namespace Barotrauma.Networking
                 }
                 outmsg.Write(client.Muted);
                 outmsg.Write(client.InGame);
-                outmsg.Write(client.Permissions != ClientPermissions.None);
+                var result = new LuaResult(GameMain.Lua.hook.Call("clientList.hasPermission", c, client));
+                outmsg.Write(result.IsNull() ? client.Permissions != ClientPermissions.None : result.Bool());
                 outmsg.Write(client.Connection == OwnerConnection);
                 outmsg.Write(client.Connection != OwnerConnection &&
                     !client.HasPermission(ClientPermissions.Ban) &&
