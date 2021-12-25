@@ -628,6 +628,8 @@ namespace Barotrauma
 		{
 			public LuaSetup env;
 
+			public bool restrictMessageSize = true;
+
 			public LuaNetworking(LuaSetup e)
 			{
 				env = e;

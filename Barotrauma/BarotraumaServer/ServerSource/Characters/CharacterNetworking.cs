@@ -700,7 +700,7 @@ namespace Barotrauma
             {
                 var tempBuffer = new ReadWriteMessage();
                 WriteStatus(tempBuffer);
-                if (msg.LengthBytes + tempBuffer.LengthBytes >= 255 && restrictMessageSize)
+                if (msg.LengthBytes + tempBuffer.LengthBytes >= 255 && restrictMessageSize && GameMain.Lua.networking.restrictMessageSize)
                 { 
                     msg.Write(false);
                     DebugConsole.ThrowError($"Error when writing character spawn data: status data caused the length of the message to exceed 255 bytes ({msg.LengthBytes} + {tempBuffer.LengthBytes})");
