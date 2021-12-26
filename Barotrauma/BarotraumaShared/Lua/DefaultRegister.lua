@@ -5,7 +5,10 @@ end
 local AddCallMetaMember = LuaUserData.AddCallMetaMember
 
 LuaUserData.RegisterType("System.TimeSpan")
-RegisterBarotrauma("Networking.GameServer")
+
+if SERVER then
+    RegisterBarotrauma("Networking.GameServer")
+end
 
 RegisterBarotrauma("CauseOfDeathType")
 RegisterBarotrauma("Level+InterestingPosition")

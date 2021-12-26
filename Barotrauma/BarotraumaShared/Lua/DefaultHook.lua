@@ -34,9 +34,3 @@ Hook.HookMethod("Barotrauma.Item", "Unequip", function (instance, p)
 		return false
 	end
 end, Hook.HookMethodType.Before)
-
-Hook.HookMethod("Barotrauma.Networking.GameServer", "AssignJobs", function (instance, a)
-	if Hook.Call("jobAssigned", a) == true then
-		return false
-	end
-end, Hook.HookMethodType.After)

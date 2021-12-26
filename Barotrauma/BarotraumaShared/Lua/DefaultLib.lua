@@ -3,7 +3,7 @@ local defaultLib = {}
 require("DefaultRegister")
 
 local CreateStatic = function (typeName)
-    return LuaUserData.CreateStatic("Barotrauma." .. typeName)
+	return LuaUserData.CreateStatic("Barotrauma." .. typeName)
 end
 
 defaultLib["WayPoint"] = CreateStatic("WayPoint")
