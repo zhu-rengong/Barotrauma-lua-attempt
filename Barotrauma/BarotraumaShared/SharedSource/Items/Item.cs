@@ -2718,6 +2718,10 @@ namespace Barotrauma
                 }
             }
 
+            var result = new LuaResult(GameMain.Lua.hook.Call("item.readPropertyChange", this, property, parentObject, allowEditing));
+            if (result.Bool())
+                return;
+
             Type type = property.PropertyType;
             string logValue = "";
             if (type == typeof(string))

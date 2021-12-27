@@ -746,6 +746,11 @@ namespace Barotrauma
 					env.hook.EnqueueFunction(callback, e.ToString());
 				}
 			}
+
+			public void CreateEntityEvent(INetSerializable entity, object[] extraData)
+			{
+				GameMain.NetworkMember.CreateEntityEvent(entity, extraData);
+			}
 		}
 
 		public partial class LuaHook

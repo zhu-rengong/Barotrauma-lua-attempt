@@ -62,6 +62,7 @@ defaultLib["Entity"] = CreateStatic("Entity")
 defaultLib["Physics"] = CreateStatic("Physics")
 defaultLib["FireSource"] = CreateStatic("FireSource")
 defaultLib["TextManager"] = CreateStatic("TextManager")
+defaultLib["NetEntityEvent"] = CreateStatic("Networking.NetEntityEvent")
 
 defaultLib["AIObjective"] = CreateStatic("AIObjective")
 defaultLib["AIObjectiveChargeBatteries"] = CreateStatic("AIObjectiveChargeBatteries")
