@@ -433,6 +433,8 @@ namespace Barotrauma
 				DebugConsole.Commands.Add(cmd);
 			}
 
+			public List<DebugConsole.Command> Commands => DebugConsole.Commands;
+
 			public void AssignOnExecute(string names, object onExecute) => DebugConsole.AssignOnExecute(names, (string[] a) => { env.CallFunction(onExecute, new object[] { a }); });
 
 
@@ -750,6 +752,25 @@ namespace Barotrauma
 			public void CreateEntityEvent(INetSerializable entity, object[] extraData)
 			{
 				GameMain.NetworkMember.CreateEntityEvent(entity, extraData);
+			}
+
+#if SERVER 
+			public void UpdateClientPermissions(Client client)
+			{
+				GameMain.Server.UpdateClientPermissions(client);
+			}
+
+			public void RemovePendingClient(ServerPeer.PendingClient pendingClient, DisconnectReason reason, string msg)
+			{
+				GameMain.Server.ServerPeer.RemovePendingClient(pendingClient, reason, msg);
+			}
+#endif
+
+
+			public ushort LastClientListUpdateID
+			{
+				get { return GameMain.NetworkMember.LastClientListUpdateID; }
+				set { GameMain.NetworkMember.LastClientListUpdateID = value; }
 			}
 		}
 

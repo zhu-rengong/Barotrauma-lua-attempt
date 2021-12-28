@@ -92,6 +92,8 @@ defaultLib["AIObjectiveRescueAll"] = CreateStatic("AIObjectiveRescueAll")
 defaultLib["AIObjectiveReturn"] = CreateStatic("AIObjectiveReturn")
 defaultLib["CombatMode"] = CreateStatic("AIObjectiveCombat+CombatMode")
 
+defaultLib["DisconnectReason"] = CreateStatic("Networking.DisconnectReason")
+
 
 if SERVER then
 

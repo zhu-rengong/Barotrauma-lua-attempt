@@ -30,7 +30,7 @@ namespace Barotrauma.Networking
         public abstract void Close(string msg = null);
         public abstract void Update(float deltaTime);
 
-        protected class PendingClient
+        public class PendingClient
         {
             public string Name;
             public int OwnerKey;
@@ -206,6 +206,11 @@ namespace Barotrauma.Networking
 
         protected void UpdatePendingClient(PendingClient pendingClient)
         {
+            var result = new LuaResult(GameMain.Lua.hook.Call("handlePendingClient", pendingClient));
+
+            if (result.Bool())
+                goto ignore;
+
             if (IsPendingClientBanned(pendingClient, out string banReason))
             {
                 RemovePendingClient(pendingClient, DisconnectReason.Banned, banReason);
@@ -216,6 +221,8 @@ namespace Barotrauma.Networking
             {
                 RemovePendingClient(pendingClient, DisconnectReason.ServerFull, "");
             }
+
+            ignore:
 
             if (pendingClient.InitializationStep == ConnectionInitialization.Success)
             {
@@ -276,7 +283,7 @@ namespace Barotrauma.Networking
 
         protected virtual void CheckOwnership(PendingClient pendingClient) { }
 
-        protected void RemovePendingClient(PendingClient pendingClient, DisconnectReason reason, string msg)
+        public void RemovePendingClient(PendingClient pendingClient, DisconnectReason reason, string msg)
         {
             if (pendingClients.Contains(pendingClient))
             {

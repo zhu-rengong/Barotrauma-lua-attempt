@@ -2701,6 +2701,15 @@ namespace Barotrauma.Networking
             c.NameID = nameId;
             newName = Client.SanitizeName(newName);
             if (newName == c.Name && newJob == c.PreferredJob && newTeam == c.PreferredTeam) { return false; }
+
+            var result = new LuaResult(GameMain.Lua.hook.Call("tryChangeClientName", c, newName, newJob, newTeam));
+
+            if (!result.IsNull())
+            {
+                LastClientListUpdateID++;
+                return result.Bool();
+            }
+
             c.PreferredJob = newJob;
             c.PreferredTeam = newTeam;
 

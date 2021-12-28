@@ -893,7 +893,7 @@ namespace Barotrauma.Networking
         public int MaxPlayers
         {
             get { return maxPlayers; }
-            set { maxPlayers = MathHelper.Clamp(value, 1, NetConfig.MaxPlayers); }
+            set { maxPlayers = MathHelper.Clamp(value, 0, NetConfig.MaxPlayers); }
         }
 
         public List<MissionType> AllowedRandomMissionTypes

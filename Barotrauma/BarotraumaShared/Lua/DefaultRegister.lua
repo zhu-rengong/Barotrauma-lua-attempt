@@ -166,6 +166,8 @@ RegisterBarotrauma("GameScreen")
 RegisterBarotrauma("GameSession")
 RegisterBarotrauma("CampaignMode")
 
+RegisterBarotrauma("DebugConsole+Command")
+
 RegisterBarotrauma("TextManager")
 
 local descriptor = RegisterBarotrauma("NetLobbyScreen")
@@ -183,6 +185,8 @@ RegisterBarotrauma("Networking.DeliveryMethod")
 RegisterBarotrauma("Networking.NetEntityEvent")
 RegisterBarotrauma("Networking.NetEntityEvent+Type")
 RegisterBarotrauma("Networking.INetSerializable")
+RegisterBarotrauma("Networking.DisconnectReason")
+LuaUserData.RegisterType("Lidgren.Network.NetIncomingMessage")
 
 RegisterBarotrauma("Rand+RandSync")
 RegisterBarotrauma("Skill")
@@ -218,8 +222,8 @@ AddCallMetaMember(LuaUserData.RegisterType("Microsoft.Xna.Framework.Point"))
 AddCallMetaMember(LuaUserData.RegisterType("Microsoft.Xna.Framework.Rectangle"))
 
 if SERVER then
-
 RegisterBarotrauma("Networking.ServerPeer")
+RegisterBarotrauma("Networking.ServerPeer+PendingClient")
 
 RegisterBarotrauma("Traitor")
 RegisterBarotrauma("Traitor+TraitorMission")

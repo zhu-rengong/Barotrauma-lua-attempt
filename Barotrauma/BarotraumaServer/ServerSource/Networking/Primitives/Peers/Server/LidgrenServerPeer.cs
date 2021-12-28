@@ -181,12 +181,21 @@ namespace Barotrauma.Networking
         private void HandleConnection(NetIncomingMessage inc)
         {
             if (netServer == null) { return; }
-            
+
+            var result = new LuaResult(GameMain.Lua.hook.Call("LidgrenHandleConnection", inc));
+            if (!result.IsNull())
+                if (result.Bool())
+                    goto ignore;
+                else
+                    return;
+
             if (connectedClients.Count >= serverSettings.MaxPlayers)
             {
                 inc.SenderConnection.Deny(DisconnectReason.ServerFull.ToString());
                 return;
             }
+
+            ignore:
 
             if (serverSettings.BanList.IsBanned(inc.SenderConnection.RemoteEndPoint.Address, 0, 0, out string banReason))
             {
