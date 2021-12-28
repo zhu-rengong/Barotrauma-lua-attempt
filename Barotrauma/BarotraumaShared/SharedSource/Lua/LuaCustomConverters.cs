@@ -51,6 +51,12 @@ namespace Barotrauma
             {
                 return new Pair<JobPrefab, int>((JobPrefab)v.Table.Get(1).ToObject(), (int)v.Table.Get(2).CastToNumber());
             });
+
+            Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion<UInt64>(
+                (Script script, UInt64 v) => 
+                {
+                    return DynValue.NewString(v.ToString());
+                });
         }
 
         public static void RegisterAction<T>()
