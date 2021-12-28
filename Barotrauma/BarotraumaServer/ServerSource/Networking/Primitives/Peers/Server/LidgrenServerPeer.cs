@@ -182,7 +182,7 @@ namespace Barotrauma.Networking
         {
             if (netServer == null) { return; }
 
-            var result = new LuaResult(GameMain.Lua.hook.Call("LidgrenHandleConnection", inc));
+            var result = new LuaResult(GameMain.Lua.hook.Call("lidgren.handleConnection", inc));
             if (!result.IsNull())
                 if (result.Bool())
                     goto ignore;
