@@ -18,4 +18,18 @@ Sometimes you will get steam initialization errors, most of the time it's becaus
 
 ## Adding to an existing server
 
-To install to an existing server, do the 1-2 steps from before and replace the following files in your existing server: **DedicatedServer.deps.json** **DedicatedServer.dll** **DedicatedServer.pdb** **DedicatedServer.runtimeconfig.dev.json** **DedicatedServer.runtimeconfig.json** and the entire **Lua/** folder
+To install to an existing server, do the 1-2 steps from before and copy/replace the following files in your existing server: 
+
+- **DedicatedServer.deps.json** 
+- **DedicatedServer.dll** 
+- **DedicatedServer.pdb** 
+- **DedicatedServer.runtimeconfig.dev.json** 
+- **DedicatedServer.runtimeconfig.json** 
+- **0Harmony.dll** 
+- **MoonSharp.Interpreter.dll** 
+- **MonoMod.Common.dll**
+- **Mono.Cecil.dll**
+- **Mono.Cecil.Mdb.dll**
+- **Mono.Cecil.Pdb.dll**
+- **Mono.Cecil.Rocks.dll**
+- and the **Lua/** folder
