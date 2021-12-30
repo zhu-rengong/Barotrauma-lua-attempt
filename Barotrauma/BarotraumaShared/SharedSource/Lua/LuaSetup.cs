@@ -311,6 +311,9 @@ namespace Barotrauma
 
 		public void Stop()
 		{
+			if (harmony != null)
+				harmony.UnpatchAll();
+
 			game.Stop();
 			hook.Call("stop", new object[] { });
 

@@ -83,7 +83,7 @@ namespace Barotrauma
             GUI.ClearMessages();
 #endif
         }
-
+        int step = 0;
         /// <summary>
         /// Allows the game to run logic such as updating the world,
         /// checking for collisions, gathering input, and playing audio.
@@ -260,11 +260,15 @@ namespace Barotrauma
                 }
             }
 
+            step++;
+            if (step % GameMain.Lua.game.mapEntityUpdateRate == 0)
+            {
 #if CLIENT
-            MapEntity.UpdateAll((float)deltaTime, cam);
+            MapEntity.UpdateAll((float)deltaTime * GameMain.Lua.game.mapEntityUpdateRate, cam);
 #elif SERVER
-            MapEntity.UpdateAll((float)deltaTime, Camera.Instance);
+            MapEntity.UpdateAll((float)deltaTime * GameMain.Lua.game.mapEntityUpdateRate, Camera.Instance);
 #endif
+            }
 
 #if CLIENT
             sw.Stop();

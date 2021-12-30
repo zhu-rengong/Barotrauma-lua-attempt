@@ -21,11 +21,6 @@ require("DefaultHook")
 
 -- Execute Mods
 
-if CLIENT then
-    print("LUA LOADER: Client detected, disabling mod loading because it's incomplete.")
-    return
-end
-
 if SERVER and Game.IsDedicated then
     runDisabledMods = true
 
@@ -56,30 +51,42 @@ local function runFolder(folder)
     end
 end
 
-if not runDisabledMods then
+if SERVER then
 
-    for _, package in pairs(enabledPackages) do
-        local d = package.path:gsub("\\", "/")
-        d = d:gsub("/filelist.xml", "")
-
-        table.insert(modulePaths, (d .. "/Lua/?.lua"))
-
-        if File.DirectoryExists(d .. "/Lua/Autorun") then
-            runFolder(d .. "/Lua/Autorun");
+    if not runDisabledMods then
+    
+        for _, package in pairs(enabledPackages) do
+            local d = package.path:gsub("\\", "/")
+            d = d:gsub("/filelist.xml", "")
+    
+            table.insert(modulePaths, (d .. "/Lua/?.lua"))
+    
+            if File.DirectoryExists(d .. "/Lua/Autorun") then
+                runFolder(d .. "/Lua/Autorun");
+            end
+        end
+    
+    else
+        for _, d in pairs(File.GetDirectories("Mods")) do
+            d = d:gsub("\\", "/")
+        
+            table.insert(modulePaths, (d .. "/Lua/?.lua"))
+        
+            if File.DirectoryExists(d .. "/Lua/Autorun") then
+                runFolder(d .. "/Lua/Autorun");
+            end
         end
     end
-
-else
-    for _, d in pairs(File.GetDirectories("Mods")) do
-        d = d:gsub("\\", "/")
     
-        table.insert(modulePaths, (d .. "/Lua/?.lua"))
-    
-        if File.DirectoryExists(d .. "/Lua/Autorun") then
-            runFolder(d .. "/Lua/Autorun");
-        end
-    end
 end
 
+for _, d in pairs(File.GetDirectories("Mods")) do
+    d = d:gsub("\\", "/")
+
+    if File.DirectoryExists(d .. "/Lua/ForcedAutorun") then
+        table.insert(modulePaths, (d .. "/Lua/?.lua"))
+        runFolder(d .. "/Lua/ForcedAutorun");
+    end
+end
 
 setmodulepaths(modulePaths)

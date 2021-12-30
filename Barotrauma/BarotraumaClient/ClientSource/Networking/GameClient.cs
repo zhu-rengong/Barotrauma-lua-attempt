@@ -1761,6 +1761,8 @@ namespace Barotrauma.Networking
 
             AddChatMessage($"ServerMessage.HowToCommunicate~[chatbutton]={GameMain.Config.KeyBindText(InputType.Chat)}~[radiobutton]={GameMain.Config.KeyBindText(InputType.RadioChat)}", ChatMessageType.Server);
 
+            GameMain.Lua.hook.Call("roundStart", new object[] { });
+
             yield return CoroutineStatus.Success;
         }
 

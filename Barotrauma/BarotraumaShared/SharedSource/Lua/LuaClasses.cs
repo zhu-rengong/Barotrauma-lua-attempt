@@ -116,6 +116,8 @@ namespace Barotrauma
 			public bool disableDisconnectCharacter = false;
 			public bool enableControlHusk = false;
 
+			public int mapEntityUpdateRate = 1;
+
 			public bool RoundStarted
 			{
 				
