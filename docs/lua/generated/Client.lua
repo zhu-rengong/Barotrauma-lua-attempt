@@ -238,6 +238,16 @@ function GetHashCode() end
 -- @number LastRecvClientListUpdate
 
 ---
+-- LastSentServerSettingsUpdate, Field of type number
+-- @realm shared
+-- @number LastSentServerSettingsUpdate
+
+---
+-- LastRecvServerSettingsUpdate, Field of type number
+-- @realm shared
+-- @number LastRecvServerSettingsUpdate
+
+---
 -- LastRecvLobbyUpdate, Field of type number
 -- @realm shared
 -- @number LastRecvLobbyUpdate

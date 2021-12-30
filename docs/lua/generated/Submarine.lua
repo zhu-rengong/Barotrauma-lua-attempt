@@ -242,10 +242,6 @@ function EnableMaintainPosition() end
 -- @realm shared
 function NeutralizeBallast() end
 
---- WarmStartPower
--- @realm shared
-function WarmStartPower() end
-
 --- SetPrevTransform
 -- @realm shared
 -- @tparam Vector2 position
@@ -445,6 +441,11 @@ function GetHashCode() end
 -- @Rectangle Borders
 
 ---
+-- VisibleBorders, Field of type Rectangle
+-- @realm shared
+-- @Rectangle VisibleBorders
+
+---
 -- Position, Field of type Vector2
 -- @realm shared
 -- @Vector2 Position
@@ -505,11 +506,6 @@ function GetHashCode() end
 -- @bool AtDamageDepth
 
 ---
--- Removed, Field of type bool
--- @realm shared
--- @bool Removed
-
----
 -- ImmuneToBallastFlora, Field of type bool
 -- @realm shared
 -- @bool ImmuneToBallastFlora
@@ -528,6 +524,11 @@ function GetHashCode() end
 -- Submarine.Unloading, Field of type bool
 -- @realm shared
 -- @bool Submarine.Unloading
+
+---
+-- Removed, Field of type bool
+-- @realm shared
+-- @bool Removed
 
 ---
 -- IdFreed, Field of type bool

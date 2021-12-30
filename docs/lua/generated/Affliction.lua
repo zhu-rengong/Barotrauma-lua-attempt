@@ -39,6 +39,13 @@ function GetActiveEffect() end
 -- @treturn number
 function GetVitalityDecrease(characterHealth) end
 
+--- GetVitalityDecrease
+-- @realm shared
+-- @tparam CharacterHealth characterHealth
+-- @tparam number strength
+-- @treturn number
+function GetVitalityDecrease(characterHealth, strength) end
+
 --- GetScreenGrainStrength
 -- @realm shared
 -- @treturn number

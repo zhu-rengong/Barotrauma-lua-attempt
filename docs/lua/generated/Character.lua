@@ -44,6 +44,18 @@ function TeleportTo(worldPos) end
 -- @table Character.CharacterList
 
 
+--- BreakJoints
+-- @realm shared
+function BreakJoints() end
+
+--- Kill
+-- @realm shared
+-- @tparam CauseOfDeathType causeOfDeath
+-- @tparam Affliction causeOfDeathAffliction
+-- @tparam bool isNetworkMessage
+-- @tparam bool log
+function Kill(causeOfDeath, causeOfDeathAffliction, isNetworkMessage, log) end
+
 --- Revive
 -- @realm shared
 -- @tparam bool removeAllAfflictions
@@ -335,8 +347,9 @@ function HasItem(item, requireEquipped, slotType) end
 -- @realm shared
 -- @tparam Item item
 -- @tparam Nullable`1 slotType
+-- @tparam function predicate
 -- @treturn bool
-function HasEquippedItem(item, slotType) end
+function HasEquippedItem(item, slotType, predicate) end
 
 --- HasEquippedItem
 -- @realm shared
@@ -452,6 +465,12 @@ function AddAttacker(character, damage) end
 -- @realm shared
 -- @tparam Character character
 function ForgiveAttacker(character) end
+
+--- GetDamageDoneByAttacker
+-- @realm shared
+-- @tparam Character otherCharacter
+-- @treturn number
+function GetDamageDoneByAttacker(otherCharacter) end
 
 --- DespawnNow
 -- @realm shared
@@ -625,18 +644,6 @@ function SetStun(newStun, allowStunDecrease, isNetworkMessage) end
 -- @tparam function actionType
 -- @tparam number deltaTime
 function ApplyStatusEffects(actionType, deltaTime) end
-
---- BreakJoints
--- @realm shared
-function BreakJoints() end
-
---- Kill
--- @realm shared
--- @tparam CauseOfDeathType causeOfDeath
--- @tparam Affliction causeOfDeathAffliction
--- @tparam bool isNetworkMessage
--- @tparam bool log
-function Kill(causeOfDeath, causeOfDeathAffliction, isNetworkMessage, log) end
 
 --- Create
 -- @realm shared
@@ -1111,6 +1118,11 @@ function GetHashCode() end
 -- @bool IsUnconscious
 
 ---
+-- IsArrested, Field of type bool
+-- @realm shared
+-- @bool IsArrested
+
+---
 -- IsPet, Field of type bool
 -- @realm shared
 -- @bool IsPet
@@ -1124,6 +1136,11 @@ function GetHashCode() end
 -- OxygenAvailable, Field of type number
 -- @realm shared
 -- @number OxygenAvailable
+
+---
+-- HullOxygenPercentage, Field of type number
+-- @realm shared
+-- @number HullOxygenPercentage
 
 ---
 -- UseHullOxygen, Field of type bool
@@ -1479,6 +1496,11 @@ function GetHashCode() end
 -- Latchers, Field of type HashSet`1
 -- @realm shared
 -- @HashSet`1 Latchers
+
+---
+-- AttachedProjectiles, Field of type HashSet`1
+-- @realm shared
+-- @HashSet`1 AttachedProjectiles
 
 ---
 -- CombatAction, Field of type CombatAction

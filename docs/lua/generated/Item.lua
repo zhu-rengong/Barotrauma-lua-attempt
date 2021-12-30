@@ -46,6 +46,22 @@ function SendSignal(signalOrString, connectionOrConnectionName) end
 -- @Vector2 WorldPosition
 
 
+--- FlipX
+-- @realm shared
+-- @tparam bool relativeToSub
+function FlipX(relativeToSub) end
+
+--- FlipY
+-- @realm shared
+-- @tparam bool relativeToSub
+function FlipY(relativeToSub) end
+
+--- GetConnectedComponents
+-- @realm shared
+-- @tparam bool recursive
+-- @treturn table
+function GetConnectedComponents(recursive) end
+
 --- GetConnectedComponentsRecursive
 -- @realm shared
 -- @tparam Connection c
@@ -104,12 +120,12 @@ function CanClientAccess(c) end
 
 --- TryInteract
 -- @realm shared
--- @tparam Character picker
+-- @tparam Character user
 -- @tparam bool ignoreRequiredItems
 -- @tparam bool forceSelectKey
--- @tparam bool forceActionKey
+-- @tparam bool forceUseKey
 -- @treturn bool
-function TryInteract(picker, ignoreRequiredItems, forceSelectKey, forceActionKey) end
+function TryInteract(user, ignoreRequiredItems, forceSelectKey, forceUseKey) end
 
 --- GetContainedItemConditionPercentage
 -- @realm shared
@@ -235,8 +251,9 @@ function IgnoreByAI(character) end
 -- @tparam ItemContainer container
 -- @tparam Boolean& isPreferencesDefined
 -- @tparam Boolean& isSecondary
+-- @tparam bool requireConditionRestriction
 -- @treturn bool
-function IsContainerPreferred(container, isPreferencesDefined, isSecondary) end
+function IsContainerPreferred(container, isPreferencesDefined, isSecondary, requireConditionRestriction) end
 
 --- Clone
 -- @realm shared
@@ -438,22 +455,6 @@ function Update(deltaTime, cam) end
 -- @realm shared
 function UpdateTransform() end
 
---- FlipX
--- @realm shared
--- @tparam bool relativeToSub
-function FlipX(relativeToSub) end
-
---- FlipY
--- @realm shared
--- @tparam bool relativeToSub
-function FlipY(relativeToSub) end
-
---- GetConnectedComponents
--- @realm shared
--- @tparam bool recursive
--- @treturn table
-function GetConnectedComponents(recursive) end
-
 --- ServerWrite
 -- @realm shared
 -- @tparam IWriteMessage msg
@@ -607,6 +608,11 @@ function GetHashCode() end
 -- CurrentHull, Field of type Hull
 -- @realm shared
 -- @Hull CurrentHull
+
+---
+-- HullOxygenPercentage, Field of type number
+-- @realm shared
+-- @number HullOxygenPercentage
 
 ---
 -- CampaignInteractionType, Field of type InteractionType
@@ -809,6 +815,11 @@ function GetHashCode() end
 -- @number Condition
 
 ---
+-- ConditionIncreasedRecently, Field of type bool
+-- @realm shared
+-- @bool ConditionIncreasedRecently
+
+---
 -- Health, Field of type number
 -- @realm shared
 -- @number Health
@@ -829,9 +840,14 @@ function GetHashCode() end
 -- @bool InvulnerableToDamage
 
 ---
--- SpawnedInOutpost, Field of type bool
+-- SpawnedInCurrentOutpost, Field of type bool
 -- @realm shared
--- @bool SpawnedInOutpost
+-- @bool SpawnedInCurrentOutpost
+
+---
+-- AllowStealing, Field of type bool
+-- @realm shared
+-- @bool AllowStealing
 
 ---
 -- OriginalOutpost, Field of type string
@@ -1107,11 +1123,6 @@ function GetHashCode() end
 -- StolenDuringRound, Field of type bool
 -- @realm shared
 -- @bool StolenDuringRound
-
----
--- AllowStealing, Field of type bool
--- @realm shared
--- @bool AllowStealing
 
 ---
 -- AvailableSwaps, Field of type HashSet`1

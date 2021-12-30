@@ -10,6 +10,17 @@ Barotrauma source code: [CharacterInfo.cs](https://github.com/evilfactory/Barotr
 
 local CharacterInfo = {}
 
+--- RecreateHead
+-- @realm shared
+-- @tparam number headID
+-- @tparam Race race
+-- @tparam Gender gender
+-- @tparam number hairIndex
+-- @tparam number beardIndex
+-- @tparam number moustacheIndex
+-- @tparam number faceAttachmentIndex
+function RecreateHead(headID, race, gender, hairIndex, beardIndex, moustacheIndex, faceAttachmentIndex) end
+
 --- RefreshHead
 -- @realm shared
 function RefreshHead() end
@@ -43,8 +54,8 @@ function CharacterInfo.IsValidIndex(index, list) end
 -- @realm shared
 -- @tparam string skillIdentifier
 -- @tparam number increase
--- @tparam bool gainedFromApprenticeship
-function IncreaseSkillLevel(skillIdentifier, increase, gainedFromApprenticeship) end
+-- @tparam bool gainedFromAbility
+function IncreaseSkillLevel(skillIdentifier, increase, gainedFromAbility) end
 
 --- SetSkillLevel
 -- @realm shared
@@ -163,6 +174,10 @@ function ClearSavedStatValues() end
 -- @tparam StatTypes statType
 function ClearSavedStatValues(statType) end
 
+--- RemoveSavedStatValuesOnDeath
+-- @realm shared
+function RemoveSavedStatValuesOnDeath() end
+
 --- ResetSavedStatValue
 -- @realm shared
 -- @tparam string statIdentifier
@@ -187,10 +202,9 @@ function GetSavedStatValue(statType, statIdentifier) end
 -- @tparam number value
 -- @tparam string statIdentifier
 -- @tparam bool removeOnDeath
--- @tparam bool removeAfterRound
 -- @tparam number maxValue
 -- @tparam bool setValue
-function ChangeSavedStatValue(statType, value, statIdentifier, removeOnDeath, removeAfterRound, maxValue, setValue) end
+function ChangeSavedStatValue(statType, value, statIdentifier, removeOnDeath, maxValue, setValue) end
 
 --- Create
 -- @realm shared
@@ -224,6 +238,12 @@ function GetEndocrineTalents() end
 -- @tparam bool handleBuff
 -- @tparam IdCard idCard
 function CheckDisguiseStatus(handleBuff, idCard) end
+
+--- GetManualOrderPriority
+-- @realm shared
+-- @tparam Order order
+-- @treturn number
+function GetManualOrderPriority(order) end
 
 --- GetRandomName
 -- @realm shared
@@ -299,17 +319,6 @@ function CharacterInfo.IsMatchingRace(race, myRace) end
 -- @realm shared
 -- @tparam HeadInfo headInfo
 function RecreateHead(headInfo) end
-
---- RecreateHead
--- @realm shared
--- @tparam number headID
--- @tparam Race race
--- @tparam Gender gender
--- @tparam number hairIndex
--- @tparam number beardIndex
--- @tparam number moustacheIndex
--- @tparam number faceAttachmentIndex
-function RecreateHead(headID, race, gender, hairIndex, beardIndex, moustacheIndex, faceAttachmentIndex) end
 
 --- GetType
 -- @realm shared

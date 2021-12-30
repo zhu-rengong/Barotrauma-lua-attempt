@@ -38,7 +38,8 @@ function IsCurrentLocationRadiated() end
 -- @realm shared
 -- @tparam string levelSeed
 -- @tparam Nullable`1 difficulty
-function StartRound(levelSeed, difficulty) end
+-- @tparam LevelGenerationParams levelGenerationParams
+function StartRound(levelSeed, difficulty, levelGenerationParams) end
 
 --- StartRound
 -- @realm shared

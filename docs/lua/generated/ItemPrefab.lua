@@ -111,8 +111,9 @@ function GetSellPricesOver(minCost, sellingImportant) end
 -- @tparam ItemContainer targetContainer
 -- @tparam Boolean& isPreferencesDefined
 -- @tparam Boolean& isSecondary
+-- @tparam bool requireConditionRequirement
 -- @treturn bool
-function IsContainerPreferred(item, targetContainer, isPreferencesDefined, isSecondary) end
+function IsContainerPreferred(item, targetContainer, isPreferencesDefined, isSecondary, requireConditionRequirement) end
 
 --- IsContainerPreferred
 -- @realm shared
@@ -401,6 +402,11 @@ function GetHashCode() end
 -- AddedRepairSpeedMultiplier, Field of type number
 -- @realm shared
 -- @number AddedRepairSpeedMultiplier
+
+---
+-- AddedPickingSpeedMultiplier, Field of type number
+-- @realm shared
+-- @number AddedPickingSpeedMultiplier
 
 ---
 -- CannotRepairFail, Field of type bool

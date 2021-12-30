@@ -10,14 +10,14 @@ Barotrauma source code: [Entity.cs](https://github.com/evilfactory/Barotrauma-lu
 
 --- GetEntities
 -- @realm shared
--- @treturn Enumerable
+-- @treturn IReadOnlyCollection`1
 function Entity.GetEntities() end
 
---- FindFreeID
+--- FindFreeIdBlock
 -- @realm shared
--- @tparam number idOffset
+-- @tparam number minBlockSize
 -- @treturn number
-function Entity.FindFreeID(idOffset) end
+function Entity.FindFreeIdBlock(minBlockSize) end
 
 --- FindEntityByID
 -- @realm shared
@@ -153,4 +153,9 @@ function GetHashCode() end
 -- Entity.ReservedIDStart, Field of type number
 -- @realm shared
 -- @number Entity.ReservedIDStart
+
+---
+-- Entity.MaxEntityCount, Field of type number
+-- @realm shared
+-- @number Entity.MaxEntityCount
 

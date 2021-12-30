@@ -7,16 +7,6 @@ Barotrauma.NetLobbyScreen
 -- @pragma nostrip
 local NetLobbyScreen = {}
 
---- AddCampaignSubmarine
--- @realm shared
--- @tparam SubmarineInfo sub
-function AddCampaignSubmarine(sub) end
-
---- RemoveCampaignSubmarine
--- @realm shared
--- @tparam SubmarineInfo sub
-function RemoveCampaignSubmarine(sub) end
-
 --- ChangeServerName
 -- @realm shared
 -- @tparam string n
@@ -29,7 +19,7 @@ function ChangeServerMessage(m) end
 
 --- GetSubList
 -- @realm shared
--- @treturn table
+-- @treturn IReadOnlyList`1
 function GetSubList() end
 
 --- AddSub
@@ -54,26 +44,6 @@ function RandomizeSettings() end
 -- @realm shared
 -- @tparam number difficulty
 function SetLevelDifficulty(difficulty) end
-
---- SetRadiationEnabled
--- @realm shared
--- @tparam bool enabled
-function SetRadiationEnabled(enabled) end
-
---- IsRadiationEnabled
--- @realm shared
--- @treturn bool
-function IsRadiationEnabled() end
-
---- SetMaxMissionCount
--- @realm shared
--- @tparam number maxMissionCount
-function SetMaxMissionCount(maxMissionCount) end
-
---- GetMaxMissionCount
--- @realm shared
--- @treturn number
-function GetMaxMissionCount() end
 
 --- ToggleTraitorsEnabled
 -- @realm shared

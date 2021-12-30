@@ -30,8 +30,9 @@ function ConnectTo(wayPoint2) end
 -- @tparam Submarine sub
 -- @tparam bool useSyncedRand
 -- @tparam string spawnPointTag
+-- @tparam bool ignoreSubmarine
 -- @treturn WayPoint
-function WayPoint.GetRandom(spawnType, assignedJob, sub, useSyncedRand, spawnPointTag) end
+function WayPoint.GetRandom(spawnType, assignedJob, sub, useSyncedRand, spawnPointTag, ignoreSubmarine) end
 
 --- SelectCrewSpawnPoints
 -- @realm shared
