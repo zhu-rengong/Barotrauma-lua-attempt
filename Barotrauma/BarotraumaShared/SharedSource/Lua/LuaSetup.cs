@@ -288,11 +288,9 @@ namespace Barotrauma
 
 				File.Move("Barotrauma.dll", "Barotrauma.dll.temp", true);
 				File.Move("Barotrauma.deps.json", "Barotrauma.deps.json.temp", true);
-				File.Move("RestSharp.dll", "RestSharp.dll.temp", true);
 
 				File.Move("Barotrauma.dll.original", "Barotrauma.dll");
 				File.Move("Barotrauma.deps.json.original", "Barotrauma.deps.json");
-				File.Move("RestSharp.dll.original", "RestSharp.dll", true);
 
 				File.Move("Barotrauma.dll.temp", "Barotrauma.dll.original", true);
 				File.Move("Barotrauma.deps.json.temp", "Barotrauma.deps.json.original", true);
