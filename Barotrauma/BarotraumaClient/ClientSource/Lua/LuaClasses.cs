@@ -14,7 +14,10 @@ namespace Barotrauma
 			public LuaGUI(LuaSetup _env)
 			{
 				env = _env;
+			}
 
+			public void CreateStaticValues()
+			{
 				RectTransform = UserData.CreateStatic<RectTransform>();
 				LayoutGroup = UserData.CreateStatic<GUILayoutGroup>();
 				Button = UserData.CreateStatic<GUIButton>();
@@ -33,7 +36,6 @@ namespace Barotrauma
 				Anchor = UserData.CreateStatic<Anchor>();
 				Alignment = UserData.CreateStatic<Alignment>();
 				Pivot = UserData.CreateStatic<Pivot>();
-
 			}
 
 			public ChatBox ChatBox

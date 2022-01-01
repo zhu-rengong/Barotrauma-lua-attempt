@@ -101,6 +101,8 @@ elseif CLIENT then
 	defaultLib["Sprite"] = CreateStatic("Sprite")
 	defaultLib["Keys"] = LuaUserData.CreateStatic("Microsoft.Xna.Framework.Input.Keys")
 	defaultLib["PlayerInput"] = CreateStatic("PlayerInput")
+
+	GUI.CreateStaticValues()
 end
 
 return defaultLib
