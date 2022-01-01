@@ -3213,13 +3213,7 @@ namespace Barotrauma
 
             commands.Add(new Command("cl_lua", "lua_cl: runs a string on the client", (string[] args) =>
             {
-                if (GameMain.Client == null)
-                {
-                    ThrowError("Client not connected to a server.");
-                    return;
-                }
-
-                if (!GameMain.Client.HasPermission(ClientPermissions.ConsoleCommands))
+                if (GameMain.Client != null && !GameMain.Client.HasPermission(ClientPermissions.ConsoleCommands))
                 {
                     ThrowError("Command not permitted.");
                     return;
@@ -3230,13 +3224,7 @@ namespace Barotrauma
 
             commands.Add(new Command("cl_reloadlua", "reloads lua on the client", (string[] args) =>
             {
-                if (GameMain.Client == null)
-                {
-                    ThrowError("Client not connected to a server.");
-                    return;
-                }
-
-                if (!GameMain.Client.HasPermission(ClientPermissions.ConsoleCommands))
+                if (GameMain.Client != null && !GameMain.Client.HasPermission(ClientPermissions.ConsoleCommands))
                 {
                     ThrowError("Command not permitted.");
                     return;
