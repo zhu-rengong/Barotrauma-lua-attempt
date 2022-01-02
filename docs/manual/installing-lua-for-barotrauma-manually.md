@@ -11,7 +11,7 @@
 
 ![](https://cdn.discordapp.com/attachments/799752463619325968/833133217300742154/unknown.png)
 
-5 - Done! Now run DedicatedServer.exe to run the modded server.<br>
+5 - Done! Now run DedicatedServer.exe to run the modded server or run Barotrauma.exe to run the modded client.<br>
 
 ### Linux notice
 Sometimes you will get steam initialization errors, most of the time it's because it's missing the linux64/steamclient.so binary, so you can just copy the binary from your steam instalation over to the folder and it should work.
@@ -32,4 +32,20 @@ To install to an existing server, do the 1-2 steps from before and copy/replace 
 - **Mono.Cecil.Mdb.dll**
 - **Mono.Cecil.Pdb.dll**
 - **Mono.Cecil.Rocks.dll**
+- and the **Lua/** folder
+
+## Adding to an existing client
+
+To install to an existing client, do the 1-2 steps from before and copy/replace the following files in your existing server: 
+
+- **Barotrauma.deps.json** 
+- **Barotrauma.dll** 
+- **0Harmony.dll** 
+- **MoonSharp.Interpreter.dll** 
+- **MonoMod.Common.dll**
+- **Mono.Cecil.dll**
+- **Mono.Cecil.Mdb.dll**
+- **Mono.Cecil.Pdb.dll**
+- **Mono.Cecil.Rocks.dll**
+- **mscordaccore_amd64_amd64_4.700.21.11102.dll**
 - and the **Lua/** folder
