@@ -117,6 +117,22 @@ namespace Barotrauma
 			public bool enableControlHusk = false;
 
 			public int mapEntityUpdateRate = 1;
+			public HashSet<Item> updatePriorityItems = new HashSet<Item>();
+
+			public void AddPriorityItem(Item item)
+			{
+				updatePriorityItems.Add(item);
+			}
+
+			public void RemovePriorityItem(Item item)
+			{
+				updatePriorityItems.Remove(item);
+			}
+
+			public void ClearPriorityItem()
+			{
+				updatePriorityItems.Clear();
+			}
 
 			public bool RoundStarted
 			{

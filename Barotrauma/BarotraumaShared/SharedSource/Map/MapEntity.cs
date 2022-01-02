@@ -535,41 +535,59 @@ namespace Barotrauma
                 linkedTo.Clear();
             }
         }
-
+        static int tick = 0;
         /// <summary>
         /// Call Update() on every object in Entity.list
         /// </summary>
         public static void UpdateAll(float deltaTime, Camera cam)
         {
-            foreach (Hull hull in Hull.hullList)
+            tick++;
+
+            if (tick % GameMain.Lua.game.mapEntityUpdateRate == 0)
             {
-                hull.Update(deltaTime, cam);
+
+                foreach (Hull hull in Hull.hullList)
+                {
+                    hull.Update(deltaTime * GameMain.Lua.game.mapEntityUpdateRate, cam);
+                }
+
+                foreach (Structure structure in Structure.WallList)
+                {
+                    structure.Update(deltaTime * GameMain.Lua.game.mapEntityUpdateRate, cam);
+                }
+
+
+                //update gaps in random order, because otherwise in rooms with multiple gaps 
+                //the water/air will always tend to flow through the first gap in the list,
+                //which may lead to weird behavior like water draining down only through
+                //one gap in a room even if there are several
+                foreach (Gap gap in Gap.GapList.OrderBy(g => Rand.Int(int.MaxValue)))
+                {
+                    gap.Update(deltaTime * GameMain.Lua.game.mapEntityUpdateRate, cam);
+                }
+
+                Powered.UpdatePower(deltaTime * GameMain.Lua.game.mapEntityUpdateRate);
+                foreach (Item item in Item.ItemList)
+                {
+                    if (GameMain.Lua.game.updatePriorityItems.Contains(item)) continue;
+
+                    item.Update(deltaTime * GameMain.Lua.game.mapEntityUpdateRate, cam);
+                }
             }
 
-            foreach (Structure structure in Structure.WallList)
+            foreach (var item in GameMain.Lua.game.updatePriorityItems)
             {
-                structure.Update(deltaTime, cam);
-            }
+                if (item.Removed) continue;
 
-
-            //update gaps in random order, because otherwise in rooms with multiple gaps 
-            //the water/air will always tend to flow through the first gap in the list,
-            //which may lead to weird behavior like water draining down only through
-            //one gap in a room even if there are several
-            foreach (Gap gap in Gap.GapList.OrderBy(g => Rand.Int(int.MaxValue)))
-            {
-                gap.Update(deltaTime, cam);
-            }
-
-            Powered.UpdatePower(deltaTime);
-            foreach (Item item in Item.ItemList)
-            {
                 item.Update(deltaTime, cam);
             }
 
-            UpdateAllProjSpecific(deltaTime);
+            if (tick % GameMain.Lua.game.mapEntityUpdateRate == 0)
+            {
+                UpdateAllProjSpecific(deltaTime * GameMain.Lua.game.mapEntityUpdateRate);
 
-            Spawner?.Update();
+                Spawner?.Update();
+            }
         }
 
         static partial void UpdateAllProjSpecific(float deltaTime);
