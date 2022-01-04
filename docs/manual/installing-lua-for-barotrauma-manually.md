@@ -32,6 +32,7 @@ To install to an existing server, do the 1-2 steps from before and copy/replace 
 - **Mono.Cecil.Mdb.dll**
 - **Mono.Cecil.Pdb.dll**
 - **Mono.Cecil.Rocks.dll**
+- file that starts with **mscordaccore_amd64_amd64_**
 - and the **Lua/** folder
 
 ## Adding to an existing client
@@ -47,5 +48,5 @@ To install to an existing client, do the 1-2 steps from before and copy/replace 
 - **Mono.Cecil.Mdb.dll**
 - **Mono.Cecil.Pdb.dll**
 - **Mono.Cecil.Rocks.dll**
-- **mscordaccore_amd64_amd64_4.700.21.11102.dll**
+- file that starts with **mscordaccore_amd64_amd64_**
 - and the **Lua/** folder
