@@ -851,13 +851,13 @@ namespace Barotrauma
                     }
                     else
                     {
-						DebugConsole.ThrowError($"No hook method found in _hookMethods[{methodPath}]");
+						luaSetup.PrintError($"No hook method found in _hookMethods[{methodPath}]");
 					}
 
 				}
 				catch (Exception ex)
 				{
-					DebugConsole.ThrowError(nameof(_hookLuaPatch), ex);
+					luaSetup.HandleLuaException(ex, nameof(_hookLuaPatch));
 				}
 			}
 
@@ -941,10 +941,10 @@ namespace Barotrauma
 						if (hookMethod != null)
 						{
 							if (!_hookMethods.TryAdd(methodPath, hookMethod))
-								DebugConsole.ThrowError($"Failed to add key-value in {nameof(_hookMethods)}\n[{methodPath}, {hookMethod.ToString()}]");
+								env.PrintError($"Failed to add key-value in {nameof(_hookMethods)}\n[{methodPath}, {hookMethod.ToString()}]");
 #if DEBUG
 							else
-								DebugConsole.NewMessage($"Sucessfully added key-value in {nameof(_hookMethods)}\n[{methodPath}, {hookMethod.ToString()}]", Color.LightSkyBlue);
+								env.PrintMessage($"Sucessfully added key-value in {nameof(_hookMethods)}\n[{methodPath}, {hookMethod.ToString()}]");
 #endif
 						}
 						break;
