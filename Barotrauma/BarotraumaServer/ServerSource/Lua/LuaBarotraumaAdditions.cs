@@ -33,6 +33,18 @@ namespace Barotrauma.Networking
 			GameMain.Server.UnbanPlayer(player, endpoint);
 		}
 
+		public static void Ban(string player, string reason, bool range = false, float seconds = -1)
+		{
+			if (seconds == -1)
+			{
+				GameMain.Server.BanPlayer(player, reason, range, null);
+			}
+			else
+			{
+				GameMain.Server.BanPlayer(player, reason, range, TimeSpan.FromSeconds(seconds));
+			}
+		}
+
 		public bool CheckPermission(ClientPermissions permissions)
 		{
 			return this.Permissions.HasFlag(permissions);
