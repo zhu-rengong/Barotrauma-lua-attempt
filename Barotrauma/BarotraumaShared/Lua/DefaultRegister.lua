@@ -214,6 +214,9 @@ AddCallMetaMember(RegisterBarotrauma("CharacterInfo"))
 AddCallMetaMember(RegisterBarotrauma("Items.Components.Signal"))
 AddCallMetaMember(RegisterBarotrauma("SubmarineInfo"))
 
+RegisterBarotrauma("MapCreatures.Behavior.BallastFloraBehavior")
+RegisterBarotrauma("MapCreatures.Behavior.BallastFloraBranch")
+
 AddCallMetaMember(LuaUserData.RegisterType("Microsoft.Xna.Framework.Vector2"))
 AddCallMetaMember(LuaUserData.RegisterType("Microsoft.Xna.Framework.Vector3"))
 AddCallMetaMember(LuaUserData.RegisterType("Microsoft.Xna.Framework.Vector4"))
