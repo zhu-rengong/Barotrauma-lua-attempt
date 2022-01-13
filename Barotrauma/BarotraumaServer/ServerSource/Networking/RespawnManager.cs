@@ -420,6 +420,7 @@ namespace Barotrauma.Networking
                         {
                             ReduceCharacterSkills(characterInfos[i]);
                             characterInfos[i].RemoveSavedStatValuesOnDeath();
+                            characterInfos[i].CauseOfDeath = null;
                         }
                     }
                 }
