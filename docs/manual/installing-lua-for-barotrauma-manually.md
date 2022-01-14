@@ -23,8 +23,6 @@ To install to an existing server, do the 1-2 steps from before and copy/replace 
 - **DedicatedServer.deps.json** 
 - **DedicatedServer.dll** 
 - **DedicatedServer.pdb** 
-- **DedicatedServer.runtimeconfig.dev.json** 
-- **DedicatedServer.runtimeconfig.json** 
 - **0Harmony.dll** 
 - **MoonSharp.Interpreter.dll** 
 - **MonoMod.Common.dll**
