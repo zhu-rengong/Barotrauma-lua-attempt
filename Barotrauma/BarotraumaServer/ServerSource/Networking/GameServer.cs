@@ -1812,7 +1812,8 @@ namespace Barotrauma.Networking
                 outmsg.Write(client.SteamID);
                 outmsg.Write(client.NameID);
                 outmsg.Write(client.Name);
-                outmsg.Write(client.Character?.Info?.Job != null && gameStarted ? client.Character.Info.Job.Prefab.Identifier : (client.PreferredJob ?? ""));
+                var result1 = new LuaResult(GameMain.Lua.hook.Call("clientList.job", c, client));
+                outmsg.Write(result1.IsNull() ? (client.Character?.Info?.Job != null && gameStarted ? client.Character.Info.Job.Prefab.Identifier : (client.PreferredJob ?? "")) : result1.String());
                 outmsg.Write((byte)client.PreferredTeam);
                 outmsg.Write(client.Character == null || !gameStarted ? (ushort)0 : client.Character.ID);
                 if (c.HasPermission(ClientPermissions.ServerLog))
@@ -1825,10 +1826,10 @@ namespace Barotrauma.Networking
                 }
                 outmsg.Write(client.Muted);
                 outmsg.Write(client.InGame);
-                var result = new LuaResult(GameMain.Lua.hook.Call("clientList.hasPermission", c, client));
-                outmsg.Write(result.IsNull() ? client.Permissions != ClientPermissions.None : result.Bool());
-                var result2 = new LuaResult(GameMain.Lua.hook.Call("clientList.hasCrown", c, client));
-                outmsg.Write(result2.IsNull() ? client.Connection == OwnerConnection : result2.Bool());
+                var result2 = new LuaResult(GameMain.Lua.hook.Call("clientList.hasPermission", c, client));
+                outmsg.Write(result2.IsNull() ? client.Permissions != ClientPermissions.None : result2.Bool());
+                var result3 = new LuaResult(GameMain.Lua.hook.Call("clientList.hasCrown", c, client));
+                outmsg.Write(result3.IsNull() ? client.Connection == OwnerConnection : result3.Bool());
                 outmsg.Write(client.Connection != OwnerConnection &&
                     !client.HasPermission(ClientPermissions.Ban) &&
                     !client.HasPermission(ClientPermissions.Kick) &&

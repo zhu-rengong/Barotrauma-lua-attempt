@@ -1062,7 +1062,7 @@ namespace Barotrauma
 			{
 				var num = dynValue.CastToNumber();
 				if (num == null) { return 0f; }
-				return (float)num;
+				return (float)num.Value;
 			}
 
 			return 0f;
@@ -1074,10 +1074,22 @@ namespace Barotrauma
 			{
 				var num = dynValue.CastToNumber();
 				if (num == null) { return 0f; }
-				return (double)num;
+				return num.Value;
 			}
 
 			return 0f;
+		}
+
+		public string String()
+		{
+			if (result is DynValue dynValue)
+			{
+				var str = dynValue.CastToString();
+				if (str == null) { return ""; }
+				return str;
+			}
+
+			return "";
 		}
 
 		public object Object()
