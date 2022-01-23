@@ -211,6 +211,8 @@ RegisterBarotrauma("PrefabCollection`1[[Barotrauma.TalentPrefab]]")
 
 RegisterBarotrauma("Pair`2[[Barotrauma.JobPrefab],[System.Int32]]")
 
+RegisterBarotrauma("Range`1[System.Single]")
+
 AddCallMetaMember(RegisterBarotrauma("CharacterInfo"))
 AddCallMetaMember(RegisterBarotrauma("Items.Components.Signal"))
 AddCallMetaMember(RegisterBarotrauma("SubmarineInfo"))
