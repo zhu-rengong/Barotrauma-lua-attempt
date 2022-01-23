@@ -827,7 +827,7 @@ namespace Barotrauma
 				Before, After
 			}
 
-			static void _hookLuaPatch(MethodBase __originalMethod, object[] __params, object __instance, out LuaResult result, HookMethodType hookMethodType)
+			static void _hookLuaPatch(MethodBase __originalMethod, object[] __args, object __instance, out LuaResult result, HookMethodType hookMethodType)
 			{
 				// Although it works correctly, the performance is low
 				result = new LuaResult(null);
@@ -841,7 +841,7 @@ namespace Barotrauma
 					var ptable = new Dictionary<string, object>();
 					for (int i = 0; i < @params.Length; i++)
                     {
-						ptable.Add(@params[i].Name, __params[i]);
+						ptable.Add(@params[i].Name, __args[i]);
 
 					}
 
@@ -861,16 +861,16 @@ namespace Barotrauma
 				}
 			}
 
-			static bool HookLuaPatchPrefix(MethodBase __originalMethod, object[] __params, object __instance)
+			static bool HookLuaPatchPrefix(MethodBase __originalMethod, object[] __args, object __instance)
 			{
-				_hookLuaPatch(__originalMethod, __params, __instance, out LuaResult result, HookMethodType.Before);
+				_hookLuaPatch(__originalMethod, __args, __instance, out LuaResult result, HookMethodType.Before);
 				
 				return result.IsNull();
 			}
 
-			static bool HookLuaPatchRetPrefix(MethodBase __originalMethod, object[] __params, ref object __result, object __instance)
+			static bool HookLuaPatchRetPrefix(MethodBase __originalMethod, object[] __args, ref object __result, object __instance)
 			{
-				_hookLuaPatch(__originalMethod, __params, __instance, out LuaResult result, HookMethodType.Before);
+				_hookLuaPatch(__originalMethod, __args, __instance, out LuaResult result, HookMethodType.Before);
 
 				if (!result.IsNull())
 				{
