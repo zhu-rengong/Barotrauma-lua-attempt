@@ -962,6 +962,8 @@ namespace Barotrauma
 			{
 				if (name == null && hookName == null && function == null) return;
 
+				name = name.ToLower();
+
 				if (!hookFunctions.ContainsKey(name))
 					hookFunctions.Add(name, new Dictionary<string, HookFunction>());
 
@@ -971,6 +973,8 @@ namespace Barotrauma
 			public void Remove(string name, string hookName)
 			{
 				if (name == null && hookName == null) return;
+
+				name = name.ToLower();
 
 				if (!hookFunctions.ContainsKey(name))
 					return;
@@ -992,6 +996,8 @@ namespace Barotrauma
 				if (env == null) return null;
 				if (name == null) return null;
 				if (args == null) { args = new object[] { }; }
+
+				name = name.ToLower();
 
 				if (!hookFunctions.ContainsKey(name))
 					return null;
