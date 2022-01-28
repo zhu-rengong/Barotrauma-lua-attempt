@@ -903,6 +903,7 @@ namespace Barotrauma
 					__result = result.Object();
 			}
 
+			private const BindingFlags DefaultBindingFlags = BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 			private static MethodInfo _miHookLuaPatchPrefix = typeof(LuaHook).GetMethod("HookLuaPatchPrefix", BindingFlags.NonPublic | BindingFlags.Static);
 			private static MethodInfo _miHookLuaPatchRetPrefix = typeof(LuaHook).GetMethod("HookLuaPatchRetPrefix", BindingFlags.NonPublic | BindingFlags.Static);
 			private static MethodInfo _miHookLuaPatchPostfix = typeof(LuaHook).GetMethod("HookLuaPatchPostfix", BindingFlags.NonPublic | BindingFlags.Static);
@@ -921,11 +922,11 @@ namespace Barotrauma
 				if (parameterNames.Length > 0)
                 {
 					Type[] parameterTypes = parameterNames.Select(x => AccessTools.TypeByName(x)).ToArray();
-					methodInfo = classType.GetMethod(methodName, parameterTypes);
+					methodInfo = classType.GetMethod(methodName, DefaultBindingFlags, null, parameterTypes, null);
 				}
                 else
                 {
-					methodInfo = classType.GetMethod(methodName);
+					methodInfo = classType.GetMethod(methodName, DefaultBindingFlags);
 				}
 
                 if (methodInfo == null)
