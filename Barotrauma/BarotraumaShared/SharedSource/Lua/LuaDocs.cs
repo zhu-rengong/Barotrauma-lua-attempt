@@ -72,6 +72,8 @@ namespace Barotrauma
 		{
 			GenerateDocs(typeof(Character), "Character.lua");
 			GenerateDocs(typeof(CharacterInfo), "CharacterInfo.lua");
+			GenerateDocs(typeof(CharacterHealth), "CharacterHealth.lua");
+			GenerateDocs(typeof(AnimController), "AnimController.lua");
 			GenerateDocs(typeof(Client), "Client.lua");
 			GenerateDocs(typeof(Entity), "Entity.lua");
 			GenerateDocs(typeof(EntitySpawner), "Entity.Spawner.lua", "Entity.Spawner");

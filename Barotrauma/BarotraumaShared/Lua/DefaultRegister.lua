@@ -50,6 +50,7 @@ RegisterBarotrauma("Hull")
 RegisterBarotrauma("Gap")
 RegisterBarotrauma("PhysicsBody")
 RegisterBarotrauma("InvSlotType")
+RegisterBarotrauma("LimbType")
 RegisterBarotrauma("ItemPrefab")
 RegisterBarotrauma("SerializableProperty")
 

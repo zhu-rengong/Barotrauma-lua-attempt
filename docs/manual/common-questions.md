@@ -74,3 +74,40 @@ Entity.Spawner.AddToSpawnQueue(prefab, firstPlayerCharacter.Inventory, nil, nil,
     print(item.Name .. " Has been spawned.")
 end)
 ```
+
+## How do i give a character a certain affliction
+
+```lua
+local burnPrefab
+
+for k, v in pairs(AfflictionPrefab.ListArray) do
+    if v.Identifier == "burn" then
+       burnPrefab = v
+       break
+    end
+end
+
+local char = Character.CharacterList[1]
+local limb = char.AnimController.MainLimb
+-- or        char.AnimController.Limbs[1]
+
+char.CharacterHealth.ApplyAffliction(limb, burnPrefab.Instantiate(100))
+
+```
+
+## How do i get the amount of a affliction that a character has?
+
+```lua
+local char = Character.CharacterList[1]
+
+print(char.CharacterHealth.GetAffliction("burn"))
+-- or
+print(char.CharacterHealth.GetAffliction("burn", char.AnimController.Limbs[1]))
+```
+
+## How do i send a private chat message?
+
+```lua
+local chatMessage = ChatMessage.Create("Sender name", "text here", ChatMessageType.MessageBox, nil, nil)
+Game.SendDirectChatMessage(chatMessage, ChatMessageType.MessageBox)
+```

@@ -37,6 +37,14 @@ function CheckPermission(permissions) end
 function Client.Unban(player, endpoint) end
 
 
+--- Ban
+-- @realm shared
+-- @tparam string player
+-- @tparam string reason
+-- @tparam bool range
+-- @tparam number seconds
+function Client.Ban(player, reason, range, seconds) end
+
 --- InitClientSync
 -- @realm shared
 function InitClientSync() end

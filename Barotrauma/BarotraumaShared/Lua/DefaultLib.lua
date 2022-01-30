@@ -33,6 +33,7 @@ defaultLib["Point"] = LuaUserData.CreateStatic("Microsoft.Xna.Framework.Point")
 defaultLib["ChatMessage"] = CreateStatic("Networking.ChatMessage")
 defaultLib["Hull"] = CreateStatic("Hull")
 defaultLib["InvSlotType"] = CreateStatic("InvSlotType")
+defaultLib["LimbType"] = CreateStatic("LimbType")
 defaultLib["Gap"] = CreateStatic("Gap")
 defaultLib["ContentPackage"] = CreateStatic("ContentPackage")
 defaultLib["ClientPermissions"] = {
