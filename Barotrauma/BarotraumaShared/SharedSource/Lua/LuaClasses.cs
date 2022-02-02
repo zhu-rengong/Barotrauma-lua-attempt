@@ -1033,9 +1033,16 @@ namespace Barotrauma
 
 			public void Update()
 			{
-				if (queuedFunctionCalls.TryDequeue(out Tuple<object, object[]> result))
+				try
 				{
-					env.CallFunction(result.Item1, result.Item2);
+					if (queuedFunctionCalls.TryDequeue(out Tuple<object, object[]> result))
+					{
+						env.CallFunction(result.Item1, result.Item2);
+					}
+				}
+				catch (Exception ex)
+				{
+					env.HandleLuaException(ex, $"queuedFunctionCalls was {queuedFunctionCalls}");
 				}
 			}
 

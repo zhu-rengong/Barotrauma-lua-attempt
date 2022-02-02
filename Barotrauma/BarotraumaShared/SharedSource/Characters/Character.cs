@@ -1003,10 +1003,9 @@ namespace Barotrauma
             {
                 Spawner.CreateNetworkEvent(newCharacter, false);
             }
+#endif
 
             GameMain.Lua.hook.Call("characterCreated", new object[] { newCharacter });
-
-#endif
 
             return newCharacter;
         }
