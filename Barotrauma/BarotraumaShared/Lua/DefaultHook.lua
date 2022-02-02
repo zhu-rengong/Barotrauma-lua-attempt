@@ -8,7 +8,7 @@ Hook.HookMethod(
 		"System.Boolean"
 	},
 	function (instance, p)
-		if Hook.Call("itemInteract", instance, p.picker, p.ignoreRequiredItems, p.forceSelectKey, p.forceActionKey) == true then
+		if Hook.Call("item.interact", instance, p.picker, p.ignoreRequiredItems, p.forceSelectKey, p.forceActionKey) == true then
 			return false
 		end
 	end,
@@ -23,7 +23,7 @@ Hook.HookMethod(
 		"Barotrauma.Limb"
 	},
 	function (instance, p)
-		if Hook.Call("itemApplyTreatment", instance, p.user, p.character, p.targetLimb) then
+		if Hook.Call("item.applyTreatment", instance, p.user, p.character, p.targetLimb) then
 			return false
 		end
 	end,
@@ -37,7 +37,7 @@ Hook.HookMethod(
 		"Barotrauma.Character"
 	},
 	function (instance, p)
-		if Hook.Call("itemCombine", instance, p.item, p.user) == true then
+		if Hook.Call("item.combine", instance, p.item, p.user) == true then
 			return false
 		end
 	end,
@@ -51,7 +51,7 @@ Hook.HookMethod(
 		"System.Boolean"
 	},
 	function (instance, p)
-		if Hook.Call("itemDrop", instance, p.dropper) == true then
+		if Hook.Call("item.drop", instance, p.dropper) == true then
 			return false
 		end
 	end,
@@ -64,7 +64,7 @@ Hook.HookMethod(
 		"Barotrauma.Character"
 	},
 	function (instance, p)
-		if Hook.Call("itemEquip", instance, p.character) == true then
+		if Hook.Call("item.equip", instance, p.character) == true then
 			return false
 		end
 	end,
@@ -77,7 +77,7 @@ Hook.HookMethod(
 		"Barotrauma.Character"
 	},
 	function (instance, p)
-		if Hook.Call("itemUnequip", instance, p.character) == true then
+		if Hook.Call("item.unequip", instance, p.character) == true then
 			return false
 		end
 	end,

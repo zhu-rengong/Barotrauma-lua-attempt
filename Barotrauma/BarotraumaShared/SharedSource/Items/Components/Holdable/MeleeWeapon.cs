@@ -383,6 +383,7 @@ namespace Barotrauma.Items.Components
             
             Limb targetLimb = target.UserData as Limb;
             Character targetCharacter = targetLimb?.character ?? target.UserData as Character;
+            GameMain.Lua.hook.Call("meleeWeapon.handleImpact", this, target);
             if (Attack != null)
             {
                 Attack.SetUser(User);

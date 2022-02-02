@@ -1135,6 +1135,13 @@ namespace Barotrauma
                 if (lifeTimer <= 0) { return; }
             }
 
+            {
+                if (entity is Item item)
+                {
+                    GameMain.Lua.hook.Call("statusEffect.apply." + item.Prefab.Identifier, this, deltaTime, entity, targets, worldPosition);
+                }
+            }
+
             Hull hull = GetHull(entity);
             Vector2 position = GetPosition(entity, targets, worldPosition);
             foreach (ISerializableEntity serializableEntity in targets)

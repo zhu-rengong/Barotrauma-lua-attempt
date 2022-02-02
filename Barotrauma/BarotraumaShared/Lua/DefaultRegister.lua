@@ -196,6 +196,7 @@ RegisterBarotrauma("SkillPrefab")
 RegisterBarotrauma("TraitorMissionPrefab")
 RegisterBarotrauma("TraitorMissionResult")
 
+LuaUserData.RegisterType("FarseerPhysics.Dynamics.Body")
 LuaUserData.RegisterType("FarseerPhysics.Dynamics.World")
 LuaUserData.RegisterType("FarseerPhysics.Dynamics.Fixture")
 RegisterBarotrauma("Physics")
