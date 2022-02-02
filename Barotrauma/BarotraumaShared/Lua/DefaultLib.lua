@@ -34,6 +34,7 @@ defaultLib["ChatMessage"] = CreateStatic("Networking.ChatMessage")
 defaultLib["Hull"] = CreateStatic("Hull")
 defaultLib["InvSlotType"] = CreateStatic("InvSlotType")
 defaultLib["LimbType"] = CreateStatic("LimbType")
+defaultLib["ActionType"] = CreateStatic("ActionType")
 defaultLib["Gap"] = CreateStatic("Gap")
 defaultLib["ContentPackage"] = CreateStatic("ContentPackage")
 defaultLib["ClientPermissions"] = {
