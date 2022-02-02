@@ -2343,7 +2343,7 @@ namespace Barotrauma
 
             if (condition == 0.0f) { return; }
 
-            var should = new LuaResult(GameMain.Lua.hook.Call("itemUse", new object[] { this, character, targetLimb }));
+            var should = new LuaResult(GameMain.Lua.hook.Call("item.use", new object[] { this, character, targetLimb }));
 
             if (should.Bool())
                 return;
@@ -2381,7 +2381,7 @@ namespace Barotrauma
         {
             if (condition == 0.0f) { return; }
 
-            var should = new LuaResult(GameMain.Lua.hook.Call("itemSecondaryUse", new object[] { this, character}));
+            var should = new LuaResult(GameMain.Lua.hook.Call("item.secondaryUse", new object[] { this, character}));
 
             if (should.Bool())
                 return;

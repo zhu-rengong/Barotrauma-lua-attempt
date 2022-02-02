@@ -1138,7 +1138,10 @@ namespace Barotrauma
             {
                 if (entity is Item item)
                 {
-                    GameMain.Lua.hook.Call("statusEffect.apply." + item.Prefab.Identifier, this, deltaTime, entity, targets, worldPosition);
+                    var result = new LuaResult(GameMain.Lua.hook.Call("statusEffect.apply." + item.Prefab.Identifier, this, deltaTime, entity, targets, worldPosition));
+
+                    if (result.Bool())
+                        return;
                 }
             }
 

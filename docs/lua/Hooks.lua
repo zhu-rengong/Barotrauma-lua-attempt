@@ -88,34 +88,33 @@ function afflictionApplied(affliction, characterHealth, limb) end
 function afflictionUpdate(affliction, characterHealth, limb) end
 --- Gets called every time an Item gets "Used".
 -- @realm shared
-function itemUse(item, itemUser, targetLimb) end
+function item.use(item, itemUser, targetLimb) end
 --- Same as itemUse.
 -- @realm shared
-function itemSecondaryUse(item, itemUser) end
+function item.secondaryUse(item, itemUser) end
 --- Gets called whenever an item is used as a treatment (eg. bandages).
 -- @realm shared
-function itemApplyTreatment(item, usingCharacter, targetCharacter, limb) end
+function item.applyTreatment(item, usingCharacter, targetCharacter, limb) end
 
 --- Gets called whenever an item is dropped, You can return true to cancel.
 -- @realm shared
-function itemDrop(item, character) end  
+function item.drop(item, character) end  
 
 --- Gets called whenever an item is equipped. Return true to cancel.
 -- @realm shared
-function itemEquip(item, character) end
+function item.equip(item, character) end
 
 --- Same as itemEquip, but for unequipping.
 -- @realm shared
-function itemUnequip(item, character) end
+function item.unequip(item, character) end
 
 --- Gets called every time an item is interacted, eg: picking item on ground, fixing something with wrench
 -- @realm shared
-function itemInteract(item, characterPicker, ignoreRequiredItemsBool, forceSelectKeyBool, forceActionKeyBool) end
+function item.interact(item, characterPicker, ignoreRequiredItemsBool, forceSelectKeyBool, forceActionKeyBool) end
 
 --- Gets called every time two items are combined, eg: drag an half empty magazine to another half empty magazine to combine
 -- @realm shared
-function itemCombine(item, otherItem, userCharacter) end
-
+function item.combine(item, otherItem, userCharacter) end
 
 --- Gets called every time an item is moved from one inventory slot to another, return true to cancel
 -- @realm shared
@@ -137,9 +136,9 @@ function gapOxygenUpdate(gap, hull1, hull2) end
 -- @realm shared
 function signalReceived(signal, connection) end
 
----  Same as signalReceived, but gets called only when needed by specifying your component, better performance.
+--- Gets called everytime the specified item receives a signal.
 -- @realm shared
-function signalReceived.YourComponentIdentifier(signal, connection) end
+function signalReceived.YourItemIdentifier(signal, connection) end
 
 --- Gets called everytime a WifiComponent starts transmitting a signal
 -- @realm shared
@@ -186,3 +185,22 @@ function traitor.traitorAssigned(traitor) end
 --- Return true to accept traitor candidate.
 -- @realm shared
 function traitor.findTraitorCandidate(character, team) end
+
+--- Called when a melee weapon has impacted a physical object.
+-- @realm shared
+function meleeWeapon.handleImpact(meleeComponent, targetBody) end
+
+--- Called when a status effect is applied to the specified item, useful for things like medical items. You can also return true to cancel out the status effect.
+-- @realm shared
+-- @usage
+-- Hook.Add("statusEffect.apply.antibleeding1", "test", function (effect, deltaTime, item, targets, worldPosition)
+--    if effect.type == ActionType.OnUse then
+--        print(effect, ' ', item, ' ', targets[3])
+--        return true
+--    end
+--end) 
+function statusEffect.apply.YourItemIdentifier(statusEffect, deltaTime, item, targets, worldPosition) end
+
+--- Called when a client tries to change his name, return false to prevent the name from being changed.
+-- @realm shared
+function tryChangeClientName(client, newName, newJob, newTeam) end
