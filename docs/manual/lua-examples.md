@@ -11,22 +11,6 @@ end)
 ```
 
 ```lua
-local characters = Character.CharacterList
-local biteWoundsPrefab
-
-for k, v in pairs(AfflictionPrefab.ListArray) do
-    if v.name == "Bite wounds" then 
-       biteWoundsPrefab = v 
-       break
-    end
-end
-
-for k, v in pairs(characters) do
-   v.CharacterHealth.ApplyAffliction(v.AnimController.MainLimb, biteWoundsPrefab.Instantiate(100));
-end
-```
-
-```lua
 Hook.Add("itemApplyTreatment", "testItemApplyTreatment", function (item, user, character, targetlimb)
     if item.name == "Bandage" then
         local pos = character.WorldPosition

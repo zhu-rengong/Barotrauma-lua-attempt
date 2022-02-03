@@ -78,14 +78,7 @@ end)
 ## How do i give a character a certain affliction
 
 ```lua
-local burnPrefab
-
-for k, v in pairs(AfflictionPrefab.ListArray) do
-    if v.Identifier == "burn" then
-       burnPrefab = v
-       break
-    end
-end
+local burnPrefab = AfflictionPrefab.Prefabs["burn"]
 
 local char = Character.CharacterList[1]
 local limb = char.AnimController.MainLimb
