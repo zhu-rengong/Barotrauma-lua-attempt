@@ -90,3 +90,5 @@ for _, d in pairs(File.GetDirectories("Mods")) do
 end
 
 setmodulepaths(modulePaths)
+
+Hook.Call("loaded")
