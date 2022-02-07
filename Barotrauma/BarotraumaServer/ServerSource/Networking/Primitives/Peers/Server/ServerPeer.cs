@@ -211,18 +211,18 @@ namespace Barotrauma.Networking
             if (result.Bool())
                 goto ignore;
 
-            if (IsPendingClientBanned(pendingClient, out string banReason))
-            {
-                RemovePendingClient(pendingClient, DisconnectReason.Banned, banReason);
-                return;
-            }
-
             if (connectedClients.Count >= serverSettings.MaxPlayers)
             {
                 RemovePendingClient(pendingClient, DisconnectReason.ServerFull, "");
             }
 
             ignore:
+
+            if (IsPendingClientBanned(pendingClient, out string banReason))
+            {
+                RemovePendingClient(pendingClient, DisconnectReason.Banned, banReason);
+                return;
+            }
 
             if (pendingClient.InitializationStep == ConnectionInitialization.Success)
             {
