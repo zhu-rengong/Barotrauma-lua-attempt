@@ -67,7 +67,7 @@ namespace Barotrauma
 			public static void MakeFieldAccessible(IUserDataDescriptor IUUD, string fieldName)
 			{
 				var descriptor = (StandardUserDataDescriptor)IUUD;
-				var field = IUUD.Type.GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance);
+				var field = IUUD.Type.GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
 				descriptor.RemoveMember(fieldName);
 				descriptor.AddMember(fieldName, new FieldMemberDescriptor(field, InteropAccessMode.Default));
 			}
@@ -75,7 +75,7 @@ namespace Barotrauma
 			public static void MakeMethodAccessible(IUserDataDescriptor IUUD, string methodName)
 			{
 				var descriptor = (StandardUserDataDescriptor)IUUD;
-				var method = IUUD.Type.GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance);
+				var method = IUUD.Type.GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
 				descriptor.RemoveMember(methodName);
 				descriptor.AddMember(methodName, new MethodMemberDescriptor(method, InteropAccessMode.Default));
 			}
