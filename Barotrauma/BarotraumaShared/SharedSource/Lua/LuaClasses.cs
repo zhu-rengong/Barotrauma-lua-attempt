@@ -48,6 +48,24 @@ namespace Barotrauma
 				return (IUserDataDescriptor)generic.Invoke(null, new object[] { null, null });
 			}
 
+			public static IUserDataDescriptor RegisterGenericType(string typeName, params string[] typeNameArguements)
+			{
+				Type type = GetType(typeName);
+				Type[] typeArguements = typeNameArguements.Select(x => GetType(x)).ToArray();
+				Type genericType = type.MakeGenericType(typeArguements);
+				return UserData.RegisterType(genericType);
+			}
+
+			private static bool IsType<T>(object obj) { return obj is T; }
+
+			public static bool IsTargetType(object obj, string typeName)
+			{
+				var type = GetType(typeName);
+				MethodInfo method = typeof(LuaUserData).GetMethod(nameof(IsType), BindingFlags.NonPublic | BindingFlags.Static);
+				MethodInfo generic = method.MakeGenericMethod(type);
+				return (bool)generic.Invoke(null, new object[] { obj });
+			}
+
 			public static object CreateStatic(string typeName)
 			{
 				Type type = GetType(typeName);
