@@ -36,10 +36,6 @@ namespace Barotrauma
 
 		public LuaScriptLoader luaScriptLoader;
 
-		private double minErrorTime = 0.05f;
-
-		private double lastSentError = 0;
-
 		public void Update()
 		{
 			hook?.Update();
@@ -65,8 +61,6 @@ namespace Barotrauma
 
 		public void PrintError(object message)
 		{
-			if (Timing.TotalTime - lastSentError < minErrorTime) return;
-
 			if (message == null) { message = "nil"; }
 			string str = message.ToString();
 
@@ -91,8 +85,6 @@ namespace Barotrauma
 					GameServer.Log(errorMsg, ServerLog.MessageType.Error);
 				}
 #endif
-
-				lastSentError = Timing.TotalTime;
 			}
 		}
 

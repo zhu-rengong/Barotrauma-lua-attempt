@@ -62,7 +62,7 @@ if SERVER then
             table.insert(modulePaths, (d .. "/Lua/?.lua"))
     
             if File.DirectoryExists(d .. "/Lua/Autorun") then
-                runFolder(d .. "/Lua/Autorun")
+                runFolder(d .. "/Lua/Autorun");
             end
         end
     
@@ -73,7 +73,7 @@ if SERVER then
             table.insert(modulePaths, (d .. "/Lua/?.lua"))
         
             if File.DirectoryExists(d .. "/Lua/Autorun") then
-                runFolder(d .. "/Lua/Autorun")
+                runFolder(d .. "/Lua/Autorun");
             end
         end
     end
@@ -85,7 +85,7 @@ for _, d in pairs(File.GetDirectories("Mods")) do
 
     if File.DirectoryExists(d .. "/Lua/ForcedAutorun") then
         table.insert(modulePaths, (d .. "/Lua/?.lua"))
-        runFolder(d .. "/Lua/ForcedAutorun")
+        runFolder(d .. "/Lua/ForcedAutorun");
     end
 end
 
