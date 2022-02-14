@@ -1101,6 +1101,7 @@ namespace Barotrauma
             MainMenuScreen.Select();
             GameSession = null;
 
+            GameMain.Lua.Stop();
         }
 
         public void ShowCampaignDisclaimer(Action onContinue = null)

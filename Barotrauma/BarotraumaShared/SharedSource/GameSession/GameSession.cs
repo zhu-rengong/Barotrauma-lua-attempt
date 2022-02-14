@@ -460,6 +460,8 @@ namespace Barotrauma
             GUI.PreventPauseMenuToggle = false;
 
             HintManager.OnRoundStarted();
+
+            GameMain.Lua.hook.Call("roundStart");
 #endif
         }
 
@@ -685,6 +687,10 @@ namespace Barotrauma
         public void EndRound(string endMessage, List<TraitorMissionResult> traitorResults = null, CampaignMode.TransitionType transitionType = CampaignMode.TransitionType.None)
         {
             RoundEnding = true;
+
+#if CLIENT
+            GameMain.Lua.hook.Call("roundEnd");
+#endif
 
             try
             {

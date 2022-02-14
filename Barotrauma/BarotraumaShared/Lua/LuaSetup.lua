@@ -91,4 +91,8 @@ end
 
 setmodulepaths(modulePaths)
 
+Hook.Add("stop", "luaSetup.stop", function ()
+    print("Stopping Lua...")
+end)
+
 Hook.Call("loaded")

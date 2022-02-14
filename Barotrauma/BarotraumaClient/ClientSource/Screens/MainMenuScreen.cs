@@ -1202,6 +1202,8 @@ namespace Barotrauma
                 GameMain.GameSession.CrewManager.AddCharacterInfo(characterInfo);
             }
             ((SinglePlayerCampaign)GameMain.GameSession.GameMode).LoadNewLevel();
+
+            GameMain.Lua.Initialize();
         }
 
         private void LoadGame(string saveFile)
@@ -1220,6 +1222,8 @@ namespace Barotrauma
 
             //TODO
             //GameMain.LobbyScreen.Select();
+
+            GameMain.Lua.Initialize();
         }
 
         #region UI Methods
