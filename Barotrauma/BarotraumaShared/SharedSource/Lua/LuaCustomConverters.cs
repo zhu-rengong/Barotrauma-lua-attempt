@@ -33,6 +33,12 @@ namespace Barotrauma
                 return (GUIButton.OnClickedHandler)((GUIButton a, object b) => new LuaResult(LuaSetup.luaSetup.CallFunction(function, a, b)).Bool());
             });
 
+            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(GUITextBlock.TextGetterHandler), v =>
+            {
+                var function = v.Function;
+                return (GUITextBlock.TextGetterHandler)(() => new LuaResult(LuaSetup.luaSetup.CallFunction(function, new object[] {})).String());
+            });
+
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(GUITextBox.OnTextChangedHandler), v =>
             {
                 var function = v.Function;
@@ -44,6 +50,13 @@ namespace Barotrauma
                 var function = v.Function;
                 return (GUITextBox.OnEnterHandler)((GUITextBox a, string b) => new LuaResult(LuaSetup.luaSetup.CallFunction(function, a, b)).Bool());
             });
+
+            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(GUITickBox.OnSelectedHandler), v =>
+            {
+                var function = v.Function;
+                return (GUITickBox.OnSelectedHandler)((GUITickBox a) => new LuaResult(LuaSetup.luaSetup.CallFunction(function, a)).Bool());
+            });
+
 #endif
 
 
