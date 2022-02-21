@@ -126,6 +126,8 @@ RegisterBarotrauma("AITargetMemory")
 RegisterBarotrauma("AIChatMessage")
 RegisterBarotrauma("AIObjectiveManager")
 RegisterBarotrauma("AITrigger")
+RegisterBarotrauma("WreckAI")
+RegisterBarotrauma("WreckAIConfig")
 
 AddCallMetaMember(RegisterBarotrauma("AIObjective"))
 AddCallMetaMember(RegisterBarotrauma("AIObjectiveChargeBatteries"))
