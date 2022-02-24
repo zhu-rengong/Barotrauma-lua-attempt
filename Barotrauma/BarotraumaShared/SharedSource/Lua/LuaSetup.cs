@@ -79,7 +79,7 @@ namespace Barotrauma
 				{
 					foreach (var c in GameMain.Server.ConnectedClients)
 					{
-						GameMain.Server.SendDirectChatMessage(errorMsg, c, ChatMessageType.Console);
+						GameMain.Server.SendDirectChatMessage(ChatMessage.Create("", errorMsg, ChatMessageType.Console, null, textColor: Color.Red), c);
 					}
 
 					GameServer.Log(errorMsg, ServerLog.MessageType.Error);
@@ -93,8 +93,6 @@ namespace Barotrauma
 			if (message == null) { message = "nil"; }
 			string str = message.ToString();
 
-			Console.WriteLine(str);
-
 			for (int i = 0; i < str.Length; i += 1024)
 			{
 				string subStr = str.Substring(i, Math.Min(1024, str.Length - i));
@@ -105,14 +103,15 @@ namespace Barotrauma
 				{
 					foreach (var c in GameMain.Server.ConnectedClients)
 					{
-						GameMain.Server.SendDirectChatMessage(subStr, c, ChatMessageType.Console);
+						GameMain.Server.SendDirectChatMessage(ChatMessage.Create("", subStr, ChatMessageType.Console, null, textColor: Color.MediumPurple), c);
 					}
 
 					GameServer.Log("[LUA] " + subStr, ServerLog.MessageType.ServerMessage);
 				}
-#else
-			DebugConsole.NewMessage("[LUA] " + message.ToString());
 #endif
+
+				DebugConsole.NewMessage(message.ToString(), Color.MediumPurple);
+
 			}
 
 		}
