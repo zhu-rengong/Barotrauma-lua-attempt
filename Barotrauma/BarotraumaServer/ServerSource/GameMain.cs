@@ -19,6 +19,9 @@ namespace Barotrauma
     {
         public static readonly Version Version = Assembly.GetEntryAssembly().GetName().Version;
 
+        public static bool IsSingleplayer => NetworkMember == null;
+        public static bool IsMultiplayer => NetworkMember != null;
+
 
         private static World world;
         public static World World
@@ -36,7 +39,7 @@ namespace Barotrauma
         public static GameServer Server;
         public static NetworkMember NetworkMember
         {
-            get { return Server as NetworkMember; }
+            get { return Server; }
         }
 
         public static GameSession GameSession;
@@ -63,6 +66,9 @@ namespace Barotrauma
         public static bool ShouldRun = true;
 
         private static Stopwatch stopwatch;
+
+        private static Queue<int> prevUpdateRates = new Queue<int>();
+        private static int updateCount = 0;
 
         private static ContentPackage vanillaContent;
         public static ContentPackage VanillaContent
@@ -373,7 +379,9 @@ namespace Barotrauma
             {
                 DebugConsole.NewMessage("WARNING: Stopwatch frequency under 1500 ticks per second. Expect significant syncing accuracy issues.", Color.Yellow);
             }
-            Stopwatch performanceMeasurement = new Stopwatch();
+
+            Stopwatch performanceCounterTimer = Stopwatch.StartNew();
+
             stopwatch = Stopwatch.StartNew();
             long prevTicks = stopwatch.ElapsedTicks;
             while (ShouldRun)
@@ -381,9 +389,11 @@ namespace Barotrauma
                 long currTicks = stopwatch.ElapsedTicks;
                 double elapsedTime = Math.Max(currTicks - prevTicks, 0) / frequency;
                 Timing.Accumulator += elapsedTime;
-                if (Timing.Accumulator > 1.0)
+                if (Timing.Accumulator > Timing.AccumulatorMax)
                 {
-                    //prevent spiral of death
+                    //prevent spiral of death:
+                    //if the game's running too slowly then we have no choice but to skip a bunch of steps
+                    //otherwise it snowballs and becomes unplayable
                     Timing.Accumulator = Timing.Step;
                 }
                 prevTicks = currTicks;
@@ -410,6 +420,7 @@ namespace Barotrauma
                     performanceMeasurement.Reset();
 
                     Timing.Accumulator -= Timing.Step;
+                    updateCount++;
                 }
 
 #if !DEBUG
@@ -425,10 +436,37 @@ namespace Barotrauma
                 DebugConsole.UpdateCommandLine((int)(Timing.Accumulator * 800));
 #endif
 
-                int frameTime = (int)(((double)(stopwatch.ElapsedTicks - prevTicks) / frequency) * 1000.0);
+                int frameTime = (int)((stopwatch.ElapsedTicks - prevTicks) / frequency * 1000.0);
                 frameTime = Math.Max(0, frameTime);
                 
                 Thread.Sleep(Math.Max(((int)(Timing.Step * 1000.0) - frameTime) / 2, 0));
+
+                if (performanceCounterTimer.ElapsedMilliseconds > 1000)
+                {
+                    int updateRate = (int)Math.Round(updateCount / (double)(performanceCounterTimer.ElapsedMilliseconds / 1000.0));
+                    prevUpdateRates.Enqueue(updateRate);
+                    if (prevUpdateRates.Count >= 10)
+                    {
+                        int avgUpdateRate = (int)prevUpdateRates.Average();
+                        if (avgUpdateRate < Timing.FixedUpdateRate * 0.98 && GameSession != null && Timing.TotalTime > GameSession.RoundStartTime + 1.0)
+                        {
+                            DebugConsole.AddWarning($"Running slowly ({avgUpdateRate} updates/s)!");
+                            if (Server != null)
+                            {
+                                foreach (Client c in Server.ConnectedClients)
+                                {
+                                    if (c.Connection == Server.OwnerConnection || c.Permissions != ClientPermissions.None)
+                                    {
+                                        Server.SendConsoleMessage($"Server running slowly ({avgUpdateRate} updates/s)!", c, Color.Orange);
+                                    }
+                                }
+                            }
+                        }
+                        prevUpdateRates.Clear();
+                    }
+                    performanceCounterTimer.Restart();
+                    updateCount = 0;
+                }
             }
             stopwatch.Stop();
 
@@ -447,8 +485,9 @@ namespace Barotrauma
         public static void ResetFrameTime()
         {
             Timing.Accumulator = 0.0f;
-            stopwatch?.Reset();
-            stopwatch?.Start();
+            stopwatch?.Restart();
+            prevUpdateRates.Clear();
+            updateCount = 0;
         }
         
         public CoroutineHandle ShowLoading(IEnumerable<CoroutineStatus> loader, bool waitKeyHit = true)

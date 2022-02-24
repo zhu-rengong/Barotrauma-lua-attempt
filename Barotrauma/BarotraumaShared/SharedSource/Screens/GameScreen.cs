@@ -244,6 +244,8 @@ namespace Barotrauma
             }
 
             cam.MoveCamera((float)deltaTime, allowZoom: GUI.MouseOn == null && !Inventory.IsMouseOnInventory);
+
+            Character.Controlled?.UpdateLocalCursor(cam);
 #endif
 
             foreach (Submarine sub in Submarine.Loaded)

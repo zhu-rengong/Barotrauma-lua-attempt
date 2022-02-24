@@ -118,14 +118,18 @@ namespace Barotrauma.Networking
             return ShouldStartRespawnCountdown(characterToRespawnCount);
         }
 
+        private int GetMinCharactersToRespawn()
+        {
+            return Math.Max((int)(GameMain.Server.ConnectedClients.Count * GameMain.Server.ServerSettings.MinRespawnRatio), 1);
+        }
+
         private bool ShouldStartRespawnCountdown(int characterToRespawnCount)
         {
             if (GameMain.Lua.game.overrideRespawnSub)
             {
                 characterToRespawnCount = 0;
             }
-            int totalCharacterCount = GameMain.Server.ConnectedClients.Count;
-            return (float)characterToRespawnCount >= Math.Max((float)totalCharacterCount * GameMain.Server.ServerSettings.MinRespawnRatio, 1.0f);
+            return characterToRespawnCount >= GetMinCharactersToRespawn();
         }
 
         partial void UpdateWaiting(float deltaTime)
@@ -139,7 +143,7 @@ namespace Barotrauma.Networking
             }
 
             pendingRespawnCount = GetClientsToRespawn().Count();
-            requiredRespawnCount = (int)Math.Max((float)GameMain.Server.ConnectedClients.Count * GameMain.Server.ServerSettings.MinRespawnRatio, 1.0f);
+            requiredRespawnCount = GetMinCharactersToRespawn();
             if (pendingRespawnCount != prevPendingRespawnCount || 
                 requiredRespawnCount != prevRequiredRespawnCount)
             {
@@ -372,7 +376,7 @@ namespace Barotrauma.Networking
             {
                 if (campaign?.GetClientCharacterData(c) == null || c.CharacterInfo.Job == null)
                 {
-                    c.CharacterInfo.Job = new Job(c.AssignedJob.First, c.AssignedJob.Second);
+                    c.CharacterInfo.Job = new Job(c.AssignedJob.First, Rand.RandSync.Unsynced, c.AssignedJob.Second);
                 }
             }
 

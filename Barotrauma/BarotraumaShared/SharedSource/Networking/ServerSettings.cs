@@ -97,7 +97,7 @@ namespace Barotrauma.Networking
             private readonly SerializableProperty property;
             private readonly string typeString;
             private readonly object parentObject;
-
+            
             public string Name
             {
                 get { return property.Name; }
@@ -214,7 +214,7 @@ namespace Barotrauma.Networking
 
             public void Write(IWriteMessage msg, object overrideValue = null)
             {
-                if (overrideValue == null) overrideValue = property.GetValue(parentObject);
+                if (overrideValue == null) { overrideValue = Value; }
                 switch (typeString)
                 {
                     case "float":
@@ -315,6 +315,7 @@ namespace Barotrauma.Networking
                     {
                         NetPropertyData netPropertyData = new NetPropertyData(this, property, typeName);
                         UInt32 key = ToolBox.StringToUInt32Hash(property.Name, md5);
+                        if (key == 0) { key++; } //0 is reserved to indicate the end of the netproperties section of a message
                         if (netProperties.ContainsKey(key)){ throw new Exception("Hashing collision in ServerSettings.netProperties: " + netProperties[key] + " has same key as " + property.Name + " (" + key.ToString() + ")"); }
                         netProperties.Add(key, netPropertyData);
                     }
@@ -720,13 +721,6 @@ namespace Barotrauma.Networking
             set;
         }
 
-        [Serialize("", true)]
-        public string CampaignSubmarines
-        {
-            get;
-            set;
-        }
-
         private YesNoMaybe traitorsEnabled;
         [Serialize(YesNoMaybe.No, true)]
         public YesNoMaybe TraitorsEnabled
@@ -1070,7 +1064,6 @@ namespace Barotrauma.Networking
             }
 
 #if SERVER
-            MultiPlayerCampaign.UpdateCampaignSubs();
             SelectNonHiddenSubmarine();
 #endif
         }

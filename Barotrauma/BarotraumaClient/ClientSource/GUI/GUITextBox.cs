@@ -80,6 +80,8 @@ namespace Barotrauma
         private Vector2 selectionEndPos;
         private Vector2 selectionRectSize;
 
+        private GUICustomComponent caretAndSelectionRenderer;
+
         private bool mouseHeldInside;
 
         private readonly Memento<string> memento = new Memento<string>();
@@ -188,8 +190,7 @@ namespace Barotrauma
             }
             set
             {
-                base.ToolTip = value;
-                textBlock.ToolTip = value;
+                base.ToolTip = textBlock.ToolTip = caretAndSelectionRenderer.ToolTip = value;
             }
         }
 
@@ -278,7 +279,7 @@ namespace Barotrauma
             CaretEnabled = true;
             caretPosDirty = true;
 
-            new GUICustomComponent(new RectTransform(Vector2.One, frame.RectTransform), onDraw: DrawCaretAndSelection);
+            caretAndSelectionRenderer = new GUICustomComponent(new RectTransform(Vector2.One, frame.RectTransform), onDraw: DrawCaretAndSelection);
 
             int clearButtonWidth = 0;
             if (createClearButton)

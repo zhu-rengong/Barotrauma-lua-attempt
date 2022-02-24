@@ -6,7 +6,7 @@ This is a Barotrauma modification that adds Lua modding support.
 
 # Barotrauma
 
-Copyright © FakeFish Ltd 2017-2021
+Copyright © FakeFish Ltd 2017-2022
 
 Before downloading the source code, please read the [EULA](EULA.txt).
 

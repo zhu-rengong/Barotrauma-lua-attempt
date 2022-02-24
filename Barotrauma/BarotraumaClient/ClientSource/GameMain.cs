@@ -32,6 +32,13 @@ namespace Barotrauma
 
         public static PerformanceCounter PerformanceCounter;
 
+        private static Stopwatch performanceCounterTimer;
+        private static int updateCount = 0;
+        public static int CurrentUpdateRate
+        {
+            get; private set;
+        }
+
         public static readonly Version Version = Assembly.GetEntryAssembly().GetName().Version;
 
         public static string[] ConsoleArguments;
@@ -123,6 +130,12 @@ namespace Barotrauma
         public event Action ResolutionChanged;
 
         private bool exiting;
+
+        public static bool IsFirstLaunch
+        {
+            get;
+            private set;
+        }
 
         public static GameMain Instance
         {
@@ -353,6 +366,8 @@ namespace Barotrauma
             Hyper.ComponentModel.HyperTypeDescriptionProvider.Add(typeof(Item));
             Hyper.ComponentModel.HyperTypeDescriptionProvider.Add(typeof(Items.Components.ItemComponent));
             Hyper.ComponentModel.HyperTypeDescriptionProvider.Add(typeof(Hull));
+
+            performanceCounterTimer = Stopwatch.StartNew();
         }
 
         /// <summary>
@@ -441,8 +456,8 @@ namespace Barotrauma
                 TaskPool.Add("AutoUpdateWorkshopItemsAsync",
                     SteamManager.AutoUpdateWorkshopItemsAsync(), (task) =>
                 {
-                    bool result = ((Task<bool>)task).Result;
-
+                    if (!task.TryGetResult(out bool result)) { return; }
+                    
                     Config.WaitingForAutoUpdate = false;
                 });
 
@@ -583,6 +598,18 @@ namespace Barotrauma
             {
                 Steamworks.SteamFriends.OnGameRichPresenceJoinRequested += OnInvitedToGame;
                 Steamworks.SteamFriends.OnGameLobbyJoinRequested += OnLobbyJoinRequested;
+
+                if (SteamManager.TryGetUnlockedAchievements(out List<Steamworks.Data.Achievement> achievements))
+                {
+                    //check the achievements too, so we don't consider people who've played the game before this "gamelaunchcount" stat was added as being 1st-time-players
+                    //(people who have played previous versions, but not unlocked any achievements, will be incorrectly considered 1st-time-players, but that should be a small enough group to not skew the statistics)
+                    if (!achievements.Any() && SteamManager.GetStatInt("gamelaunchcount") <= 0)
+                    {
+                        IsFirstLaunch = true;
+                        GameAnalyticsManager.AddDesignEvent("FirstLaunch");
+                    }
+                }
+                SteamManager.IncrementStat("gamelaunchcount", 1);
             }
 #endif
 
@@ -700,11 +727,10 @@ namespace Barotrauma
         protected override void Update(GameTime gameTime)
         {
             Timing.Accumulator += gameTime.ElapsedGameTime.TotalSeconds;
-            int updateIterations = (int)Math.Floor(Timing.Accumulator / Timing.Step);
-            if (Timing.Accumulator > Timing.Step * 6.0)
+            if (Timing.Accumulator > Timing.AccumulatorMax)
             {
-                //if the game's running too slowly then we have no choice
-                //but to skip a bunch of steps
+                //prevent spiral of death:
+                //if the game's running too slowly then we have no choice but to skip a bunch of steps
                 //otherwise it snowballs and becomes unplayable
                 Timing.Accumulator = Timing.Step;
             }
@@ -740,7 +766,6 @@ namespace Barotrauma
 
                 PlayerInput.Update(Timing.Step);
 
-
                 if (loadingScreenOpen)
                 {
                     //reset accumulator if loading
@@ -760,7 +785,10 @@ namespace Barotrauma
                     }
 
 #if DEBUG
-                    CancelQuickStart |= PlayerInput.KeyDown(Keys.LeftShift);
+                    if (PlayerInput.KeyHit(Keys.LeftShift))
+                    {
+                        CancelQuickStart = !CancelQuickStart;
+                    }
 
                     if (TitleScreen.LoadState >= 100.0f && !TitleScreen.PlayingSplashScreen && (Config.AutomaticQuickStartEnabled || Config.AutomaticCampaignLoadEnabled || Config.TestScreenEnabled) && FirstLoad && !CancelQuickStart)
                     {
@@ -979,13 +1007,21 @@ namespace Barotrauma
 
                 Timing.Accumulator -= Timing.Step;
 
+                updateCount++;
+
                 sw.Stop();
                 PerformanceCounter.AddElapsedTicks("Update total", sw.ElapsedTicks);
                 PerformanceCounter.UpdateTimeGraph.Update(sw.ElapsedTicks * 1000.0f / (float)Stopwatch.Frequency);
-                PerformanceCounter.UpdateIterationsGraph.Update(updateIterations);
             }
 
-            if (!Paused) Timing.Alpha = Timing.Accumulator / Timing.Step;
+            if (!Paused) { Timing.Alpha = Timing.Accumulator / Timing.Step; }
+
+            if (performanceCounterTimer.ElapsedMilliseconds > 1000)
+            {
+                CurrentUpdateRate = (int)Math.Round(updateCount / (double)(performanceCounterTimer.ElapsedMilliseconds / 1000.0));
+                performanceCounterTimer.Restart();
+                updateCount = 0;
+            }
         }
 
         public static void ResetFrameTime()
@@ -1090,8 +1126,15 @@ namespace Barotrauma
             {
                 double roundDuration = Timing.TotalTime - GameSession.RoundStartTime;
                 GameAnalyticsManager.AddProgressionEvent(GameAnalyticsManager.ProgressionStatus.Fail,
-                    GameSession.GameMode?.Name ?? "none",
+                    GameSession.GameMode?.Preset.Identifier ?? "none",
                     roundDuration);
+                string eventId = "QuitRound:" + (GameSession.GameMode?.Preset.Identifier ?? "none") + ":";
+                GameAnalyticsManager.AddDesignEvent(eventId + "EventManager:CurrentIntensity", GameSession.EventManager.CurrentIntensity);
+                foreach (var activeEvent in GameSession.EventManager.ActiveEvents)
+                {
+                    GameAnalyticsManager.AddDesignEvent(eventId + "EventManager:ActiveEvents:" + activeEvent.ToString());
+                }
+                GameSession.LogEndRoundStats(eventId);
                 if (Tutorial.Initialized)
                 {
                     ((TutorialMode)GameSession.GameMode).Tutorial?.Stop();
@@ -1183,11 +1226,7 @@ namespace Barotrauma
 
             new GUIButton(new RectTransform(new Vector2(1.0f, 1.0f), linkHolder.RectTransform), TextManager.Get("bugreportgithubform"), style: "MainMenuGUIButton", textAlignment: Alignment.Left)
             {
-#if UNSTABLE
-                UserData = "https://barotraumagame.com/unstable-3rf3w5t4ter/",
-#else
                 UserData = "https://github.com/Regalis11/Barotrauma/issues/new?template=bug_report.md",
-#endif
                 OnClicked = (btn, userdata) =>
                 {
                     ShowOpenUrlInWebBrowserPrompt(userdata as string);
