@@ -171,6 +171,7 @@ RegisterBarotrauma("Screen")
 RegisterBarotrauma("GameScreen")
 RegisterBarotrauma("GameSession")
 RegisterBarotrauma("CampaignMode")
+RegisterBarotrauma("CrewManager")
 
 RegisterBarotrauma("DebugConsole+Command")
 
