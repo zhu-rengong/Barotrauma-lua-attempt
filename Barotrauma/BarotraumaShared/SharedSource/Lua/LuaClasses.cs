@@ -134,7 +134,18 @@ namespace Barotrauma
 			public bool disableDisconnectCharacter = false;
 			public bool enableControlHusk = false;
 
-			public int mapEntityUpdateRate = 1;
+			public int mapEntityUpdateInterval
+			{
+				get { return MapEntity.MapEntityUpdateInterval; }
+				set { MapEntity.MapEntityUpdateInterval = value; }
+			}
+
+			public int gapUpdateInterval
+			{
+				get { return MapEntity.GapUpdateInterval; }
+				set { MapEntity.GapUpdateInterval = value; }
+			}
+
 			public HashSet<Item> updatePriorityItems = new HashSet<Item>();
 
 			public void AddPriorityItem(Item item)
