@@ -399,7 +399,7 @@ namespace Barotrauma
                 prevTicks = currTicks;
                 while (Timing.Accumulator >= Timing.Step)
                 {
-                    performanceMeasurement.Start();
+                    performanceCounterTimer.Start();
 
                     Timing.TotalTime += Timing.Step;
                     DebugConsole.Update();
@@ -415,9 +415,9 @@ namespace Barotrauma
 
                     GameMain.Lua.Update();
                     GameMain.Lua.hook.Call("think", new object[] { });
-                    performanceMeasurement.Stop();
-                    LuaSetup.LuaTimer.LastUpdateTime = performanceMeasurement.ElapsedMilliseconds;
-                    performanceMeasurement.Reset();
+                    performanceCounterTimer.Stop();
+                    LuaSetup.LuaTimer.LastUpdateTime = performanceCounterTimer.ElapsedMilliseconds;
+                    performanceCounterTimer.Reset();
 
                     Timing.Accumulator -= Timing.Step;
                     updateCount++;
