@@ -1309,7 +1309,7 @@ namespace Barotrauma
                         isAttackerFightingEnemy = true;
                         return c.IsSecurity ? AIObjectiveCombat.CombatMode.None : (instigator.CombatAction != null ? instigator.CombatAction.WitnessReaction : AIObjectiveCombat.CombatMode.Retreat);
                     }
-                    if (attacker.TeamID == CharacterTeamType.FriendlyNPC && !(attacker.AIController.IsMentallyUnstable || attacker.AIController.IsMentallyUnstable))
+                    if (attacker.TeamID == CharacterTeamType.FriendlyNPC && attacker.AIController != null && !(attacker.AIController.IsMentallyUnstable || attacker.AIController.IsMentallyUnstable))
                     {
                         if (c.IsSecurity)
                         {
