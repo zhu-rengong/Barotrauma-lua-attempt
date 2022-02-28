@@ -119,6 +119,21 @@ namespace Barotrauma
 
 		public partial class LuaGame
 		{
+			public GameSettings GameSettings => GameMain.Config;
+
+#if CLIENT
+			public ChatBox ChatBox
+			{
+				get
+				{
+					if (GameMain.IsSingleplayer)
+						return GameMain.GameSession.CrewManager.ChatBox;
+					else
+						return GameMain.Client.ChatBox;
+				}
+			}
+#endif
+
 			LuaSetup env;
 
 			public LuaGame(LuaSetup e)

@@ -170,6 +170,7 @@ RegisterBarotrauma("UpgradeManager")
 RegisterBarotrauma("Screen")
 RegisterBarotrauma("GameScreen")
 RegisterBarotrauma("GameSession")
+RegisterBarotrauma("GameSettings")
 RegisterBarotrauma("CampaignMode")
 RegisterBarotrauma("CrewManager")
 
