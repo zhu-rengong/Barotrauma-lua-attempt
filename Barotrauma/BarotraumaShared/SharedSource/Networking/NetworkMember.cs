@@ -81,8 +81,8 @@ namespace Barotrauma.Networking
         MISSION,
         EVENTACTION,
         CREW,               //anything related to managing bots in multiplayer
-        READY_CHECK,        //start, end and update a ready check
         MEDICAL,            //medical clinic
+        READY_CHECK,        //start, end and update a ready check
         
         LUA_NET_MESSAGE
     }
