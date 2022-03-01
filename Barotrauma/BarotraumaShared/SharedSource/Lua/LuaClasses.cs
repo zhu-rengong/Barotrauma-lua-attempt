@@ -502,6 +502,9 @@ namespace Barotrauma
 
 			public void Stop()
 			{
+				mapEntityUpdateInterval = 1;
+				gapUpdateInterval = 4;
+
 				foreach(var cmd in luaAddedCommand)
 				{
 					DebugConsole.Commands.Remove(cmd);
