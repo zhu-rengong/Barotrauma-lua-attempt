@@ -710,6 +710,9 @@ namespace Barotrauma.Networking
             var connectedClient = connectedClients.Find(c => c.Connection == sender);
 
             ClientPacketHeader header = (ClientPacketHeader)inc.ReadByte();
+            
+            GameMain.Lua.networking.NetMessageReceived(inc, header, connectedClient);
+
             switch (header)
             {
                 case ClientPacketHeader.PING_RESPONSE:
@@ -847,9 +850,6 @@ namespace Barotrauma.Networking
                     break;
                 case ClientPacketHeader.ERROR:
                     HandleClientError(inc, connectedClient);
-                    break;
-                case ClientPacketHeader.LUA_NET_MESSAGE:
-                    GameMain.Lua.networking.NetMessageReceived(inc, connectedClient);
                     break;
             }
         }

@@ -736,6 +736,8 @@ namespace Barotrauma.Networking
             MultiPlayerCampaign campaign = GameMain.NetLobbyScreen.SelectedMode == GameMain.GameSession?.GameMode.Preset ?
                                                 GameMain.GameSession?.GameMode as MultiPlayerCampaign : null;
 
+            GameMain.Lua.networking.NetMessageReceived(inc, header);
+
             switch (header)
             {
                 case ServerPacketHeader.PING_REQUEST:
@@ -971,9 +973,6 @@ namespace Barotrauma.Networking
                     break;
                 case ServerPacketHeader.EVENTACTION:
                     GameMain.GameSession?.EventManager.ClientRead(inc);
-                    break;
-                case ServerPacketHeader.LUA_NET_MESSAGE:
-                    GameMain.Lua.networking.NetMessageReceived(inc);
                     break;
             }
         }

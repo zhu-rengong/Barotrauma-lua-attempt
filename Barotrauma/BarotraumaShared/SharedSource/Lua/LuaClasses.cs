@@ -4,7 +4,6 @@ using System.Text;
 using MoonSharp.Interpreter;
 using Microsoft.Xna.Framework;
 using Barotrauma.Networking;
-using System.Threading.Tasks;
 using Barotrauma.Items.Components;
 using System.IO;
 using System.Net;
@@ -15,9 +14,6 @@ using System.Reflection;
 using HarmonyLib;
 using MoonSharp.Interpreter.Interop;
 using System.Diagnostics;
-using System.Reflection.Emit;
-using Barotrauma.Extensions;
-using System.Threading;
 
 namespace Barotrauma
 {
@@ -702,21 +698,45 @@ namespace Barotrauma
 				env = e;
 			}
 
-			public Dictionary<string, object> NetReceives = new Dictionary<string, object>();
-			
+			public Dictionary<string, object> LuaNetReceives = new Dictionary<string, object>();
+
+#if SERVER
 			[MoonSharpHidden]
-			public void NetMessageReceived(IReadMessage netMessage, Client client = null)
+			public void NetMessageReceived(IReadMessage netMessage, ClientPacketHeader header, Client client = null)
 			{
-				string netMessageName = netMessage.ReadString();
-				if (NetReceives[netMessageName] is Closure)
-					env.lua.Call(NetReceives[netMessageName], new object[] { netMessage, client });
+				if (header == ClientPacketHeader.LUA_NET_MESSAGE)
+				{
+					string netMessageName = netMessage.ReadString();
+					if (LuaNetReceives[netMessageName] is Closure)
+						env.lua.Call(LuaNetReceives[netMessageName], new object[] { netMessage, client });
+				}
+				else
+				{
+					env.hook.Call("netMessageReceived", netMessage, header, client);
+				}
 			}
+
+#else
+			[MoonSharpHidden]
+			public void NetMessageReceived(IReadMessage netMessage, ServerPacketHeader header, Client client = null)
+			{
+				if (header == ServerPacketHeader.LUA_NET_MESSAGE)
+				{
+					string netMessageName = netMessage.ReadString();
+					if (LuaNetReceives[netMessageName] is Closure)
+						env.lua.Call(LuaNetReceives[netMessageName], new object[] { netMessage, client });
+				}
+				else
+				{
+					env.hook.Call("netMessageReceived", netMessage, header, client);
+				}
+			}
+#endif
 
 			public void Receive(string netMessageName, object callback)
 			{
-				NetReceives[netMessageName] = callback;
+				LuaNetReceives[netMessageName] = callback;
 			}
-
 
 			public IWriteMessage Start(string netMessageName)
 			{
@@ -819,7 +839,7 @@ namespace Barotrauma
 				GameMain.NetworkMember.CreateEntityEvent(entity, extraData);
 			}
 
-#if SERVER 
+#if SERVER
 			public void UpdateClientPermissions(Client client)
 			{
 				GameMain.Server.UpdateClientPermissions(client);

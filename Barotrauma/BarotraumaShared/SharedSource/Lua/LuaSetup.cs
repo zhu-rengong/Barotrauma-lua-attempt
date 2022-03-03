@@ -5,21 +5,9 @@ using System.IO;
 using Barotrauma.Networking;
 using MoonSharp.Interpreter;
 using Microsoft.Xna.Framework;
-using System.Threading.Tasks;
-using Barotrauma.Items.Components;
-using System.Diagnostics;
-using System.Linq;
 using MoonSharp.Interpreter.Interop;
-using System.Reflection;
-using FarseerPhysics.Dynamics;
 using System.IO.Compression;
 using HarmonyLib;
-
-#if CLIENT
-using Microsoft.Xna.Framework.Graphics;
-using EventInput;
-using Microsoft.Xna.Framework.Input;
-#endif
 
 namespace Barotrauma
 {
@@ -355,8 +343,8 @@ namespace Barotrauma
 			UserData.RegisterType<LuaNetworking>();
 			UserData.RegisterType<LuaUserData>();
 			UserData.RegisterType<IUserDataDescriptor>();
-			
 
+			UserData.RegisterProxyType<LuaWriteOnlyMessage, WriteOnlyMessage>(r => new LuaWriteOnlyMessage(r));
 
 #if SERVER
 
@@ -384,7 +372,7 @@ namespace Barotrauma
 			lua.Globals["Timer"] = new LuaTimer(this);
 			lua.Globals["File"] = UserData.CreateStatic<LuaFile>();
 			lua.Globals["Networking"] = networking;
-			
+
 #if SERVER
 
 #elif CLIENT
