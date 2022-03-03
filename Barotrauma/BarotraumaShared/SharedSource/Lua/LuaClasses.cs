@@ -534,7 +534,7 @@ namespace Barotrauma
 
 			public void Wait(object function, int millisecondDelay)
 			{
-				Task.Delay(millisecondDelay).ContinueWith(t => env.hook.EnqueueFunction(function));
+				env.hook.EnqueueTimedFunction((float)Timing.TotalTime + (millisecondDelay / 1000f), function);
 			}
 
 			public static double GetTime()
@@ -869,7 +869,7 @@ namespace Barotrauma
 			private static Dictionary<long, HashSet<object>> _hookPrefixMethods;
 			private static Dictionary<long, HashSet<object>> _hookPostfixMethods;
 
-			private Queue<Tuple<object, object[]>> queuedFunctionCalls = new Queue<Tuple<object, object[]>>();
+			private Queue<Tuple<float, object, object[]>> queuedFunctionCalls = new Queue<Tuple<float, object, object[]>>();
 
 			public enum HookMethodType
 			{
@@ -1050,7 +1050,12 @@ namespace Barotrauma
 
 			public void EnqueueFunction(object function, params object[] args)
 			{
-				queuedFunctionCalls.Enqueue(new Tuple<object, object[]>(function, args));
+				queuedFunctionCalls.Enqueue(new Tuple<float, object, object[]>(0, function, args));
+			}
+
+			public void EnqueueTimedFunction(float time, object function, params object[] args)
+			{
+				queuedFunctionCalls.Enqueue(new Tuple<float, object, object[]>(time, function, args));
 			}
 
 			public void Add(string name, string hookName, object function)
@@ -1082,9 +1087,14 @@ namespace Barotrauma
 			{
 				try
 				{
-					if (queuedFunctionCalls.TryDequeue(out Tuple<object, object[]> result))
+					if (queuedFunctionCalls.TryPeek(out Tuple<float, object, object[]> result))
 					{
-						env.CallFunction(result.Item1, result.Item2);
+						if (Timing.TotalTime >= result.Item1)
+						{
+							env.CallFunction(result.Item2, result.Item3);
+
+							queuedFunctionCalls.Dequeue();
+						}
 					}
 				}
 				catch (Exception ex)
