@@ -44,12 +44,28 @@ namespace Barotrauma
 				return (IUserDataDescriptor)generic.Invoke(null, new object[] { null, null });
 			}
 
+			public static void UnregisterType(string typeName)
+			{
+				Type type = GetType(typeName);
+
+				MethodInfo method = typeof(UserData).GetMethod(nameof(UserData.UnregisterType), new Type[2] { typeof(InteropAccessMode), typeof(string) });
+				MethodInfo generic = method.MakeGenericMethod(type);
+				generic.Invoke(null, new object[] { null, null });
+			}
 			public static IUserDataDescriptor RegisterGenericType(string typeName, params string[] typeNameArguements)
 			{
 				Type type = GetType(typeName);
 				Type[] typeArguements = typeNameArguements.Select(x => GetType(x)).ToArray();
 				Type genericType = type.MakeGenericType(typeArguements);
 				return UserData.RegisterType(genericType);
+			}
+
+			public static void UnregisterGenericType(string typeName, params string[] typeNameArguements)
+			{
+				Type type = GetType(typeName);
+				Type[] typeArguements = typeNameArguements.Select(x => GetType(x)).ToArray();
+				Type genericType = type.MakeGenericType(typeArguements);
+				UserData.UnregisterType(genericType);
 			}
 
 			private static bool IsType<T>(object obj) { return obj is T; }
