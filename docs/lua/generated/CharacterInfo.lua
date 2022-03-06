@@ -12,6 +12,11 @@ local CharacterInfo = {}
 
 --- RecreateHead
 -- @realm shared
+-- @tparam HeadInfo headInfo
+function RecreateHead(headInfo) end
+
+--- RecreateHead
+-- @realm shared
 -- @tparam number headID
 -- @tparam Race race
 -- @tparam Gender gender
@@ -314,11 +319,6 @@ function CharacterInfo.IsMatchingGender(gender, myGender) end
 -- @tparam Race myRace
 -- @treturn bool
 function CharacterInfo.IsMatchingRace(race, myRace) end
-
---- RecreateHead
--- @realm shared
--- @tparam HeadInfo headInfo
-function RecreateHead(headInfo) end
 
 --- GetType
 -- @realm shared

@@ -351,6 +351,11 @@ function GetHashCode() end
 -- @bool RemoveIfLinkedOutpostDoorInUse
 
 ---
+-- Layer, Field of type string
+-- @realm shared
+-- @string Layer
+
+---
 -- Removed, Field of type bool
 -- @realm shared
 -- @bool Removed

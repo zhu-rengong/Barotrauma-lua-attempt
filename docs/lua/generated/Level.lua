@@ -89,13 +89,6 @@ function GetCells(worldPos, searchDepth) end
 -- @treturn VoronoiCell
 function GetClosestCell(worldPos) end
 
---- GetWreckIDTag
--- @realm shared
--- @tparam string originalTag
--- @tparam Submarine wreck
--- @treturn string
-function GetWreckIDTag(originalTag, wreck) end
-
 --- IsCloseToStart
 -- @realm shared
 -- @tparam Vector2 position

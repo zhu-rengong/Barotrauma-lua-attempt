@@ -7,22 +7,6 @@ Barotrauma.Hull
 -- @pragma nostrip
 local Hull = {}
 
---- IncreaseSectionColorOrStrength
--- @realm shared
--- @tparam BackgroundSection section
--- @tparam Nullable`1 color
--- @tparam Nullable`1 strength
--- @tparam bool requiresUpdate
--- @tparam bool isCleaning
-function IncreaseSectionColorOrStrength(section, color, strength, requiresUpdate, isCleaning) end
-
---- SetSectionColorOrStrength
--- @realm shared
--- @tparam BackgroundSection section
--- @tparam Nullable`1 color
--- @tparam Nullable`1 strength
-function SetSectionColorOrStrength(section, color, strength) end
-
 --- DirtySections
 -- @realm shared
 -- @tparam table sections
@@ -269,6 +253,22 @@ function RefreshSubmergedSections(waterArea) end
 -- @treturn bool
 function DoesSectionMatch(index, row) end
 
+--- IncreaseSectionColorOrStrength
+-- @realm shared
+-- @tparam BackgroundSection section
+-- @tparam Nullable`1 color
+-- @tparam Nullable`1 strength
+-- @tparam bool requiresUpdate
+-- @tparam bool isCleaning
+function IncreaseSectionColorOrStrength(section, color, strength, requiresUpdate, isCleaning) end
+
+--- SetSectionColorOrStrength
+-- @realm shared
+-- @tparam BackgroundSection section
+-- @tparam Nullable`1 color
+-- @tparam Nullable`1 strength
+function SetSectionColorOrStrength(section, color, strength) end
+
 --- ResolveLinks
 -- @realm shared
 -- @tparam IdRemap childRemap
@@ -416,11 +416,6 @@ function GetHashCode() end
 -- Surface, Field of type number
 -- @realm shared
 -- @number Surface
-
----
--- DrawSurface, Field of type number
--- @realm shared
--- @number DrawSurface
 
 ---
 -- WorldSurface, Field of type number
@@ -616,6 +611,11 @@ function GetHashCode() end
 -- RemoveIfLinkedOutpostDoorInUse, Field of type bool
 -- @realm shared
 -- @bool RemoveIfLinkedOutpostDoorInUse
+
+---
+-- Layer, Field of type string
+-- @realm shared
+-- @string Layer
 
 ---
 -- Removed, Field of type bool

@@ -62,7 +62,7 @@ Hook.Add("chatMessage","controlhuskcommand",function(msg, client)
         local suitablechars = {}
         for i = 1, #chars, 1 do
             local charat = chars[i]
-            if not charat.IsDead and string.match(string.lower(charat.SpeciesName), "husk") and not charat IsRemotelyControlled then
+            if not charat.IsDead and string.match(string.lower(charat.SpeciesName), "husk") and not charat.IsRemotelyControlled then
                 table.insert(suitablechars, charat)
             end
         end

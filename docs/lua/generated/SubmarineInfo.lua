@@ -65,7 +65,6 @@ function GetRealWorldCrushDepthMultiplier() end
 -- @realm shared
 -- @tparam string filePath
 -- @tparam MemoryStream previewImage
--- @treturn bool
 function SaveAs(filePath, previewImage) end
 
 --- AddToSavedSubs

@@ -106,11 +106,6 @@ function GetHashCode() end
 -- @SubmarineInfo SelectedShuttle
 
 ---
--- CampaignSubmarines, Field of type table
--- @realm shared
--- @table CampaignSubmarines
-
----
 -- GameModes, Field of type GameModePreset[]
 -- @realm shared
 -- @GameModePreset[] GameModes

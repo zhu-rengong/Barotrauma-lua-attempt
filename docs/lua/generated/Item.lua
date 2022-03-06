@@ -46,6 +46,10 @@ function SendSignal(signalOrString, connectionOrConnectionName) end
 -- @Vector2 WorldPosition
 
 
+--- UpdateTransform
+-- @realm shared
+function UpdateTransform() end
+
 --- FlipX
 -- @realm shared
 -- @tparam bool relativeToSub
@@ -65,8 +69,9 @@ function GetConnectedComponents(recursive) end
 --- GetConnectedComponentsRecursive
 -- @realm shared
 -- @tparam Connection c
+-- @tparam bool ignoreInactiveRelays
 -- @treturn table
-function GetConnectedComponentsRecursive(c) end
+function GetConnectedComponentsRecursive(c, ignoreInactiveRelays) end
 
 --- FindController
 -- @realm shared
@@ -451,10 +456,6 @@ function SendPendingNetworkUpdates() end
 -- @tparam Camera cam
 function Update(deltaTime, cam) end
 
---- UpdateTransform
--- @realm shared
-function UpdateTransform() end
-
 --- ServerWrite
 -- @realm shared
 -- @tparam IWriteMessage msg
@@ -618,6 +619,11 @@ function GetHashCode() end
 -- CampaignInteractionType, Field of type InteractionType
 -- @realm shared
 -- @InteractionType CampaignInteractionType
+
+---
+-- DefaultRect, Field of type Rectangle
+-- @realm shared
+-- @Rectangle DefaultRect
 
 ---
 -- SerializableProperties, Field of type table
@@ -920,14 +926,14 @@ function GetHashCode() end
 -- @bool DisplaySideBySideWhenLinked
 
 ---
--- Repairables, Field of type Enumerable
+-- Repairables, Field of type table
 -- @realm shared
--- @Enumerable Repairables
+-- @table Repairables
 
 ---
--- Components, Field of type Enumerable
+-- Components, Field of type table
 -- @realm shared
--- @Enumerable Components
+-- @table Components
 
 ---
 -- Linkable, Field of type bool
@@ -955,9 +961,9 @@ function GetHashCode() end
 -- @ItemPrefab PendingItemSwap
 
 ---
--- AllPropertyObjects, Field of type Enumerable
+-- AllPropertyObjects, Field of type IReadOnlyList`1
 -- @realm shared
--- @Enumerable AllPropertyObjects
+-- @IReadOnlyList`1 AllPropertyObjects
 
 ---
 -- OrderedToBeIgnored, Field of type bool
@@ -1053,6 +1059,11 @@ function GetHashCode() end
 -- RemoveIfLinkedOutpostDoorInUse, Field of type bool
 -- @realm shared
 -- @bool RemoveIfLinkedOutpostDoorInUse
+
+---
+-- Layer, Field of type string
+-- @realm shared
+-- @string Layer
 
 ---
 -- Removed, Field of type bool

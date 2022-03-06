@@ -244,6 +244,11 @@ function GetHashCode() end
 -- @number CrushDepth
 
 ---
+-- BloodlossAffliction, Field of type Affliction
+-- @realm shared
+-- @Affliction BloodlossAffliction
+
+---
 -- IsUnconscious, Field of type bool
 -- @realm shared
 -- @bool IsUnconscious
@@ -309,11 +314,6 @@ function GetHashCode() end
 -- @Affliction PressureAffliction
 
 ---
--- Character, Field of type Character
--- @realm shared
--- @Character Character
-
----
 -- Unkillable, Field of type bool
 -- @realm shared
 -- @bool Unkillable
@@ -322,6 +322,11 @@ function GetHashCode() end
 -- DefaultFaceTint, Field of type Color
 -- @realm shared
 -- @Color DefaultFaceTint
+
+---
+-- Character, Field of type Character
+-- @realm shared
+-- @Character Character
 
 ---
 -- CharacterHealth.InsufficientOxygenThreshold, Field of type number

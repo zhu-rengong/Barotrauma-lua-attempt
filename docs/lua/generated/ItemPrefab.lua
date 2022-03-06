@@ -138,6 +138,11 @@ function ItemPrefab.IsContainerPreferred(preferences, c) end
 -- @treturn bool
 function ItemPrefab.IsContainerPreferred(preferences, ids) end
 
+--- ToString
+-- @realm shared
+-- @treturn string
+function ToString() end
+
 --- GetItemPrefab
 -- @realm shared
 -- @tparam string itemNameOrId
@@ -211,11 +216,6 @@ function IsLinkAllowed(target) end
 -- @realm shared
 -- @treturn Type
 function GetType() end
-
---- ToString
--- @realm shared
--- @treturn string
-function ToString() end
 
 --- Equals
 -- @realm shared
@@ -367,6 +367,11 @@ function GetHashCode() end
 -- ImpactTolerance, Field of type number
 -- @realm shared
 -- @number ImpactTolerance
+
+---
+-- OnDamagedThreshold, Field of type number
+-- @realm shared
+-- @number OnDamagedThreshold
 
 ---
 -- SonarSize, Field of type number

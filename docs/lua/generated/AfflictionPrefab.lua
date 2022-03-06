@@ -152,6 +152,21 @@ function GetHashCode() end
 -- @bool IsBuff
 
 ---
+-- HealableInMedicalClinic, Field of type bool
+-- @realm shared
+-- @bool HealableInMedicalClinic
+
+---
+-- HealCostMultiplier, Field of type number
+-- @realm shared
+-- @number HealCostMultiplier
+
+---
+-- BaseHealCost, Field of type number
+-- @realm shared
+-- @number BaseHealCost
+
+---
 -- CauseOfDeathDescription, Field of type string
 -- @realm shared
 -- @string CauseOfDeathDescription

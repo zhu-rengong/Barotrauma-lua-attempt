@@ -36,6 +36,11 @@ function GetCurrentSpeed(useMaxSpeed) end
 -- @treturn AnimationParams
 function GetAnimationParamsFromType(type) end
 
+--- GetHeightFromFloor
+-- @realm shared
+-- @treturn number
+function GetHeightFromFloor() end
+
 --- UpdateUseItem
 -- @realm shared
 -- @tparam bool allowMovement
@@ -393,6 +398,11 @@ function GetHashCode() end
 -- WalkPos, Field of type number
 -- @realm shared
 -- @number WalkPos
+
+---
+-- IsAboveFloor, Field of type bool
+-- @realm shared
+-- @bool IsAboveFloor
 
 ---
 -- RagdollParams, Field of type RagdollParams

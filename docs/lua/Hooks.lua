@@ -18,7 +18,7 @@ local Hook = {}
 -- Hook.Add("characterDeath", "characterDeathExample", function(character)
 --    print(character)
 -- end)
-function Hook.Add(eventname, hookname, func) end
+function Hook.Add(eventName, hookName, func) end
 
 --- Removes a hook.
 -- @tparam string eventname event name
@@ -26,7 +26,7 @@ function Hook.Add(eventname, hookname, func) end
 -- @realm shared
 -- @usage 
 -- Hook.Remove("characterDeath", "characterDeathExample")
-function Hook.Remove(eventname, hookname) end
+function Hook.Remove(eventName, hookName) end
 
 --- Calls a hook.
 -- @tparam string eventname event name
@@ -36,7 +36,18 @@ function Hook.Remove(eventname, hookname) end
 -- Hook.Add("think", "happyDebuggingSuckers", function()
 --      Hook.Call("characterDead", {}) -- ruin someone's day
 -- end)
-function Hook.Call(eventname, parameters) end
+function Hook.Call(eventName, parameters) end
+
+--- Patches a method, the callback is called with an instance variable and a ptable variable, ptable contains dictionary of parameter name -> parameter
+-- @tparam string className
+-- @tparam string methodName
+-- @tparam function callback
+-- @realm shared
+-- @usage 
+-- Hook.HookMethod("Barotrauma.CharacterInfo", "IncreaseSkillLevel", function (instance, ptable)
+--    print(string.format("%s gained % xp", instance.Character.Name, ptable.increase))
+-- end, Hook.HookMethodType.After)
+function Hook.HookMethod(className, methodName, callback) end
 
 --- Game's fixed update rate, gets called normally 60 times a second.
 -- @realm shared

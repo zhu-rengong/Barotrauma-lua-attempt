@@ -44,6 +44,12 @@ function TeleportTo(worldPos) end
 -- @table Character.CharacterList
 
 
+--- ApplyStatusEffects
+-- @realm shared
+-- @tparam function actionType
+-- @tparam number deltaTime
+function ApplyStatusEffects(actionType, deltaTime) end
+
 --- BreakJoints
 -- @realm shared
 function BreakJoints() end
@@ -139,6 +145,11 @@ function GiveTalent(talentPrefab, addingFirstTime) end
 -- @tparam string identifier
 -- @treturn bool
 function HasTalent(identifier) end
+
+--- HasUnlockedAllTalents
+-- @realm shared
+-- @treturn bool
+function HasUnlockedAllTalents() end
 
 --- GetFriendlyCrew
 -- @realm shared
@@ -573,7 +584,8 @@ function ApplyAttack(attacker, worldPosition, attack, deltaTime, playSound, targ
 -- @tparam number severLimbsProbability
 -- @tparam number damage
 -- @tparam bool allowBeheading
-function TrySeverLimbJoints(targetLimb, severLimbsProbability, damage, allowBeheading) end
+-- @tparam Character attacker
+function TrySeverLimbJoints(targetLimb, severLimbsProbability, damage, allowBeheading, attacker) end
 
 --- AddDamage
 -- @realm shared
@@ -638,12 +650,6 @@ function TryAdjustAttackerSkill(attacker, healthChange) end
 -- @tparam bool allowStunDecrease
 -- @tparam bool isNetworkMessage
 function SetStun(newStun, allowStunDecrease, isNetworkMessage) end
-
---- ApplyStatusEffects
--- @realm shared
--- @tparam function actionType
--- @tparam number deltaTime
-function ApplyStatusEffects(actionType, deltaTime) end
 
 --- Create
 -- @realm shared
@@ -881,6 +887,11 @@ function GetHashCode() end
 -- SecondLastOrderedCharacter, Field of type Character
 -- @realm shared
 -- @Character SecondLastOrderedCharacter
+
+---
+-- ItemSelectedDurations, Field of type table
+-- @realm shared
+-- @table ItemSelectedDurations
 
 ---
 -- SpeciesName, Field of type string

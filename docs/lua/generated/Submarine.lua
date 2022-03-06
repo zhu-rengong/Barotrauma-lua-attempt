@@ -43,12 +43,12 @@ function Submarine.RepositionEntities(moveAmount, entities) end
 -- @tparam XElement element
 function SaveToXElement(element) end
 
---- SaveAs
+--- TrySaveAs
 -- @realm shared
 -- @tparam string filePath
 -- @tparam MemoryStream previewImage
 -- @treturn bool
-function SaveAs(filePath, previewImage) end
+function TrySaveAs(filePath, previewImage) end
 
 --- Unload
 -- @realm shared

@@ -88,6 +88,11 @@ function GameSession.GetSessionCrewCharacters() end
 -- @tparam TransitionType transitionType
 function EndRound(endMessage, traitorResults, transitionType) end
 
+--- LogEndRoundStats
+-- @realm shared
+-- @tparam string eventId
+function LogEndRoundStats(eventId) end
+
 --- KillCharacter
 -- @realm shared
 -- @tparam Character character
@@ -215,6 +220,16 @@ function GetHashCode() end
 -- RoundStartTime, Field of type number
 -- @realm shared
 -- @number RoundStartTime
+
+---
+-- TimeSpentCleaning, Field of type number
+-- @realm shared
+-- @number TimeSpentCleaning
+
+---
+-- TimeSpentPainting, Field of type number
+-- @realm shared
+-- @number TimeSpentPainting
 
 ---
 -- WinningTeam, Field of type Nullable`1
