@@ -915,7 +915,12 @@ namespace Barotrauma
 			static void _hookLuaPatch(MethodBase __originalMethod, object[] __args, object __instance, out LuaResult result, HookMethodType hookMethodType)
 			{
 				result = new LuaResult(null);
-				
+
+#if CLIENT
+				if (GameMain.GameSession?.IsRunning == false && GameMain.IsSingleplayer)
+					return;
+#endif
+
 				try
 				{
 					var @params = __originalMethod.GetParameters();
@@ -1141,6 +1146,10 @@ namespace Barotrauma
 
 			public object Call(string name, params object[] args)
 			{
+#if CLIENT
+				if (GameMain.GameSession?.IsRunning == false && GameMain.IsSingleplayer)
+					return null;
+#endif
 				if (env == null) return null;
 				if (name == null) return null;
 				if (args == null) { args = new object[] { }; }
