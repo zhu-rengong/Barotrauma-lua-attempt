@@ -377,6 +377,7 @@ namespace Barotrauma
         private readonly List<string> talentTriggers;
         private readonly List<int> giveExperiences;
         private readonly List<GiveSkill> giveSkills;
+        private readonly List<string> luaHook;
 
         public float Duration => duration;
 
@@ -431,6 +432,7 @@ namespace Barotrauma
             talentTriggers = new List<string>();
             giveExperiences = new List<int>();
             giveSkills = new List<GiveSkill>();
+            luaHook = new List<string>();
             multiplyAfflictionsByMaxVitality = element.GetAttributeBool("multiplyafflictionsbymaxvitality", false);
 
             tags = new HashSet<string>(element.GetAttributeString("tags", "").Split(','));
@@ -734,6 +736,9 @@ namespace Barotrauma
                         break;
                     case "giveskill":
                         giveSkills.Add(new GiveSkill(subElement, parentDebugName));
+                        break;
+                    case "luahook":
+                        luaHook.Add(subElement.GetAttributeString("name", ""));
                         break;
                 }
             }
@@ -1232,6 +1237,14 @@ namespace Barotrauma
                     if (result.Bool())
                         return;
                 }
+            }
+
+            foreach (string luaHooks in luaHook)
+            {
+                var result = new LuaResult(GameMain.Lua.hook.Call(luaHooks, this, deltaTime, entity, targets, worldPosition));
+
+                if (result.Bool())
+                    return;
             }
 
             Hull hull = GetHull(entity);
