@@ -652,6 +652,16 @@ namespace Barotrauma
 				return File.Exists(path);
 			}
 
+			public static bool CreateDirectory(string path)
+			{
+				if (!IsPathAllowedLuaException(path))
+					return false;
+
+				Directory.CreateDirectory(path);
+
+				return true;
+			}
+
 			public static bool DirectoryExists(string path)
 			{
 				if (!IsPathAllowedLuaException(path))
