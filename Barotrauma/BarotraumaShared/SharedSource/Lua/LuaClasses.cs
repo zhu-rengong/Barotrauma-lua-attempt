@@ -507,6 +507,21 @@ namespace Barotrauma
 
 				luaAddedCommand.Add(cmd);
 				DebugConsole.Commands.Add(cmd);
+
+#if SERVER
+				foreach (var client in GameMain.Server.ConnectedClients) {
+					var index = client.PermittedConsoleCommands.FindIndex((pc) => pc.names[0] == cmd.names[0]);
+					if (index > -1) {
+						client.PermittedConsoleCommands[index] = cmd;
+					}
+				}
+				foreach (var permissions in GameMain.Server.ServerSettings.ClientPermissions) {
+					var index = permissions.PermittedCommands.FindIndex((pc) => pc.names[0] == cmd.names[0]);
+					if (index > -1) {
+						permissions.PermittedCommands[index] = cmd;
+					}
+				}
+#endif
 			}
 
 			public List<DebugConsole.Command> Commands => DebugConsole.Commands;
