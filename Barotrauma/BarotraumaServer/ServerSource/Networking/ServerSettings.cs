@@ -489,8 +489,7 @@ namespace Barotrauma.Networking
                             DebugConsole.Command command = DebugConsole.FindCommand(commandName);
                             if (command == null)
                             {
-                                DebugConsole.ThrowError("Error in " + ClientPermissionsFile + " - \"" + commandName + "\" is not a valid console command.");
-                                continue;
+                                command = new DebugConsole.Command(commandName, "", (_) => {}, null, true);
                             }
 
                             permittedCommands.Add(command);
