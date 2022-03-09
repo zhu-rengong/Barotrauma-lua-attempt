@@ -222,41 +222,6 @@ namespace Barotrauma
 			return value * 2;
 		}
 
-		// messy solution
-		public object HandleCall(object arg1, ScriptExecutionContext arg2, CallbackArguments arg3)
-		{
-			
-			var what = arg3.RawGet(0, true);
-
-			var code = "return " + what.UserData.Descriptor.Type.Name + ".__new(";
-
-			var tbl = new Table(lua);
-			tbl[what.UserData.Descriptor.Type.Name] = what;
-			
-			for(var i=1; i < arg3.Count; i++)
-			{
-				if (i == arg3.Count - 1)
-					code = code + "arg" + i;
-				else
-					code = code + "arg" + i + ",";
-
-				tbl["arg" + i] = arg3.RawGet(i, true);
-			}
-
-			code = code + ")";
-
-			try
-			{
-				return lua.DoString(code, tbl);
-			}
-			catch(Exception e)
-			{
-				HandleLuaException(e);
-			}
-
-			return null;
-		}
-
 
 #if SERVER
 		public static void InstallClientSideLua()
@@ -324,7 +289,7 @@ namespace Barotrauma
 
 			LuaCustomConverters.RegisterAll();
 
-			lua = new Script(CoreModules.Preset_SoftSandbox);
+			lua = new Script(CoreModules.Preset_SoftSandbox | CoreModules.Debug);
 			lua.Options.DebugPrint = PrintMessage;
 			lua.Options.ScriptLoader = luaScriptLoader;
 
@@ -344,14 +309,6 @@ namespace Barotrauma
 			UserData.RegisterType<LuaUserData>();
 			UserData.RegisterType<IUserDataDescriptor>();
 
-			UserData.RegisterProxyType<LuaWriteOnlyMessage, WriteOnlyMessage>(r => new LuaWriteOnlyMessage(r));
-
-#if SERVER
-
-#elif CLIENT
-			UserData.RegisterType<LuaGUI>();
-#endif
-
 			lua.Globals["setmodulepaths"] = (Action<string[]>)SetModulePaths;
 
 			lua.Globals["TestFunction"] = (Func<float, float>)TestFunction;
@@ -364,7 +321,7 @@ namespace Barotrauma
 
 			lua.Globals["dostring"] = (Func<string, Table, string, DynValue>)DoString;
 			lua.Globals["load"] = (Func<string, Table, string, DynValue>)LoadString;
-			
+
 			lua.Globals["LuaUserData"] = UserData.CreateStatic<LuaUserData>();
 			lua.Globals["Game"] = game;
 			lua.Globals["Hook"] = hook;
@@ -372,12 +329,6 @@ namespace Barotrauma
 			lua.Globals["Timer"] = new LuaTimer(this);
 			lua.Globals["File"] = UserData.CreateStatic<LuaFile>();
 			lua.Globals["Networking"] = networking;
-
-#if SERVER
-
-#elif CLIENT
-			lua.Globals["GUI"] = new LuaGUI(this);
-#endif
 
 			bool isServer = true;
 
@@ -397,7 +348,7 @@ namespace Barotrauma
 			else if (File.Exists("Mods/LuaForBarotrauma/Lua/LuaSetup.lua")) // in case its the workshop version
 				DoFile("Mods/LuaForBarotrauma/Lua/LuaSetup.lua");
 			else
-				PrintError("Lua loader not found! Lua/LuaSetup.lua, no lua scripts will be executed or work.");
+				PrintError("Lua loader not found! Lua/LuaSetup.lua, no Lua scripts will be executed or work.");
 		}
 
 		public LuaSetup()

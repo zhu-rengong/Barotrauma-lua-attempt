@@ -17,7 +17,6 @@ using System.Diagnostics;
 
 namespace Barotrauma
 {
-
 	partial class LuaSetup
 	{
 		partial class LuaUserData
@@ -39,6 +38,12 @@ namespace Barotrauma
 			{
 				Type type = GetType(typeName);
 
+				if (type == null)
+				{
+					GameMain.Lua.HandleLuaException(new Exception($"Tried to register a type that doesn't exist: {typeName}."));
+					return null;
+				}
+
 				MethodInfo method = typeof(UserData).GetMethod(nameof(UserData.RegisterType), new Type[2] { typeof(InteropAccessMode), typeof(string) });
 				MethodInfo generic = method.MakeGenericMethod(type);
 				return (IUserDataDescriptor)generic.Invoke(null, new object[] { null, null });
@@ -47,6 +52,12 @@ namespace Barotrauma
 			public static void UnregisterType(string typeName)
 			{
 				Type type = GetType(typeName);
+
+				if (type == null)
+				{
+					GameMain.Lua.HandleLuaException(new Exception($"Tried to unregister a type that doesn't exist: {typeName}."));
+					return;
+				}
 
 				MethodInfo method = typeof(UserData).GetMethod(nameof(UserData.UnregisterType), new Type[2] { typeof(InteropAccessMode), typeof(string) });
 				MethodInfo generic = method.MakeGenericMethod(type);
@@ -82,16 +93,15 @@ namespace Barotrauma
 			{
 				Type type = GetType(typeName);
 
+				if (type == null)
+				{
+					GameMain.Lua.HandleLuaException(new Exception($"Tried to create a static userdata of a type that doesn't exist: {typeName}."));
+					return null;
+				}
+
 				MethodInfo method = typeof(UserData).GetMethod(nameof(UserData.CreateStatic), 1, new Type[0]);
 				MethodInfo generic = method.MakeGenericMethod(type);
 				return generic.Invoke(null, null);
-			}
-
-			public static void AddCallMetaMember(IUserDataDescriptor IUDD)
-			{
-				var descriptor = (StandardUserDataDescriptor)IUDD;
-				descriptor.RemoveMetaMember("__call");
-				descriptor.AddMetaMember("__call", new ObjectCallbackMemberDescriptor("__call", LuaSetup.luaSetup.HandleCall));
 			}
 
 			public static void MakeFieldAccessible(IUserDataDescriptor IUUD, string fieldName)

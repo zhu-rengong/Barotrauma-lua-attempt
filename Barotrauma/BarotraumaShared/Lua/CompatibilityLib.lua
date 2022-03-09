@@ -2,6 +2,10 @@
 
 local compatibilityLib = {}
 
+LuaUserData.AddMethod(LuaUserData.RegisterType("Barotrauma.LuaSetup+LuaUserData"), "AddCallMetaMember", function (v)
+    print("AddCallMetaMember is deprecated, use debug.setmetatable instead.")
+end)
+
 compatibilityLib.CreateVector2 = Vector2.__new
 compatibilityLib.CreateVector3 = Vector3.__new
 compatibilityLib.CreateVector4 = Vector4.__new

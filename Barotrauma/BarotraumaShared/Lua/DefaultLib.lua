@@ -2,41 +2,42 @@ local defaultLib = {}
 
 require("DefaultRegister")
 
-local CreateStatic = function (typeName)
-	return LuaUserData.CreateStatic("Barotrauma." .. typeName)
+local CreateStatic = function (typeName, addCallMethod)
+	local staticUserdata = LuaUserData.CreateStatic(typeName)
+	
+	if addCallMethod then
+		debug.setmetatable(staticUserdata, {
+			__call = function(obj, ...) 
+				return staticUserdata.__new(...)
+			end
+		})
+	end
+
+	return staticUserdata
 end
 
-defaultLib["WayPoint"] = CreateStatic("WayPoint")
-defaultLib["SpawnType"] = CreateStatic("SpawnType")
-defaultLib["ChatMessageType"] = CreateStatic("Networking.ChatMessageType")
-defaultLib["ServerLog_MessageType"] = CreateStatic("Networking.ServerLog+MessageType")
-defaultLib["ServerLogMessageType"] = CreateStatic("Networking.ServerLog+MessageType")
-defaultLib["Submarine"] = CreateStatic("Submarine")
-defaultLib["Client"] = CreateStatic("Networking.Client")
-defaultLib["Character"] = CreateStatic("Character")
-defaultLib["CharacterInfo"] = CreateStatic("CharacterInfo")
-defaultLib["Item"] = CreateStatic("Item")
-defaultLib["ItemPrefab"] = CreateStatic("ItemPrefab")
-defaultLib["Level"] = CreateStatic("Level")
-defaultLib["PositionType"] = CreateStatic("Level+PositionType")
-defaultLib["Job"] = CreateStatic("Job")
-defaultLib["JobPrefab"] = CreateStatic("JobPrefab")
-defaultLib["TraitorMessageType"] = CreateStatic("Networking.TraitorMessageType")
-defaultLib["CauseOfDeathType"] = CreateStatic("CauseOfDeathType")
-defaultLib["AfflictionPrefab"] = CreateStatic("AfflictionPrefab")
-defaultLib["CharacterTeamType"] = CreateStatic("CharacterTeamType")
-defaultLib["Vector2"] = LuaUserData.CreateStatic("Microsoft.Xna.Framework.Vector2")
-defaultLib["Vector3"] = LuaUserData.CreateStatic("Microsoft.Xna.Framework.Vector3")
-defaultLib["Vector4"] = LuaUserData.CreateStatic("Microsoft.Xna.Framework.Vector4")
-defaultLib["Color"] = LuaUserData.CreateStatic("Microsoft.Xna.Framework.Color")
-defaultLib["Point"] = LuaUserData.CreateStatic("Microsoft.Xna.Framework.Point")
-defaultLib["ChatMessage"] = CreateStatic("Networking.ChatMessage")
-defaultLib["Hull"] = CreateStatic("Hull")
-defaultLib["InvSlotType"] = CreateStatic("InvSlotType")
-defaultLib["LimbType"] = CreateStatic("LimbType")
-defaultLib["ActionType"] = CreateStatic("ActionType")
-defaultLib["Gap"] = CreateStatic("Gap")
-defaultLib["ContentPackage"] = CreateStatic("ContentPackage")
+defaultLib["Byte"] = CreateStatic("Barotrauma.LuaByte", true)
+defaultLib["UShort"] = CreateStatic("Barotrauma.LuaUShort", true)
+defaultLib["Float"] = CreateStatic("Barotrauma.LuaFloat", true)
+
+defaultLib["SpawnType"] = CreateStatic("Barotrauma.SpawnType")
+defaultLib["ChatMessageType"] = CreateStatic("Barotrauma.Networking.ChatMessageType")
+defaultLib["ServerLog_MessageType"] = CreateStatic("Barotrauma.Networking.ServerLog+MessageType")
+defaultLib["ServerLogMessageType"] = CreateStatic("Barotrauma.Networking.ServerLog+MessageType")
+defaultLib["PositionType"] = CreateStatic("Barotrauma.Level+PositionType")
+defaultLib["InvSlotType"] = CreateStatic("Barotrauma.InvSlotType")
+defaultLib["LimbType"] = CreateStatic("Barotrauma.LimbType")
+defaultLib["ActionType"] = CreateStatic("Barotrauma.ActionType")
+defaultLib["DeliveryMethod"] = CreateStatic("Barotrauma.Networking.DeliveryMethod")
+defaultLib["ClientPacketHeader"] = CreateStatic("Barotrauma.Networking.ClientPacketHeader")
+defaultLib["ServerPacketHeader"] = CreateStatic("Barotrauma.Networking.ServerPacketHeader")
+defaultLib["RandSync"] = CreateStatic("Barotrauma.Rand+RandSync")
+defaultLib["DisconnectReason"] = CreateStatic("Barotrauma.Networking.DisconnectReason")
+defaultLib["TraitorMessageType"] = CreateStatic("Barotrauma.Networking.TraitorMessageType")
+defaultLib["CombatMode"] = CreateStatic("Barotrauma.AIObjectiveCombat+CombatMode")
+defaultLib["CauseOfDeathType"] = CreateStatic("Barotrauma.CauseOfDeathType")
+defaultLib["CharacterTeamType"] = CreateStatic("Barotrauma.CharacterTeamType")
+
 defaultLib["ClientPermissions"] = {
 	None = 0x0,
 	ManageRound = 0x1,
@@ -53,58 +54,94 @@ defaultLib["ClientPermissions"] = {
 	KarmaImmunity = 0x800,
 	All = 0xFFF
 }
-defaultLib["Signal"] = CreateStatic("Items.Components.Signal")
-defaultLib["DeliveryMethod"] = CreateStatic("Networking.DeliveryMethod")
-defaultLib["ClientPacketHeader"] = CreateStatic("Networking.ClientPacketHeader")
-defaultLib["ServerPacketHeader"] = CreateStatic("Networking.ServerPacketHeader")
-defaultLib["RandSync"] = CreateStatic("Rand+RandSync")
-defaultLib["SubmarineInfo"] = CreateStatic("SubmarineInfo")
-defaultLib["Rectangle"] = LuaUserData.CreateStatic("Microsoft.Xna.Framework.Rectangle")
-defaultLib["Entity"] = CreateStatic("Entity")
-defaultLib["Physics"] = CreateStatic("Physics")
-defaultLib["FireSource"] = CreateStatic("FireSource")
-defaultLib["TextManager"] = CreateStatic("TextManager")
-defaultLib["NetEntityEvent"] = CreateStatic("Networking.NetEntityEvent")
 
-defaultLib["AIObjective"] = CreateStatic("AIObjective")
-defaultLib["AIObjectiveChargeBatteries"] = CreateStatic("AIObjectiveChargeBatteries")
-defaultLib["AIObjectiveCleanupItem"] = CreateStatic("AIObjectiveCleanupItem")
-defaultLib["AIObjectiveCleanupItems"] = CreateStatic("AIObjectiveCleanupItems")
-defaultLib["AIObjectiveCombat"] = CreateStatic("AIObjectiveCombat")
-defaultLib["AIObjectiveContainItem"] = CreateStatic("AIObjectiveContainItem")
-defaultLib["AIObjectiveDecontainItem"] = CreateStatic("AIObjectiveDecontainItem")
-defaultLib["AIObjectiveEscapeHandcuffs"] = CreateStatic("AIObjectiveEscapeHandcuffs")
-defaultLib["AIObjectiveExtinguishFire"] = CreateStatic("AIObjectiveExtinguishFire")
-defaultLib["AIObjectiveExtinguishFires"] = CreateStatic("AIObjectiveExtinguishFires")
-defaultLib["AIObjectiveFightIntruders"] = CreateStatic("AIObjectiveFightIntruders")
-defaultLib["AIObjectiveFindDivingGear"] = CreateStatic("AIObjectiveFindDivingGear")
-defaultLib["AIObjectiveFindSafety"] = CreateStatic("AIObjectiveFindSafety")
-defaultLib["AIObjectiveFixLeak"] = CreateStatic("AIObjectiveFixLeak")
-defaultLib["AIObjectiveFixLeaks"] = CreateStatic("AIObjectiveFixLeaks")
-defaultLib["AIObjectiveGetItem"] = CreateStatic("AIObjectiveGetItem")
-defaultLib["AIObjectiveGoTo"] = CreateStatic("AIObjectiveGoTo")
-defaultLib["AIObjectiveIdle"] = CreateStatic("AIObjectiveIdle")
-defaultLib["AIObjectiveOperateItem"] = CreateStatic("AIObjectiveOperateItem")
-defaultLib["AIObjectiveOperateItem"] = CreateStatic("AIObjectiveOperateItem")
-defaultLib["AIObjectivePumpWater"] = CreateStatic("AIObjectivePumpWater")
-defaultLib["AIObjectiveRepairItem"] = CreateStatic("AIObjectiveRepairItem")
-defaultLib["AIObjectiveRepairItems"] = CreateStatic("AIObjectiveRepairItems")
-defaultLib["AIObjectiveRescue"] = CreateStatic("AIObjectiveRescue")
-defaultLib["AIObjectiveRescueAll"] = CreateStatic("AIObjectiveRescueAll")
-defaultLib["AIObjectiveReturn"] = CreateStatic("AIObjectiveReturn")
-defaultLib["CombatMode"] = CreateStatic("AIObjectiveCombat+CombatMode")
 
-defaultLib["DisconnectReason"] = CreateStatic("Networking.DisconnectReason")
+defaultLib["WayPoint"] = CreateStatic("Barotrauma.WayPoint", true)
+defaultLib["Submarine"] = CreateStatic("Barotrauma.Submarine", true)
+defaultLib["Client"] = CreateStatic("Barotrauma.Networking.Client", true)
+defaultLib["Character"] = CreateStatic("Barotrauma.Character")
+defaultLib["CharacterInfo"] = CreateStatic("Barotrauma.CharacterInfo", true)
+defaultLib["Item"] = CreateStatic("Barotrauma.Item", true)
+defaultLib["ItemPrefab"] = CreateStatic("Barotrauma.ItemPrefab", true)
+defaultLib["Level"] = CreateStatic("Barotrauma.Level")
+defaultLib["Job"] = CreateStatic("Barotrauma.Job", true)
+defaultLib["JobPrefab"] = CreateStatic("Barotrauma.JobPrefab", true)
+defaultLib["AfflictionPrefab"] = CreateStatic("Barotrauma.AfflictionPrefab", true)
+defaultLib["ChatMessage"] = CreateStatic("Barotrauma.Networking.ChatMessage")
+defaultLib["Hull"] = CreateStatic("Barotrauma.Hull", true)
+defaultLib["Gap"] = CreateStatic("Barotrauma.Gap", true)
+defaultLib["ContentPackage"] = CreateStatic("Barotrauma.ContentPackage", true)
+defaultLib["Signal"] = CreateStatic("Barotrauma.Items.Components.Signal", true)
+defaultLib["SubmarineInfo"] = CreateStatic("Barotrauma.SubmarineInfo", true)
+defaultLib["Entity"] = CreateStatic("Barotrauma.Entity", true)
+defaultLib["Physics"] = CreateStatic("Barotrauma.Physics")
+defaultLib["FireSource"] = CreateStatic("Barotrauma.FireSource", true)
+defaultLib["TextManager"] = CreateStatic("Barotrauma.TextManager")
+defaultLib["NetEntityEvent"] = CreateStatic("Barotrauma.Networking.NetEntityEvent")
+defaultLib["Screen"] = CreateStatic("Barotrauma.Screen")
 
+defaultLib["AIObjective"] = CreateStatic("Barotrauma.AIObjective", true)
+defaultLib["AIObjectiveChargeBatteries"] = CreateStatic("Barotrauma.AIObjectiveChargeBatteries", true)
+defaultLib["AIObjectiveCleanupItem"] = CreateStatic("Barotrauma.AIObjectiveCleanupItem", true)
+defaultLib["AIObjectiveCleanupItems"] = CreateStatic("Barotrauma.AIObjectiveCleanupItems", true)
+defaultLib["AIObjectiveCombat"] = CreateStatic("Barotrauma.AIObjectiveCombat", true)
+defaultLib["AIObjectiveContainItem"] = CreateStatic("Barotrauma.AIObjectiveContainItem", true)
+defaultLib["AIObjectiveDecontainItem"] = CreateStatic("Barotrauma.AIObjectiveDecontainItem", true)
+defaultLib["AIObjectiveEscapeHandcuffs"] = CreateStatic("Barotrauma.AIObjectiveEscapeHandcuffs", true)
+defaultLib["AIObjectiveExtinguishFire"] = CreateStatic("Barotrauma.AIObjectiveExtinguishFire", true)
+defaultLib["AIObjectiveExtinguishFires"] = CreateStatic("Barotrauma.AIObjectiveExtinguishFires", true)
+defaultLib["AIObjectiveFightIntruders"] = CreateStatic("Barotrauma.AIObjectiveFightIntruders", true)
+defaultLib["AIObjectiveFindDivingGear"] = CreateStatic("Barotrauma.AIObjectiveFindDivingGear", true)
+defaultLib["AIObjectiveFindSafety"] = CreateStatic("Barotrauma.AIObjectiveFindSafety", true)
+defaultLib["AIObjectiveFixLeak"] = CreateStatic("Barotrauma.AIObjectiveFixLeak", true)
+defaultLib["AIObjectiveFixLeaks"] = CreateStatic("Barotrauma.AIObjectiveFixLeaks", true)
+defaultLib["AIObjectiveGetItem"] = CreateStatic("Barotrauma.AIObjectiveGetItem", true)
+defaultLib["AIObjectiveGoTo"] = CreateStatic("Barotrauma.AIObjectiveGoTo", true)
+defaultLib["AIObjectiveIdle"] = CreateStatic("Barotrauma.AIObjectiveIdle", true)
+defaultLib["AIObjectiveOperateItem"] = CreateStatic("Barotrauma.AIObjectiveOperateItem", true)
+defaultLib["AIObjectiveOperateItem"] = CreateStatic("Barotrauma.AIObjectiveOperateItem", true)
+defaultLib["AIObjectivePumpWater"] = CreateStatic("Barotrauma.AIObjectivePumpWater", true)
+defaultLib["AIObjectiveRepairItem"] = CreateStatic("Barotrauma.AIObjectiveRepairItem", true)
+defaultLib["AIObjectiveRepairItems"] = CreateStatic("Barotrauma.AIObjectiveRepairItems", true)
+defaultLib["AIObjectiveRescue"] = CreateStatic("Barotrauma.AIObjectiveRescue", true)
+defaultLib["AIObjectiveRescueAll"] = CreateStatic("Barotrauma.AIObjectiveRescueAll", true)
+defaultLib["AIObjectiveReturn"] = CreateStatic("Barotrauma.AIObjectiveReturn", true)
+
+defaultLib["Vector2"] = CreateStatic("Microsoft.Xna.Framework.Vector2")
+defaultLib["Vector3"] = CreateStatic("Microsoft.Xna.Framework.Vector3", true)
+defaultLib["Vector4"] = CreateStatic("Microsoft.Xna.Framework.Vector4", true)
+defaultLib["Color"] = CreateStatic("Microsoft.Xna.Framework.Color", true)
+defaultLib["Point"] = CreateStatic("Microsoft.Xna.Framework.Point", true)
+defaultLib["Rectangle"] = CreateStatic("Microsoft.Xna.Framework.Rectangle", true)
 
 if SERVER then
 
 elseif CLIENT then
-	defaultLib["Sprite"] = CreateStatic("Sprite")
-	defaultLib["Keys"] = LuaUserData.CreateStatic("Microsoft.Xna.Framework.Input.Keys")
-	defaultLib["PlayerInput"] = CreateStatic("PlayerInput")
+	defaultLib["Sprite"] = CreateStatic("Barotrauma.Sprite", true)
+	defaultLib["PlayerInput"] = CreateStatic("Barotrauma.PlayerInput", true)
 
-	GUI.CreateStaticValues()
+	defaultLib["Keys"] = CreateStatic("Microsoft.Xna.Framework.Input.Keys", true)
+
+	defaultLib["GUI"] = {
+		RectTransform = CreateStatic("Barotrauma.RectTransform, true", true),
+		LayoutGroup = CreateStatic("Barotrauma.GUILayoutGroup", true),
+		Button = CreateStatic("Barotrauma.GUIButton", true),
+		TextBox = CreateStatic("Barotrauma.GUITextBox", true),
+		Canvas = CreateStatic("Barotrauma.GUICanvas", true),
+		Frame = CreateStatic("Barotrauma.GUIFrame", true),
+		TextBlock = CreateStatic("Barotrauma.GUITextBlock", true),
+		TickBox = CreateStatic("Barotrauma.GUITickBox", true),
+		Image = CreateStatic("Barotrauma.GUIImage", true),
+		ListBox = CreateStatic("Barotrauma.GUIListBox", true),
+		ScrollBar = CreateStatic("Barotrauma.GUIScrollBar", true),
+		DropDown = CreateStatic("Barotrauma.GUIDropDown", true),
+
+		Screen = CreateStatic("Barotrauma.Screen"),
+
+		Anchor = CreateStatic("Barotrauma.Anchor"),
+		Alignment = CreateStatic("Barotrauma.Alignment"),
+		Pivot = CreateStatic("Barotrauma.Pivot"),
+	}
 end
 
 return defaultLib
