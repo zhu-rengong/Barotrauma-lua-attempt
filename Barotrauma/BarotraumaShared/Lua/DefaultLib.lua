@@ -107,7 +107,7 @@ defaultLib["AIObjectiveRescue"] = CreateStatic("Barotrauma.AIObjectiveRescue", t
 defaultLib["AIObjectiveRescueAll"] = CreateStatic("Barotrauma.AIObjectiveRescueAll", true)
 defaultLib["AIObjectiveReturn"] = CreateStatic("Barotrauma.AIObjectiveReturn", true)
 
-defaultLib["Vector2"] = CreateStatic("Microsoft.Xna.Framework.Vector2")
+defaultLib["Vector2"] = CreateStatic("Microsoft.Xna.Framework.Vector2", true)
 defaultLib["Vector3"] = CreateStatic("Microsoft.Xna.Framework.Vector3", true)
 defaultLib["Vector4"] = CreateStatic("Microsoft.Xna.Framework.Vector4", true)
 defaultLib["Color"] = CreateStatic("Microsoft.Xna.Framework.Color", true)
