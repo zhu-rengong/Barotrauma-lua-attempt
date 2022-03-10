@@ -251,7 +251,6 @@ elseif CLIENT then
 
 RegisterBarotrauma("Networking.ClientPeer")
 
-RegisterBarotrauma("LuaSetup+LuaGUI")
 RegisterBarotrauma("ChatBox")
 RegisterBarotrauma("GUICanvas")
 RegisterBarotrauma("Anchor")

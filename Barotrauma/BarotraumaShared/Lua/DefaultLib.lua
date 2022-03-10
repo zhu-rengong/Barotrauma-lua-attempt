@@ -123,7 +123,7 @@ elseif CLIENT then
 	defaultLib["Keys"] = CreateStatic("Microsoft.Xna.Framework.Input.Keys", true)
 
 	defaultLib["GUI"] = {
-		RectTransform = CreateStatic("Barotrauma.RectTransform, true", true),
+		RectTransform = CreateStatic("Barotrauma.RectTransform", true),
 		LayoutGroup = CreateStatic("Barotrauma.GUILayoutGroup", true),
 		Button = CreateStatic("Barotrauma.GUIButton", true),
 		TextBox = CreateStatic("Barotrauma.GUITextBox", true),
