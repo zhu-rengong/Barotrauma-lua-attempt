@@ -1044,7 +1044,7 @@ namespace Barotrauma
 				var classType = Type.GetType(className);
 				MethodInfo methodInfo = null;
 
-				if (parameterNames.Length > 0)
+				if (parameterNames != null)
                 {
 					Type[] parameterTypes = parameterNames.Select(x => AccessTools.TypeByName(x)).ToArray();
 					methodInfo = classType.GetMethod(methodName, DefaultBindingFlags, null, parameterTypes, null);
@@ -1122,7 +1122,7 @@ namespace Barotrauma
 
 			public void HookMethod(string className, string methodName, object hookMethod, HookMethodType hookMethodType = HookMethodType.Before)
 			{
-				HookMethod(className, methodName, new string[] {}, hookMethod, hookMethodType);
+				HookMethod(className, methodName, null, hookMethod, hookMethodType);
 			}
 
 
