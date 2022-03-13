@@ -55,7 +55,7 @@ if SERVER then
 
     if not runDisabledMods then
     
-        for _, package in enabledPackages do
+        for package in enabledPackages do
             if package then
                 local d = package.path:gsub("\\", "/")
                 d = d:gsub("/filelist.xml", "")
