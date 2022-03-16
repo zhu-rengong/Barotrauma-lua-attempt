@@ -39,13 +39,18 @@ local function endsWith(str, suffix)
     return str:sub(-string.len(suffix)) == suffix
 end
 
-local function runFolder(folder)
-    for k, str in pairs(File.DirSearch(folder)) do
-        local s = str:gsub("\\", "/")
+local function executeProtected(s)
+    print(s)
+    dofile(s)
+end
 
-        if endsWith(str, ".lua") then
-            print(s)
-            dofile(s)
+local function runFolder(folder)
+    local search = File.DirSearch(folder)
+    for i = 1, #search, 1 do
+        local s = search[i]:gsub("\\", "/")
+
+        if endsWith(s, ".lua") then
+            executeProtected(s)
         end
 
     end
