@@ -12,7 +12,7 @@ namespace Barotrauma
 {
 	partial class LuaGame
 	{
-		public bool IsSinglePlayer => GameMain.IsSingleplayer;
+		public bool IsSingleplayer => GameMain.IsSingleplayer;
 		public bool IsMultiplayer => GameMain.IsMultiplayer;
 		public GameSettings GameSettings => GameMain.Config;
 
