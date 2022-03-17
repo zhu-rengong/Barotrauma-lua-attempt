@@ -1256,7 +1256,35 @@ namespace Barotrauma
 
             commands.Add(new Command("install_cl_lua", "Installs client-side lua into your client.", (string[] args) =>
             {
-                LuaSetup.InstallClientSideLua();
+                if (!File.Exists("Mods/LuaForBarotrauma/clientside_files.zip"))
+                {
+                    GameMain.Server.SendChatMessage("clientside_files.zip doesn't exist, Github version?", ChatMessageType.ServerMessageBox);
+
+                    return;
+                }
+
+                try
+                {
+
+                    System.IO.Compression.ZipFile.ExtractToDirectory("Mods/LuaForBarotrauma/clientside_files.zip", ".", true);
+
+                    System.IO.File.Move("Barotrauma.dll", "Barotrauma.dll.temp", true);
+                    System.IO.File.Move("Barotrauma.deps.json", "Barotrauma.deps.json.temp", true);
+
+                    System.IO.File.Move("Barotrauma.dll.original", "Barotrauma.dll");
+                    System.IO.File.Move("Barotrauma.deps.json.original", "Barotrauma.deps.json");
+
+                    System.IO.File.Move("Barotrauma.dll.temp", "Barotrauma.dll.original", true);
+                    System.IO.File.Move("Barotrauma.deps.json.temp", "Barotrauma.deps.json.original", true);
+                }
+                catch (Exception e)
+                {
+                    GameMain.Lua.HandleLuaException(e);
+
+                    return;
+                }
+
+                GameMain.Server.SendChatMessage("Client-Side Lua installed, restart your game to apply changes.", ChatMessageType.ServerMessageBox);
             }));
 
             commands.Add(new Command("randomizeseed", "randomizeseed: Toggles level seed randomization on/off.", (string[] args) =>

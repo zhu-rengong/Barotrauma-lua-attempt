@@ -222,43 +222,6 @@ namespace Barotrauma
 			return value * 2;
 		}
 
-
-#if SERVER
-		public static void InstallClientSideLua()
-		{
-			if (!File.Exists("Mods/LuaForBarotrauma/clientside_files.zip"))
-			{
-				GameMain.Server.SendChatMessage("clientside_files.zip doesn't exist, Github version?", ChatMessageType.ServerMessageBox);
-
-				return;
-			}
-
-			try
-			{
-
-				ZipFile.ExtractToDirectory("Mods/LuaForBarotrauma/clientside_files.zip", ".", true);
-
-				File.Move("Barotrauma.dll", "Barotrauma.dll.temp", true);
-				File.Move("Barotrauma.deps.json", "Barotrauma.deps.json.temp", true);
-
-				File.Move("Barotrauma.dll.original", "Barotrauma.dll");
-				File.Move("Barotrauma.deps.json.original", "Barotrauma.deps.json");
-
-				File.Move("Barotrauma.dll.temp", "Barotrauma.dll.original", true);
-				File.Move("Barotrauma.deps.json.temp", "Barotrauma.deps.json.original", true);
-			}
-			catch (Exception e)
-			{
-				LuaSetup.luaSetup.HandleLuaException(e);
-
-				return;
-			}
-
-			GameMain.Server.SendChatMessage("Client-Side Lua installed, restart your game to apply changes.", ChatMessageType.ServerMessageBox);
-		}
-
-#endif
-
 		public void Stop()
 		{
 			if (harmony != null)
