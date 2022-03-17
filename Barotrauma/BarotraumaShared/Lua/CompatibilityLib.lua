@@ -2,13 +2,25 @@
 
 local compatibilityLib = {}
 
-LuaUserData.AddMethod(LuaUserData.RegisterType("Barotrauma.LuaSetup+LuaUserData"), "AddCallMetaMember", function (v)
+LuaUserData.AddMethod(LuaUserData.RegisterType("Barotrauma.LuaUserData"), "AddCallMetaMember", function (v)
     print("AddCallMetaMember is deprecated, use debug.setmetatable instead.")
 end)
 
 compatibilityLib.CreateVector2 = Vector2.__new
 compatibilityLib.CreateVector3 = Vector3.__new
 compatibilityLib.CreateVector4 = Vector4.__new
+
+local luaRandom = {}
+
+luaRandom.Range = function (min, max)
+    return math.random(min, max)
+end
+
+luaRandom.RangeFloat = function (min, max)
+    return math.random() + math.random(min, max)
+end
+
+compatibilityLib["Random"] = luaRandom
 
 local luaPlayer = {}
 

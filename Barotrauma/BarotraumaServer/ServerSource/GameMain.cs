@@ -416,7 +416,7 @@ namespace Barotrauma
                     GameMain.Lua.Update();
                     GameMain.Lua.hook.Call("think", new object[] { });
                     performanceCounterTimer.Stop();
-                    LuaSetup.LuaTimer.LastUpdateTime = performanceCounterTimer.ElapsedMilliseconds;
+                    LuaTimer.LastUpdateTime = performanceCounterTimer.ElapsedMilliseconds;
                     performanceCounterTimer.Reset();
 
                     Timing.Accumulator -= Timing.Step;

@@ -230,9 +230,9 @@ namespace Barotrauma
 			game.Stop();
 			hook.Call("stop", new object[] { });
 
-			hook = new LuaHook(null);
-			game = new LuaGame(null);
-			networking = new LuaNetworking(null);
+			hook = null;
+			game = null;
+			networking = null;
 			luaScriptLoader = null;
 
 			luaSetup = null;
@@ -259,13 +259,12 @@ namespace Barotrauma
 			harmony = new Harmony("com.LuaForBarotrauma");
 			harmony.UnpatchAll();
 
-			hook = new LuaHook(this);
-			game = new LuaGame(this);
-			networking = new LuaNetworking(this);
+			hook = new LuaHook();
+			game = new LuaGame();
+			networking = new LuaNetworking();
 
 			UserData.RegisterType<LuaHook>();
 			UserData.RegisterType<LuaGame>();
-			UserData.RegisterType<LuaRandom>();
 			UserData.RegisterType<LuaTimer>();
 			UserData.RegisterType<LuaFile>();
 			UserData.RegisterType<LuaNetworking>();
@@ -288,8 +287,7 @@ namespace Barotrauma
 			lua.Globals["LuaUserData"] = UserData.CreateStatic<LuaUserData>();
 			lua.Globals["Game"] = game;
 			lua.Globals["Hook"] = hook;
-			lua.Globals["Random"] = new LuaRandom();
-			lua.Globals["Timer"] = new LuaTimer(this);
+			lua.Globals["Timer"] = new LuaTimer();
 			lua.Globals["File"] = UserData.CreateStatic<LuaFile>();
 			lua.Globals["Networking"] = networking;
 
@@ -316,9 +314,9 @@ namespace Barotrauma
 
 		public LuaSetup()
 		{
-			hook = new LuaHook(null);
-			game = new LuaGame(null);
-			networking = new LuaNetworking(null);
+			hook = new LuaHook();
+			game = new LuaGame();
+			networking = new LuaNetworking();
 		}
 
 	}
