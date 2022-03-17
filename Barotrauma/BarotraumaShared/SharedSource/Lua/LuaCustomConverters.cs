@@ -30,31 +30,31 @@ namespace Barotrauma
             {
 
                 var function = v.Function;
-                return (GUIButton.OnClickedHandler)((GUIButton a, object b) => new LuaResult(LuaSetup.luaSetup.CallFunction(function, a, b)).Bool());
+                return (GUIButton.OnClickedHandler)((GUIButton a, object b) => new LuaResult(GameMain.Lua.CallFunction(function, a, b)).Bool());
             });
 
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(GUITextBlock.TextGetterHandler), v =>
             {
                 var function = v.Function;
-                return (GUITextBlock.TextGetterHandler)(() => new LuaResult(LuaSetup.luaSetup.CallFunction(function, new object[] {})).String());
+                return (GUITextBlock.TextGetterHandler)(() => new LuaResult(GameMain.Lua.CallFunction(function, new object[] {})).String());
             });
 
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(GUITextBox.OnTextChangedHandler), v =>
             {
                 var function = v.Function;
-                return (GUITextBox.OnTextChangedHandler)((GUITextBox a, string b) => new LuaResult(LuaSetup.luaSetup.CallFunction(function, a, b)).Bool());
+                return (GUITextBox.OnTextChangedHandler)((GUITextBox a, string b) => new LuaResult(GameMain.Lua.CallFunction(function, a, b)).Bool());
             });
 
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(GUITextBox.OnEnterHandler), v =>
             {
                 var function = v.Function;
-                return (GUITextBox.OnEnterHandler)((GUITextBox a, string b) => new LuaResult(LuaSetup.luaSetup.CallFunction(function, a, b)).Bool());
+                return (GUITextBox.OnEnterHandler)((GUITextBox a, string b) => new LuaResult(GameMain.Lua.CallFunction(function, a, b)).Bool());
             });
 
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(GUITickBox.OnSelectedHandler), v =>
             {
                 var function = v.Function;
-                return (GUITickBox.OnSelectedHandler)((GUITickBox a) => new LuaResult(LuaSetup.luaSetup.CallFunction(function, a)).Bool());
+                return (GUITickBox.OnSelectedHandler)((GUITickBox a) => new LuaResult(GameMain.Lua.CallFunction(function, a)).Bool());
             });
 
 #endif
@@ -76,7 +76,7 @@ namespace Barotrauma
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(Action<T>), v =>
             {
                 var function = v.Function;
-                return (Action<T>)(p => LuaSetup.luaSetup.CallFunction(function, p));
+                return (Action<T>)(p => GameMain.Lua.CallFunction(function, p));
             });
         }
 
@@ -85,7 +85,7 @@ namespace Barotrauma
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(Action), v => 
             {
                 var function = v.Function;
-                return (Action)(() => LuaSetup.luaSetup.CallFunction(function));
+                return (Action)(() => GameMain.Lua.CallFunction(function));
             });
         }
 

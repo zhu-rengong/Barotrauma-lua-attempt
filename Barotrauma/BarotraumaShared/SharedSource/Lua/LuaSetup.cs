@@ -13,8 +13,6 @@ namespace Barotrauma
 {
 	partial class LuaSetup
 	{
-		public static LuaSetup luaSetup;
-
 		public Script lua;
 
 		public LuaHook hook;
@@ -104,12 +102,6 @@ namespace Barotrauma
 
 		}
 
-		public void PrintMessageNoLog(object message)
-		{
-			if (message == null) { message = "nil"; }
-			Console.WriteLine(message.ToString());
-		}
-
 		public DynValue DoString(string code, Table globalContext = null, string codeStringFriendly = null)
 		{
 			try
@@ -189,15 +181,6 @@ namespace Barotrauma
 			return null;
 		}
 
-		public static DynValue CreateUserDataSafe(object o)
-		{
-			if (o == null)
-				return DynValue.Nil;
-
-			return UserData.Create(o);
-		}
-
-
 		public object CallFunction(object function, params object[] arguments)
 		{
 			try
@@ -217,11 +200,6 @@ namespace Barotrauma
 			luaScriptLoader.ModulePaths = str;
 		}
 
-		public float TestFunction(float value)
-		{
-			return value * 2;
-		}
-
 		public void Stop()
 		{
 			if (harmony != null)
@@ -234,17 +212,12 @@ namespace Barotrauma
 			game = null;
 			networking = null;
 			luaScriptLoader = null;
-
-			luaSetup = null;
-
 		}
 
 		public void Initialize()
 		{
 			Stop();
 			
-			luaSetup = this;
-
 			PrintMessage("Lua! Version " + AssemblyInfo.GitRevision);
 
 			luaScriptLoader = new LuaScriptLoader(this);
@@ -272,10 +245,6 @@ namespace Barotrauma
 			UserData.RegisterType<IUserDataDescriptor>();
 
 			lua.Globals["setmodulepaths"] = (Action<string[]>)SetModulePaths;
-
-			lua.Globals["TestFunction"] = (Func<float, float>)TestFunction;
-
-			lua.Globals["printNoLog"] = (Action<object>)PrintMessageNoLog;
 
 			lua.Globals["dofile"] = (Func<string, Table, string, DynValue>)DoFile;
 			lua.Globals["loadfile"] = (Func<string, Table, string, DynValue>)LoadFile;
