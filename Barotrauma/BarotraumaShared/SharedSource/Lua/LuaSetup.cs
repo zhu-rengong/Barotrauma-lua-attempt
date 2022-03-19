@@ -56,7 +56,11 @@ namespace Barotrauma
 
 				string errorMsg = subStr;
 				if (i == 0)
-					errorMsg = "[LUA ERROR] " + errorMsg;
+#if SERVER
+					errorMsg = "[SV LUA ERROR] " + errorMsg;
+#else
+					errorMsg = "[CL LUA ERROR] " + errorMsg;
+#endif
 
 				DebugConsole.ThrowError(errorMsg);
 
@@ -95,11 +99,13 @@ namespace Barotrauma
 					GameServer.Log("[LUA] " + subStr, ServerLog.MessageType.ServerMessage);
 				}
 #endif
-
-				DebugConsole.NewMessage(message.ToString(), Color.MediumPurple);
-
 			}
 
+#if SERVER
+			DebugConsole.NewMessage(message.ToString(), Color.MediumPurple);
+#else
+			DebugConsole.NewMessage(message.ToString(), Color.Purple);
+#endif
 		}
 
 		public DynValue DoString(string code, Table globalContext = null, string codeStringFriendly = null)
@@ -202,11 +208,10 @@ namespace Barotrauma
 
 		public void Stop()
 		{
-			if (harmony != null)
-				harmony.UnpatchAll();
+			harmony?.UnpatchAll();
 
-			game.Stop();
-			hook.Call("stop", new object[] { });
+			game?.Stop();
+			hook?.Call("stop", new object[] { });
 
 			hook = null;
 			game = null;
