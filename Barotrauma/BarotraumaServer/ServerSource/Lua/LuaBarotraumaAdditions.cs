@@ -61,26 +61,26 @@ namespace Barotrauma
 	{
 		public object CreateServerEventString(string component)
 		{
-			Type type = Type.GetType("Barotrauma.Items.Components." + component);
+			var comp = GetComponentString(component);
 
-			if (type == null)
+			if (comp == null)
 				return null;
 
-			MethodInfo method = typeof(Item).GetMethod(nameof(Item.CreateServerEvent));
-			MethodInfo generic = method.MakeGenericMethod(type);
-			return generic.Invoke(this, null);
+			MethodInfo method = typeof(Item).GetMethod(nameof(Item.CreateServerEvent), new Type[]{ Type.MakeGenericMethodParameter(0) });
+			MethodInfo generic = method.MakeGenericMethod(comp.GetType());
+			return generic.Invoke(this, new object[]{ comp });
 		}
 
 		public object CreateServerEventString(string component, object[] extraData)
 		{
-			Type type = Type.GetType("Barotrauma.Items.Components." + component);
+			var comp = GetComponentString(component);
 
-			if (type == null)
+			if (comp == null)
 				return null;
 
-			MethodInfo method = typeof(Item).GetMethod(nameof(Item.CreateServerEvent));
-			MethodInfo generic = method.MakeGenericMethod(type);
-			return generic.Invoke(this, new object[]{ extraData });
+			MethodInfo method = typeof(Item).GetMethod(nameof(Item.CreateServerEvent), new Type[]{ Type.MakeGenericMethodParameter(0), typeof(object[]) });
+			MethodInfo generic = method.MakeGenericMethod(comp.GetType());
+			return generic.Invoke(this, new object[]{comp, extraData });
 		}
 	}
 
