@@ -69,6 +69,23 @@ namespace Barotrauma
             {
                 return DynValue.NewString(v.ToString());
             });
+
+            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.UserData, typeof(object), v =>
+            {
+                if (v.UserData.Object is LuaByte lbyte)
+                {
+                    return lbyte.Value;
+                }
+                else if (v.UserData.Object is LuaUShort lushort)
+                {
+                    return lushort.Value;
+                }
+                else if (v.UserData.Object is LuaFloat lfloat)
+                {
+                    return lfloat.Value;
+                }
+                return v.UserData.Object;
+            });
         }
 
         public static void RegisterAction<T>()
