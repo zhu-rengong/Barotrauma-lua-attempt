@@ -90,6 +90,14 @@ namespace Barotrauma
 		}
 	}
 
+	abstract partial class MapEntity 
+	{
+		public void AddLinked(MapEntity entity)
+		{
+			linkedTo.Add(entity);
+		}
+	}
+
 }
 
 namespace Barotrauma.Items.Components
