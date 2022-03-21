@@ -213,9 +213,9 @@ namespace Barotrauma
 			game?.Stop();
 			hook?.Call("stop", new object[] { });
 
-			hook = null;
-			game = null;
-			networking = null;
+			hook = new LuaHook();
+			game = new LuaGame();
+			networking = new LuaNetworking();
 			luaScriptLoader = null;
 		}
 
