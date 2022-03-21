@@ -17,6 +17,8 @@ namespace Barotrauma
 		public GameSettings GameSettings => GameMain.Config;
 
 #if CLIENT
+		public bool Paused => GameMain.Instance?.Paused == true;
+
 		public ChatBox ChatBox
 		{
 			get
