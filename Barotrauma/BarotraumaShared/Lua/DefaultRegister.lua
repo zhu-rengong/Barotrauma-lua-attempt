@@ -174,8 +174,14 @@ RegisterBarotrauma("Screen")
 RegisterBarotrauma("GameScreen")
 RegisterBarotrauma("GameSession")
 RegisterBarotrauma("GameSettings")
-RegisterBarotrauma("CampaignMode")
 RegisterBarotrauma("CrewManager")
+
+RegisterBarotrauma("GameMode")
+RegisterBarotrauma("MissionMode")
+RegisterBarotrauma("PvPMode")
+RegisterBarotrauma("Mission")
+RegisterBarotrauma("CampaignMode")
+RegisterBarotrauma("CoOpMode")
 
 RegisterBarotrauma("DebugConsole+Command")
 
