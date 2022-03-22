@@ -183,6 +183,10 @@ RegisterBarotrauma("Mission")
 RegisterBarotrauma("CampaignMode")
 RegisterBarotrauma("CoOpMode")
 
+
+RegisterBarotrauma("Faction")
+RegisterBarotrauma("FactionPrefab")
+
 RegisterBarotrauma("DebugConsole+Command")
 
 RegisterBarotrauma("TextManager")
