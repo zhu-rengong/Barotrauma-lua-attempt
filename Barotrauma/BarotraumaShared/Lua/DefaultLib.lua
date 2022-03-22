@@ -80,7 +80,7 @@ defaultLib["FireSource"] = CreateStatic("Barotrauma.FireSource", true)
 defaultLib["TextManager"] = CreateStatic("Barotrauma.TextManager")
 defaultLib["NetEntityEvent"] = CreateStatic("Barotrauma.Networking.NetEntityEvent")
 defaultLib["Screen"] = CreateStatic("Barotrauma.Screen")
-defaultLib["AttackResult"] = CreateStatic("Barotrauma.AttackResult")
+defaultLib["AttackResult"] = CreateStatic("Barotrauma.AttackResult", true)
 
 defaultLib["AIObjective"] = CreateStatic("Barotrauma.AIObjective", true)
 defaultLib["AIObjectiveChargeBatteries"] = CreateStatic("Barotrauma.AIObjectiveChargeBatteries", true)
