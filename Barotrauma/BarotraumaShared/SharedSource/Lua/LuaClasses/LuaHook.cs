@@ -12,8 +12,8 @@ namespace Barotrauma
 	{
 		public LuaHook()
 		{
-			_hookPrefixMethods = new Dictionary<long, HashSet<object>>();
-			_hookPostfixMethods = new Dictionary<long, HashSet<object>>();
+			_hookPrefixMethods = new Dictionary<long, HashSet<Tuple<string, object>>>();
+			_hookPostfixMethods = new Dictionary<long, HashSet<Tuple<string, object>>>();
 		}
 
 		public class HookFunction
@@ -32,8 +32,8 @@ namespace Barotrauma
 
 		private Dictionary<string, Dictionary<string, HookFunction>> hookFunctions = new Dictionary<string, Dictionary<string, HookFunction>>();
 
-		private static Dictionary<long, HashSet<object>> _hookPrefixMethods;
-		private static Dictionary<long, HashSet<object>> _hookPostfixMethods;
+		private static Dictionary<long, HashSet<Tuple<string, object>>> _hookPrefixMethods;
+		private static Dictionary<long, HashSet<Tuple<string, object>>> _hookPostfixMethods;
 
 		private Queue<Tuple<float, object, object[]>> queuedFunctionCalls = new Queue<Tuple<float, object, object[]>>();
 
@@ -53,38 +53,38 @@ namespace Barotrauma
 
 			try
 			{
-				var @params = __originalMethod.GetParameters();
-				var ptable = new Dictionary<string, object>();
-				for (int i = 0; i < @params.Length; i++)
-				{
-					ptable.Add(@params[i].Name, __args[i]);
-				}
-
 				var funcAddr = ((long)__originalMethod.MethodHandle.GetFunctionPointer());
-				HashSet<object> methodSet = null;
+				HashSet<Tuple<string, object>> methodSet = null;
 				switch (hookMethodType)
 				{
 					case HookMethodType.Before:
-						methodSet = _hookPrefixMethods[funcAddr];
+						_hookPrefixMethods.TryGetValue(funcAddr, out methodSet);
 						break;
 					case HookMethodType.After:
-						methodSet = _hookPostfixMethods[funcAddr];
+						_hookPostfixMethods.TryGetValue(funcAddr, out methodSet);
 						break;
 					default:
 						break;
 				}
+
 				if (methodSet != null)
 				{
-					foreach (var hookMethod in methodSet)
+					var @params = __originalMethod.GetParameters();
+					var ptable = new Dictionary<string, object>();
+					for (int i = 0; i < @params.Length; i++)
 					{
-						result = new LuaResult(GameMain.Lua.lua.Call(hookMethod, __instance, ptable));
+						ptable.Add(@params[i].Name, __args[i]);
+					}
+
+					foreach (var tuple in methodSet)
+					{
+						result = new LuaResult(GameMain.Lua.lua.Call(tuple.Item2, __instance, ptable));
 					}
 				}
-
 			}
 			catch (Exception ex)
 			{
-				GameMain.Lua.HandleLuaException(ex, nameof(_hookLuaPatch));
+				GameMain.Lua.HandleLuaException(ex);
 			}
 		}
 
@@ -126,20 +126,14 @@ namespace Barotrauma
 		private static MethodInfo _miHookLuaPatchRetPrefix = typeof(LuaHook).GetMethod("HookLuaPatchRetPrefix", BindingFlags.NonPublic | BindingFlags.Static);
 		private static MethodInfo _miHookLuaPatchPostfix = typeof(LuaHook).GetMethod("HookLuaPatchPostfix", BindingFlags.NonPublic | BindingFlags.Static);
 		private static MethodInfo _miHookLuaPatchRetPostfix = typeof(LuaHook).GetMethod("HookLuaPatchRetPostfix", BindingFlags.NonPublic | BindingFlags.Static);
-		public void HookMethod(string className, string methodName, string[] parameterNames, object hookMethod, HookMethodType hookMethodType = HookMethodType.Before)
+		public void HookMethod(string identifier, string className, string methodName, string[] parameterNames, object hookMethod, HookMethodType hookMethodType = HookMethodType.Before)
 		{
-			if (hookMethod == null)
-			{
-				GameMain.Lua.PrintError("hookMethod cannot be null");
-				return;
-			}
-
-			var classType = Type.GetType(className);
+			var classType = LuaUserData.GetType(className);
 			MethodInfo methodInfo = null;
 
 			if (parameterNames != null)
 			{
-				Type[] parameterTypes = parameterNames.Select(x => AccessTools.TypeByName(x)).ToArray();
+				Type[] parameterTypes = parameterNames.Select(x => LuaUserData.GetType(x)).ToArray();
 				methodInfo = classType.GetMethod(methodName, DefaultBindingFlags, null, parameterTypes, null);
 			}
 			else
@@ -149,10 +143,11 @@ namespace Barotrauma
 
 			if (methodInfo == null)
 			{
-				GameMain.Lua.PrintError($"can't find method({className}.{methodName}) with these parameters' types({string.Join(", ", parameterNames)})");
+				GameMain.Lua.PrintError($"Method '{methodName}' with parameter '{string.Join(", ", parameterNames)}' not found from Class '{className}'");
 				return;
 			}
 
+			identifier = identifier.ToLower();
 			var funcAddr = ((long)methodInfo.MethodHandle.GetFunctionPointer());
 			var patches = Harmony.GetPatchInfo(methodInfo);
 
@@ -173,13 +168,20 @@ namespace Barotrauma
 					}
 				}
 
-				if (_hookPrefixMethods.TryGetValue(funcAddr, out HashSet<object> methodSet))
+				if (_hookPrefixMethods.TryGetValue(funcAddr, out HashSet<Tuple<string, object>> methodSet))
 				{
-					methodSet.Add(hookMethod);
+					if (identifier != "")
+					{
+						methodSet.RemoveWhere(tuple => tuple.Item1 == identifier);
+					}
+                    if (hookMethod != null)
+                    {
+						methodSet.Add(Tuple.Create(identifier, hookMethod));
+                    }
 				}
-				else
+				else if (hookMethod != null)
 				{
-					_hookPrefixMethods.Add(funcAddr, new HashSet<object>() { hookMethod });
+					_hookPrefixMethods.Add(funcAddr, new HashSet<Tuple<string, object>>() { Tuple.Create(identifier, hookMethod) });
 				}
 
 			}
@@ -200,13 +202,20 @@ namespace Barotrauma
 					}
 				}
 
-				if (_hookPostfixMethods.TryGetValue(funcAddr, out HashSet<object> methodSet))
+				if (_hookPostfixMethods.TryGetValue(funcAddr, out HashSet<Tuple<string, object>> methodSet))
 				{
-					methodSet.Add(hookMethod);
+                    if (identifier != "")
+                    {
+						methodSet.RemoveWhere(tuple => tuple.Item1 == identifier);
+                    }
+					if (hookMethod != null)
+					{
+						methodSet.Add(Tuple.Create(identifier, hookMethod));
+					}
 				}
-				else
+				else if (hookMethod != null)
 				{
-					_hookPostfixMethods.Add(funcAddr, new HashSet<object>() { hookMethod });
+					_hookPostfixMethods.Add(funcAddr, new HashSet<Tuple<string, object>>() { Tuple.Create(identifier, hookMethod) });
 				}
 
 			}
@@ -215,9 +224,18 @@ namespace Barotrauma
 
 		public void HookMethod(string className, string methodName, object hookMethod, HookMethodType hookMethodType = HookMethodType.Before)
 		{
-			HookMethod(className, methodName, null, hookMethod, hookMethodType);
+			HookMethod("", className, methodName, null, hookMethod, hookMethodType);
 		}
 
+		public void HookMethod(string className, string methodName, string[] parameterNames, object hookMethod, HookMethodType hookMethodType = HookMethodType.Before)
+		{
+			HookMethod("", className, methodName, parameterNames, hookMethod, hookMethodType);
+		}
+
+		public void HookMethod(string identifier, string className, string methodName, object hookMethod, HookMethodType hookMethodType = HookMethodType.Before)
+		{
+			HookMethod(identifier, className, methodName, null, hookMethod, hookMethodType);
+		}
 
 		public void EnqueueFunction(object function, params object[] args)
 		{
