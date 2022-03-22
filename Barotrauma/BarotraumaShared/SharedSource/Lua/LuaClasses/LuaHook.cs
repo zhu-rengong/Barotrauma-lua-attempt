@@ -147,6 +147,7 @@ namespace Barotrauma
 				return;
 			}
 
+			identifier = identifier.ToLower();
 			var funcAddr = ((long)methodInfo.MethodHandle.GetFunctionPointer());
 			var patches = Harmony.GetPatchInfo(methodInfo);
 
