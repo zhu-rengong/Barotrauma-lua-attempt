@@ -1254,7 +1254,7 @@ namespace Barotrauma
                 GameMain.Lua.Initialize();
             }));
 
-            commands.Add(new Command("install_cl_lua", "Installs client-side lua into your client.", (string[] args) =>
+            commands.Add(new Command("install_cl_lua", "Installs client-Side Lua into your client.", (string[] args) =>
             {
                 if (!File.Exists("Mods/LuaForBarotrauma/clientside_files.zip"))
                 {
@@ -1279,7 +1279,7 @@ namespace Barotrauma
                 }
                 catch (Exception e)
                 {
-                    GameMain.Lua.HandleLuaException(e);
+                    GameMain.Lua.PrintError("You seem to already have Client Side Lua installed, if you are trying to reinstall, make sure uninstall it first (mainmenu button located top left).");
 
                     return;
                 }
