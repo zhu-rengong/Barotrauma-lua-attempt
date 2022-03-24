@@ -1237,6 +1237,14 @@ namespace Barotrauma
                     if (result.Bool())
                         return;
                 }
+
+                if (entity is Character character)
+                {
+                    var result = new LuaResult(GameMain.Lua.hook.Call("statusEffect.apply." + character.SpeciesName, this, deltaTime, entity, targets, worldPosition));
+
+                    if (result.Bool())
+                        return;
+                }
             }
 
             foreach (string luaHooks in luaHook)
