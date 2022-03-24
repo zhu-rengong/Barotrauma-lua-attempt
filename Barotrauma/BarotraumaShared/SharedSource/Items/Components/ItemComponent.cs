@@ -473,20 +473,8 @@ namespace Barotrauma.Items.Components
         //called then the item is dropped or dragged out of a "limbslot"
         public virtual void Unequip(Character character) { }
 
-
-        Dictionary<string, string> lastSignal = new Dictionary<string, string>();
         public virtual void ReceiveSignal(Signal signal, Connection connection)
         {
-#if SERVER
-            if (!lastSignal.ContainsValue(connection.Name) || lastSignal[connection.Name] != signal.value)
-            {
-                object[] obj = new object[] { signal, connection };
-                GameMain.Lua.hook.Call("signalReceived", obj);
-                GameMain.Lua.hook.Call("signalReceived." + item.prefab.Identifier, obj);
-
-                lastSignal[connection.Name] = signal.value;
-            }
-#endif
             switch (connection.Name)
             {
                 case "activate":

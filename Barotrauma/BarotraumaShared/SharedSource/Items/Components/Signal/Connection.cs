@@ -267,6 +267,10 @@ namespace Barotrauma.Items.Components
 
                 Connection connection = recipient;
 
+                object[] obj = new object[] { signal, connection };
+                GameMain.Lua.hook.Call("signalReceived", obj);
+                GameMain.Lua.hook.Call("signalReceived." + recipient.item.prefab.Identifier, obj);
+
                 foreach (ItemComponent ic in recipient.item.Components)
                 {
                     ic.ReceiveSignal(signal, connection);
