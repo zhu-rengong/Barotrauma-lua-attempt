@@ -31,9 +31,7 @@ namespace Barotrauma
 				return null;
 			}
 
-			MethodInfo method = typeof(UserData).GetMethod(nameof(UserData.RegisterType), new Type[2] { typeof(InteropAccessMode), typeof(string) });
-			MethodInfo generic = method.MakeGenericMethod(type);
-			return (IUserDataDescriptor)generic.Invoke(null, new object[] { null, null });
+			return UserData.RegisterType(type);
 		}
 
 		public static void UnregisterType(string typeName)
@@ -46,9 +44,7 @@ namespace Barotrauma
 				return;
 			}
 
-			MethodInfo method = typeof(UserData).GetMethod(nameof(UserData.UnregisterType), new Type[2] { typeof(InteropAccessMode), typeof(string) });
-			MethodInfo generic = method.MakeGenericMethod(type);
-			generic.Invoke(null, new object[] { null, null });
+			UserData.UnregisterType(type);
 		}
 		public static IUserDataDescriptor RegisterGenericType(string typeName, params string[] typeNameArguements)
 		{
