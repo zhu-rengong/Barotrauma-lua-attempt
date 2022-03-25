@@ -1,8 +1,18 @@
-local function RegisterBarotrauma(typeName)
-    return LuaUserData.RegisterType("Barotrauma." .. typeName)
+local descriptors = {}
+
+local function Register(typeName)
+    local descriptor = LuaUserData.RegisterType(typeName)
+
+    descriptors[typeName] = descriptor
+
+    return descriptor
 end
 
-LuaUserData.RegisterType("System.TimeSpan")
+local function RegisterBarotrauma(typeName)
+    return Register("Barotrauma." .. typeName)
+end
+
+Register("System.TimeSpan")
 
 if SERVER then
     RegisterBarotrauma("Networking.GameServer")
@@ -208,10 +218,10 @@ RegisterBarotrauma("Networking.NetEntityEvent")
 RegisterBarotrauma("Networking.NetEntityEvent+Type")
 RegisterBarotrauma("Networking.INetSerializable")
 RegisterBarotrauma("Networking.DisconnectReason")
-LuaUserData.RegisterType("Lidgren.Network.NetIncomingMessage")
-LuaUserData.RegisterType("Lidgren.Network.NetConnection")
-LuaUserData.RegisterType("System.Net.IPEndPoint")
-LuaUserData.RegisterType("System.Net.IPAddress")
+Register("Lidgren.Network.NetIncomingMessage")
+Register("Lidgren.Network.NetConnection")
+Register("System.Net.IPEndPoint")
+Register("System.Net.IPAddress")
 
 RegisterBarotrauma("Rand+RandSync")
 RegisterBarotrauma("Skill")
@@ -219,9 +229,9 @@ RegisterBarotrauma("SkillPrefab")
 RegisterBarotrauma("TraitorMissionPrefab")
 RegisterBarotrauma("TraitorMissionResult")
 
-LuaUserData.RegisterType("FarseerPhysics.Dynamics.Body")
-LuaUserData.RegisterType("FarseerPhysics.Dynamics.World")
-LuaUserData.RegisterType("FarseerPhysics.Dynamics.Fixture")
+Register("FarseerPhysics.Dynamics.Body")
+Register("FarseerPhysics.Dynamics.World")
+Register("FarseerPhysics.Dynamics.Fixture")
 RegisterBarotrauma("Physics")
 
 RegisterBarotrauma("Camera")
@@ -245,12 +255,12 @@ RegisterBarotrauma("SubmarineInfo")
 RegisterBarotrauma("MapCreatures.Behavior.BallastFloraBehavior")
 RegisterBarotrauma("MapCreatures.Behavior.BallastFloraBranch")
 
-LuaUserData.RegisterType("Microsoft.Xna.Framework.Vector2")
-LuaUserData.RegisterType("Microsoft.Xna.Framework.Vector3")
-LuaUserData.RegisterType("Microsoft.Xna.Framework.Vector4")
-LuaUserData.RegisterType("Microsoft.Xna.Framework.Color")
-LuaUserData.RegisterType("Microsoft.Xna.Framework.Point")
-LuaUserData.RegisterType("Microsoft.Xna.Framework.Rectangle")
+Register("Microsoft.Xna.Framework.Vector2")
+Register("Microsoft.Xna.Framework.Vector3")
+Register("Microsoft.Xna.Framework.Vector4")
+Register("Microsoft.Xna.Framework.Color")
+Register("Microsoft.Xna.Framework.Point")
+Register("Microsoft.Xna.Framework.Rectangle")
 
 if SERVER then
 RegisterBarotrauma("Networking.ServerPeer")
@@ -271,9 +281,9 @@ RegisterBarotrauma("Pivot")
 RegisterBarotrauma("Key")
 RegisterBarotrauma("PlayerInput")
 
-LuaUserData.RegisterType("Microsoft.Xna.Framework.Graphics.Texture2D")
-LuaUserData.RegisterType("EventInput.KeyEventArgs")
-LuaUserData.RegisterType("Microsoft.Xna.Framework.Input.Keys")
+Register("Microsoft.Xna.Framework.Graphics.Texture2D")
+Register("EventInput.KeyEventArgs")
+Register("Microsoft.Xna.Framework.Input.Keys")
 
 RegisterBarotrauma("Sprite")
 RegisterBarotrauma("GUILayoutGroup")
@@ -290,3 +300,5 @@ RegisterBarotrauma("GUIScrollBar")
 RegisterBarotrauma("GUIDropDown")
 
 end
+
+return descriptors

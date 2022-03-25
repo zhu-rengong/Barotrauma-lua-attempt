@@ -1,6 +1,6 @@
 local defaultLib = {}
 
-require("DefaultRegister")
+local descriptors = require("DefaultRegister")
 
 local CreateStatic = function (typeName, addCallMethod)
 	local staticUserdata = LuaUserData.CreateStatic(typeName)
@@ -15,6 +15,8 @@ local CreateStatic = function (typeName, addCallMethod)
 
 	return staticUserdata
 end
+
+defaultLib["Descriptors"] = descriptors
 
 defaultLib["Byte"] = CreateStatic("Barotrauma.LuaByte", true)
 defaultLib["UShort"] = CreateStatic("Barotrauma.LuaUShort", true)
