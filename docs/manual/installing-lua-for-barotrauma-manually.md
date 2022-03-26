@@ -1,3 +1,5 @@
+# Installing Lua For Barotrauma Manually
+
 ## Adding Lua For Barotrauma to an existing server
 1 - Download [latest version of LuaForBarotrauma](https://github.com/evilfactory/Barotrauma-lua-attempt/releases/tag/latest), choose the correct platform in the assets drop down.<br>
 2 - Extract the zip file<br>
@@ -57,3 +59,9 @@ Same as above, but instead you need to copy/replace the following files:
 
 ### Linux notice
 Sometimes you will get steam initialization errors, most of the time it's because it's missing the linux64/steamclient.so binary, so you can just copy the binary from your steam instalation over to the folder and it should work.
+
+
+
+## Checking if everything is working
+
+If the commands `reloadlua` or `cl_reloadlua` work, it means you successfully installed the mod.

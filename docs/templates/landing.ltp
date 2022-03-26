@@ -6,7 +6,7 @@
 <div class="wrapper">
 	<p style="text-align: center;"></p>
 	<h2>Welcome to the Lua For Barotrauma documentation!</h2>
-	<p>This is a work in progress documentation, not everything is documented here, but because Barotrauma classes are exposed to lua, you can check the Barotrauma source code for functions and fields that you can access.</p>
+	<p>This is a work in progress documentation, not everything is documented here, but because Barotrauma classes are exposed to Lua, you can check the Barotrauma source code for functions and fields that you can access.</p>
 
 	<h2>Installing Lua For Barotrauma</h2>
 	<p>Downloading and using the Core Content Package from <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2559634234" target="_blank">Workshop</a> should be enough to have it installed, but if you want to install it manually, you can check out <a href="{* ldoc.url('manual/installing-lua-for-barotrauma-manually') *}">this guide.</a>

@@ -6,7 +6,7 @@ Hooks are basically functions that get called when events happen in-game, like c
 
 Hooks can be added like this:
 
-```lua
+```
 Hook.Add("chatMessage", "test", function(message, client)
     print(client.Name .. " has sent " .. message)
 end)
@@ -18,7 +18,7 @@ The event name (first argument), is case-insensitive, so you can call it chatMes
 
 You can also call hooks with the following code:
 
-```lua
+```
 Hook.Call("myCustomEvent", {"some", "arguments", 123})
 ```
 
@@ -26,13 +26,13 @@ Hook.Call("myCustomEvent", {"some", "arguments", 123})
 
 With Lua, a new XML tags is added, it can be used to call Lua hooks inside status effects:
 
-```xml
+```
 <StatusEffect type="OnUse">
-    <LuaHook name="doSomething">
+    <LuaHook name="doSomething" />
 </StatusEffect>
 ```
 
-```lua
+```
 Hook.Add("doSomething", "something", function (effect, deltaTime, item, targets, worldPosition)
     print(effect, ' ', item)
 end)
@@ -42,7 +42,7 @@ end)
 
 Patching allows you to hook into existing methods in the game code, notice that it can be a little unstable depending on the method that you are patching, so be aware.
 
-```lua
+```
 Hook.HookMethod("Barotrauma.CharacterInfo", "IncreaseSkillLevel", function (instance, ptable)
     print(string.format("%s gained % xp", instance.Character.Name, ptable.increase))
 end, Hook.HookMethodType.After)

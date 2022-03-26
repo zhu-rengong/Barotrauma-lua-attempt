@@ -1,6 +1,6 @@
 # Lua Examples
 
-```lua
+```
 Hook.Add('chatMessage', 'suicide_mod', function(msg, client)
     if msg == '!suicide' and client.Character ~= nil then
         client.Character.Kill(CauseOfDeathType.Unknown)
@@ -10,7 +10,9 @@ Hook.Add('chatMessage', 'suicide_mod', function(msg, client)
 end)
 ```
 
-```lua
+<br>
+
+```
 Hook.Add("itemApplyTreatment", "testItemApplyTreatment", function (item, user, character, targetlimb)
     if item.name == "Bandage" then
         local pos = character.WorldPosition
@@ -21,7 +23,10 @@ Hook.Add("itemApplyTreatment", "testItemApplyTreatment", function (item, user, c
 end)
 ```
 
-```lua
+<br>
+
+
+```
 -- for example: create an item in xml named RandomComponent and add the wiring inputs/outputs trigger_random and random_out
 Hook.Add("signalReceived", "signalReceivedTest", function (signal, connection)
     if connection.Item.name == "RandomComponent" and connection.Name == "trigger_random" then
@@ -30,7 +35,9 @@ Hook.Add("signalReceived", "signalReceivedTest", function (signal, connection)
 end)
 ```
 
-```lua
+<br>
+
+```
 local discordWebHook = "your discord webhook here"
 
 local function escapeQuotes(str)
@@ -45,7 +52,10 @@ Hook.Add("chatMessage", "discordIntegration", function (msg, client)
 end)
 ```
 
-```lua
+<br>
+
+
+```
 -- by jimmyl
 Hook.Add("chatMessage","controlhuskcommand",function(msg, client)
     if msg == "!controlhusk" then

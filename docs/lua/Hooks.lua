@@ -215,3 +215,15 @@ function statusEffect.apply.YourItemIdentifier(statusEffect, deltaTime, item, ta
 --- Called when a client tries to change his name, return false to prevent the name from being changed.
 -- @realm shared
 function tryChangeClientName(client, newName, newJob, newTeam) end
+
+--- Called after all mods are executed.
+-- @realm shared
+function loaded() end
+
+--- Called after the CPR skill check succeeds.
+-- @realm shared
+function human.CPRSuccess(animController) end
+
+--- Called after the CPR skill check fails.
+-- @realm shared
+function human.CPRFailed(animController) end
