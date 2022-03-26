@@ -416,4 +416,14 @@ public class LuaResult
 
 		return null;
 	}
+
+	public DynValue DynValue()
+	{
+		if (result is DynValue dynValue)
+		{
+			return dynValue;
+		}
+
+		return null;
+	}
 }

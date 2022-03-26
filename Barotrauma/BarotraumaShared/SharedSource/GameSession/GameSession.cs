@@ -716,6 +716,13 @@ namespace Barotrauma
 
         public static IEnumerable<Character> GetSessionCrewCharacters()
         {
+            LuaResult result = new LuaResult(GameMain.Lua.hook.Call("gameSession.getSessionCrewCharacters"));
+
+            if (!result.IsNull())
+			{
+                return result.DynValue().ToObject<IEnumerable<Character>>();
+            }
+
 #if SERVER
             return GameMain.Server.ConnectedClients.Select(c => c.Character).Where(c => c?.Info != null && !c.IsDead);
 #else
