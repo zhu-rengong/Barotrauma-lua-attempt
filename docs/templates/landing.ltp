@@ -16,10 +16,6 @@
 	<p>If you want to get started with Lua For Barotrauma modding, check out <a href="{* ldoc.url('manual/getting-started') *}">this guide.</a>
 	</p>
 
-	<h2>Client-Side support</h2>
-	<p>Client-Side support will be supported at some point, but currently it's server-side only.
-	</p>
-
 	<h2>Links</h2>
 	<p>
 		<a href="https://github.com/evilfactory/Barotrauma-lua-attempt" target="_blank">Github</a><br>
