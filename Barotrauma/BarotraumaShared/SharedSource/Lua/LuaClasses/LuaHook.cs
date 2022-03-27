@@ -101,7 +101,16 @@ namespace Barotrauma
 
 			if (!result.IsNull())
 			{
-				__result = result.Object();
+				
+				if (__originalMethod is MethodInfo mi)
+				{
+					__result = result.DynValue().ToObject(mi.ReturnType);
+				}
+				else
+				{
+					__result = result.Object();
+				}
+
 				return false;
 			}
 
@@ -118,7 +127,16 @@ namespace Barotrauma
 			_hookLuaPatch(__originalMethod, __args, __instance, out LuaResult result, HookMethodType.After);
 
 			if (!result.IsNull())
-				__result = result.Object();
+			{
+				if (__originalMethod is MethodInfo mi)
+				{
+					__result = result.DynValue().ToObject(mi.ReturnType);
+				}
+				else
+				{
+					__result = result.Object();
+				}			
+			}
 		}
 
 		private const BindingFlags DefaultBindingFlags = BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
