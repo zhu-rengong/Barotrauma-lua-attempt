@@ -195,9 +195,16 @@ RegisterBarotrauma("Mission")
 RegisterBarotrauma("CampaignMode")
 RegisterBarotrauma("CoOpMode")
 
+RegisterBarotrauma("CampaignMetadata")
+
 
 RegisterBarotrauma("Faction")
 RegisterBarotrauma("FactionPrefab")
+
+RegisterBarotrauma("Location")
+RegisterBarotrauma("LocationConnection")
+RegisterBarotrauma("LocationType")
+RegisterBarotrauma("LocationTypeChange")
 
 RegisterBarotrauma("DebugConsole+Command")
 
