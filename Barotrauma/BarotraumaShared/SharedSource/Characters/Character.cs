@@ -28,6 +28,9 @@ namespace Barotrauma
     {
         public static List<Character> CharacterList = new List<Character>();
 
+        public static int CharacterUpdateInterval = 1;
+        private static int characterUpdateTick = 1;
+
         partial void UpdateLimbLightSource(Limb limb);
 
         private bool enabled = true;
@@ -2667,9 +2670,23 @@ namespace Barotrauma
                 }
             }
 
-            for (int i = 0; i < CharacterList.Count; i++)
+            characterUpdateTick++;
+
+            if (characterUpdateTick % CharacterUpdateInterval == 0)
             {
-                CharacterList[i].Update(deltaTime, cam);
+                for (int i = 0; i < CharacterList.Count; i++)
+                {
+                    if (GameMain.Lua.game.updatePriorityCharacters.Contains(CharacterList[i])) continue;
+
+                    CharacterList[i].Update(deltaTime * CharacterUpdateInterval, cam);
+                }
+            }
+
+            foreach (Character character in GameMain.Lua.game.updatePriorityCharacters)
+            {
+                if (character.Removed) continue;
+
+                character.Update(deltaTime, cam);
             }
         }
 

@@ -62,7 +62,14 @@ namespace Barotrauma
 			set { MapEntity.GapUpdateInterval = value; }
 		}
 
+		public int characterUpdateInterval
+		{
+			get { return Character.CharacterUpdateInterval; }
+			set { Character.CharacterUpdateInterval = value; }
+		}
+
 		public HashSet<Item> updatePriorityItems = new HashSet<Item>();
+		public HashSet<Character> updatePriorityCharacters = new HashSet<Character>();
 
 		public void AddPriorityItem(Item item)
 		{
@@ -77,6 +84,21 @@ namespace Barotrauma
 		public void ClearPriorityItem()
 		{
 			updatePriorityItems.Clear();
+		}
+
+		public void AddPriorityCharacter(Character character)
+		{
+			updatePriorityCharacters.Add(character);
+		}
+
+		public void RemovePriorityCharacter(Character character)
+		{
+			updatePriorityCharacters.Remove(character);
+		}
+
+		public void ClearPriorityCharacter()
+		{
+			updatePriorityCharacters.Clear();
 		}
 
 		public bool RoundStarted
@@ -476,6 +498,7 @@ namespace Barotrauma
 		{
 			mapEntityUpdateInterval = 1;
 			gapUpdateInterval = 4;
+			characterUpdateInterval = 1;
 
 			foreach (var cmd in luaAddedCommand)
 			{
