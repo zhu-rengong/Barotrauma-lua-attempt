@@ -387,12 +387,6 @@ namespace Barotrauma
             {
                 if (targetLimb == null)
                 {
-                    var should = new LuaResult(GameMain.Lua.hook.Call("afflictionApplied", new object[] { this, affliction }));
-
-                    if (should.Bool())
-                        return;
-
-
                     //if a limb-specific affliction is applied to no specific limb, apply to all limbs
                     foreach (LimbHealth limbHealth in limbHealths)
                     {
@@ -402,21 +396,11 @@ namespace Barotrauma
                 }
                 else
                 {
-                    var should = new LuaResult(GameMain.Lua.hook.Call("afflictionApplied", new object[] { this, affliction, targetLimb }));
-
-                    if (should.Bool())
-                        return;
-
                     AddLimbAffliction(targetLimb, affliction, allowStacking: allowStacking);
                 }
             }
             else
             {
-                var should = new LuaResult(GameMain.Lua.hook.Call("afflictionApplied", new object[] { this, affliction }));
-
-                if (should.Bool())
-                    return;
-
                 AddAffliction(affliction, allowStacking: allowStacking);
             }
         }
@@ -532,7 +516,7 @@ namespace Barotrauma
                 return;
             }
 
-            var should = new LuaResult(GameMain.Lua.hook.Call("afflictionApplied", new object[] { this, attackResult, hitLimb }));
+            var should = new LuaResult(GameMain.Lua.hook.Call("character.applyDamage", new object[] { this, attackResult, hitLimb, allowStacking }));
 
             if (should.Bool())
                 return;
@@ -663,6 +647,11 @@ namespace Barotrauma
                     return;
                 }
             }
+
+            var should = new LuaResult(GameMain.Lua.hook.Call("character.applyAffliction", new object[] { this, limbHealth, newAffliction, allowStacking }));
+
+            if (should.Bool())
+                return;
 
             Affliction existingAffliction = null;
             foreach (KeyValuePair<Affliction, LimbHealth> kvp in afflictions)
