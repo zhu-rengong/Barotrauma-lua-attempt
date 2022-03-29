@@ -111,6 +111,15 @@ defaultLib["AIObjectiveRescue"] = CreateStatic("Barotrauma.AIObjectiveRescue", t
 defaultLib["AIObjectiveRescueAll"] = CreateStatic("Barotrauma.AIObjectiveRescueAll", true)
 defaultLib["AIObjectiveReturn"] = CreateStatic("Barotrauma.AIObjectiveReturn", true)
 
+local barotraumaComponentsToReference = { "DockingPort", "Door", "GeneticMaterial", "Growable", "Holdable", "LevelResource", "ItemComponent", "ItemLabel", "LightComponent", "Controller", "Deconstructor", "Engine", "Fabricator", "OutpostTerminal", "Pump", "Reactor", "Steering", "PowerContainer", "Projectile", "Repairable", "Rope", "Scanner", "ButtonTerminal", "ConnectionPanel", "CustomInterface", "MemoryComponent", "Terminal", "WifiComponent", "Wire", "TriggerComponent", "ElectricalDischarger", "EntitySpawnerComponent", "ProducedItem", "VineTile", "GrowthSideExtension", "IdCard", "MeleeWeapon", "Pickable", "Propulsion", "RangedWeapon", "RepairTool", "Sprayer", "Throwable", "ItemContainer", "Ladder", "LimbPos", "MiniMap", "OxygenGenerator", "Sonar", "SonarTransducer", "Vent", "NameTag", "Planter", "Powered", "PowerTransfer", "Quality", "RemoteController", "AdderComponent", "AndComponent", "ArithmeticComponent", "ColorComponent", "ConcatComponent", "Connection", "DelayComponent", "DivideComponent", "EqualsComponent", "ExponentiationComponent", "FunctionComponent", "GreaterComponent", "ModuloComponent", "MotionSensor", "MultiplyComponent", "NotComponent", "OrComponent", "OscillatorComponent", "OxygenDetector", "RegExFindComponent", "RelayComponent", "SignalCheckComponent", "SmokeDetector", "StringComponent", "SubtractComponent", "TrigonometricFunctionComponent", "WaterDetector", "XorComponent", "StatusHUD", "Turret", "Wearable", "CustomInterface"
+}
+
+defaultLib["Components"] = {}
+
+for key, value in pairs(barotraumaComponentsToReference) do
+	defaultLib["Components"][value] = CreateStatic("Barotrauma.Items.Components." .. value, true)
+end
+
 defaultLib["Vector2"] = CreateStatic("Microsoft.Xna.Framework.Vector2", true)
 defaultLib["Vector3"] = CreateStatic("Microsoft.Xna.Framework.Vector3", true)
 defaultLib["Vector4"] = CreateStatic("Microsoft.Xna.Framework.Vector4", true)
