@@ -10,7 +10,6 @@ namespace Barotrauma
 
 	public static class LuaCustomConverters
 	{
-
 		public static void RegisterAll()
 		{
             RegisterAction<Item>();
@@ -29,36 +28,64 @@ namespace Barotrauma
             RegisterAction<float>();
             RegisterAction<Microsoft.Xna.Framework.Graphics.SpriteBatch, float>();
 
-            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(GUIComponent.SecondaryButtonDownHandler), v => { var function = v.Function; return (GUIComponent.SecondaryButtonDownHandler)((GUIComponent a1, object a2) => new LuaResult(GameMain.Lua.CallFunction(function, a1, a2)).Bool()); });
+            {
+                object Call(object function, params object[] arguments) => GameMain.Lua.CallFunction(function, arguments);
+                void RegisterHandler<T>(Func<Closure, object> converter)
+                {
+                    Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(T), v => converter(v.Function));
+                }
 
-            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(GUIButton.OnClickedHandler), v => { var function = v.Function; return (GUIButton.OnClickedHandler)((GUIButton a1, object a2) => new LuaResult(GameMain.Lua.CallFunction(function, a1, a2)).Bool()); });
-            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(GUIButton.OnButtonDownHandler), v => { var function = v.Function; return (GUIButton.OnButtonDownHandler)(() => new LuaResult(GameMain.Lua.CallFunction(function)).Bool()); });
-            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(GUIButton.OnPressedHandler), v => { var function = v.Function; return (GUIButton.OnPressedHandler)(() => new LuaResult(GameMain.Lua.CallFunction(function)).Bool()); });
+                RegisterHandler<GUIComponent.SecondaryButtonDownHandler>(f =>
+                               (GUIComponent.SecondaryButtonDownHandler)((GUIComponent a1, object a2) => new LuaResult(Call(f, a1, a2)).Bool()));
 
-            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(GUIColorPicker.OnColorSelectedHandler), v => { var function = v.Function; return (GUIColorPicker.OnColorSelectedHandler)((GUIColorPicker a1, Color a2) => new LuaResult(GameMain.Lua.CallFunction(function, a1, a2)).Bool()); });
+                RegisterHandler<GUIButton.OnClickedHandler>(f =>
+                               (GUIButton.OnClickedHandler)((GUIButton a1, object a2) => new LuaResult(Call(f, a1, a2)).Bool()));
+                RegisterHandler<GUIButton.OnButtonDownHandler>(f =>
+                               (GUIButton.OnButtonDownHandler)(() => new LuaResult(Call(f)).Bool()));
+                RegisterHandler<GUIButton.OnPressedHandler>(f =>
+                               (GUIButton.OnPressedHandler)(() => new LuaResult(Call(f)).Bool()));
 
-            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(GUIDropDown.OnSelectedHandler), v => { var function = v.Function; return (GUIDropDown.OnSelectedHandler)((GUIComponent a1, object a2) => new LuaResult(GameMain.Lua.CallFunction(function, a1, a2)).Bool()); });
+                RegisterHandler<GUIColorPicker.OnColorSelectedHandler>(f =>
+                               (GUIColorPicker.OnColorSelectedHandler)((GUIColorPicker a1, Color a2) => new LuaResult(Call(f, a1, a2)).Bool()));
 
-            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(GUIListBox.OnSelectedHandler), v => { var function = v.Function; return (GUIListBox.OnSelectedHandler)((GUIComponent a1, object a2) => new LuaResult(GameMain.Lua.CallFunction(function, a1, a2)).Bool()); });
-            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(GUIListBox.OnRearrangedHandler), v => { var function = v.Function; return (GUIListBox.OnRearrangedHandler)((GUIListBox a1, object a2) => GameMain.Lua.CallFunction(function, a1, a2)); });
-            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(GUIListBox.CheckSelectedHandler), v => { var function = v.Function; return (GUIListBox.CheckSelectedHandler)(() => new LuaResult(GameMain.Lua.CallFunction(function)).Object()); });
+                RegisterHandler<GUIDropDown.OnSelectedHandler>(f =>
+                               (GUIDropDown.OnSelectedHandler)((GUIComponent a1, object a2) => new LuaResult(Call(f, a1, a2)).Bool()));
 
-            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(GUINumberInput.OnValueChangedHandler), v => { var function = v.Function; return (GUINumberInput.OnValueChangedHandler)((GUINumberInput a1) => GameMain.Lua.CallFunction(function, a1)); });
+                RegisterHandler<GUIListBox.OnSelectedHandler>(f =>
+                               (GUIListBox.OnSelectedHandler)((GUIComponent a1, object a2) => new LuaResult(Call(f, a1, a2)).Bool()));
+                RegisterHandler<GUIListBox.OnRearrangedHandler>(f =>
+                               (GUIListBox.OnRearrangedHandler)((GUIListBox a1, object a2) => Call(f, a1, a2)));
+                RegisterHandler<GUIListBox.CheckSelectedHandler>(f =>
+                               (GUIListBox.CheckSelectedHandler)(() => new LuaResult(Call(f)).Object()));
 
-            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(GUIProgressBar.ProgressGetterHandler), v => { var function = v.Function; return (GUIProgressBar.ProgressGetterHandler)(() => new LuaResult(GameMain.Lua.CallFunction(function)).Float()); });
+                RegisterHandler<GUINumberInput.OnValueChangedHandler>(f =>
+                               (GUINumberInput.OnValueChangedHandler)((GUINumberInput a1) => Call(f, a1)));
 
-            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(GUIRadioButtonGroup.RadioButtonGroupDelegate), v => { var function = v.Function; return (GUIRadioButtonGroup.RadioButtonGroupDelegate)((GUIRadioButtonGroup a1, int? a2) => GameMain.Lua.CallFunction(function, a1, a2)); });
+                RegisterHandler<GUIProgressBar.ProgressGetterHandler>(f =>
+                               (GUIProgressBar.ProgressGetterHandler)(() => new LuaResult(Call(f)).Float()));
 
-            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(GUIScrollBar.OnMovedHandler), v => { var function = v.Function; return (GUIScrollBar.OnMovedHandler)((GUIScrollBar a1, float a2) => new LuaResult(GameMain.Lua.CallFunction(function, a1, a2)).Bool()); });
-            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(GUIScrollBar.ScrollConversion), v => { var function = v.Function; return (GUIScrollBar.ScrollConversion)((GUIScrollBar a1, float a2) => new LuaResult(GameMain.Lua.CallFunction(function, a1, a2)).Float()); });
+                RegisterHandler<GUIRadioButtonGroup.RadioButtonGroupDelegate>(f =>
+                               (GUIRadioButtonGroup.RadioButtonGroupDelegate)((GUIRadioButtonGroup a1, int? a2) => Call(f, a1, a2)));
 
-            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(GUITextBlock.TextGetterHandler), v => { var function = v.Function; return (GUITextBlock.TextGetterHandler)(() => new LuaResult(GameMain.Lua.CallFunction(function, new object[] { })).String()); });
+                RegisterHandler<GUIScrollBar.OnMovedHandler>(f =>
+                               (GUIScrollBar.OnMovedHandler)((GUIScrollBar a1, float a2) => new LuaResult(Call(f, a1, a2)).Bool()));
+                RegisterHandler<GUIScrollBar.ScrollConversion>(f =>
+                               (GUIScrollBar.ScrollConversion)((GUIScrollBar a1, float a2) => new LuaResult(Call(f, a1, a2)).Float()));
 
-            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(GUITextBox.OnEnterHandler), v => { var function = v.Function; return (GUITextBox.OnEnterHandler)((GUITextBox a1, string a2) => new LuaResult(GameMain.Lua.CallFunction(function, a1, a2)).Bool()); });
-            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(GUITextBox.OnTextChangedHandler), v => { var function = v.Function; return (GUITextBox.OnTextChangedHandler)((GUITextBox a1, string a2) => new LuaResult(GameMain.Lua.CallFunction(function, a1, a2)).Bool()); });
-            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(TextBoxEvent), v => { var function = v.Function; return (TextBoxEvent)((GUITextBox a1, Microsoft.Xna.Framework.Input.Keys a2) => GameMain.Lua.CallFunction(function, a1, a2)); });
+                RegisterHandler<GUITextBlock.TextGetterHandler>(f =>
+                               (GUITextBlock.TextGetterHandler)(() => new LuaResult(Call(f, new object[] { })).String()));
 
-            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(GUITickBox.OnSelectedHandler), v => { var function = v.Function; return (GUITickBox.OnSelectedHandler)((GUITickBox a1) => new LuaResult(GameMain.Lua.CallFunction(function, a1)).Bool()); });
+                RegisterHandler<GUITextBox.OnEnterHandler>(f =>
+                               (GUITextBox.OnEnterHandler)((GUITextBox a1, string a2) => new LuaResult(Call(f, a1, a2)).Bool()));
+                RegisterHandler<GUITextBox.OnTextChangedHandler>(f =>
+                               (GUITextBox.OnTextChangedHandler)((GUITextBox a1, string a2) => new LuaResult(Call(f, a1, a2)).Bool()));
+                RegisterHandler<TextBoxEvent>(f =>
+                               (TextBoxEvent)((GUITextBox a1, Microsoft.Xna.Framework.Input.Keys a2) => Call(f, a1, a2)));
+
+                RegisterHandler<GUITickBox.OnSelectedHandler>(f =>
+                               (GUITickBox.OnSelectedHandler)((GUITickBox a1) => new LuaResult(Call(f, a1)).Bool()));
+
+            }
 #endif
 
 
