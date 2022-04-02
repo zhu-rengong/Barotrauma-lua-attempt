@@ -16,52 +16,36 @@ local CreateStatic = function (typeName, addCallMethod)
 	return staticUserdata
 end
 
+local CreateEnum = LuaUserData.CreateEnumTable
+
 defaultLib["Descriptors"] = descriptors
 
 defaultLib["Byte"] = CreateStatic("Barotrauma.LuaByte", true)
 defaultLib["UShort"] = CreateStatic("Barotrauma.LuaUShort", true)
 defaultLib["Float"] = CreateStatic("Barotrauma.LuaFloat", true)
 
-defaultLib["SpawnType"] = CreateStatic("Barotrauma.SpawnType")
-defaultLib["ChatMessageType"] = CreateStatic("Barotrauma.Networking.ChatMessageType")
-defaultLib["ServerLog_MessageType"] = CreateStatic("Barotrauma.Networking.ServerLog+MessageType")
-defaultLib["ServerLogMessageType"] = CreateStatic("Barotrauma.Networking.ServerLog+MessageType")
-defaultLib["PositionType"] = CreateStatic("Barotrauma.Level+PositionType")
-defaultLib["InvSlotType"] = CreateStatic("Barotrauma.InvSlotType")
-defaultLib["LimbType"] = CreateStatic("Barotrauma.LimbType")
-defaultLib["ActionType"] = CreateStatic("Barotrauma.ActionType")
-defaultLib["AbilityEffectType"] = CreateStatic("Barotrauma.AbilityEffectType")
-defaultLib["StatTypes"] = CreateStatic("Barotrauma.StatTypes")
-defaultLib["AbilityFlags"] = CreateStatic("Barotrauma.AbilityFlags")
-defaultLib["DeliveryMethod"] = CreateStatic("Barotrauma.Networking.DeliveryMethod")
-defaultLib["ClientPacketHeader"] = CreateStatic("Barotrauma.Networking.ClientPacketHeader")
-defaultLib["ServerPacketHeader"] = CreateStatic("Barotrauma.Networking.ServerPacketHeader")
-defaultLib["RandSync"] = CreateStatic("Barotrauma.Rand+RandSync")
-defaultLib["DisconnectReason"] = CreateStatic("Barotrauma.Networking.DisconnectReason")
-defaultLib["TraitorMessageType"] = CreateStatic("Barotrauma.Networking.TraitorMessageType")
-defaultLib["CombatMode"] = CreateStatic("Barotrauma.AIObjectiveCombat+CombatMode")
-defaultLib["CauseOfDeathType"] = CreateStatic("Barotrauma.CauseOfDeathType")
-defaultLib["CharacterTeamType"] = CreateStatic("Barotrauma.CharacterTeamType")
-defaultLib["InputType"] = {
-	Select = 0, Use = 1, Aim = 2, Up = 3, Down = 4, Left = 5, Right = 6, Attack = 7, Run = 8, Crouch = 9, InfoTab = 10, Chat = 11, RadioChat = 12, CrewOrders = 13, Ragdoll = 14, Health = 15, Grab = 16, SelectNextCharacter = 17, SelectPreviousCharacter = 18, Voice = 19, LocalVoice = 20, Deselect = 21, Shoot = 22, Command = 23, ToggleInventory = 24, TakeOneFromInventorySlot = 25, TakeHalfFromInventorySlot = 26, NextFireMode = 27, PreviousFireMode = 28
-}
-
-defaultLib["ClientPermissions"] = {
-	None = 0x0,
-	ManageRound = 0x1,
-	Kick = 0x2,
-	Ban = 0x4,
-	Unban = 0x8,
-	SelectSub = 0x10,
-	SelectMode = 0x20,
-	ManageCampaign = 0x40,
-	ConsoleCommands = 0x80,
-	ServerLog = 0x100,
-	ManageSettings = 0x200,
-	ManagePermissions = 0x400,
-	KarmaImmunity = 0x800,
-	All = 0xFFF
-}
+defaultLib["SpawnType"] = CreateEnum("Barotrauma.SpawnType")
+defaultLib["ChatMessageType"] = CreateEnum("Barotrauma.Networking.ChatMessageType")
+defaultLib["ServerLog_MessageType"] = CreateEnum("Barotrauma.Networking.ServerLog+MessageType")
+defaultLib["ServerLogMessageType"] = CreateEnum("Barotrauma.Networking.ServerLog+MessageType")
+defaultLib["PositionType"] = CreateEnum("Barotrauma.Level+PositionType")
+defaultLib["InvSlotType"] = CreateEnum("Barotrauma.InvSlotType")
+defaultLib["LimbType"] = CreateEnum("Barotrauma.LimbType")
+defaultLib["ActionType"] = CreateEnum("Barotrauma.ActionType")
+defaultLib["AbilityEffectType"] = CreateEnum("Barotrauma.AbilityEffectType")
+defaultLib["StatTypes"] = CreateEnum("Barotrauma.StatTypes")
+defaultLib["AbilityFlags"] = CreateEnum("Barotrauma.AbilityFlags")
+defaultLib["DeliveryMethod"] = CreateEnum("Barotrauma.Networking.DeliveryMethod")
+defaultLib["ClientPacketHeader"] = CreateEnum("Barotrauma.Networking.ClientPacketHeader")
+defaultLib["ServerPacketHeader"] = CreateEnum("Barotrauma.Networking.ServerPacketHeader")
+defaultLib["RandSync"] = CreateEnum("Barotrauma.Rand+RandSync")
+defaultLib["DisconnectReason"] = CreateEnum("Barotrauma.Networking.DisconnectReason")
+defaultLib["TraitorMessageType"] = CreateEnum("Barotrauma.Networking.TraitorMessageType")
+defaultLib["CombatMode"] = CreateEnum("Barotrauma.AIObjectiveCombat+CombatMode")
+defaultLib["CauseOfDeathType"] = CreateEnum("Barotrauma.CauseOfDeathType")
+defaultLib["CharacterTeamType"] = CreateEnum("Barotrauma.CharacterTeamType")
+defaultLib["InputType"] = CreateEnum("Barotrauma.InputType")
+defaultLib["ClientPermissions"] = CreateEnum("Barotrauma.Networking.ClientPermissions")
 
 
 defaultLib["WayPoint"] = CreateStatic("Barotrauma.WayPoint", true)

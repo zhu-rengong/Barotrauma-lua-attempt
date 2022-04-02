@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using MoonSharp.Interpreter;
@@ -85,6 +86,28 @@ namespace Barotrauma
 			MethodInfo method = typeof(UserData).GetMethod(nameof(UserData.CreateStatic), 1, new Type[0]);
 			MethodInfo generic = method.MakeGenericMethod(type);
 			return generic.Invoke(null, null);
+		}
+
+		public static object CreateEnumTable(string typeName)
+        {
+			Type type = GetType(typeName);
+
+			if (type == null)
+			{
+				GameMain.Lua.HandleLuaException(new Exception($"Tried to create an enum table with a type that doesn't exist:: {typeName}."));
+				return null;
+			}
+
+			Dictionary<string, object> result = new Dictionary<string, object>();
+
+			foreach (var value in Enum.GetValues(type))
+            {
+				string name = Enum.GetName(type, value);
+
+				result[name] = value;
+            }
+
+			return result;
 		}
 
 		public static void MakeFieldAccessible(IUserDataDescriptor IUUD, string fieldName)
