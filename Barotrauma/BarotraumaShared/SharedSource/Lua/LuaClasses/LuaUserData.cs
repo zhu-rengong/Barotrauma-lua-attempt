@@ -110,6 +110,18 @@ namespace Barotrauma
 			return result;
 		}
 
+		private static FieldInfo FindFieldRecursively(Type type, string fieldName)
+        {
+			var field = type.GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+
+			if (field == null && type.BaseType != null)
+            {
+				return FindFieldRecursively(type.BaseType, fieldName);
+            }
+
+			return field;
+		}
+
 		public static void MakeFieldAccessible(IUserDataDescriptor IUUD, string fieldName)
 		{
 			if (IUUD == null)
@@ -122,6 +134,11 @@ namespace Barotrauma
 			var field = IUUD.Type.GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
 
 			if (field == null)
+            {
+				field = FindFieldRecursively(IUUD.Type, fieldName);
+            }
+
+			if (field == null)
 			{
 				GameMain.Lua.HandleLuaException(new Exception($"Tried to make field '{fieldName}' accessible, but the field doesn't exist."));
 				return;
@@ -129,6 +146,18 @@ namespace Barotrauma
 
 			descriptor.RemoveMember(fieldName);
 			descriptor.AddMember(fieldName, new FieldMemberDescriptor(field, InteropAccessMode.Default));
+		}
+
+		private static MethodInfo FindMethodRecursively(Type type, string methodName)
+		{
+			var method = type.GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+
+			if (method == null && type.BaseType != null)
+			{
+				return FindMethodRecursively(type.BaseType, methodName);
+			}
+
+			return method;
 		}
 
 		public static void MakeMethodAccessible(IUserDataDescriptor IUUD, string methodName)
@@ -144,7 +173,12 @@ namespace Barotrauma
 
 			if (method == null)
 			{
-				GameMain.Lua.HandleLuaException(new Exception($"Tried to make method '{method}' accessible, but the method doesn't exist."));
+				method = FindMethodRecursively(IUUD.Type, methodName);
+			}
+
+			if (method == null)
+			{
+				GameMain.Lua.HandleLuaException(new Exception($"Tried to make method '{methodName}' accessible, but the method doesn't exist."));
 				return;
 			}
 
