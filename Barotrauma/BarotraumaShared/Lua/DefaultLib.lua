@@ -42,6 +42,7 @@ defaultLib["TraitorMessageType"] = CreateStatic("Barotrauma.Networking.TraitorMe
 defaultLib["CombatMode"] = CreateStatic("Barotrauma.AIObjectiveCombat+CombatMode")
 defaultLib["CauseOfDeathType"] = CreateStatic("Barotrauma.CauseOfDeathType")
 defaultLib["CharacterTeamType"] = CreateStatic("Barotrauma.CharacterTeamType")
+defaultLib["InputType"] = CreateStatic("Barotrauma.InputType")
 
 defaultLib["ClientPermissions"] = {
 	None = 0x0,

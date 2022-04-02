@@ -28,7 +28,6 @@ RegisterBarotrauma("Level+PositionType")
 RegisterBarotrauma("Networking.TraitorMessageType")
 RegisterBarotrauma("SpawnType")
 RegisterBarotrauma("Networking.ChatMessageType")
-RegisterBarotrauma("InputType")
 
 RegisterBarotrauma("Job")
 RegisterBarotrauma("JobPrefab")
