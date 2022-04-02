@@ -200,7 +200,6 @@ Register("FarseerPhysics.Dynamics.Fixture")
 RegisterBarotrauma("Physics")
 
 RegisterBarotrauma("Camera")
-RegisterBarotrauma("InputType")
 RegisterBarotrauma("Key")
 
 RegisterBarotrauma("PrefabCollection`1[[Barotrauma.ItemPrefab]]")

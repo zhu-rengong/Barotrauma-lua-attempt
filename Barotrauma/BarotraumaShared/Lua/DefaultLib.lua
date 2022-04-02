@@ -42,7 +42,9 @@ defaultLib["TraitorMessageType"] = CreateStatic("Barotrauma.Networking.TraitorMe
 defaultLib["CombatMode"] = CreateStatic("Barotrauma.AIObjectiveCombat+CombatMode")
 defaultLib["CauseOfDeathType"] = CreateStatic("Barotrauma.CauseOfDeathType")
 defaultLib["CharacterTeamType"] = CreateStatic("Barotrauma.CharacterTeamType")
-defaultLib["InputType"] = CreateStatic("Barotrauma.InputType")
+defaultLib["InputType"] = {
+	Select = 0, Use = 1, Aim = 2, Up = 3, Down = 4, Left = 5, Right = 6, Attack = 7, Run = 8, Crouch = 9, InfoTab = 10, Chat = 11, RadioChat = 12, CrewOrders = 13, Ragdoll = 14, Health = 15, Grab = 16, SelectNextCharacter = 17, SelectPreviousCharacter = 18, Voice = 19, LocalVoice = 20, Deselect = 21, Shoot = 22, Command = 23, ToggleInventory = 24, TakeOneFromInventorySlot = 25, TakeHalfFromInventorySlot = 26, NextFireMode = 27, PreviousFireMode = 28
+}
 
 defaultLib["ClientPermissions"] = {
 	None = 0x0,
