@@ -147,6 +147,13 @@ namespace Barotrauma
 		public void HookMethod(string identifier, string className, string methodName, string[] parameterNames, object hookMethod, HookMethodType hookMethodType = HookMethodType.Before)
 		{
 			var classType = LuaUserData.GetType(className);
+
+			if (classType == null)
+            {
+				GameMain.Lua.HandleLuaException(new Exception($"Tried to use HookMethod with an invalid class name '{className}'."));
+				return;
+			}
+
 			MethodInfo methodInfo = null;
 
 			if (parameterNames != null)
@@ -161,7 +168,8 @@ namespace Barotrauma
 
 			if (methodInfo == null)
 			{
-				GameMain.Lua.PrintError($"Method '{methodName}' with parameter '{string.Join(", ", parameterNames)}' not found from Class '{className}'");
+				string parameterNamesStr = parameterNames == null ? "" : string.Join(", ", parameterNames == null);
+				GameMain.Lua.HandleLuaException(new Exception($"Method '{methodName}' with parameters '{parameterNamesStr}' not found in class '{className}'"));
 				return;
 			}
 
