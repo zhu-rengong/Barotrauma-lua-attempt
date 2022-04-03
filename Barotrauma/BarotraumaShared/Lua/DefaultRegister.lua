@@ -205,6 +205,7 @@ Register("Microsoft.Xna.Framework.Vector4")
 Register("Microsoft.Xna.Framework.Color")
 Register("Microsoft.Xna.Framework.Point")
 Register("Microsoft.Xna.Framework.Rectangle")
+Register("Microsoft.Xna.Framework.Matrix")
 
 if SERVER then
 RegisterBarotrauma("Networking.ServerPeer")

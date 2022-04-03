@@ -116,6 +116,7 @@ defaultLib["Vector4"] = CreateStatic("Microsoft.Xna.Framework.Vector4", true)
 defaultLib["Color"] = CreateStatic("Microsoft.Xna.Framework.Color", true)
 defaultLib["Point"] = CreateStatic("Microsoft.Xna.Framework.Point", true)
 defaultLib["Rectangle"] = CreateStatic("Microsoft.Xna.Framework.Rectangle", true)
+defaultLib["Matrix"] = CreateStatic("Microsoft.Xna.Framework.Matrix", true)
 
 if SERVER then
 
