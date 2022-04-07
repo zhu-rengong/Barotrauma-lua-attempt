@@ -232,6 +232,7 @@ Register("EventInput.KeyEventArgs")
 Register("Microsoft.Xna.Framework.Input.Keys")
 
 RegisterBarotrauma("Sprite")
+RegisterBarotrauma("GUI")
 RegisterBarotrauma("GUILayoutGroup")
 RegisterBarotrauma("GUITextBox")
 RegisterBarotrauma("GUITextBlock")
@@ -244,6 +245,7 @@ RegisterBarotrauma("GUIImage")
 RegisterBarotrauma("GUIListBox")
 RegisterBarotrauma("GUIScrollBar")
 RegisterBarotrauma("GUIDropDown")
+RegisterBarotrauma("GUINumberInput")
 
 end
 
