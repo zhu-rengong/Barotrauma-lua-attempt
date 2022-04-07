@@ -225,6 +225,7 @@ RegisterBarotrauma("Alignment")
 RegisterBarotrauma("Pivot")
 RegisterBarotrauma("Key")
 RegisterBarotrauma("PlayerInput")
+RegisterBarotrauma("ScalableFont")
 
 Register("Microsoft.Xna.Framework.Graphics.Texture2D")
 Register("EventInput.KeyEventArgs")
