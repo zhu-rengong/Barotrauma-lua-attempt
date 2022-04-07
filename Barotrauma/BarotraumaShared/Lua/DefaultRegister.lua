@@ -231,6 +231,7 @@ RegisterBarotrauma("ScalableFont")
 Register("Microsoft.Xna.Framework.Graphics.Texture2D")
 Register("EventInput.KeyEventArgs")
 Register("Microsoft.Xna.Framework.Input.Keys")
+Register("Microsoft.Xna.Framework.Input.KeyboardState")
 
 RegisterBarotrauma("Sprite")
 RegisterBarotrauma("GUI")
