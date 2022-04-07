@@ -56,6 +56,7 @@ RegisterBarotrauma("PhysicsBody")
 RegisterBarotrauma("AbilityFlags")
 RegisterBarotrauma("ItemPrefab")
 RegisterBarotrauma("SerializableProperty")
+RegisterBarotrauma("InputType")
 
 RegisterBarotrauma("StatusEffect")
 RegisterBarotrauma("FireSource")

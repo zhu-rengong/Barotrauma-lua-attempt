@@ -44,8 +44,8 @@ defaultLib["TraitorMessageType"] = CreateEnum("Barotrauma.Networking.TraitorMess
 defaultLib["CombatMode"] = CreateEnum("Barotrauma.AIObjectiveCombat+CombatMode")
 defaultLib["CauseOfDeathType"] = CreateEnum("Barotrauma.CauseOfDeathType")
 defaultLib["CharacterTeamType"] = CreateEnum("Barotrauma.CharacterTeamType")
-defaultLib["InputType"] = CreateEnum("Barotrauma.InputType")
 defaultLib["ClientPermissions"] = CreateEnum("Barotrauma.Networking.ClientPermissions")
+defaultLib["InputType"] = CreateStatic("Barotrauma.InputType")
 
 
 defaultLib["WayPoint"] = CreateStatic("Barotrauma.WayPoint", true)
