@@ -325,7 +325,7 @@ namespace Barotrauma.Items.Components
 
                 object[] obj = new object[] { signal, connection };
                 GameMain.Lua.hook.Call("signalReceived", obj);
-                GameMain.Lua.hook.Call("signalReceived." + recipient.item.prefab.Identifier, obj);
+                GameMain.Lua.hook.Call("signalReceived." + recipient.item.Prefab.Identifier, obj);
 
                 foreach (ItemComponent ic in recipient.item.Components)
                 {

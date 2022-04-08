@@ -83,46 +83,11 @@ namespace Barotrauma
 			return generic.Invoke(this, new object[]{comp, extraData });
 		}
 	}
-
-	partial class ItemPrefab
-	{
-		public static void AddToSpawnQueue(ItemPrefab itemPrefab, Vector2 position, object spawned = null)
-		{
-			EntitySpawner.Spawner.AddToSpawnQueue(itemPrefab, position, onSpawned: (Item item) =>
-			{
-				GameMain.Lua.CallFunction(spawned, new object[] { item });
-			});
-		}
-
-		public static void AddToSpawnQueue(ItemPrefab itemPrefab, Inventory inventory, object spawned = null)
-		{
-			EntitySpawner.Spawner.AddToSpawnQueue(itemPrefab, inventory, null, null, onSpawned: (Item item) =>
-			{
-				GameMain.Lua.CallFunction(spawned, new object[] { item });
-			});
-		}
-	}
 }
 
 namespace Barotrauma.Items.Components
 {
 	using Barotrauma.Networking;
-
-	partial class CustomInterface
-	{
-		public void UpdateClients()
-		{
-
-			//notify all clients of the new state
-			GameMain.Server.CreateEntityEvent(item, new object[]
-			{
-				NetEntityEvent.Type.ComponentState,
-				item.GetComponentIndex(this)
-			});
-
-			item.CreateServerEvent(this);
-		}
-	}
 
 	partial struct Signal
 	{

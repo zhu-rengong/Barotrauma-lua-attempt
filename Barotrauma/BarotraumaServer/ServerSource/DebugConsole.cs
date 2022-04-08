@@ -1252,7 +1252,7 @@ namespace Barotrauma
 
             commands.Add(new Command("install_cl_lua", "Installs client-Side Lua into your client.", (string[] args) =>
             {
-                if (!File.Exists("Mods/LuaForBarotrauma/clientside_files.zip"))
+                if (!System.IO.File.Exists("Mods/LuaForBarotrauma/clientside_files.zip"))
                 {
                     GameMain.Server.SendChatMessage("clientside_files.zip doesn't exist, Github version?", ChatMessageType.ServerMessageBox);
 

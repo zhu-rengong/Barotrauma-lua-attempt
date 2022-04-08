@@ -14,7 +14,6 @@ namespace Barotrauma
 	{
 		public bool IsSingleplayer => GameMain.IsSingleplayer;
 		public bool IsMultiplayer => GameMain.IsMultiplayer;
-		public GameSettings GameSettings => GameMain.Config;
 
 #if CLIENT
 		public bool Paused => GameMain.Instance?.Paused == true;
@@ -205,63 +204,11 @@ namespace Barotrauma
 			new Explosion(range, force, damage, structureDamage, itemDamage, empStrength, ballastFloraStrength).Explode(pos, null);
 		}
 
-		public static Character Spawn(string name, Vector2 worldPos)
-		{
-			Character spawnedCharacter = null;
-			Vector2 spawnPosition = worldPos;
-
-			string characterLowerCase = name.ToLowerInvariant();
-			JobPrefab job = null;
-			if (!JobPrefab.Prefabs.ContainsKey(characterLowerCase))
-			{
-				job = JobPrefab.Prefabs.Find(jp => jp.Name != null && jp.Name.Equals(characterLowerCase, StringComparison.OrdinalIgnoreCase));
-			}
-			else
-			{
-				job = JobPrefab.Prefabs[characterLowerCase];
-			}
-			bool human = job != null || characterLowerCase == CharacterPrefab.HumanSpeciesName;
-
-
-			if (string.IsNullOrWhiteSpace(name)) { return null; }
-
-			if (human)
-			{
-				var variant = job != null ? Rand.Range(0, job.Variants, Rand.RandSync.Server) : 0;
-				CharacterInfo characterInfo = new CharacterInfo(CharacterPrefab.HumanSpeciesName, jobPrefab: job, variant: variant);
-				spawnedCharacter = Character.Create(characterInfo, spawnPosition, ToolBox.RandomSeed(8));
-				if (GameMain.GameSession != null)
-				{
-					//TODO: a way to select which team to spawn to?
-					spawnedCharacter.TeamID = Character.Controlled != null ? Character.Controlled.TeamID : CharacterTeamType.Team1;
-#if CLIENT
-					GameMain.GameSession.CrewManager.AddCharacter(spawnedCharacter);
-#endif
-				}
-				spawnedCharacter.GiveJobItems(null);
-				spawnedCharacter.Info.StartItemsGiven = true;
-			}
-			else
-			{
-				if (CharacterPrefab.FindBySpeciesName(name) != null)
-				{
-					spawnedCharacter = Character.Create(name, spawnPosition, ToolBox.RandomSeed(8));
-				}
-			}
-
-			return spawnedCharacter;
-		}
-
 		public static string SpawnItem(string name, Vector2 pos, bool inventory = false, Character character = null)
 		{
 			string error;
 			DebugConsole.SpawnItem(new string[] { name, inventory ? "inventory" : "cursor" }, pos, character, out error);
 			return error;
-		}
-
-		public static void RemoveItem(Item item)
-		{
-			EntitySpawner.Spawner.AddToRemoveQueue(item);
 		}
 
 		public static ItemPrefab GetItemPrefab(string itemNameOrId)
@@ -271,20 +218,6 @@ namespace Barotrauma
 			MapEntityPrefab.Find(null, identifier: itemNameOrId, showErrorMessages: false)) as ItemPrefab;
 
 			return itemPrefab;
-		}
-
-		public void AddItemPrefabToSpawnQueue(ItemPrefab itemPrefab, Vector2 position, DynValue spawned = null)
-		{
-			EntitySpawner.Spawner.AddToSpawnQueue(itemPrefab, position, onSpawned: (Item item) => {
-				if (spawned?.Type == DataType.Function) GameMain.Lua.CallFunction(spawned, UserData.Create(item));
-			});
-		}
-
-		public void AddItemPrefabToSpawnQueue(ItemPrefab itemPrefab, Inventory inventory, DynValue spawned = null)
-		{
-			EntitySpawner.Spawner.AddToSpawnQueue(itemPrefab, inventory, onSpawned: (Item item) => {
-				if (spawned?.Type == DataType.Function) GameMain.Lua.CallFunction(spawned, UserData.Create(item));
-			});
 		}
 
 		public static Submarine GetRespawnSub()
@@ -356,34 +289,6 @@ namespace Barotrauma
 			return new Signal(value, stepsTaken, sender, source, power, strength);
 		}
 
-		public static ContentPackage[] GetEnabledContentPackages()
-		{
-			return GameMain.Config.AllEnabledPackages.ToArray();
-		}
-
-		public static List<string> GetEnabledPackagesDirectlyFromFile()
-		{
-			List<string> enabledPackages = new List<string>();
-
-			XDocument doc = XMLExtensions.LoadXml("config_player.xml");
-			var contentPackagesElement = doc.Root.Element("contentpackages");
-
-			string coreName = contentPackagesElement.Element("core")?.GetAttributeString("name", "");
-			enabledPackages.Add(coreName);
-
-			XElement regularElement = contentPackagesElement.Element("regular");
-			List<XElement> subElements = regularElement?.Elements()?.ToList();
-
-			foreach (var subElement in subElements)
-			{
-				if (!bool.TryParse(subElement.GetAttributeString("enabled", "false"), out bool enabled) || !enabled) { continue; }
-
-				string name = subElement.GetAttributeString("name", null);
-				enabledPackages.Add(name);
-			}
-			return enabledPackages;
-		}
-
 		private List<DebugConsole.Command> luaAddedCommand = new List<DebugConsole.Command>();
 
 		public void RemoveCommand(string name)
@@ -450,7 +355,7 @@ namespace Barotrauma
 			GameMain.Server.SendChatMessage(msg, (ChatMessageType)messageType, sender, character);
 		}
 
-		public static void SendTraitorMessage(Client client, string msg, string missionid, TraitorMessageType type)
+		public static void SendTraitorMessage(Client client, string msg, Identifier missionid, TraitorMessageType type)
 		{
 			GameMain.Server.SendTraitorMessage(client, msg, missionid, type);
 		}

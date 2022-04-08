@@ -565,7 +565,7 @@ namespace Barotrauma
             if (mapEntityUpdateTick % MapEntityUpdateInterval == 0)
             {
 
-                foreach (Hull hull in Hull.hullList)
+                foreach (Hull hull in Hull.HullList)
                 {
                     hull.Update(deltaTime * MapEntityUpdateInterval, cam);
                 }

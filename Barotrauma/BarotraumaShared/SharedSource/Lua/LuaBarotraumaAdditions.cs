@@ -37,32 +37,8 @@ namespace Barotrauma
 		
 	}
 
-	partial class AfflictionPrefab
-	{
-		public static AfflictionPrefab[] ListArray
-		{
-			get
-			{
-				return List.ToArray();
-			}
-		}
-	}
-
-	partial class CharacterInfo
-	{
-		public static CharacterInfo Create(string speciesName, string name = "", JobPrefab jobPrefab = null, string ragdollFileName = null, int variant = 0, Rand.RandSync randSync = Rand.RandSync.Unsynced, string npcIdentifier = "")
-		{
-			return new CharacterInfo(speciesName, name, name, jobPrefab, ragdollFileName, variant, randSync, npcIdentifier);
-		}
-	}
-
 	partial class Item
 	{
-		public static void AddToRemoveQueue(Item item)
-		{
-			EntitySpawner.Spawner.AddToRemoveQueue(item);
-		}
-
 		public object GetComponentString(string component)
 		{
 			Type type = Type.GetType("Barotrauma.Items.Components." + component);

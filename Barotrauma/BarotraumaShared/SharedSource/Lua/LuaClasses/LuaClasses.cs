@@ -315,7 +315,7 @@ namespace Barotrauma
 			}
 		}
 
-		public void CreateEntityEvent(INetSerializable entity, object[] extraData)
+		public void CreateEntityEvent(INetSerializable entity, NetEntityEvent.IData extraData)
 		{
 			GameMain.NetworkMember.CreateEntityEvent(entity, extraData);
 		}

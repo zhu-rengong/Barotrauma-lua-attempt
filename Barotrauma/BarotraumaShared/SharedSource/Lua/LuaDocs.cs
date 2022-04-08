@@ -97,12 +97,12 @@ namespace Barotrauma
 			GenerateDocs(typeof(WayPoint), "WayPoint.lua", "WayPoint");
 		}
 
-		public static void GenerateDocs(Type type, string name, string? categoryName = null)
+		public static void GenerateDocs(Type type, string name, string categoryName = null)
 		{
 			GenerateDocs(type, "../../../../docs/baseluadocs/" + name, "../../../../docs/lua/generated/" + name, categoryName);
 		}
 
-		public static void GenerateDocs(Type type, string baselua, string fileresult, string? categoryName = null)
+		public static void GenerateDocs(Type type, string baselua, string fileresult, string categoryName = null)
 		{
 			var sb = new StringBuilder();
 
