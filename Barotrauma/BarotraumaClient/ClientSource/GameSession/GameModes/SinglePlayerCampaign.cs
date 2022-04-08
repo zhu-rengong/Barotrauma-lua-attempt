@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Barotrauma.Networking;
 
 namespace Barotrauma
 {
@@ -68,7 +69,7 @@ namespace Barotrauma
                 for (int i = 0; i < jobPrefab.InitialCount; i++)
                 {
                     var variant = Rand.Range(0, jobPrefab.Variants);
-                    CrewManager.AddCharacterInfo(new CharacterInfo(CharacterPrefab.HumanSpeciesName, jobPrefab: jobPrefab, variant: variant));
+                    CrewManager.AddCharacterInfo(new CharacterInfo(CharacterPrefab.HumanSpeciesName, jobOrJobPrefab: jobPrefab, variant: variant));
                 }
             }
             InitCampaignData();
@@ -82,7 +83,7 @@ namespace Barotrauma
         {
             IsFirstRound = false;
 
-            foreach (XElement subElement in element.Elements())
+            foreach (var subElement in element.Elements())
             {
                 switch (subElement.Name.ToString().ToLowerInvariant())
                 {
@@ -108,6 +109,9 @@ namespace Barotrauma
                     case "pets":
                         petsElement = subElement;
                         break;
+                    case Wallet.LowerCaseSaveElementName:
+                        Bank = new Wallet(Option<Character>.None(), subElement);
+                        break;
                     case "stats":
                         LoadStats(subElement);
                         break;
@@ -121,7 +125,16 @@ namespace Barotrauma
 
             InitUI();
 
-            Money = element.GetAttributeInt("money", 0);
+            //backwards compatibility for saves made prior to the addition of personal wallets
+            int oldMoney = element.GetAttributeInt("money", 0);
+            if (oldMoney > 0)
+            {
+                Bank = new Wallet(Option<Character>.None())
+                {
+                    Balance = oldMoney
+                };
+            }
+
             PurchasedLostShuttles = element.GetAttributeBool("purchasedlostshuttles", false);
             PurchasedHullRepairs = element.GetAttributeBool("purchasedhullrepairs", false);
             PurchasedItemRepairs = element.GetAttributeBool("purchaseditemrepairs", false);
@@ -283,9 +296,9 @@ namespace Barotrauma
                 overlaySprite = Map.CurrentLocation.Type.GetPortrait(Map.CurrentLocation.PortraitId);
                 overlayTextColor = Color.Transparent;
                 overlayText = TextManager.GetWithVariables(showCampaignResetText ? "campaignend4" : "campaignstart",
-                        new string[] { "xxxx", "yyyy" },
-                        new string[] { Map.CurrentLocation.Name, TextManager.Get("submarineclass." + Submarine.MainSub.Info.SubmarineClass) });
-                string pressAnyKeyText = TextManager.Get("pressanykey");
+                        ("xxxx", Map.CurrentLocation.Name),
+                        ("yyyy", TextManager.Get("submarineclass." + Submarine.MainSub.Info.SubmarineClass)));
+                LocalizedString pressAnyKeyText = TextManager.Get("pressanykey");
                 float fadeInDuration = 2.0f;
                 float textDuration = 10.0f;
                 float timer = 0.0f;
@@ -385,7 +398,7 @@ namespace Barotrauma
         {
             NextLevel = newLevel;
             bool success = CrewManager.GetCharacters().Any(c => !c.IsDead);
-            SoundPlayer.OverrideMusicType = success ? "endround" : "crewdead";
+            SoundPlayer.OverrideMusicType = (success ? "endround" : "crewdead").ToIdentifier();
             SoundPlayer.OverrideMusicDuration = 18.0f;
             GUI.SetSavingIndicatorState(success);
             crewDead = false;
@@ -672,9 +685,9 @@ namespace Barotrauma
             var subsToLeaveBehind = GetSubsToLeaveBehind(leavingSub);
             if (subsToLeaveBehind.Any())
             {
-                string msg = TextManager.Get(subsToLeaveBehind.Count == 1 ? "LeaveSubBehind" : "LeaveSubsBehind");
+                LocalizedString msg = TextManager.Get(subsToLeaveBehind.Count == 1 ? "LeaveSubBehind" : "LeaveSubsBehind");
 
-                var msgBox = new GUIMessageBox(TextManager.Get("Warning"), msg, new string[] { TextManager.Get("Yes"), TextManager.Get("No") });
+                var msgBox = new GUIMessageBox(TextManager.Get("Warning"), msg, new LocalizedString[] { TextManager.Get("Yes"), TextManager.Get("No") });
                 msgBox.Buttons[0].OnClicked += (btn, userdata) => { LoadNewLevel(); return true; } ;
                 msgBox.Buttons[0].OnClicked += msgBox.Close;
                 msgBox.Buttons[0].UserData = Submarine.Loaded.FindAll(s => !subsToLeaveBehind.Contains(s));
@@ -729,7 +742,6 @@ namespace Barotrauma
         public override void Save(XElement element)
         {
             XElement modeElement = new XElement("SinglePlayerCampaign",
-                new XAttribute("money", Money),
                 new XAttribute("purchasedlostshuttles", PurchasedLostShuttles),
                 new XAttribute("purchasedhullrepairs", PurchasedHullRepairs),
                 new XAttribute("purchaseditemrepairs", PurchasedItemRepairs),
@@ -756,13 +768,14 @@ namespace Barotrauma
 
             petsElement = new XElement("pets");
             PetBehavior.SavePets(petsElement);
-            modeElement.Add(petsElement);            
+            modeElement.Add(petsElement);
 
             CrewManager.Save(modeElement);
             CampaignMetadata.Save(modeElement);
             Map.Save(modeElement);
             CargoManager?.SavePurchasedItems(modeElement);
             UpgradeManager?.Save(modeElement);
+            modeElement.Add(Bank.Save());
             element.Add(modeElement);
         }
     }

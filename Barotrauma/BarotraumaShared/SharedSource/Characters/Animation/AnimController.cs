@@ -24,6 +24,8 @@ namespace Barotrauma
         public bool IsAiming => wasAiming;
         public bool IsAimingMelee => wasAimingMelee;
 
+        protected bool Aiming => aiming || aimingMelee;
+
         public float ArmLength => upperArmLength + forearmLength;
 
         public abstract GroundedMovementParams WalkParams { get; set; }
@@ -99,8 +101,7 @@ namespace Barotrauma
             {
                 if (InWater || !CanWalk)
                 {
-                    float avg = (SwimSlowParams.MovementSpeed + SwimFastParams.MovementSpeed) / 2.0f;
-                    return TargetMovement.LengthSquared() > avg * avg;
+                    return TargetMovement.LengthSquared() > MathUtils.Pow2(SwimSlowParams.MovementSpeed);
                 }
                 else
                 {

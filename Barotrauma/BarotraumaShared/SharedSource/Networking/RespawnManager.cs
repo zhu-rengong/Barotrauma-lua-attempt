@@ -249,7 +249,7 @@ namespace Barotrauma.Networking
                 //remove respawn items that have been left in the shuttle
                 if (respawnItems.Contains(item))
                 {
-                    Spawner.AddToRemoveQueue(item);
+                    Spawner.AddItemToRemoveQueue(item);
                     continue;
                 }
 
@@ -285,7 +285,7 @@ namespace Barotrauma.Networking
                 }            
             }
 
-            foreach (Hull hull in Hull.hullList)
+            foreach (Hull hull in Hull.HullList)
             {
                 if (hull.Submarine != RespawnShuttle) { continue; }
                 hull.OxygenPercentage = 100.0f;
@@ -308,12 +308,12 @@ namespace Barotrauma.Networking
                 c.Kill(CauseOfDeathType.Unknown, null, true);
                 c.Enabled = false;
                 
-                Spawner.AddToRemoveQueue(c);
+                Spawner.AddEntityToRemoveQueue(c);
                 if (c.Inventory != null)
                 {
                     foreach (Item item in c.Inventory.AllItems)
                     {
-                        Spawner.AddToRemoveQueue(item);
+                        Spawner.AddItemToRemoveQueue(item);
                     }
                 }
             }
@@ -335,7 +335,7 @@ namespace Barotrauma.Networking
 
         public static Affliction GetRespawnPenaltyAffliction()
         {
-            var respawnPenaltyAffliction = AfflictionPrefab.List.FirstOrDefault(a => a.AfflictionType.Equals("respawnpenalty", StringComparison.OrdinalIgnoreCase));
+            var respawnPenaltyAffliction = AfflictionPrefab.Prefabs.First(a => a.AfflictionType == "respawnpenalty");
             return respawnPenaltyAffliction?.Instantiate(10.0f);
         }
 

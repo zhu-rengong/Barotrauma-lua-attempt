@@ -137,7 +137,7 @@ namespace Barotrauma
         { }
 
         public Gap(Rectangle rect, bool isHorizontal, Submarine submarine, ushort id = Entity.NullEntityID)
-            : base(MapEntityPrefab.Find(null, "gap"), submarine, id)
+            : base(MapEntityPrefab.FindByIdentifier("gap".ToIdentifier()), submarine, id)
         {
             this.rect = rect;
             flowForce = Vector2.Zero;
@@ -249,16 +249,17 @@ namespace Barotrauma
             }
             linkedTo.Clear();
 
+            int tolerance = 1;
             Vector2[] searchPos = new Vector2[2];
             if (IsHorizontal)
             {
-                searchPos[0] = new Vector2(rect.X, rect.Y - rect.Height / 2);
-                searchPos[1] = new Vector2(rect.Right, rect.Y - rect.Height / 2);
+                searchPos[0] = new Vector2(rect.X - tolerance, rect.Y - rect.Height / 2);
+                searchPos[1] = new Vector2(rect.Right + tolerance, rect.Y - rect.Height / 2);
             }
             else
             {
-                searchPos[0] = new Vector2(rect.Center.X, rect.Y);
-                searchPos[1] = new Vector2(rect.Center.X, rect.Y - rect.Height);
+                searchPos[0] = new Vector2(rect.Center.X, rect.Y + tolerance);
+                searchPos[1] = new Vector2(rect.Center.X, rect.Y - rect.Height - tolerance);
             }
 
             for (int i = 0; i < 2; i++)
@@ -712,7 +713,7 @@ namespace Barotrauma
             base.ShallowRemove();
             GapList.Remove(this);
 
-            foreach (Hull hull in Hull.hullList)
+            foreach (Hull hull in Hull.HullList)
             {
                 hull.ConnectedGaps.Remove(this);
             }
@@ -723,7 +724,7 @@ namespace Barotrauma
             base.Remove();
             GapList.Remove(this);
 
-            foreach (Hull hull in Hull.hullList)
+            foreach (Hull hull in Hull.HullList)
             {
                 hull.ConnectedGaps.Remove(this);
             }
@@ -740,11 +741,11 @@ namespace Barotrauma
             if (!DisableHullRechecks) FindHulls();
         }
 
-        public static Gap Load(XElement element, Submarine submarine, IdRemap idRemap)
+        public static Gap Load(ContentXElement element, Submarine submarine, IdRemap idRemap)
         {
             Rectangle rect = Rectangle.Empty;
 
-            if (element.Attribute("rect") != null)
+            if (element.GetAttribute("rect") != null)
             {
                 rect = element.GetAttributeRect("rect", Rectangle.Empty);
             }
@@ -752,15 +753,15 @@ namespace Barotrauma
             {
                 //backwards compatibility
                 rect = new Rectangle(
-                    int.Parse(element.Attribute("x").Value),
-                    int.Parse(element.Attribute("y").Value),
-                    int.Parse(element.Attribute("width").Value),
-                    int.Parse(element.Attribute("height").Value));
+                    int.Parse(element.GetAttribute("x").Value),
+                    int.Parse(element.GetAttribute("y").Value),
+                    int.Parse(element.GetAttribute("width").Value),
+                    int.Parse(element.GetAttribute("height").Value));
             }
 
             bool isHorizontal = rect.Height > rect.Width;
 
-            var horizontalAttribute = element.Attribute("horizontal");
+            var horizontalAttribute = element.GetAttribute("horizontal");
             if (horizontalAttribute != null)
             {
                 isHorizontal = horizontalAttribute.Value.ToString() == "true";

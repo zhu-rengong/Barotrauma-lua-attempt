@@ -6,6 +6,25 @@ using System.Linq;
 
 namespace Barotrauma.Networking
 {
+    [NetworkSerialize]
+    struct TempClient : INetSerializableStruct
+    {
+        public string Name;
+        public Identifier PreferredJob;
+        public CharacterTeamType PreferredTeam;
+        public UInt16 NameID;
+        public UInt64 SteamID;
+        public byte ID;
+        public UInt16 CharacterID;
+        public float Karma;
+        public bool Muted;
+        public bool InGame;
+        public bool HasPermissions;
+        public bool IsOwner;
+        public bool AllowKicking;
+        public bool IsDownloading;
+    }
+    
     partial class Client : IDisposable
     {
         public const int MaxNameLength = 32;
@@ -15,11 +34,11 @@ namespace Barotrauma.Networking
         public UInt64 SteamID;
         public UInt64 OwnerSteamID;
 
-        public string Language;
+        public LanguageIdentifier Language;
 
         public UInt16 Ping;
 
-        public string PreferredJob;
+        public Identifier PreferredJob;
 
         public CharacterTeamType TeamID;
 
@@ -120,7 +139,7 @@ namespace Barotrauma.Networking
             }
         }
 
-        public bool HasPermissions = false;
+        public bool HasPermissions => Permissions != ClientPermissions.None;
 
         public VoipQueue VoipQueue
         {
@@ -148,7 +167,7 @@ namespace Barotrauma.Networking
         
         private List<Client> kickVoters;
 
-        public HashSet<string> GivenAchievements = new HashSet<string>();
+        public HashSet<Identifier> GivenAchievements = new HashSet<Identifier>();
 
         public ClientPermissions Permissions = ClientPermissions.None;
         public List<DebugConsole.Command> PermittedConsoleCommands

@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Barotrauma.Networking
 {
-    enum ClientPacketHeader
+    public enum ClientPacketHeader
     {
         UPDATE_LOBBY,   //update state in lobby
         UPDATE_INGAME,  //update state ingame
@@ -31,8 +31,11 @@ namespace Barotrauma.Networking
         ERROR,           //tell the server that an error occurred
         CREW,            //hiring UI
         MEDICAL,         //medical clinic
+        TRANSFER_MONEY,      // wallet transfers
+        REWARD_DISTRIBUTION, // wallet reward distribution
         READY_CHECK,
         READY_TO_SPAWN,
+        
         LUA_NET_MESSAGE
     }
     enum ClientNetObject
@@ -52,7 +55,7 @@ namespace Barotrauma.Networking
         MISSING_ENTITY //client can't find an entity of a certain ID
     }
 
-    enum ServerPacketHeader
+    public enum ServerPacketHeader
     {
         AUTH_RESPONSE,      //tell the player if they require a password to log in
         AUTH_FAILURE,       //the server won't authorize player yet, however connection is still alive
@@ -83,6 +86,7 @@ namespace Barotrauma.Networking
         CREW,               //anything related to managing bots in multiplayer
         MEDICAL,            //medical clinic
         READY_CHECK,        //start, end and update a ready check
+        MONEY,
         
         LUA_NET_MESSAGE
     }
@@ -116,7 +120,8 @@ namespace Barotrauma.Networking
         StartRound,
         PurchaseAndSwitchSub,
         PurchaseSub,
-        SwitchSub
+        SwitchSub,
+        TransferMoney
     }
 
     public enum ReadyCheckState
@@ -171,7 +176,7 @@ namespace Barotrauma.Networking
             get { return false; }
         }
 
-        public abstract void CreateEntityEvent(INetSerializable entity, object[] extraData = null);
+        public abstract void CreateEntityEvent(INetSerializable entity, NetEntityEvent.IData extraData = null);
 
 #if DEBUG
         public Dictionary<string, long> messageCount = new Dictionary<string, long>();
@@ -179,10 +184,10 @@ namespace Barotrauma.Networking
         
         protected ServerSettings serverSettings;
 
+        public Voting Voting { get; protected set; }
+
         protected TimeSpan updateInterval;
         protected DateTime updateTimer;
-
-        public int EndVoteCount, EndVoteMax, SubmarineVoteYesCount, SubmarineVoteNoCount, SubmarineVoteMax;
 
         protected bool gameStarted;
 

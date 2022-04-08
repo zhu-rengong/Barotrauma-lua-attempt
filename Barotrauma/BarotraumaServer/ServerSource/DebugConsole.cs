@@ -1,16 +1,12 @@
-﻿using Barotrauma.Networking;
+﻿using Barotrauma.Items.Components;
+using Barotrauma.Networking;
 using Microsoft.Xna.Framework;
 using System;
-using System.Linq;
 using System.Collections.Generic;
-using System.ComponentModel;
-using FarseerPhysics;
-using Barotrauma.Items.Components;
-using System.Threading;
-using Barotrauma.IO;
-using System.Text;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
+using System.Text;
 
 namespace Barotrauma
 {
@@ -98,7 +94,7 @@ namespace Barotrauma
                     {
                         ColoredText msg = queuedMessages.Dequeue();
                         Messages.Add(msg);
-                        if (GameSettings.SaveDebugConsoleLogs || GameSettings.VerboseLogging)
+                        if (GameSettings.CurrentConfig.SaveDebugConsoleLogs || GameSettings.CurrentConfig.VerboseLogging)
                         {
                             unsavedMessages.Add(msg);
                             if (unsavedMessages.Count >= messagesPerFile)
@@ -281,7 +277,7 @@ namespace Barotrauma
                 {
                     var msg = queuedMessages.Dequeue();
                     Messages.Add(msg);
-                    if (GameSettings.SaveDebugConsoleLogs || GameSettings.VerboseLogging)
+                    if (GameSettings.CurrentConfig.SaveDebugConsoleLogs || GameSettings.CurrentConfig.VerboseLogging)
                     {
                         unsavedMessages.Add(msg);
                         if (unsavedMessages.Count >= messagesPerFile)
@@ -392,7 +388,7 @@ namespace Barotrauma
                 if (float.TryParse(args[0], out seconds))
                 {
                     seconds = Math.Max(0, seconds);
-                    GameMain.Server.SendConsoleMessage("Set kill disconnected timer to " + ToolBox.SecondsToReadableTime(seconds), client);
+                    GameMain.Server.SendConsoleMessage("Set kill disconnected timer to " + ToolBox.SecondsToReadableTime(seconds).Value, client);
                     NewMessage(client.Name + " set kill disconnected timer to " + ToolBox.SecondsToReadableTime(seconds), Color.White);
                 }
                 else
@@ -955,7 +951,7 @@ namespace Barotrauma
                     return;
                 }
                 client.Muted = true;
-                GameMain.Server.SendDirectChatMessage(TextManager.Get("MutedByServer"), client, ChatMessageType.MessageBox);
+                GameMain.Server.SendDirectChatMessage(TextManager.Get("MutedByServer").Value, client, ChatMessageType.MessageBox);
             },
             () =>
             {
@@ -975,7 +971,7 @@ namespace Barotrauma
                     return;
                 }
                 client.Muted = false;
-                GameMain.Server.SendDirectChatMessage(TextManager.Get("UnmutedByServer"), client, ChatMessageType.MessageBox);
+                GameMain.Server.SendDirectChatMessage(TextManager.Get("UnmutedByServer").Value, client, ChatMessageType.MessageBox);
             },
             () =>
             {
@@ -1102,7 +1098,7 @@ namespace Barotrauma
                 TraitorManager traitorManager = GameMain.Server.TraitorManager;
                 if (traitorManager == null || traitorManager.Traitors == null || !traitorManager.Traitors.Any())
                 {
-                    GameMain.Server.SendTraitorMessage(client, "There are no traitors at the moment.", "", TraitorMessageType.Console);
+                    GameMain.Server.SendTraitorMessage(client, "There are no traitors at the moment.", Identifier.Empty, TraitorMessageType.Console);
                     return;
                 }
                 foreach (Traitor t in traitorManager.Traitors)
@@ -1116,11 +1112,11 @@ namespace Barotrauma
                             $"[traitorgoals]={traitorGoals.Substring(traitorGoalsStart)}",
                             $"[traitorname]={t.Character.Name}",
                             "Traitor [traitorname]'s current goals are:\n[traitorgoals]"
-                            }.Where(s => !string.IsNullOrEmpty(s))), t.Mission?.Identifier, TraitorMessageType.Console);
+                            }.Where(s => !string.IsNullOrEmpty(s))), t.Mission.Identifier, TraitorMessageType.Console);
                     }
                     else
                     {
-                        GameMain.Server.SendTraitorMessage(client, string.Format("- Traitor {0} has no current objective.", "", t.Character.Name), "", TraitorMessageType.Console);
+                        GameMain.Server.SendTraitorMessage(client, string.Format("- Traitor {0} has no current objective.", t.Character.Name), Identifier.Empty, TraitorMessageType.Console);
                     }
                 }
                 //GameMain.Server.SendTraitorMessage(client, "The code words are: " + traitorManager.CodeWords + ", response: " + traitorManager.CodeResponse + ".", TraitorMessageType.Console);
@@ -1187,7 +1183,7 @@ namespace Barotrauma
                 NewMessage("*****************", Color.Lime);
                 GameServer.Log("Console command \"restart\" executed: closing the server...", ServerLog.MessageType.ServerMessage);
                 GameMain.Instance.CloseServer();
-                GameMain.Instance.TryStartChildServerRelay();
+                Program.TryStartChildServerRelay(GameMain.Instance.CommandLineArgs);
                 GameMain.Instance.StartServer();
             }));
 
@@ -1340,7 +1336,7 @@ namespace Barotrauma
             {
                 return new string[][]
                 {
-                    GameModePreset.List.Select(gm => gm.Name).ToArray()
+                    GameModePreset.List.Select(gm => gm.Name.Value).ToArray()
                 };
             }));
 
@@ -1444,17 +1440,71 @@ namespace Barotrauma
             commands.Add(new Command("eventdata", "", (string[] args) =>
             {
                 if (args.Length == 0) { return; }
-                if (!UInt16.TryParse(args[0], NumberStyles.Any, CultureInfo.InvariantCulture, out ushort eventId)) { return; }
-                ServerEntityEvent ev = GameMain.Server.EntityEventManager.Events.Find(ev => ev.ID == eventId);
-                if (ev != null)
+
+                string indentStr(string s)
+                    => string.Join('\n', s.Split('\n').Select(sub => $"    {sub}"));
+                
+                string eventDataRip(object data)
                 {
+                    if (data is null) { return "[NULL]"; }
+                    var type = data.GetType();
+                    
+                    string retVal = $"{type.FullName} ";
+
+                    if (type.IsPrimitive
+                        || type.IsEnum
+                        || type.IsClass)
+                    {
+                        retVal += data.ToString();
+                        return retVal;
+                    }
+
+                    retVal += "{\n";
+                    var fields = data.GetType().GetFields();
+                    foreach (var field in fields)
+                    {
+                        retVal += indentStr($"{field.Name}: {eventDataRip(field.GetValue(data))}")+"\n";
+                    }
+
+                    retVal += "}";
+                    retVal = retVal.Replace("{\n}", "{ }");
+                    return retVal;
+                }
+
+                string eventDebugStr(ServerEntityEvent ev)
+                {
+                    ushort eventId = ev.ID;
+                    
                     string entityData = "";
                     if (ev.Entity is { ID: var entityId, Removed: var removed, IdFreed: var idFreed })
                     {
-                        entityData = $"Entity ID: {entityId}; Entity removed: {removed}; Entity ID freed: {idFreed}";
+                        entityData = $"Entity ID: {entityId}\n" +
+                                     $"Entity type {ev.Entity.GetType().Name}\n" +
+                                     $"Entity removed: {removed}\n" +
+                                     $"Entity ID freed: {idFreed}\n" +
+                                     $"Event data: {eventDataRip(ev.Data)}\n";
                     }
-                    NewMessage($"EventData {eventId}\n{entityData}", Color.Lime);
-                    //NewMessage(ev.StackTrace.CleanupStackTrace(), Color.Lime);
+
+                    return $"EventData {eventId}\n{indentStr(entityData)}";
+                }
+                
+                IReadOnlyList<ServerEntityEvent> events = GameMain.Server.EntityEventManager.Events;
+                ushort? eventId = null;
+                if (args[0].Equals("latest", StringComparison.OrdinalIgnoreCase))
+                {
+                    eventId = events.Max(e => e.ID);
+                }
+                else if (UInt16.TryParse(args[0], NumberStyles.Any, CultureInfo.InvariantCulture, out ushort id))
+                {
+                    eventId = id;
+                }
+                IEnumerable<ServerEntityEvent> matchedEvents = GameMain.Server.EntityEventManager.Events.Where(ev
+                    => eventId.HasValue
+                        ? ev.ID == eventId
+                        : eventDebugStr(ev).Contains(args[0], StringComparison.OrdinalIgnoreCase));
+                foreach (var ev in matchedEvents)
+                {
+                    NewMessage(eventDebugStr(ev), Color.Lime);
                 }
             }));
 
@@ -1709,28 +1759,27 @@ namespace Barotrauma
                 (Client client, Vector2 cursorWorldPos, string[] args) =>
                 {
                     if (args.Length < 2) return;
-
-                    AfflictionPrefab afflictionPrefab = AfflictionPrefab.List.FirstOrDefault(a =>
-                        a.Name.Equals(args[0], StringComparison.OrdinalIgnoreCase) ||
-                        a.Identifier.Equals(args[0], StringComparison.OrdinalIgnoreCase));
+                    string affliction = args[0];
+                    AfflictionPrefab afflictionPrefab = AfflictionPrefab.List.FirstOrDefault(a => a.Identifier == affliction);
                     if (afflictionPrefab == null)
                     {
-                        GameMain.Server.SendConsoleMessage("Affliction \"" + args[0] + "\" not found.", client, Color.Red);
+                        afflictionPrefab = AfflictionPrefab.List.FirstOrDefault(a => a.Name.Equals(affliction, StringComparison.OrdinalIgnoreCase));
+                    }
+                    if (afflictionPrefab == null)
+                    {
+                        GameMain.Server.SendConsoleMessage("Affliction \"" + affliction + "\" not found.", client, Color.Red);
                         return;
                     }
-
                     if (!float.TryParse(args[1], out float afflictionStrength))
                     {
                         GameMain.Server.SendConsoleMessage("\"" + args[1] + "\" is not a valid affliction strength.", client, Color.Red);
                         return;
                     }
-
                     bool relativeStrength = false;
                     if (args.Length > 4)
                     {
                         bool.TryParse(args[4], out relativeStrength);
                     }
-
                     Character targetCharacter = (args.Length <= 2) ? client.Character : FindMatchingCharacter(args.Skip(2).ToArray());
                     if (targetCharacter != null)
                     {
@@ -1800,7 +1849,7 @@ namespace Barotrauma
                     if (targetCharacter == null) { return; }
 
                     TalentPrefab talentPrefab = TalentPrefab.TalentPrefabs.Find(c =>
-                        c.Identifier.Equals(args[0], StringComparison.OrdinalIgnoreCase) ||
+                        c.Identifier == args[0] ||
                         c.DisplayName.Equals(args[0], StringComparison.OrdinalIgnoreCase));
                     if (talentPrefab == null)
                     {
@@ -1833,7 +1882,7 @@ namespace Barotrauma
                             GameMain.Server.SendConsoleMessage($"Failed to find the job \"{args[0]}\".", client, Color.Red);
                             return;
                         }
-                        if (!TalentTree.JobTalentTrees.TryGetValue(job.Identifier, out TalentTree talentTree))
+                        if (!TalentTree.JobTalentTrees.TryGet(job.Identifier, out TalentTree talentTree))
                         {
                             GameMain.Server.SendConsoleMessage($"No talents configured for the job \"{args[0]}\".", client, Color.Red);
                             return;
@@ -2054,7 +2103,7 @@ namespace Barotrauma
 
                     client.SetPermissions(preset.Permissions, preset.PermittedCommands);
                     GameMain.Server.UpdateClientPermissions(client);
-                    GameMain.Server.SendConsoleMessage("Assigned the rank \"" + preset.Name + "\" to " + client.Name + ".", senderClient);
+                    GameMain.Server.SendConsoleMessage($"Assigned the rank \"{preset.Name}\" to {client.Name}.", senderClient);
                     NewMessage(senderClient.Name + " granted  the rank \"" + preset.Name + "\" to " + client.Name + ".", Color.White);
                 }
             );
@@ -2202,7 +2251,7 @@ namespace Barotrauma
                     foreach (ClientPermissions permission in Enum.GetValues(typeof(ClientPermissions)))
                     {
                         if (permission == ClientPermissions.None || !client.HasPermission(permission)) { continue; }
-                        GameMain.Server.SendConsoleMessage("   - " + TextManager.Get("ClientPermission." + permission), senderClient);
+                        GameMain.Server.SendConsoleMessage($"   - {TextManager.Get("ClientPermission." + permission)}", senderClient);
                     }
                     if (client.HasPermission(ClientPermissions.ConsoleCommands))
                     {
@@ -2229,11 +2278,6 @@ namespace Barotrauma
                     if (args.Length < 2)
                     {
                         GameMain.Server.SendConsoleMessage("Invalid parameters. The command should be formatted as \"setclientcharacter [client] [character]\". If the names consist of multiple words, you should surround them with quotation marks.", senderClient, Color.Red);
-                        return;
-                    }
-
-                    if (args.Length < 2)
-                    {
                         ThrowError("Invalid parameters. The command should be formatted as \"setclientcharacter [client] [character]\". If the names consist of multiple words, you should surround them with quotation marks.");
                         return;
                     }
@@ -2261,18 +2305,50 @@ namespace Barotrauma
                         GameMain.Server.SendConsoleMessage("No campaign active!", senderClient, Color.Red);
                         return;
                     }
+
+                    Character targetCharacter = null;
+
+                    if (args.Length >= 2)
+                    {
+                        targetCharacter = FindMatchingCharacter(args.Skip(1).ToArray());
+                    }
+
                     if (int.TryParse(args[0], out int money))
                     {
-                        campaign.Money += money;
+                        Wallet wallet = targetCharacter is null ? campaign.Bank : targetCharacter.Wallet;
+                        wallet.Give(money);
                         GameAnalyticsManager.AddMoneyGainedEvent(money, GameAnalyticsManager.MoneySource.Cheat, "console");
                         campaign.LastUpdateID++;
                     }
                     else
                     {
                         GameMain.Server.SendConsoleMessage($"\"{args[0]}\" is not a valid numeric value.", senderClient, Color.Red);
-                    }                    
+                    }
                 }
             );
+
+            AssignOnClientRequestExecute(
+                "showmoney",
+                (Client senderClient, Vector2 cursorWorldPos, string[] args) =>
+                {
+                    if (!(GameMain.GameSession?.GameMode is MultiPlayerCampaign campaign))
+                    {
+                        GameMain.Server.SendConsoleMessage("No campaign active!", senderClient, Color.Red);
+                        return;
+                    }
+
+                    StringBuilder sb = new StringBuilder();
+                    sb.Append($"Bank: {campaign.Bank.Balance}");
+                    foreach (Client client in GameMain.Server.ConnectedClients)
+                    {
+                        if (client.Character is null) { continue; }
+                        sb.Append(Environment.NewLine);
+                        sb.Append($"{client.Name}: {client.Character.Wallet.Balance}");
+                    }
+                    GameMain.Server.SendConsoleMessage(sb.ToString(), senderClient);
+                }
+            );
+
             AssignOnClientRequestExecute(
                 "campaigndestination|setcampaigndestination",
                 (Client senderClient, Vector2 cursorWorldPos, string[] args) =>
@@ -2301,7 +2377,7 @@ namespace Barotrauma
                 var tagList = MapEntityPrefab.List.SelectMany(p => p.Tags.Select(t => t)).Distinct();
                 foreach (var tag in tagList)
                 {
-                    NewMessage(tag, Color.Yellow);
+                    NewMessage(tag.Value, Color.Yellow);
                 }
             }));
 
@@ -2342,7 +2418,7 @@ namespace Barotrauma
                         return;
                     }
 
-                    string skillIdentifier = args[0];
+                    Identifier skillIdentifier = args[0].ToIdentifier();
                     string levelString = args[1];
                     Character character = args.Length >= 3 ? FindMatchingCharacter(args.Skip(2).ToArray(), false) : senderClient.Character;
 
@@ -2357,7 +2433,7 @@ namespace Barotrauma
                     if (float.TryParse(levelString, NumberStyles.Number, CultureInfo.InvariantCulture, out float level) || isMax)
                     {
                         if (isMax) { level = 100; }
-                        if (skillIdentifier.Equals("all", StringComparison.OrdinalIgnoreCase))
+                        if (skillIdentifier == "all")
                         {
                             foreach (Skill skill in character.Info.Job.Skills)
                             {
@@ -2371,7 +2447,7 @@ namespace Barotrauma
                             GameMain.Server.SendConsoleMessage($"Set {character.Name}'s {skillIdentifier} level to {level}", senderClient);
                         }
 
-                        GameMain.NetworkMember.CreateEntityEvent(character, new object[] { NetEntityEvent.Type.UpdateSkills });                
+                        GameMain.NetworkMember.CreateEntityEvent(character, new Character.UpdateSkillsEventData());                
                     }
                     else
                     {
@@ -2441,7 +2517,7 @@ namespace Barotrauma
                 {
                     GameMain.Server.CreateEntityEvent(c, new object[] { NetEntityEvent.Type.Status });
                 }*/
-                foreach (Hull hull in Hull.hullList)
+                foreach (Hull hull in Hull.HullList)
                 {
                     GameMain.Server.CreateEntityEvent(hull);
                 }

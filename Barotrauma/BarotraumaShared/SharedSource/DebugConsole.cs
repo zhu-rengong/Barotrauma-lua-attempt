@@ -68,8 +68,13 @@ namespace Barotrauma
 
             public void Execute(string[] args)
             {
-                if (OnExecute == null) return;
-                if (!CheatsEnabled && IsCheat)
+                if (OnExecute == null) { return; }
+
+                bool allowCheats = false;
+#if CLIENT
+                allowCheats = GameMain.NetworkMember == null && (GameMain.GameSession?.GameMode is TestGameMode || Screen.Selected is EditorScreen);
+#endif
+                if (!allowCheats && !CheatsEnabled && IsCheat)
                 {
                     NewMessage("You need to enable cheats using the command \"enablecheats\" before you can use the command \"" + names[0] + "\".", Color.Red);
 #if USE_STEAM
@@ -160,29 +165,38 @@ namespace Barotrauma
                 return new string[][]
                 {
                     commands.SelectMany(c => c.names).ToArray(),
-                    new string[0]
+                    Array.Empty<string>()
                 };
             }));
 
+            void printMapEntityPrefabs<T>(IEnumerable<T> prefabs) where T : MapEntityPrefab
+            {
+                NewMessage("***************", Color.Cyan);
+                foreach (T prefab in prefabs)
+                {
+                    if (prefab.Name.IsNullOrEmpty()) { continue; }
+                    string text = $"- {prefab.Name}";
+                    if (prefab.Tags.Any())
+                    {
+                        text += $" ({string.Join(", ", prefab.Tags)})";
+                    }
+                    if (prefab.AllowedLinks?.Any() ?? false)
+                    {
+                        text += $", Links: {string.Join(", ", prefab.AllowedLinks)}";
+                    }
+                    NewMessage(text, prefab.ContentPackage == ContentPackageManager.VanillaCorePackage ? Color.Cyan : Color.Purple);
+                }
+                NewMessage("***************", Color.Cyan);
+            }
 
             commands.Add(new Command("items|itemlist", "itemlist: List all the item prefabs available for spawning.", (string[] args) =>
             {
-                NewMessage("***************", Color.Cyan);
-                foreach (ItemPrefab itemPrefab in ItemPrefab.Prefabs)
-                {
-                    if (string.IsNullOrEmpty(itemPrefab.Name)) continue;
-                    string text = $"- {itemPrefab.Name}";
-                    if (itemPrefab.Tags.Any())
-                    {
-                        text += $" ({string.Join(", ", itemPrefab.Tags)})";
-                    }
-                    if (itemPrefab.AllowedLinks.Any())
-                    {
-                        text += $", Links: {string.Join(", ", itemPrefab.AllowedLinks)}";
-                    }
-                    NewMessage(text, Color.Cyan);
-                }
-                NewMessage("***************", Color.Cyan);
+                printMapEntityPrefabs(ItemPrefab.Prefabs);
+            }));
+            
+            commands.Add(new Command("itemassemblies", "itemassemblies: List all the item assemblies available for spawning.", (string[] args) =>
+            {
+                printMapEntityPrefabs(ItemAssemblyPrefab.Prefabs);
             }));
 
 
@@ -195,20 +209,15 @@ namespace Barotrauma
             commands.Add(new Command("spawn|spawncharacter", "spawn [creaturename/jobname] [near/inside/outside/cursor] [team (0-3)]: Spawn a creature at a random spawnpoint (use the second parameter to only select spawnpoints near/inside/outside the submarine). You can also enter the name of a job (e.g. \"Mechanic\") to spawn a character with a specific job and the appropriate equipment.", null,
             () =>
             {
-                List<string> characterFiles = GameMain.Instance.GetFilesOfType(ContentType.Character).Select(f => f.Path).ToList();
-                for (int i = 0; i < characterFiles.Count; i++)
-                {
-                    characterFiles[i] = Path.GetFileNameWithoutExtension(characterFiles[i]).ToLowerInvariant();
-                }
-
-                foreach (JobPrefab jobPrefab in JobPrefab.Prefabs)
-                {
-                    characterFiles.Add(jobPrefab.Name);
-                }
+                string[] creatureAndJobNames =
+                    CharacterPrefab.Prefabs.Select(p => p.Identifier.Value)
+                    .Concat(JobPrefab.Prefabs.Select(p => p.Identifier.Value))
+                    .OrderBy(s => s)
+                    .ToArray();
 
                 return new string[][]
                 {
-                    characterFiles.ToArray(),
+                    creatureAndJobNames.ToArray(),
                     new string[] { "near", "inside", "outside", "cursor" }
                 };
             }, isCheat: true));
@@ -240,9 +249,9 @@ namespace Barotrauma
                 List<string> itemNames = new List<string>();
                 foreach (ItemPrefab itemPrefab in ItemPrefab.Prefabs)
                 {
-                    if (!itemNames.Contains(itemPrefab.Name))
+                    if (!itemNames.Contains(itemPrefab.Name.Value))
                     {
-                        itemNames.Add(itemPrefab.Name);
+                        itemNames.Add(itemPrefab.Name.Value);
                     }
                 }
 
@@ -331,7 +340,7 @@ namespace Barotrauma
                     return new string[][]
                     {
                         GameMain.NetworkMember.ConnectedClients.Select(c => c.Name).ToArray(),
-                        PermissionPreset.List.Select(pp => pp.Name).ToArray()
+                        PermissionPreset.List.Select(pp => pp.Name.Value).ToArray()
                     };
                 }));
 
@@ -522,7 +531,7 @@ namespace Barotrauma
                 if (targetCharacter == null) { return; }
 
                 targetCharacter.GodMode = !targetCharacter.GodMode;
-                NewMessage((targetCharacter.GodMode ? "Enabled godmode on " : "Disabled godmode on " + targetCharacter.Name), Color.White);
+                NewMessage((targetCharacter.GodMode ? "Enabled godmode on " : "Disabled godmode on ") + targetCharacter.Name, Color.White);
             },
             () =>
             {
@@ -600,7 +609,7 @@ namespace Barotrauma
                 }
                 foreach (Character character in Character.CharacterList)
                 {
-                    if (character.Name.Equals(args[0], StringComparison.OrdinalIgnoreCase) || character.SpeciesName.Equals(args[0], StringComparison.OrdinalIgnoreCase))
+                    if (character.Name.Equals(args[0], StringComparison.OrdinalIgnoreCase) || character.SpeciesName == args[0])
                     {
                         ThrowError(character.ID + ": " + character.Name.ToString());
                     }
@@ -610,28 +619,27 @@ namespace Barotrauma
             commands.Add(new Command("giveaffliction", "giveaffliction [affliction name] [affliction strength] [character name] [limb type] [use relative strength]: Add an affliction to a character. If the name parameter is omitted, the affliction is added to the controlled character.", (string[] args) =>
             {
                 if (args.Length < 2) { return; }
-
-                AfflictionPrefab afflictionPrefab = AfflictionPrefab.List.FirstOrDefault(a =>
-                    a.Name.Equals(args[0], StringComparison.OrdinalIgnoreCase) ||
-                    a.Identifier.Equals(args[0], StringComparison.OrdinalIgnoreCase));
+                string affliction = args[0];
+                AfflictionPrefab afflictionPrefab = AfflictionPrefab.List.FirstOrDefault(a => a.Identifier == affliction);
                 if (afflictionPrefab == null)
                 {
-                    ThrowError("Affliction \"" + args[0] + "\" not found.");
+                    afflictionPrefab = AfflictionPrefab.List.FirstOrDefault(a => a.Name.Equals(affliction, StringComparison.OrdinalIgnoreCase));
+                }
+                if (afflictionPrefab == null)
+                {
+                    ThrowError("Affliction \"" + affliction + "\" not found.");
                     return;
                 }
-
                 if (!float.TryParse(args[1], out float afflictionStrength))
                 {
                     ThrowError("\"" + args[1] + "\" is not a valid affliction strength.");
                     return;
                 }
-
                 bool relativeStrength = false;
                 if (args.Length > 4)
                 {
                     bool.TryParse(args[4], out relativeStrength);
                 }
-
                 Character targetCharacter = args.Length <= 2 ? Character.Controlled : FindMatchingCharacter(new string[] { args[2] });
                 if (targetCharacter != null)
                 {
@@ -651,7 +659,7 @@ namespace Barotrauma
             {
                 return new string[][]
                 {
-                    AfflictionPrefab.List.Select(a => a.Name).ToArray(),
+                    AfflictionPrefab.Prefabs.Select(a => a.Name.Value).ToArray(),
                     new string[] { "1" },
                     Character.CharacterList.Select(c => c.Name).ToArray(),
                     Enum.GetNames(typeof(LimbType)).ToArray()
@@ -678,7 +686,7 @@ namespace Barotrauma
             {
                 return new string[][]
                 {
-                    Character.CharacterList.Select(c => c.Name).Distinct().ToArray()
+                    Character.CharacterList.Select(c => c.Name).Distinct().OrderBy(n => n).ToArray()
                 };
             }, isCheat: true));
 
@@ -706,7 +714,7 @@ namespace Barotrauma
             {
                 return new string[][]
                 {
-                    Character.CharacterList.Select(c => c.Name).Distinct().ToArray()
+                    Character.CharacterList.Select(c => c.Name).Distinct().OrderBy(n => n).ToArray()
                 };
             }, isCheat: true));
 
@@ -727,7 +735,7 @@ namespace Barotrauma
             {
                 return new string[][]
                 {
-                    Character.CharacterList.Select(c => c.Name).Distinct().ToArray()
+                    Character.CharacterList.Select(c => c.Name).Distinct().OrderBy(n => n).ToArray()
                 };
             }, isCheat: true));
 
@@ -735,9 +743,16 @@ namespace Barotrauma
             {
 #if CLIENT
                 if (Screen.Selected == GameMain.SubEditorScreen) { return; }
-                Character.Controlled = null;
-                GameMain.GameScreen.Cam.TargetPos = Vector2.Zero;
-                GameMain.Client?.SendConsoleCommand("freecam");
+
+                if (GameMain.Client == null)
+                {
+                    Character.Controlled = null;
+                    GameMain.GameScreen.Cam.TargetPos = Vector2.Zero;
+                }
+                else
+                {
+                    GameMain.Client?.SendConsoleCommand("freecam");
+                }
 #endif
             }, isCheat: true));
 
@@ -752,10 +767,10 @@ namespace Barotrauma
             
             commands.Add(new Command("triggerevent", "triggerevent [identifier]: Created a new event.", (string[] args) =>
             {
-                List<EventPrefab> eventPrefabs = EventSet.GetAllEventPrefabs().Where(prefab => !string.IsNullOrWhiteSpace(prefab.Identifier)).ToList();
+                List<EventPrefab> eventPrefabs = EventSet.GetAllEventPrefabs().Where(prefab => prefab.Identifier != Identifier.Empty).ToList();
                 if (GameMain.GameSession?.EventManager != null && args.Length > 0)
                 {
-                    EventPrefab eventPrefab = eventPrefabs.Find(prefab => string.Equals(prefab.Identifier, args[0], StringComparison.InvariantCultureIgnoreCase));
+                    EventPrefab eventPrefab = eventPrefabs.Find(prefab => prefab.Identifier == args[0]);
 
                     if (eventPrefab != null)
                     {
@@ -777,11 +792,11 @@ namespace Barotrauma
                 NewMessage("Failed to trigger event", Color.Red);
             }, isCheat: true, getValidArgs: () =>
             {
-                List<EventPrefab> eventPrefabs = EventSet.GetAllEventPrefabs().Where(prefab => !string.IsNullOrWhiteSpace(prefab.Identifier)).ToList();
+                List<EventPrefab> eventPrefabs = EventSet.GetAllEventPrefabs().Where(prefab => prefab.Identifier != Identifier.Empty).ToList();
                 
                 return new[]
                 {
-                   eventPrefabs.Select(prefab => prefab.Identifier).Distinct().ToArray()
+                   eventPrefabs.Select(prefab => prefab.Identifier).Distinct().Select(id => id.Value).ToArray()
                 };
             }));
             
@@ -793,7 +808,7 @@ namespace Barotrauma
                     return;
                 }
 
-                string skillIdentifier = args[0];
+                Identifier skillIdentifier = args[0].ToIdentifier();
                 string levelString = args[1];
                 Character character = args.Length >= 3 ? FindMatchingCharacter(args.Skip(2).ToArray(), false) : Character.Controlled;
 
@@ -808,7 +823,7 @@ namespace Barotrauma
                 if (float.TryParse(levelString, NumberStyles.Number, CultureInfo.InvariantCulture, out float level) || isMax)
                 {
                     if (isMax) { level = 100; }
-                    if (skillIdentifier.Equals("all", StringComparison.OrdinalIgnoreCase))
+                    if (skillIdentifier == "all")
                     {
                         foreach (Skill skill in character.Info.Job.Skills)
                         {
@@ -830,9 +845,9 @@ namespace Barotrauma
             {
                 return new[]
                 {
-                    Character.Controlled?.Info?.Job?.Skills?.Select(skill => skill.Identifier).ToArray() ?? new string[0],
+                    Character.Controlled?.Info?.Job?.Skills?.Select(skill => skill.Identifier.Value).ToArray() ?? Array.Empty<string>(),
                     new[]{ "max" },
-                    Character.CharacterList.Select(c => c.Name).Distinct().ToArray(),
+                    Character.CharacterList.Select(c => c.Name).Distinct().OrderBy(n => n).ToArray(),
                 };
             }));
 
@@ -849,7 +864,7 @@ namespace Barotrauma
                 if (character != null)
                 {
                     TalentPrefab talentPrefab = TalentPrefab.TalentPrefabs.Find(c => 
-                        c.Identifier.Equals(args[0], StringComparison.OrdinalIgnoreCase) ||
+                        c.Identifier == args[0] ||
                         c.DisplayName.Equals(args[0], StringComparison.OrdinalIgnoreCase));
                     if (talentPrefab == null)
                     {
@@ -865,13 +880,13 @@ namespace Barotrauma
                 List<string> talentNames = new List<string>();
                 foreach (TalentPrefab talent in TalentPrefab.TalentPrefabs)
                 {
-                    talentNames.Add(talent.DisplayName);
+                    talentNames.Add(talent.DisplayName.Value);
                 }
 
                 return new string[][]
                 {
-                    talentNames.ToArray(),
-                    Character.CharacterList.Select(c => c.Name).Distinct().ToArray()
+                    talentNames.Select(id => id).ToArray(),
+                    Character.CharacterList.Select(c => c.Name).Distinct().OrderBy(n => n).ToArray()
                 };
             }, isCheat: true));
 
@@ -893,7 +908,7 @@ namespace Barotrauma
                         ThrowError($"Failed to find the job \"{args[0]}\".");
                         return;
                     }
-                    if (!TalentTree.JobTalentTrees.TryGetValue(job.Identifier, out TalentTree talentTree))
+                    if (!TalentTree.JobTalentTrees.TryGet(job.Identifier, out TalentTree talentTree))
                     {
                         ThrowError($"No talents configured for the job \"{args[0]}\".");
                         return;
@@ -919,11 +934,11 @@ namespace Barotrauma
             () =>
             {
                 List<string> availableArgs = new List<string>() { "All" };
-                availableArgs.AddRange(JobPrefab.Prefabs.Select(j => j.Name));
+                availableArgs.AddRange(JobPrefab.Prefabs.Select(j => j.Name.Value));
                 return new string[][]
                 {
                     availableArgs.ToArray(),
-                    Character.CharacterList.Select(c => c.Name).Distinct().ToArray()
+                    Character.CharacterList.Select(c => c.Name).Distinct().OrderBy(n => n).ToArray()
                 };
             }, isCheat: true));
 
@@ -958,7 +973,7 @@ namespace Barotrauma
                 return new[]
                 {
                     new string[] { "100" },
-                    Character.CharacterList.Select(c => c.Name).Distinct().ToArray(),
+                    Character.CharacterList.Select(c => c.Name).Distinct().OrderBy(n => n).ToArray(),
                 };
             }));
 
@@ -980,7 +995,7 @@ namespace Barotrauma
                 {
                     NewMessage("Level seed: " + Level.Loaded.Seed);
                     NewMessage("Level generation params: " + Level.Loaded.GenerationParams.Identifier);
-                    NewMessage("Adjacent locations: " + (Level.Loaded.StartLocation?.Type.Identifier ?? "none") + ", " + (Level.Loaded.StartLocation?.Type.Identifier ?? "none"));
+                    NewMessage("Adjacent locations: " + (Level.Loaded.StartLocation?.Type.Identifier ?? "none".ToIdentifier()) + ", " + (Level.Loaded.StartLocation?.Type.Identifier ?? "none".ToIdentifier()));
                     NewMessage("Mirrored: " + Level.Loaded.Mirrored);
                     NewMessage("Level size: " + Level.Loaded.Size.X + "x" + Level.Loaded.Size.Y);
                     NewMessage("Minimum main path width: " + (Level.Loaded.LevelData?.MinMainPathWidth?.ToString() ?? "unknown"));
@@ -1067,13 +1082,13 @@ namespace Barotrauma
                 Character character = FindMatchingCharacter(args, false);
                 if (character == null) { return; }
 
-                Entity.Spawner?.AddToRemoveQueue(character);
+                Entity.Spawner?.AddEntityToRemoveQueue(character);
             },
             () =>
             {
                 return new string[][]
                 {
-                    Character.CharacterList.Select(c => c.Name).Distinct().ToArray()
+                    Character.CharacterList.Select(c => c.Name).Distinct().OrderBy(n => n).ToArray()
                 };
             }, isCheat: true));
 
@@ -1097,17 +1112,17 @@ namespace Barotrauma
             IEnumerable<CoroutineStatus> TestLevels()
             {
                 SubmarineInfo selectedSub = null;
-                string subName = GameMain.Config.QuickStartSubmarineName;
-                if (!string.IsNullOrEmpty(subName))
+                Identifier subName = GameSettings.CurrentConfig.QuickStartSub;
+                if (subName != Identifier.Empty)
                 {
-                    selectedSub = SubmarineInfo.SavedSubmarines.FirstOrDefault(s => s.Name.Equals(subName, StringComparison.OrdinalIgnoreCase));
+                    selectedSub = SubmarineInfo.SavedSubmarines.FirstOrDefault(s => s.Name == subName);
                 }
 
                 int count = 0;
                 while (true)
                 {
                     var gamesession = new GameSession(
-                        SubmarineInfo.SavedSubmarines.GetRandom(s => s.Type == SubmarineType.Player && !s.HasTag(SubmarineTag.HideInMenus)),
+                        SubmarineInfo.SavedSubmarines.GetRandomUnsynced(s => s.Type == SubmarineType.Player && !s.HasTag(SubmarineTag.HideInMenus)),
                         GameModePreset.DevSandbox);
                     string seed = ToolBox.RandomSeed(16);
                     gamesession.StartRound(seed);
@@ -1189,7 +1204,7 @@ namespace Barotrauma
 
                 if (GameMain.GameSession?.GameMode is CampaignMode campaign)
                 {
-                    if (campaign.Factions.FirstOrDefault(f => f.Prefab.Identifier.Equals(args[0], StringComparison.OrdinalIgnoreCase)) is { } faction)
+                    if (campaign.Factions.FirstOrDefault(f => f.Prefab.Identifier == args[0]) is { } faction)
                     {
                         if (float.TryParse(args[1], NumberStyles.Any, CultureInfo.InvariantCulture, out float reputation))
                         {
@@ -1211,7 +1226,7 @@ namespace Barotrauma
                 }
             }, () =>
             {
-                return new[] { FactionPrefab.Prefabs.Select(f => f.Identifier).ToArray() };
+                return new[] { FactionPrefab.Prefabs.Select(f => f.Identifier.Value).ToArray() };
             }, true));
 
             commands.Add(new Command("fixitems", "fixitems: Repairs all items and restores them to full condition.", (string[] args) =>
@@ -1267,7 +1282,7 @@ namespace Barotrauma
                         return;
                     }
 
-                    var upgradePrefab = UpgradePrefab.Find(args[0]);
+                    var upgradePrefab = UpgradePrefab.Find(args[0].ToIdentifier());
 
                     if (upgradePrefab == null)
                     {
@@ -1302,7 +1317,7 @@ namespace Barotrauma
 
                     foreach (MapEntity targetItem in targetItems)
                     {
-                        Upgrade existingUpgrade = targetItem.GetUpgrade(args[0]);
+                        Upgrade existingUpgrade = targetItem.GetUpgrade(args[0].ToIdentifier());
 
                         if (!(targetItem is ISerializableEntity sEntity)) { continue; }
 
@@ -1334,7 +1349,7 @@ namespace Barotrauma
             {
                 return new[]
                 {
-                    UpgradePrefab.Prefabs.Select(c => c.Identifier).Distinct().ToArray()
+                    UpgradePrefab.Prefabs.Select(c => c.Identifier).Distinct().Select(i => i.Value).ToArray()
                 };
             }, true));
             
@@ -1363,11 +1378,11 @@ namespace Barotrauma
                 
                 foreach (UpgradeCategory category in UpgradeCategory.Categories)
                 {
-                    if (!string.IsNullOrWhiteSpace(categoryIdentifier) && !category.Identifier.Equals(categoryIdentifier, StringComparison.OrdinalIgnoreCase)) { continue; }
+                    if (!string.IsNullOrWhiteSpace(categoryIdentifier) && category.Identifier != categoryIdentifier) { continue; }
                     foreach (UpgradePrefab prefab in UpgradePrefab.Prefabs)
                     {
                         if (!prefab.UpgradeCategories.Contains(category)) { continue; }
-                        if (!string.IsNullOrWhiteSpace(prefabIdentifier) && !prefab.Identifier.Equals(prefabIdentifier, StringComparison.OrdinalIgnoreCase)) { continue; }
+                        if (!string.IsNullOrWhiteSpace(prefabIdentifier) && prefab.Identifier != prefabIdentifier) { continue; }
                         
                         int targetLevel = prefab.MaxLevel - upgradeManager.GetRealUpgradeLevel(prefab, category);
                         for (int i = 0; i < targetLevel; i++)
@@ -1383,8 +1398,8 @@ namespace Barotrauma
             {
                 return new[]
                 {
-                    UpgradeCategory.Categories.Select(c => c.Identifier).Distinct().ToArray(),
-                    UpgradePrefab.Prefabs.Select(c => c.Identifier).Distinct().ToArray()
+                    UpgradeCategory.Categories.Select(c => c.Identifier).Distinct().Select(i => i.Value).ToArray(),
+                    UpgradePrefab.Prefabs.Select(c => c.Identifier).Distinct().Select(i => i.Value).ToArray()
                 };
             }, true));
 
@@ -1405,7 +1420,7 @@ namespace Barotrauma
 
             commands.Add(new Command("oxygen|air", "oxygen/air: Replenishes the oxygen levels in every room to 100%.", (string[] args) =>
             {
-                foreach (Hull hull in Hull.hullList)
+                foreach (Hull hull in Hull.HullList)
                 {
                     hull.OxygenPercentage = 100.0f;
                 }
@@ -1420,7 +1435,7 @@ namespace Barotrauma
             {
                 return new string[][]
                 {
-                    Character.CharacterList.Select(c => c.Name).Distinct().ToArray()
+                    Character.CharacterList.Select(c => c.Name).Distinct().OrderBy(n => n).ToArray()
                 };
             }, isCheat: true));
 
@@ -1433,7 +1448,7 @@ namespace Barotrauma
                         c.SetAllDamage(200.0f, 0.0f, 0.0f);
                     }
                 }
-                foreach (Hull hull in Hull.hullList)
+                foreach (Hull hull in Hull.HullList)
                 {
                     hull.BallastFlora?.Kill();
                 }
@@ -1462,7 +1477,7 @@ namespace Barotrauma
             {
                 return new string[][]
                 {
-                    Character.CharacterList.Where(c => c.IsDead).Select(c => c.Name).Distinct().ToArray()
+                    Character.CharacterList.Where(c => c.IsDead).Select(c => c.Name).Distinct().OrderBy(n => n).ToArray()
                 };
             }, isCheat: true));
 
@@ -1474,7 +1489,7 @@ namespace Barotrauma
                 return new string[][]
                 {
                     GameMain.NetworkMember.ConnectedClients.Select(c => c.Name).ToArray(),
-                    Character.CharacterList.Select(c => c.Name).Distinct().ToArray()
+                    Character.CharacterList.Select(c => c.Name).Distinct().OrderBy(n => n).ToArray()
                 };
             }));
 
@@ -1545,23 +1560,45 @@ namespace Barotrauma
                 NewMessage((GameMain.GameSession.Map.AllowDebugTeleport ? "Enabled" : "Disabled") + " teleportation on the campaign map.", Color.White);
             }, isCheat: true));
 
-            commands.Add(new Command("money", "money [amount]: Gives the specified amount of money to the crew when a campaign is active.", args =>
+            commands.Add(new Command("money", "money [amount] [character]: Gives the specified amount of money to the crew when a campaign is active.", args =>
             {
                 if (args.Length == 0) { return; }
-                if (GameMain.GameSession?.GameMode is CampaignMode campaign)
+
+                if (!(GameMain.GameSession?.GameMode is CampaignMode campaign)) { return; }
+                Character targetCharacter = null;
+
+                if (args.Length >= 2)
                 {
-                    if (int.TryParse(args[0], out int money))
-                    {
-                        campaign.Money += money;
-                        GameAnalyticsManager.AddMoneyGainedEvent(money, GameAnalyticsManager.MoneySource.Cheat, "console");
-                    }
-                    else
-                    {
-                        ThrowError($"\"{args[0]}\" is not a valid numeric value.");
-                    }
+                    targetCharacter = FindMatchingCharacter(args.Skip(1).ToArray());
                 }
+
+                if (int.TryParse(args[0], out int money))
+                {
+                    Wallet wallet = targetCharacter is null || GameMain.IsSingleplayer ? campaign.Bank : targetCharacter.Wallet;
+                    wallet.Give(money);
+                    GameAnalyticsManager.AddMoneyGainedEvent(money, GameAnalyticsManager.MoneySource.Cheat, "console");
+                }
+                else
+                {
+                    ThrowError($"\"{args[0]}\" is not a valid numeric value.");
+                }
+            }, isCheat: true, getValidArgs: () => new []
+            {
+                new []{ string.Empty },
+                Character.CharacterList.Select(c => c.Name).Distinct().ToArray()
+            }));
+
+            commands.Add(new Command("showmoney", "showmoney: Shows the amount of money in everyones wallet.", args =>
+            {
+                if (!(GameMain.GameSession?.GameMode is CampaignMode campaign))
+                {
+                    ThrowError("No campaign active!");
+                    return;
+                }
+
+                NewMessage($"Bank: {campaign.Bank.Balance}");
             }, isCheat: true));
-            
+
             commands.Add(new Command("skipeventcooldown", "skipeventcooldown: Skips the currently active event cooldown and triggers pending monster spawns immediately.", args =>
             {
                 GameMain.GameSession?.EventManager?.SkipEventCooldown();
@@ -1598,14 +1635,14 @@ namespace Barotrauma
                 
                     if (pumps.Any())
                     {
-                        BallastFloraPrefab prefab = string.IsNullOrWhiteSpace(secondaryArgument) ? BallastFloraPrefab.Prefabs.First() : BallastFloraPrefab.Find(secondaryArgument);
+                        BallastFloraPrefab prefab = string.IsNullOrWhiteSpace(secondaryArgument) ? BallastFloraPrefab.Prefabs.First() : BallastFloraPrefab.Find(secondaryArgument.ToIdentifier());
                         if (prefab == null)
                         {
                             ThrowError($"No such behavior: {secondaryArgument}");
                             return;
                         }
 
-                        Pump random = pumps.GetRandom();
+                        Pump random = pumps.GetRandomUnsynced();
                         random.InfectBallast(prefab.Identifier, allowMultiplePerShip: true);
                         NewMessage($"Infected {random.Name} with {prefab.Identifier} in {random.Item.CurrentHull.DisplayName}.", Color.Green);
                         return;
@@ -1618,7 +1655,7 @@ namespace Barotrauma
                 {
                     if (int.TryParse(secondaryArgument, out int value))
                     {
-                        foreach (Hull hull in Hull.hullList.Where(h => h.BallastFlora != null))
+                        foreach (Hull hull in Hull.HullList.Where(h => h.BallastFlora != null))
                         {
                             BallastFloraBehavior bs = hull.BallastFlora;
                             bs.GrowthWarps = value;
@@ -1633,7 +1670,7 @@ namespace Barotrauma
             }, isCheat: true, getValidArgs: () =>
             {
                 string[] primaries = { "infect", "growthwarp" };
-                string[] identifiers = BallastFloraPrefab.Prefabs.Select(bfp => bfp.Identifier).Distinct().ToArray();
+                string[] identifiers = BallastFloraPrefab.Prefabs.Select(bfp => bfp.Identifier).Distinct().Select(i => i.Value).ToArray();
                 return new[] { primaries, identifiers };
             }));
 
@@ -1661,8 +1698,10 @@ namespace Barotrauma
 
             commands.Add(new Command("verboselogging", "verboselogging: Toggle verbose console logging on/off. When on, additional debug information is written to the debug console.", (string[] args) =>
             {
-                GameSettings.VerboseLogging = !GameSettings.VerboseLogging;
-                NewMessage((GameSettings.VerboseLogging ? "Enabled" : "Disabled") + " verbose logging.", Color.White);
+                var config = GameSettings.CurrentConfig;
+                config.VerboseLogging = !GameSettings.CurrentConfig.VerboseLogging;
+                GameSettings.SetCurrentConfig(config);
+                NewMessage((GameSettings.CurrentConfig.VerboseLogging ? "Enabled" : "Disabled") + " verbose logging.", Color.White);
             }, isCheat: false));
 
             commands.Add(new Command("listtasks", "listtasks: Lists all asynchronous tasks currently in the task pool.", (string[] args) => { TaskPool.ListTasks(); }));
@@ -1672,7 +1711,7 @@ namespace Barotrauma
                 if (args.Length > 0)
                 {
                     string packageName = string.Join(" ", args);
-                    var package = GameMain.Config.AllEnabledPackages.FirstOrDefault(p => p.Name.Equals(packageName, StringComparison.OrdinalIgnoreCase));
+                    var package = ContentPackageManager.EnabledPackages.All.FirstOrDefault(p => p.Name.Equals(packageName, StringComparison.OrdinalIgnoreCase));
                     if (package == null)
                     {
                         ThrowError("Content package \"" + packageName + "\" not found.");
@@ -1684,14 +1723,14 @@ namespace Barotrauma
                 }
                 else
                 {
-                    GameMain.Config.AllEnabledPackages.First().CalculateHash(logging: true);
+                    ContentPackageManager.EnabledPackages.Core.CalculateHash(logging: true);
                 }
             },
             () =>
             {
                 return new string[][]
                 {
-                    GameMain.Config.AllEnabledPackages.Select(cp => cp.Name).ToArray()
+                    ContentPackageManager.EnabledPackages.All.Select(cp => cp.Name).ToArray()
                 };
             }));
 
@@ -1772,15 +1811,26 @@ namespace Barotrauma
             {
                 if (GameMain.GameSession?.Map?.CurrentLocation is Location location)
                 {
-
-                    var msg = "--- Location: " + location.Name + " ---";
-                    msg += "\nBalance: " + location.StoreCurrentBalance;
-                    msg += "\nPrice modifier: " + location.StorePriceModifier + "%";
-                    msg +=  "\nDaily specials:";
-                    location.DailySpecials.ForEach(i => msg += "\n   - " + i.Name);
-                    msg += "\nRequested goods:";
-                    location.RequestedGoods.ForEach(i => msg += "\n   - " + i.Name);
-                    NewMessage(msg);
+                    if (location.Stores != null)
+                    {
+                        var msg = "--- Location: " + location.Name + " ---";
+                        foreach (var store in location.Stores)
+                        {
+                            msg += $"\nStore identifier: {store.Value.Identifier}";
+                            msg += $"\nBalance: {store.Value.Balance}";
+                            msg += $"\nPrice modifier: {store.Value.PriceModifier}%";
+                            msg += "\nDaily specials:";
+                            store.Value.DailySpecials.ForEach(i => msg += $"\n   - {i.Name}");
+                            msg += "\nRequested goods:";
+                            store.Value.RequestedGoods.ForEach(i => msg += $"\n   - {i.Name}");
+                            
+                        }
+                        NewMessage(msg);
+                    }
+                    else
+                    {
+                        NewMessage($"No stores at {location}, can't show store info.");
+                    }
                 }
                 else
                 {
@@ -1973,7 +2023,7 @@ namespace Barotrauma
             }
         }
 
-        private static string[] ListCharacterNames() => Character.CharacterList.OrderBy(c => c.IsDead).ThenByDescending(c => c.IsHuman).Select(c => c.Name).Distinct().ToArray();
+        private static string[] ListCharacterNames() => Character.CharacterList.OrderBy(c => c.IsDead).ThenByDescending(c => c.IsHuman).ThenBy(c => c.Name).Select(c => c.Name).Distinct().ToArray();
 
         private static Character FindMatchingCharacter(string[] args, bool ignoreRemotePlayers = false, Client allowedRemotePlayer = null)
         {
@@ -2052,7 +2102,7 @@ namespace Barotrauma
                 switch (args[1].ToLowerInvariant())
                 {
                     case "inside":
-                        spawnPoint = WayPoint.GetRandom(SpawnType.Human, null, Submarine.MainSub);
+                        spawnPoint = WayPoint.GetRandom(SpawnType.Human, job, Submarine.MainSub);
                         break;
                     case "outside":
                         spawnPoint = WayPoint.GetRandom(SpawnType.Enemy);
@@ -2099,7 +2149,7 @@ namespace Barotrauma
                 }
                 catch
                 {
-                    DebugConsole.ThrowError($"\"{args[2]}\" is not a valid team id.");
+                    ThrowError($"\"{args[2]}\" is not a valid team id.");
                 }
             }
 
@@ -2107,8 +2157,8 @@ namespace Barotrauma
 
             if (human)
             {
-                var variant = job != null ? Rand.Range(0, job.Variants, Rand.RandSync.Server) : 0;
-                CharacterInfo characterInfo = new CharacterInfo(CharacterPrefab.HumanSpeciesName, jobPrefab: job, variant: variant);
+                var variant = job != null ? Rand.Range(0, job.Variants, Rand.RandSync.ServerAndClient) : 0;
+                CharacterInfo characterInfo = new CharacterInfo(CharacterPrefab.HumanSpeciesName, jobOrJobPrefab: job, variant: variant);
                 spawnedCharacter = Character.Create(characterInfo, spawnPosition, ToolBox.RandomSeed(8));
                 if (GameMain.GameSession != null)
                 {
@@ -2122,7 +2172,7 @@ namespace Barotrauma
             }
             else
             {
-                if (CharacterPrefab.FindBySpeciesName(args[0]) != null)
+                if (CharacterPrefab.FindBySpeciesName(args[0].ToIdentifier()) != null)
                 {
                     Character.Create(args[0], spawnPosition, ToolBox.RandomSeed(8));
                 }
@@ -2144,7 +2194,7 @@ namespace Barotrauma
             if (itemPrefab == null)
             {
                 errorMsg = "Item \"" + itemNameOrId + "\" not found!";
-                var matching = ItemPrefab.Prefabs.Find(me => me.Name.ToLowerInvariant().StartsWith(itemNameOrId) && me is ItemPrefab);
+                var matching = ItemPrefab.Prefabs.Find(me => me.Name.StartsWith(itemNameOrId, StringComparison.OrdinalIgnoreCase) && me is ItemPrefab);
                 if (matching != null)
                 {
                     errorMsg += $" Did you mean \"{matching.Name}\"?";
@@ -2205,7 +2255,7 @@ namespace Barotrauma
                     }
                     else
                     {
-                        Entity.Spawner?.AddToSpawnQueue(itemPrefab, spawnPos.Value);
+                        Entity.Spawner?.AddItemToSpawnQueue(itemPrefab, spawnPos.Value);
                     }
                 }
                 else if (spawnInventory != null)
@@ -2218,7 +2268,7 @@ namespace Barotrauma
                     }
                     else
                     {
-                        Entity.Spawner?.AddToSpawnQueue(itemPrefab, spawnInventory, onSpawned: onItemSpawned);
+                        Entity.Spawner?.AddItemToSpawnQueue(itemPrefab, spawnInventory, onSpawned: onItemSpawned);
                     }
 
                     static void onItemSpawned(Item item)
@@ -2246,6 +2296,9 @@ namespace Barotrauma
             color ??= Color.White;
             NewMessage(command, color.Value, isCommand: true, isError: false);
         }
+
+        public static void NewMessage(LocalizedString msg, Color? color = null, bool debugOnly = false)
+            => NewMessage(msg.Value, color, debugOnly);
 
         public static void NewMessage(string msg, Color? color = null, bool debugOnly = false)
         {
@@ -2285,7 +2338,7 @@ namespace Barotrauma
 
 #if CLIENT
             activeQuestionText = new GUITextBlock(new RectTransform(new Point(listBox.Content.Rect.Width, 0), listBox.Content.RectTransform),
-                "   >>" + question, font: GUI.SmallFont, wrap: true)
+                "   >>" + question, font: GUIStyle.SmallFont, wrap: true)
             {
                 CanBeFocused = false,
                 TextColor = Color.Cyan
@@ -2353,12 +2406,19 @@ namespace Barotrauma
 
         public static Command FindCommand(string commandName) => commands.Find(c => c.names.Any(n => n.Equals(commandName, StringComparison.OrdinalIgnoreCase)));
 
+        public static void Log(LocalizedString message) => Log(message?.Value);
+        
         public static void Log(string message)
         {
-            if (GameSettings.VerboseLogging)
+            if (GameSettings.CurrentConfig.VerboseLogging)
             {
                 NewMessage(message, Color.Gray);
             }
+        }
+
+        public static void ThrowError(LocalizedString error, Exception e = null, bool createMessageBox = false, bool appendStackTrace = false)
+        {
+            ThrowError(error.Value, e, createMessageBox, appendStackTrace);
         }
 
         public static void ThrowError(string error, Exception e = null, bool createMessageBox = false, bool appendStackTrace = false)
@@ -2384,7 +2444,7 @@ namespace Barotrauma
             {
                 error += "\n" + Environment.StackTrace.CleanupStackTrace();
             }
-            System.Diagnostics.Debug.WriteLine(error);
+            System.Diagnostics.Debug.WriteLine($"ThrowError: {error}");
 
 #if CLIENT
             if (createMessageBox)
@@ -2409,11 +2469,6 @@ namespace Barotrauma
 #if CLIENT
         private static IEnumerable<CoroutineStatus> CreateMessageBox(string errorMsg)
         {
-            while (GUI.Style == null)
-            {
-                yield return null;
-            }
-
             new GUIMessageBox(TextManager.Get("Error"), errorMsg);
             yield return CoroutineStatus.Success;
         }

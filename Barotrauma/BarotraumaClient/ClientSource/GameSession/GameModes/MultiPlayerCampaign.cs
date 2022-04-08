@@ -21,7 +21,7 @@ namespace Barotrauma
         private UInt16 pendingSaveID = 1;
         public UInt16 PendingSaveID
         {
-            get 
+            get
             {
                 return pendingSaveID;
             }
@@ -34,7 +34,15 @@ namespace Barotrauma
             }
         }
 
-        public static void StartCampaignSetup(IEnumerable<string> saveFiles)
+        public Wallet PersonalWallet => Character.Controlled?.Wallet ?? Wallet.Invalid;
+        public override Wallet Wallet => GetWallet();
+
+        public override Wallet GetWallet(Client client = null)
+        {
+            return PersonalWallet;
+        }
+
+        public static void StartCampaignSetup(List<SaveInfo> saveFiles)
         {
             var parent = GameMain.NetLobbyScreen.CampaignSetupFrame;
             parent.ClearChildren();
@@ -195,6 +203,11 @@ namespace Barotrauma
                 yield return CoroutineStatus.Running;
             }
 
+            if (GameMain.Client == null)
+            {
+                yield return CoroutineStatus.Failure;
+            }
+
             if (GameMain.Client.LateCampaignJoin)
             {
                 GameMain.Client.LateCampaignJoin = false;
@@ -217,8 +230,7 @@ namespace Barotrauma
                 overlaySprite = Map.CurrentLocation.Type.GetPortrait(Map.CurrentLocation.PortraitId);
                 overlayTextColor = Color.Transparent;
                 overlayText = TextManager.GetWithVariables("campaignstart",
-                    new string[] { "xxxx", "yyyy" },
-                    new string[] { Map.CurrentLocation.Name, TextManager.Get("submarineclass." + Submarine.MainSub.Info.SubmarineClass) });
+                    ("xxxx", Map.CurrentLocation.Name), ("yyyy", TextManager.Get($"submarineclass.{Submarine.MainSub.Info.SubmarineClass}")));
                 float fadeInDuration = 1.0f;
                 float textDuration = 10.0f;
                 float timer = 0.0f;
@@ -317,7 +329,7 @@ namespace Barotrauma
 
         private IEnumerable<CoroutineStatus> DoLevelTransition()
         {
-            SoundPlayer.OverrideMusicType = CrewManager.GetCharacters().Any(c => !c.IsDead) ? "endround" : "crewdead";
+            SoundPlayer.OverrideMusicType = (CrewManager.GetCharacters().Any(c => !c.IsDead) ? "endround" : "crewdead").ToIdentifier();
             SoundPlayer.OverrideMusicDuration = 18.0f;
 
             Level prevLevel = Level.Loaded;
@@ -541,36 +553,10 @@ namespace Barotrauma
             msg.Write(PurchasedItemRepairs);
             msg.Write(PurchasedLostShuttles);
 
-            msg.Write((UInt16)CargoManager.ItemsInBuyCrate.Count);
-            foreach (PurchasedItem pi in CargoManager.ItemsInBuyCrate)
-            {
-                msg.Write(pi.ItemPrefab.Identifier);
-                msg.WriteRangedInteger(pi.Quantity, 0, CargoManager.MaxQuantity);
-            }
-
-            msg.Write((UInt16)CargoManager.ItemsInSellFromSubCrate.Count);
-            foreach (PurchasedItem pi in CargoManager.ItemsInSellFromSubCrate)
-            {
-                msg.Write(pi.ItemPrefab.Identifier);
-                msg.WriteRangedInteger(pi.Quantity, 0, CargoManager.MaxQuantity);
-            }
-
-            msg.Write((UInt16)CargoManager.PurchasedItems.Count);
-            foreach (PurchasedItem pi in CargoManager.PurchasedItems)
-            {
-                msg.Write(pi.ItemPrefab.Identifier);
-                msg.WriteRangedInteger(pi.Quantity, 0, CargoManager.MaxQuantity);
-            }
-
-            msg.Write((UInt16)CargoManager.SoldItems.Count);
-            foreach (SoldItem si in CargoManager.SoldItems)
-            {
-                msg.Write(si.ItemPrefab.Identifier);
-                msg.Write((UInt16)si.ID);
-                msg.Write(si.Removed);
-                msg.Write(si.SellerID);
-                msg.Write((byte)si.Origin);
-            }
+            WriteItems(msg, CargoManager.ItemsInBuyCrate);
+            WriteItems(msg, CargoManager.ItemsInSellFromSubCrate);
+            WriteItems(msg, CargoManager.PurchasedItems);
+            WriteItems(msg, CargoManager.SoldItems);
 
             msg.Write((ushort)UpgradeManager.PurchasedUpgrades.Count);
             foreach (var (prefab, category, level) in UpgradeManager.PurchasedUpgrades)
@@ -584,7 +570,7 @@ namespace Barotrauma
             foreach (var itemSwap in UpgradeManager.PurchasedItemSwaps)
             {
                 msg.Write(itemSwap.ItemToRemove.ID);
-                msg.Write(itemSwap.ItemToInstall?.Identifier ?? string.Empty);
+                msg.Write(itemSwap.ItemToInstall?.Identifier ?? Identifier.Empty);
             }
         }
 
@@ -606,85 +592,63 @@ namespace Barotrauma
                 selectedMissionIndices.Add(msg.ReadByte());
             }
 
+            ushort ownedSubCount = msg.ReadUInt16();
+            List<ushort> ownedSubIndices = new List<ushort>();
+            for (int i = 0; i < ownedSubCount; i++)
+            {
+                ownedSubIndices.Add(msg.ReadUInt16());
+            }
+
             bool allowDebugTeleport = msg.ReadBoolean();
             float? reputation = null;
             if (msg.ReadBoolean()) { reputation = msg.ReadSingle(); }
             
-            Dictionary<string, float> factionReps = new Dictionary<string, float>();
+            Dictionary<Identifier, float> factionReps = new Dictionary<Identifier, float>();
             byte factionsCount = msg.ReadByte();
             for (int i = 0; i < factionsCount; i++)
             {
-                factionReps.Add(msg.ReadString(), msg.ReadSingle());
+                factionReps.Add(msg.ReadIdentifier(), msg.ReadSingle());
             }
 
             bool forceMapUI = msg.ReadBoolean();
 
-            int money = msg.ReadInt32();
             bool purchasedHullRepairs   = msg.ReadBoolean();
             bool purchasedItemRepairs   = msg.ReadBoolean();
             bool purchasedLostShuttles  = msg.ReadBoolean();
 
             byte missionCount = msg.ReadByte();
-            List<Pair<string, byte>> availableMissions = new List<Pair<string, byte>>();
+            var availableMissions = new List<(Identifier Identifier, byte ConnectionIndex)>();
             for (int i = 0; i < missionCount; i++)
             {
-                string missionIdentifier = msg.ReadString();
+                Identifier missionIdentifier = msg.ReadIdentifier();
                 byte connectionIndex = msg.ReadByte();
-                availableMissions.Add(new Pair<string, byte>(missionIdentifier, connectionIndex));
+                availableMissions.Add((missionIdentifier, connectionIndex));
             }
 
-            UInt16? storeBalance = null;
+            var storeBalances = new Dictionary<Identifier, UInt16>();
             if (msg.ReadBoolean())
             {
-                storeBalance = msg.ReadUInt16();
+                byte storeCount = msg.ReadByte();
+                for (int i = 0; i < storeCount; i++)
+                {
+                    Identifier identifier = msg.ReadIdentifier();
+                    UInt16 storeBalance = msg.ReadUInt16();
+                    storeBalances.Add(identifier, storeBalance);
+                }
             }
 
-            UInt16 buyCrateItemCount = msg.ReadUInt16();
-            List<PurchasedItem> buyCrateItems = new List<PurchasedItem>();
-            for (int i = 0; i < buyCrateItemCount; i++)
-            {
-                string itemPrefabIdentifier = msg.ReadString();
-                int itemQuantity = msg.ReadRangedInteger(0, CargoManager.MaxQuantity);
-                buyCrateItems.Add(new PurchasedItem(ItemPrefab.Prefabs[itemPrefabIdentifier], itemQuantity));
-            }
-
-            UInt16 subSellCrateItemCount = msg.ReadUInt16();
-            List<PurchasedItem> subSellCrateItems = new List<PurchasedItem>();
-            for (int i = 0; i < subSellCrateItemCount; i++)
-            {
-                string itemPrefabIdentifier = msg.ReadString();
-                int itemQuantity = msg.ReadRangedInteger(0, CargoManager.MaxQuantity);
-                subSellCrateItems.Add(new PurchasedItem(ItemPrefab.Prefabs[itemPrefabIdentifier], itemQuantity));
-            }
-
-            UInt16 purchasedItemCount = msg.ReadUInt16();
-            List<PurchasedItem> purchasedItems = new List<PurchasedItem>();
-            for (int i = 0; i < purchasedItemCount; i++)
-            {
-                string itemPrefabIdentifier = msg.ReadString();
-                int itemQuantity = msg.ReadRangedInteger(0, CargoManager.MaxQuantity);
-                purchasedItems.Add(new PurchasedItem(ItemPrefab.Prefabs[itemPrefabIdentifier], itemQuantity));
-            }
-
-            UInt16 soldItemCount = msg.ReadUInt16();
-            List<SoldItem> soldItems = new List<SoldItem>();
-            for (int i = 0; i < soldItemCount; i++)
-            {
-                string itemPrefabIdentifier = msg.ReadString();
-                UInt16 id = msg.ReadUInt16();
-                bool removed = msg.ReadBoolean();
-                byte sellerId = msg.ReadByte();
-                byte origin = msg.ReadByte();
-                soldItems.Add(new SoldItem(ItemPrefab.Prefabs[itemPrefabIdentifier], id, removed, sellerId, (SoldItem.SellOrigin)origin));
-            }
+            var buyCrateItems = ReadPurchasedItems(msg, sender: null);
+            var subSellCrateItems = ReadPurchasedItems(msg, sender: null);
+            var purchasedItems = ReadPurchasedItems(msg, sender: null);
+            var soldItems = ReadSoldItems(msg);
 
             ushort pendingUpgradeCount = msg.ReadUInt16();
             List<PurchasedUpgrade> pendingUpgrades = new List<PurchasedUpgrade>();
             for (int i = 0; i < pendingUpgradeCount; i++)
             {
-                string upgradeIdentifier = msg.ReadString();
+                Identifier upgradeIdentifier = msg.ReadIdentifier();
                 UpgradePrefab prefab = UpgradePrefab.Find(upgradeIdentifier);
-                string categoryIdentifier = msg.ReadString();
+                Identifier categoryIdentifier = msg.ReadIdentifier();
                 UpgradeCategory category = UpgradeCategory.Find(categoryIdentifier);
                 int upgradeLevel = msg.ReadByte();
                 if (prefab == null || category == null) { continue; }
@@ -696,8 +660,8 @@ namespace Barotrauma
             for (int i = 0; i < purchasedItemSwapCount; i++)
             {
                 UInt16 itemToRemoveID = msg.ReadUInt16();
-                string itemToInstallIdentifier = msg.ReadString();
-                ItemPrefab itemToInstall = string.IsNullOrEmpty(itemToInstallIdentifier) ? null : ItemPrefab.Find(string.Empty, itemToInstallIdentifier);
+                Identifier itemToInstallIdentifier = msg.ReadIdentifier();
+                ItemPrefab itemToInstall = itemToInstallIdentifier.IsEmpty ? null : ItemPrefab.Find(string.Empty, itemToInstallIdentifier);
                 if (!(Entity.FindEntityByID(itemToRemoveID) is Item itemToRemove)) { continue; }
                 purchasedItemSwaps.Add(new PurchasedItemSwap(itemToRemove, itemToInstall));
             }
@@ -740,12 +704,29 @@ namespace Barotrauma
                     campaign.Map.SetLocation(currentLocIndex == UInt16.MaxValue ? -1 : currentLocIndex);
                     campaign.Map.SelectLocation(selectedLocIndex == UInt16.MaxValue ? -1 : selectedLocIndex);
                     campaign.Map.SelectMission(selectedMissionIndices);
+
+                    GameMain.GameSession.OwnedSubmarines.Clear();
+                    foreach (int ownedSubIndex in ownedSubIndices)
+                    {
+                        SubmarineInfo sub = GameMain.Client.ServerSubmarines[ownedSubIndex];
+                        if (GameMain.NetLobbyScreen.CheckIfCampaignSubMatches(sub, NetLobbyScreen.SubmarineDeliveryData.Owned))
+                        {
+                            GameMain.GameSession.OwnedSubmarines.Add(sub);
+                        }
+                    }
+
                     campaign.Map.AllowDebugTeleport = allowDebugTeleport;
                     campaign.CargoManager.SetItemsInBuyCrate(buyCrateItems);
                     campaign.CargoManager.SetItemsInSubSellCrate(subSellCrateItems);
                     campaign.CargoManager.SetPurchasedItems(purchasedItems);
                     campaign.CargoManager.SetSoldItems(soldItems);
-                    if (storeBalance.HasValue) { campaign.Map.CurrentLocation.StoreCurrentBalance = storeBalance.Value; }
+                    foreach (var balance in storeBalances)
+                    {
+                        if (campaign.Map.CurrentLocation.GetStore(balance.Key) is { } store)
+                        {
+                            store.Balance = balance.Value;
+                        }
+                    }
                     campaign.UpgradeManager.SetPendingUpgrades(pendingUpgrades);
                     campaign.UpgradeManager.PurchasedUpgrades.Clear();
                     foreach (var purchasedItemSwap in purchasedItemSwaps)
@@ -769,7 +750,7 @@ namespace Barotrauma
 
                     foreach (var (identifier, rep) in factionReps)
                     {
-                       Faction faction = campaign.Factions.FirstOrDefault(f => f.Prefab.Identifier.Equals(identifier, StringComparison.OrdinalIgnoreCase));
+                       Faction faction = campaign.Factions.FirstOrDefault(f => f.Prefab.Identifier == identifier);
                        if (faction?.Reputation != null)
                        {
                            faction.Reputation.SetReputation(rep);
@@ -783,29 +764,29 @@ namespace Barotrauma
                     if (reputation.HasValue)
                     {
                         campaign.Map.CurrentLocation.Reputation.SetReputation(reputation.Value);
-                        campaign?.CampaignUI?.UpgradeStore?.RefreshAll();
+                        campaign?.CampaignUI?.UpgradeStore?.RequestRefresh();
                     }
 
                     foreach (var availableMission in availableMissions)
                     {
-                        MissionPrefab missionPrefab = MissionPrefab.List.Find(mp => mp.Identifier == availableMission.First);
+                        MissionPrefab missionPrefab = MissionPrefab.Prefabs.Find(mp => mp.Identifier == availableMission.Identifier);
                         if (missionPrefab == null)
                         {
-                            DebugConsole.ThrowError($"Error when receiving campaign data from the server: mission prefab \"{availableMission.First}\" not found.");
+                            DebugConsole.ThrowError($"Error when receiving campaign data from the server: mission prefab \"{availableMission.Identifier}\" not found.");
                             continue;
                         }
-                        if (availableMission.Second == 255)
+                        if (availableMission.ConnectionIndex == 255)
                         {
                             campaign.Map.CurrentLocation.UnlockMission(missionPrefab);
                         }
                         else
                         {
-                            if (availableMission.Second < 0 || availableMission.Second >= campaign.Map.CurrentLocation.Connections.Count)
+                            if (availableMission.ConnectionIndex < 0 || availableMission.ConnectionIndex >= campaign.Map.CurrentLocation.Connections.Count)
                             {
-                                DebugConsole.ThrowError($"Error when receiving campaign data from the server: connection index for mission \"{availableMission.First}\" out of range (index: {availableMission.Second}, current location: {campaign.Map.CurrentLocation.Name}, connections: {campaign.Map.CurrentLocation.Connections.Count}).");
+                                DebugConsole.ThrowError($"Error when receiving campaign data from the server: connection index for mission \"{availableMission.Identifier}\" out of range (index: {availableMission.ConnectionIndex}, current location: {campaign.Map.CurrentLocation.Name}, connections: {campaign.Map.CurrentLocation.Connections.Count}).");
                                 continue;
                             }
-                            LocationConnection connection = campaign.Map.CurrentLocation.Connections[availableMission.Second];
+                            LocationConnection connection = campaign.Map.CurrentLocation.Connections[availableMission.ConnectionIndex];
                             campaign.Map.CurrentLocation.UnlockMission(missionPrefab, connection);
                         }
                     }
@@ -813,19 +794,17 @@ namespace Barotrauma
                     GameMain.NetLobbyScreen.ToggleCampaignMode(true);
                 }
 
-                bool shouldRefresh = campaign.Money != money ||
-                                     campaign.PurchasedHullRepairs != purchasedHullRepairs ||
+                bool shouldRefresh = campaign.PurchasedHullRepairs != purchasedHullRepairs ||
                                      campaign.PurchasedItemRepairs != purchasedItemRepairs ||
                                      campaign.PurchasedLostShuttles != purchasedLostShuttles;
 
-                campaign.Money = money;
                 campaign.PurchasedHullRepairs = purchasedHullRepairs;
                 campaign.PurchasedItemRepairs = purchasedItemRepairs;
                 campaign.PurchasedLostShuttles = purchasedLostShuttles;
 
                 if (shouldRefresh)
                 {
-                    campaign?.CampaignUI?.UpgradeStore?.RefreshAll();
+                    campaign?.CampaignUI?.UpgradeStore?.RequestRefresh();
                 }
 
                 if (myCharacterInfo != null)
@@ -849,7 +828,7 @@ namespace Barotrauma
             List<CharacterInfo> availableHires = new List<CharacterInfo>();
             for (int i = 0; i < availableHireLength; i++)
             {
-                CharacterInfo hire = CharacterInfo.ClientRead("human", msg);
+                CharacterInfo hire = CharacterInfo.ClientRead(CharacterPrefab.HumanSpeciesName, msg);
                 hire.Salary = msg.ReadInt32();
                 availableHires.Add(hire);
             }
@@ -865,7 +844,7 @@ namespace Barotrauma
             List<CharacterInfo> hiredCharacters = new List<CharacterInfo>();
             for (int i = 0; i < hiredLength; i++)
             {
-                CharacterInfo hired = CharacterInfo.ClientRead("human", msg);
+                CharacterInfo hired = CharacterInfo.ClientRead(CharacterPrefab.HumanSpeciesName, msg);
                 hired.Salary = msg.ReadInt32();
                 hiredCharacters.Add(hired);
             }
@@ -897,6 +876,43 @@ namespace Barotrauma
             }
         }
 
+        public void ClientReadMoney(IReadMessage inc)
+        {
+            NetWalletUpdate update = INetSerializableStruct.Read<NetWalletUpdate>(inc);
+            foreach (NetWalletTransaction transaction in update.Transactions)
+            {
+                WalletInfo info = transaction.Info;
+                switch (transaction.CharacterID)
+                {
+                    case Some<ushort> { Value: var charID }:
+                    {
+                        Character targetCharacter = Character.CharacterList?.FirstOrDefault(c => c.ID == charID);
+                        if (targetCharacter is null) { break; }
+                        Wallet wallet = targetCharacter.Wallet;
+
+                        wallet.Balance = info.Balance;
+                        wallet.RewardDistribution = info.RewardDistribution;
+                        TryInvokeEvent(wallet, transaction.ChangedData, info);
+                        break;
+                    }
+                    case None<ushort> _:
+                    {
+                        Bank.Balance = info.Balance;
+                        TryInvokeEvent(Bank, transaction.ChangedData, info);
+                        break;
+                    }
+                }
+            }
+
+            void TryInvokeEvent(Wallet wallet, WalletChangedData data, WalletInfo info)
+            {
+                if (data.BalanceChanged.IsSome() || data.RewardDistributionChanged.IsSome())
+                {
+                    OnMoneyChanged.Invoke(new WalletChangedEvent(wallet, data, info));
+                }
+            }
+        }
+
         public override void Save(XElement element)
         {
             //do nothing, the clients get the save files from the server
@@ -909,10 +925,10 @@ namespace Barotrauma
 
             string gamesessionDocPath = Path.Combine(SaveUtil.TempPath, "gamesession.xml");
             XDocument doc = XMLExtensions.TryLoadXml(gamesessionDocPath);
-            if (doc == null) 
+            if (doc == null)
             {
                 DebugConsole.ThrowError($"Failed to load the state of a multiplayer campaign. Could not open the file \"{gamesessionDocPath}\".");
-                return; 
+                return;
             }
             Load(doc.Root.Element("MultiPlayerCampaign"));
             GameMain.GameSession.OwnedSubmarines = SaveUtil.LoadOwnedSubmarines(doc, out SubmarineInfo selectedSub);

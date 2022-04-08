@@ -9,13 +9,13 @@ namespace Barotrauma
 {
     class AIObjectivePumpWater : AIObjectiveLoop<Pump>
     {
-        public override string Identifier { get; set; } = "pump water";
+        public override Identifier Identifier { get; set; } = "pump water".ToIdentifier();
         public override bool KeepDivingGearOn => true;
         public override bool AllowAutomaticItemUnequipping => true;
 
         private IEnumerable<Pump> pumpList;
 
-        public AIObjectivePumpWater(Character character, AIObjectiveManager objectiveManager, string option, float priorityModifier = 1)
+        public AIObjectivePumpWater(Character character, AIObjectiveManager objectiveManager, Identifier option, float priorityModifier = 1)
             : base(character, objectiveManager, priorityModifier, option) { }
 
         protected override void FindTargets()
@@ -41,6 +41,7 @@ namespace Barotrauma
                 if (!character.Submarine.IsConnectedTo(pump.Item.Submarine)) { return false; }
             }
             if (Character.CharacterList.Any(c => c.CurrentHull == pump.Item.CurrentHull && !HumanAIController.IsFriendly(c) && HumanAIController.IsActive(c))) { return false; }
+            if (pump.Item.IsClaimedByBallastFlora) { return false; }
             if (IsReady(pump)) { return false; }
             return true;
         }
@@ -48,7 +49,7 @@ namespace Barotrauma
         {
             if (pumpList == null)
             {
-                if (character == null || character.Submarine == null) { return new Pump[0]; }
+                if (character == null || character.Submarine == null) { return Array.Empty<Pump>(); }
                 pumpList = character.Submarine.GetItems(true).Select(i => i.GetComponent<Pump>()).Where(p => p != null);
             }
             return pumpList;

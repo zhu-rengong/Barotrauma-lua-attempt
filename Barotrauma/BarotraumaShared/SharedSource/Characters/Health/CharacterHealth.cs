@@ -20,23 +20,23 @@ namespace Barotrauma
 
             public Rectangle HighlightArea;
 
-            public readonly string Name;
+            public readonly LocalizedString Name;
                         
             //public readonly List<Affliction> Afflictions = new List<Affliction>();
 
-            public readonly Dictionary<string, float> VitalityMultipliers = new Dictionary<string, float>();
-            public readonly Dictionary<string, float> VitalityTypeMultipliers = new Dictionary<string, float>();
+            public readonly Dictionary<Identifier, float> VitalityMultipliers = new Dictionary<Identifier, float>();
+            public readonly Dictionary<Identifier, float> VitalityTypeMultipliers = new Dictionary<Identifier, float>();
 
             public LimbHealth() { }
 
-            public LimbHealth(XElement element, CharacterHealth characterHealth)
+            public LimbHealth(ContentXElement element, CharacterHealth characterHealth)
             {
                 string limbName = element.GetAttributeString("name", null) ?? "generic";
                 if (limbName != "generic")
                 {
                     Name = TextManager.Get("HealthLimbName." + limbName);
                 }
-                foreach (XElement subElement in element.Elements())
+                foreach (var subElement in element.Elements())
                 {
                     switch (subElement.Name.ToString().ToLowerInvariant())
                     {
@@ -48,22 +48,26 @@ namespace Barotrauma
                             HighlightSprite = new Sprite(subElement);
                             break;
                         case "vitalitymultiplier":
-                            if (subElement.Attribute("name") != null)
+                            if (subElement.GetAttribute("name") != null)
                             {
                                 DebugConsole.ThrowError("Error in character health config (" + characterHealth.Character.Name + ") - define vitality multipliers using affliction identifiers or types instead of names.");
                                 continue;
                             }
-
-                            string afflictionIdentifier = subElement.GetAttributeString("identifier", "");
-                            string afflictionType = subElement.GetAttributeString("type", "");
-                            float multiplier = subElement.GetAttributeFloat("multiplier", 1.0f);
-                            if (!string.IsNullOrEmpty(afflictionIdentifier))
+                            var vitalityMultipliers = subElement.GetAttributeIdentifierArray("identifier", null) ?? subElement.GetAttributeIdentifierArray("identifiers", null);
+                            if (vitalityMultipliers != null)
                             {
-                                VitalityMultipliers.Add(afflictionIdentifier.ToLowerInvariant(), multiplier);
+                                float multiplier = subElement.GetAttributeFloat("multiplier", 1.0f);
+                                vitalityMultipliers.ForEach(i => VitalityMultipliers.Add(i, multiplier));
                             }
-                            else
+                            var vitalityTypeMultipliers = subElement.GetAttributeIdentifierArray("type", null) ?? subElement.GetAttributeIdentifierArray("types", null);
+                            if (vitalityTypeMultipliers != null)
                             {
-                                VitalityTypeMultipliers.Add(afflictionType.ToLowerInvariant(), multiplier);
+                                float multiplier = subElement.GetAttributeFloat("multiplier", 1.0f);
+                                vitalityTypeMultipliers.ForEach(i => VitalityTypeMultipliers.Add(i, multiplier));
+                            }
+                            if (vitalityMultipliers == null && VitalityTypeMultipliers == null)
+                            {
+                                DebugConsole.ThrowError($"Error in character health config {characterHealth.Character.Name}: affliction identifier(s) or type(s) not defined in the \"VitalityMultiplier\" elements!");
                             }
                             break;
                     }
@@ -220,7 +224,7 @@ namespace Barotrauma
             InitProjSpecific(null, character);
         }
 
-        public CharacterHealth(XElement element, Character character, XElement limbHealthElement = null)
+        public CharacterHealth(ContentXElement element, Character character, ContentXElement limbHealthElement = null)
         {
             this.Character = character;
             InitIrremovableAfflictions();
@@ -231,7 +235,7 @@ namespace Barotrauma
 
             limbHealths.Clear();
             limbHealthElement ??= element;
-            foreach (XElement subElement in limbHealthElement.Elements())
+            foreach (var subElement in limbHealthElement.Elements())
             {
                 if (!subElement.Name.ToString().Equals("limb", StringComparison.OrdinalIgnoreCase)) { continue; }
                 limbHealths.Add(new LimbHealth(subElement, this));
@@ -256,7 +260,7 @@ namespace Barotrauma
             }
         }
 
-        partial void InitProjSpecific(XElement element, Character character);
+        partial void InitProjSpecific(ContentXElement element, Character character);
 
         public IReadOnlyCollection<Affliction> GetAllAfflictions()
         {
@@ -283,10 +287,13 @@ namespace Barotrauma
         private LimbHealth GetMatchingLimbHealth(Limb limb) => limb == null ? null : limbHealths[limb.HealthIndex];
         private LimbHealth GetMatchingLimbHealth(Affliction affliction) => GetMatchingLimbHealth(Character.AnimController.GetLimb(affliction.Prefab.IndicatorLimb, excludeSevered: false));
 
-        public Affliction GetAffliction(string identifier, bool allowLimbAfflictions = true)
+        public Affliction GetAffliction(string identifier, bool allowLimbAfflictions = true) =>
+            GetAffliction(identifier.ToIdentifier(), allowLimbAfflictions);
+        
+        public Affliction GetAffliction(Identifier identifier, bool allowLimbAfflictions = true)
             => GetAffliction(a => a.Prefab.Identifier == identifier, allowLimbAfflictions);
 
-        public Affliction GetAfflictionOfType(string afflictionType, bool allowLimbAfflictions = true) 
+        public Affliction GetAfflictionOfType(Identifier afflictionType, bool allowLimbAfflictions = true) 
             => GetAffliction(a => a.Prefab.AfflictionType == afflictionType, allowLimbAfflictions);
 
         private Affliction GetAffliction(Func<Affliction, bool> predicate, bool allowLimbAfflictions = true)
@@ -411,7 +418,7 @@ namespace Barotrauma
             foreach (KeyValuePair<Affliction, LimbHealth> kvp in afflictions)
             {
                 var affliction = kvp.Key;
-                resistance += affliction.GetResistance(afflictionPrefab);
+                resistance += affliction.GetResistance(afflictionPrefab.Identifier);
             }
             return 1 - ((1 - resistance) * Character.GetAbilityResistance(afflictionPrefab));
         }
@@ -438,37 +445,58 @@ namespace Barotrauma
         }
 
         private readonly List<Affliction> matchingAfflictions = new List<Affliction>();
-        public void ReduceAffliction(Limb targetLimb, string afflictionIdentifier, float amount, ActionType? treatmentAction = null)
+
+        public void ReduceAllAfflictionsOnAllLimbs(float amount, ActionType? treatmentAction = null)
         {
             matchingAfflictions.Clear();
+            matchingAfflictions.AddRange(afflictions.Keys);
 
-            if (targetLimb == null)
-            {
-                matchingAfflictions.AddRange(afflictions.Keys);
-            }
-            else
-            {
-                foreach (KeyValuePair<Affliction, LimbHealth> kvp in afflictions)
-                {
-                    var affliction = kvp.Key;
-                    if (kvp.Value == null)
-                    {
-                        matchingAfflictions.Add(affliction);
-                    }
-                    else if (limbHealths[targetLimb.HealthIndex] == kvp.Value)
-                    {
-                        matchingAfflictions.Add(affliction);
-                    }
-                }
-            }
+            ReduceMatchingAfflictions(amount, treatmentAction);
+        }
+        
+        public void ReduceAfflictionOnAllLimbs(Identifier affliction, float amount, ActionType? treatmentAction = null)
+        {
+            if (affliction.IsEmpty) { throw new ArgumentException($"{nameof(affliction)} is empty"); }
+            
+            matchingAfflictions.Clear();
+            matchingAfflictions.AddRange(afflictions.Keys);
+            matchingAfflictions.RemoveAll(a =>
+                a.Prefab.Identifier != affliction &&
+                a.Prefab.AfflictionType != affliction);
+            
+            ReduceMatchingAfflictions(amount, treatmentAction);
+        }
 
-            if (!string.IsNullOrEmpty(afflictionIdentifier))
-            {
-                matchingAfflictions.RemoveAll(a =>
-                    !a.Prefab.Identifier.Equals(afflictionIdentifier, StringComparison.OrdinalIgnoreCase) &&
-                    !a.Prefab.AfflictionType.Equals(afflictionIdentifier, StringComparison.OrdinalIgnoreCase));
-            }
+        private IEnumerable<Affliction> GetAfflictionsForLimb(Limb targetLimb)
+            => afflictions.Keys.Where(k => afflictions[k] == limbHealths[targetLimb.HealthIndex]);
+        
+        public void ReduceAllAfflictionsOnLimb(Limb targetLimb, float amount, ActionType? treatmentAction = null)
+        {
+            if (targetLimb is null) { throw new ArgumentNullException(nameof(targetLimb)); }
 
+            matchingAfflictions.Clear();
+            matchingAfflictions.AddRange(GetAfflictionsForLimb(targetLimb));
+            
+            ReduceMatchingAfflictions(amount, treatmentAction);
+        }
+        
+        public void ReduceAfflictionOnLimb(Limb targetLimb, Identifier affliction, float amount, ActionType? treatmentAction = null)
+        {
+            if (affliction.IsEmpty) { throw new ArgumentException($"{nameof(affliction)} is empty"); }
+            if (targetLimb is null) { throw new ArgumentNullException(nameof(targetLimb)); }
+            
+            matchingAfflictions.Clear();
+            matchingAfflictions.AddRange(GetAfflictionsForLimb(targetLimb));
+
+            matchingAfflictions.RemoveAll(a =>
+                a.Prefab.Identifier != affliction &&
+                a.Prefab.AfflictionType != affliction);
+
+            ReduceMatchingAfflictions(amount, treatmentAction);
+        }
+
+        private void ReduceMatchingAfflictions(float amount, ActionType? treatmentAction)
+        {
             if (matchingAfflictions.Count == 0) { return; }
 
             float reduceAmount = amount / matchingAfflictions.Count;
@@ -640,9 +668,10 @@ namespace Barotrauma
             if (!DoesBleed && newAffliction is AfflictionBleeding) { return; }
             if (!Character.NeedsOxygen && newAffliction.Prefab == AfflictionPrefab.OxygenLow) { return; }
             if (Character.Params.Health.StunImmunity && newAffliction.Prefab.AfflictionType == "stun") { return; }
+            if (Character.Params.Health.PoisonImmunity && newAffliction.Prefab.AfflictionType == "poison") { return; }
             if (newAffliction.Prefab is AfflictionPrefabHusk huskPrefab)
             {
-                if (huskPrefab.TargetSpecies.None(s => s.Equals(Character.SpeciesName, StringComparison.OrdinalIgnoreCase)))
+                if (huskPrefab.TargetSpecies.None(s => s == Character.SpeciesName))
                 {
                     return;
                 }
@@ -719,48 +748,47 @@ namespace Barotrauma
 
             StunTimer = Stun > 0 ? StunTimer + deltaTime : 0;
 
-            if (Character.GodMode) { return; }
-
-            afflictionsToRemove.Clear();
-            afflictionsToUpdate.Clear();
-            foreach (KeyValuePair<Affliction, LimbHealth> kvp in afflictions)
+            if (!Character.GodMode) 
             {
-                var affliction = kvp.Key;
-                if (affliction.Strength <= 0.0f)
+                afflictionsToRemove.Clear();
+                afflictionsToUpdate.Clear();
+                foreach (KeyValuePair<Affliction, LimbHealth> kvp in afflictions)
                 {
-                    SteamAchievementManager.OnAfflictionRemoved(affliction, Character);
-                    if (!irremovableAfflictions.Contains(affliction)) { afflictionsToRemove.Add(affliction); }
-                    continue;
+                    var affliction = kvp.Key;
+                    if (affliction.Strength <= 0.0f)
+                    {
+                        SteamAchievementManager.OnAfflictionRemoved(affliction, Character);
+                        if (!irremovableAfflictions.Contains(affliction)) { afflictionsToRemove.Add(affliction); }
+                        continue;
+                    }
+                    afflictionsToUpdate.Add(kvp);
                 }
-                afflictionsToUpdate.Add(kvp);
-            }
-            foreach (KeyValuePair<Affliction, LimbHealth> kvp in afflictionsToUpdate)
-            {
-                var affliction = kvp.Key;
-                Limb targetLimb = null;
-                if (kvp.Value != null)
+                foreach (KeyValuePair<Affliction, LimbHealth> kvp in afflictionsToUpdate)
                 {
-                    int healthIndex = limbHealths.IndexOf(kvp.Value);
-                    targetLimb =
-                        Character.AnimController.Limbs.LastOrDefault(l => !l.IsSevered && !l.Hidden && l.HealthIndex == healthIndex) ??
-                        Character.AnimController.MainLimb;
+                    var affliction = kvp.Key;
+                    Limb targetLimb = null;
+                    if (kvp.Value != null)
+                    {
+                        int healthIndex = limbHealths.IndexOf(kvp.Value);
+                        targetLimb =
+                            Character.AnimController.Limbs.LastOrDefault(l => !l.IsSevered && !l.Hidden && l.HealthIndex == healthIndex) ??
+                            Character.AnimController.MainLimb;
+                    }
+                    affliction.Update(this, targetLimb, deltaTime);
+                    affliction.DamagePerSecondTimer += deltaTime;
+                    if (affliction is AfflictionBleeding bleeding)
+                    {
+                        UpdateBleedingProjSpecific(bleeding, targetLimb, deltaTime);
+                    }
+                    Character.StackSpeedMultiplier(affliction.GetSpeedMultiplier());
                 }
-                affliction.Update(this, targetLimb, deltaTime);
-                affliction.DamagePerSecondTimer += deltaTime;
-                if (affliction is AfflictionBleeding bleeding)
+                foreach (var affliction in afflictionsToRemove)
                 {
-                    UpdateBleedingProjSpecific(bleeding, targetLimb, deltaTime);
-                }
-                Character.StackSpeedMultiplier(affliction.GetSpeedMultiplier());
-            }
-
-            foreach (var affliction in afflictionsToRemove)
-            {
-                afflictions.Remove(affliction);
+                    afflictions.Remove(affliction);
+                }                
             }
 
             Character.StackSpeedMultiplier(1f + Character.GetStatValue(StatTypes.MovementSpeed));
-
             if (Character.InWater)
             {
                 Character.StackSpeedMultiplier(1f + Character.GetStatValue(StatTypes.SwimmingSpeed));
@@ -770,13 +798,16 @@ namespace Barotrauma
                 Character.StackSpeedMultiplier(1f + Character.GetStatValue(StatTypes.WalkingSpeed));
             }
 
-            UpdateLimbAfflictionOverlays();
-            UpdateSkinTint();
-            CalculateVitality();
-
-            if (Vitality <= MinVitality)
+            if (!Character.GodMode)
             {
-                Kill();
+                UpdateLimbAfflictionOverlays();
+                UpdateSkinTint();
+                CalculateVitality();
+
+                if (Vitality <= MinVitality)
+                {
+                    Kill();
+                }
             }
         }
 
@@ -965,7 +996,7 @@ namespace Barotrauma
         /// <param name="treatmentSuitability">A dictionary where the key is the identifier of the item and the value the suitability</param>
         /// <param name="normalize">If true, the suitability values are normalized between 0 and 1. If not, they're arbitrary values defined in the medical item XML, where negative values are unsuitable, and positive ones suitable.</param>   
         /// <param name="predictFutureDuration">If above 0, the method will take into account how much currently active status effects while affect the afflictions in the next x seconds.</param>   
-        public void GetSuitableTreatments(Dictionary<string, float> treatmentSuitability, bool normalize, Limb limb = null, bool ignoreHiddenAfflictions = false, float predictFutureDuration = 0.0f)
+        public void GetSuitableTreatments(Dictionary<Identifier, float> treatmentSuitability, bool normalize, Limb limb = null, bool ignoreHiddenAfflictions = false, float predictFutureDuration = 0.0f)
         {
             //key = item identifier
             //float = suitability
@@ -991,7 +1022,7 @@ namespace Barotrauma
                 if (strength <= affliction.Prefab.TreatmentThreshold) { continue; }
                 if (ignoreHiddenAfflictions && strength < affliction.Prefab.ShowIconThreshold) { continue; }
 
-                foreach (KeyValuePair<string, float> treatment in affliction.Prefab.TreatmentSuitability)
+                foreach (KeyValuePair<Identifier, float> treatment in affliction.Prefab.TreatmentSuitability)
                 {
                     if (!treatmentSuitability.ContainsKey(treatment.Key))
                     {
@@ -1008,23 +1039,23 @@ namespace Barotrauma
             //normalize the suitabilities to a range of 0 to 1
             if (normalize)
             {
-                foreach (string treatment in treatmentSuitability.Keys.ToList())
+                foreach (Identifier treatment in treatmentSuitability.Keys.ToList())
                 {
                     treatmentSuitability[treatment] = (treatmentSuitability[treatment] - minSuitability) / (maxSuitability - minSuitability);
                 }
             }
         }
 
-        public IEnumerable<string> GetActiveAfflictionTags() => GetActiveAfflictionTags(afflictions.Keys);
+        public IEnumerable<Identifier> GetActiveAfflictionTags() => GetActiveAfflictionTags(afflictions.Keys);
 
-        private readonly HashSet<string> afflictionTags = new HashSet<string>();
-        public IEnumerable<string> GetActiveAfflictionTags(IEnumerable<Affliction> afflictions)
+        private readonly HashSet<Identifier> afflictionTags = new HashSet<Identifier>();
+        public IEnumerable<Identifier> GetActiveAfflictionTags(IEnumerable<Affliction> afflictions)
         {
             afflictionTags.Clear();
             foreach (Affliction affliction in afflictions)
             {
                 var currentEffect = affliction.GetActiveEffect();
-                if (currentEffect != null && !string.IsNullOrEmpty(currentEffect.Tag))
+                if (currentEffect != null && !currentEffect.Tag.IsEmpty)
                 {
                     afflictionTags.Add(currentEffect.Tag);
                 }
@@ -1048,10 +1079,10 @@ namespace Barotrauma
                 }
                 foreach (var statusEffectAffliction in statusEffect.Parent.ReduceAffliction)
                 {
-                    if (statusEffectAffliction.affliction.Equals(affliction.Identifier, StringComparison.OrdinalIgnoreCase) ||
-                        statusEffectAffliction.affliction.Equals(affliction.Prefab.AfflictionType, StringComparison.OrdinalIgnoreCase))
+                    if (statusEffectAffliction.AfflictionIdentifier == affliction.Identifier ||
+                        statusEffectAffliction.AfflictionIdentifier == affliction.Prefab.AfflictionType)
                     {
-                        strength -= statusEffectAffliction.amount * statusEffectDuration;
+                        strength -= statusEffectAffliction.ReduceAmount * statusEffectDuration;
                     }
                 }
             }
@@ -1076,7 +1107,7 @@ namespace Barotrauma
             msg.Write((byte)activeAfflictions.Count);
             foreach (Affliction affliction in activeAfflictions)
             {
-                msg.Write(affliction.Prefab.UIntIdentifier);
+                msg.Write(affliction.Prefab.UintIdentifier);
                 msg.WriteRangedSingle(
                     MathHelper.Clamp(affliction.Strength, 0.0f, affliction.Prefab.MaxStrength), 
                     0.0f, affliction.Prefab.MaxStrength, 8);
@@ -1101,7 +1132,7 @@ namespace Barotrauma
             foreach (var (limbHealth, affliction) in limbAfflictions)
             {
                 msg.WriteRangedInteger(limbHealths.IndexOf(limbHealth), 0, limbHealths.Count - 1);
-                msg.Write(affliction.Prefab.UIntIdentifier);
+                msg.Write(affliction.Prefab.UintIdentifier);
                 msg.WriteRangedSingle(
                     MathHelper.Clamp(affliction.Strength, 0.0f, affliction.Prefab.MaxStrength), 
                     0.0f, affliction.Prefab.MaxStrength, 8);
@@ -1156,7 +1187,7 @@ namespace Barotrauma
 
         public void Load(XElement element)
         {
-            foreach (XElement subElement in element.Elements())
+            foreach (var subElement in element.Elements())
             {
                 switch (subElement.Name.ToString().ToLowerInvariant())
                 {
