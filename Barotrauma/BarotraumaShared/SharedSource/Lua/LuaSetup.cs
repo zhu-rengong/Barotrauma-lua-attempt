@@ -126,6 +126,13 @@ namespace Barotrauma
 
 		public DynValue DoFile(string file, Table globalContext = null, string codeStringFriendly = null)
 		{
+			if (!LuaFile.IsPathAllowedLuaException(file, false)) return null;
+			if (!LuaFile.Exists(file))
+			{
+				HandleLuaException(new Exception($"dofile: File {file} not found."));
+				return null;
+			}
+
 			try
 			{
 				return lua.DoFile(file, globalContext, codeStringFriendly);
@@ -157,6 +164,13 @@ namespace Barotrauma
 
 		public DynValue LoadFile(string file, Table globalContext = null, string codeStringFriendly = null)
 		{
+			if (!LuaFile.IsPathAllowedLuaException(file, false)) return null;
+			if (!LuaFile.Exists(file))
+			{
+				HandleLuaException(new Exception($"loadfile: File {file} not found."));
+				return null;
+			}
+
 			try
 			{
 				return lua.LoadFile(file, globalContext, codeStringFriendly);
@@ -223,7 +237,7 @@ namespace Barotrauma
 
 			PrintMessage("Lua! Version " + AssemblyInfo.GitRevision);
 
-			luaScriptLoader = new LuaScriptLoader(this);
+			luaScriptLoader = new LuaScriptLoader();
 			luaScriptLoader.ModulePaths = new string[] { };
 
 			LuaCustomConverters.RegisterAll();
