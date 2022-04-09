@@ -5,14 +5,11 @@ using Microsoft.CodeAnalysis.Scripting;
 using System.Reflection;
 using Microsoft.CodeAnalysis.CSharp;
 using System.Linq;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis;
-using System.Collections.Immutable;
 using System.Runtime.Loader;
-using static NetScript;
-using Microsoft.CodeAnalysis.Emit;
 using System.Reflection.PortableExecutable;
 using System.Reflection.Metadata;
+using static NetScript;
 
 namespace Barotrauma
 {
@@ -113,29 +110,19 @@ namespace Barotrauma
 
 						string errStr = "NET MODS NOT LOADED | Mod cmopilation errors:";
 						foreach (Diagnostic diagnostic in failures)
-						{
 							errStr = $"\n{diagnostic}";
-						}
 						NetSetup.PrintMessage(errStr);
 					}
 					else
 					{
 						mem.Seek(0, SeekOrigin.Begin);
-						var reader = new PEReader(mem);
-						var mdReader = reader.GetMetadataReader();
-						mdReader.AssemblyReferences.ToList().ForEach(a =>
-						{
-							var aRef = mdReader.GetAssemblyReference(a);
-							Console.WriteLine(aRef.GetAssemblyName() + " " + aRef.Version);
-						});
-						Console.WriteLine();
-						mdReader.TypeReferences.ToList().ForEach(t =>
-						{
-							var tRef = mdReader.GetTypeReference(t);
-							Console.WriteLine(mdReader.GetString(tRef.Namespace) + "  -  " + mdReader.GetString(tRef.Name));
-						});
-						mem.Seek(0, SeekOrigin.Begin);
-						Assembly = LoadFromStream(mem);
+						var errStr = NetScriptFilter.FilterMetadata(new PEReader(mem).GetMetadataReader());
+						if (errStr == null)
+                        {
+							mem.Seek(0, SeekOrigin.Begin);
+							Assembly = LoadFromStream(mem);
+						}
+						else NetSetup.PrintMessage(errStr);
 					}
 				}
 				syntaxTrees.Clear();
