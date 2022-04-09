@@ -13,7 +13,7 @@ compatibilityLib.CreateVector4 = Vector4.__new
 local luaRandom = {}
 
 luaRandom.Range = function (min, max)
-    return math.random(min, max)
+    return math.random(min, max - 1)
 end
 
 luaRandom.RangeFloat = function (min, max)
