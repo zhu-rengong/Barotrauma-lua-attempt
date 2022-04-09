@@ -35,6 +35,7 @@ namespace Barotrauma
         }
 
         public static LuaSetup Lua;
+        public static NetSetup Net;
 
         public static GameServer Server;
         public static NetworkMember NetworkMember
@@ -121,6 +122,8 @@ namespace Barotrauma
             CheckContentPackage();
 
             Lua = new LuaSetup();
+            Net = new NetSetup();
+            Net.Execute();
         }
 
 
@@ -349,6 +352,7 @@ namespace Barotrauma
 
                     GameMain.Lua.Update();
                     GameMain.Lua.hook.Call("think", new object[] { });
+                    GameMain.Net.Update();
                     performanceCounterTimer.Stop();
                     LuaTimer.LastUpdateTime = performanceCounterTimer.ElapsedMilliseconds;
                     performanceCounterTimer.Reset();

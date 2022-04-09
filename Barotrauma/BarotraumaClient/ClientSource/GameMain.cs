@@ -21,6 +21,7 @@ namespace Barotrauma
     class GameMain : Game
     {
         public static LuaSetup Lua;
+        public static NetSetup Net;
 
         public static bool ShowFPS = false;
         public static bool ShowPerf = false;
@@ -227,6 +228,8 @@ namespace Barotrauma
             }
 
             Lua = new LuaSetup();
+            Net = new NetSetup();
+            Net.Execute();
 
             GameSettings.Init();
             
@@ -924,6 +927,7 @@ namespace Barotrauma
 
                 GameMain.Lua.Update();
                 GameMain.Lua.hook.Call("think", new object[] { });
+                GameMain.Net.Update();
 
                 Timing.Accumulator -= Timing.Step;
 
@@ -1090,6 +1094,7 @@ namespace Barotrauma
             GameSession = null;
 
             GameMain.Lua.Stop();
+            GameMain.Net.Stop();
         }
 
         public void ShowCampaignDisclaimer(Action onContinue = null)

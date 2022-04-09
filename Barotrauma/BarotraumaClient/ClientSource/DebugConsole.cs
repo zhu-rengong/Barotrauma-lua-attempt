@@ -3236,6 +3236,28 @@ namespace Barotrauma
 
                 GameMain.Lua.Initialize();
             }));
+
+            commands.Add(new Command("cl_net", "lua_net: runs a script on the client", (string[] args) =>
+            {
+                if (GameMain.Client != null && !GameMain.Client.HasPermission(ClientPermissions.ConsoleCommands))
+                {
+                    ThrowError("Command not permitted.");
+                    return;
+                }
+
+                GameMain.Lua.DoString(string.Join(" ", args));
+            }));
+
+            commands.Add(new Command("cl_reloadnet", "reloads lua on the client", (string[] args) =>
+            {
+                if (GameMain.Client != null && !GameMain.Client.HasPermission(ClientPermissions.ConsoleCommands))
+                {
+                    ThrowError("Command not permitted.");
+                    return;
+                }
+
+                GameMain.Lua.Initialize();
+            }));
         }
 
         private static void ReloadWearables(Character character, int variant = 0)

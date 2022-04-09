@@ -2705,6 +2705,7 @@ namespace Barotrauma.Networking
         public override void Disconnect()
         {
             GameMain.Lua.Stop();
+            GameMain.Net.Stop();
 
             allowReconnect = false;
 
