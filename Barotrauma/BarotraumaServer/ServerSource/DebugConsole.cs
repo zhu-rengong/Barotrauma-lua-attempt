@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -1252,26 +1253,44 @@ namespace Barotrauma
 
             commands.Add(new Command("install_cl_lua", "Installs client-Side Lua into your client.", (string[] args) =>
             {
-                if (!System.IO.File.Exists("Mods/LuaForBarotrauma/clientside_files.zip"))
+                ContentPackage luaPackage = null;
+                
+                foreach (ContentPackage package in ContentPackageManager.AllPackages)
                 {
-                    GameMain.Server.SendChatMessage("clientside_files.zip doesn't exist, Github version?", ChatMessageType.ServerMessageBox);
+                    if (package.NameMatches(new Identifier("LuaForBarotraumaUnstable")))
+                    {
+                        luaPackage = package;
+                    }
+                }
 
+                if (luaPackage == null)
+                {
+                    GameMain.Server.SendChatMessage("Couldn't find the LuaForBarotrauma package.", ChatMessageType.ServerMessageBox);
                     return;
                 }
 
                 try
                 {
+                    string path = Path.GetDirectoryName(luaPackage.Path);
 
-                    System.IO.Compression.ZipFile.ExtractToDirectory("Mods/LuaForBarotrauma/clientside_files.zip", ".", true);
+                    string[] filesToMove = new string[]
+                    {
+                        "Barotrauma.dll", "Barotrauma.deps.json",
+                        "0harmony.dll", "Mono.Cecil.dll",
+                        "Mono.Cecil.Mdb.dll", "Mono.Cecil.Pdb",
+                        "Mono.Cecil.Rocks", "MonoMod.Common.dll",
+                        "MoonSharp.Interpreter.dll",
+                        "mscordaccore_amd64_amd64_4.700.22.11601",
+                    };
 
-                    System.IO.File.Move("Barotrauma.dll", "Barotrauma.dll.temp", true);
-                    System.IO.File.Move("Barotrauma.deps.json", "Barotrauma.deps.json.temp", true);
 
-                    System.IO.File.Move("Barotrauma.dll.original", "Barotrauma.dll");
-                    System.IO.File.Move("Barotrauma.deps.json.original", "Barotrauma.deps.json");
+                    File.Move("Barotrauma.dll", "Barotrauma.dll.old", true);
+                    File.Move("Barotrauma.deps.json", "Barotrauma.deps.json.old", true);
 
-                    System.IO.File.Move("Barotrauma.dll.temp", "Barotrauma.dll.original", true);
-                    System.IO.File.Move("Barotrauma.deps.json.temp", "Barotrauma.deps.json.original", true);
+                    foreach (string file in filesToMove)
+                    {
+                        File.Move(Path.Combine(path, "Binary", file), file, true);
+                    }
                 }
                 catch (Exception e)
                 {

@@ -34,6 +34,7 @@
 		"BindingFlags",
 		"UserData",
 		"LuaUserData",
-		"CLIENT"
+		"CLIENT",
+		"ContentPackageManager"
 	]
 }

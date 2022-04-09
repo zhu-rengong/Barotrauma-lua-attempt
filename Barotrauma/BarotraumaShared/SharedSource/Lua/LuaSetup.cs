@@ -13,6 +13,8 @@ namespace Barotrauma
 {
 	partial class LuaSetup
 	{
+		public const string LUA_PATH = "Lua/LuaSetup.lua";
+
 		public Script lua;
 
 		public LuaHook hook;
@@ -124,8 +126,6 @@ namespace Barotrauma
 
 		public DynValue DoFile(string file, Table globalContext = null, string codeStringFriendly = null)
 		{
-			if(!LuaFile.IsPathAllowedLuaException(file)) return null;
-
 			try
 			{
 				return lua.DoFile(file, globalContext, codeStringFriendly);
@@ -157,8 +157,6 @@ namespace Barotrauma
 
 		public DynValue LoadFile(string file, Table globalContext = null, string codeStringFriendly = null)
 		{
-			if (!LuaFile.IsPathAllowedLuaException(file)) return null;
-
 			try
 			{
 				return lua.LoadFile(file, globalContext, codeStringFriendly);
@@ -222,7 +220,7 @@ namespace Barotrauma
 		public void Initialize()
 		{
 			Stop();
-			
+
 			PrintMessage("Lua! Version " + AssemblyInfo.GitRevision);
 
 			luaScriptLoader = new LuaScriptLoader(this);
@@ -278,12 +276,45 @@ namespace Barotrauma
 
 			// LuaDocs.GenerateDocsAll();
 
-			if (File.Exists("Lua/LuaSetup.lua")) // try the default loader
-				DoFile("Lua/LuaSetup.lua");
-			else if (File.Exists("Mods/LuaForBarotrauma/Lua/LuaSetup.lua")) // in case its the workshop version
-				DoFile("Mods/LuaForBarotrauma/Lua/LuaSetup.lua");
+			ContentPackage luaPackage = null;
+
+			foreach (ContentPackage package in ContentPackageManager.AllPackages)
+			{
+				if (package.NameMatches(new Identifier("LuaForBarotraumaUnstable")))
+				{
+					luaPackage = package;
+				}
+			}
+
+			if (File.Exists(LUA_PATH))
+			{
+				try
+				{
+					lua.Call(lua.LoadFile(LUA_PATH), Path.GetDirectoryName(Path.GetFullPath(LUA_PATH)));
+				}
+				catch (Exception e)
+				{
+					HandleLuaException(e);
+				}
+			}
+			else if (luaPackage != null)
+			{
+				string path = Path.GetDirectoryName(luaPackage.Path);
+
+				try
+				{
+					string luaPath = Path.Combine(path, "Binary/Lua/LuaSetup.lua");
+					lua.Call(lua.LoadFile(luaPath), Path.GetDirectoryName(luaPath));
+				}
+				catch (Exception e)
+				{
+					HandleLuaException(e);
+				}
+			}
 			else
+			{
 				PrintError("Lua loader not found! Lua/LuaSetup.lua, no Lua scripts will be executed or work.");
+			}
 		}
 
 		public LuaSetup()

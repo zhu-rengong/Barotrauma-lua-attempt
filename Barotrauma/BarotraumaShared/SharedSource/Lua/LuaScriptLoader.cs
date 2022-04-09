@@ -21,67 +21,17 @@ namespace Barotrauma
 
 			public override object LoadFile(string file, Table globalContext)
 			{
+				if (!LuaFile.IsPathAllowedLuaException(file, false)) return null;
+
 				return File.ReadAllText(file);
 			}
 
 			public override bool ScriptFileExists(string file)
 			{
+				if (!LuaFile.IsPathAllowedLuaException(file, false)) return false;
+
 				return File.Exists(file);
 			}
-
-			public void RunFolder(string folder)
-			{
-				foreach (var str in DirSearch(folder))
-				{
-					var s = str.Replace("\\", "/");
-
-					if (s.EndsWith(".lua"))
-					{
-						lua.PrintMessage(s);
-
-						try
-						{
-							lua.DoFile(s);
-						}
-						catch (Exception e)
-						{
-							lua.HandleLuaException(e);
-						}
-					}
-
-				}
-			}
-
-			static string[] DirSearch(string sDir)
-			{
-				List<string> files = new List<string>();
-
-				try
-				{
-					foreach (string f in Directory.GetFiles(sDir))
-					{
-						files.Add(f);
-					}
-
-					foreach (string d in Directory.GetDirectories(sDir))
-					{
-						foreach (string f in Directory.GetFiles(d))
-						{
-							files.Add(f);
-						}
-						DirSearch(d);
-					}
-				}
-				catch (System.Exception excpt)
-				{
-					Console.WriteLine(excpt.Message);
-				}
-
-				return files.ToArray();
-			}
-
-
-
 
 		}
 	}

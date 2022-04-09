@@ -1272,6 +1272,8 @@ namespace Barotrauma.Networking
             {
                 GameMain.NetLobbyScreen.ChatInput.Enabled = true;
             }
+
+            GameMain.Lua.Initialize();
         }
         
         private IEnumerable<CoroutineStatus> WaitInServerQueue()

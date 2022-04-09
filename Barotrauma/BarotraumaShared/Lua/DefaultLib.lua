@@ -48,6 +48,10 @@ defaultLib["ClientPermissions"] = CreateEnum("Barotrauma.Networking.ClientPermis
 defaultLib["InputType"] = CreateStatic("Barotrauma.InputType")
 
 
+defaultLib["ContentPackageManager"] = CreateStatic("Barotrauma.ContentPackageManager")
+defaultLib["GameSettings"] = CreateStatic("Barotrauma.GameSettings")
+defaultLib["Identifier"] = CreateStatic("Barotrauma.Identifier", true)
+defaultLib["ContentPackage"] = CreateStatic("Barotrauma.ContentPackage", true)
 defaultLib["WayPoint"] = CreateStatic("Barotrauma.WayPoint", true)
 defaultLib["Submarine"] = CreateStatic("Barotrauma.Submarine", true)
 defaultLib["Client"] = CreateStatic("Barotrauma.Networking.Client", true)
@@ -63,7 +67,6 @@ defaultLib["AfflictionPrefab"] = CreateStatic("Barotrauma.AfflictionPrefab", tru
 defaultLib["ChatMessage"] = CreateStatic("Barotrauma.Networking.ChatMessage")
 defaultLib["Hull"] = CreateStatic("Barotrauma.Hull", true)
 defaultLib["Gap"] = CreateStatic("Barotrauma.Gap", true)
-defaultLib["ContentPackage"] = CreateStatic("Barotrauma.ContentPackage", true)
 defaultLib["Signal"] = CreateStatic("Barotrauma.Items.Components.Signal", true)
 defaultLib["SubmarineInfo"] = CreateStatic("Barotrauma.SubmarineInfo", true)
 defaultLib["Entity"] = CreateStatic("Barotrauma.Entity", true)

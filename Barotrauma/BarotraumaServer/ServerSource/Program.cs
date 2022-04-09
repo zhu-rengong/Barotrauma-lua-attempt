@@ -68,10 +68,10 @@ namespace Barotrauma
             }
 
             string executableDir = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
-            Directory.SetCurrentDirectory(executableDir);
-
-            if (File.Exists("filelist.xml"))
-                Directory.SetCurrentDirectory(executableDir + "/../.."); // sweet
+            if (!File.Exists(Path.Combine(executableDir, "workshop.txt")))
+            {
+                Directory.SetCurrentDirectory(executableDir);
+            }
 
             Game = new GameMain(args);
 

@@ -1,6 +1,8 @@
 -- Config
-local runDisabledMods = false
-local modulePaths = {"Lua/?.lua", "Mods/LuaForBarotrauma/Lua/?.lua"}
+
+local path = table.pack(...)[1]
+
+local modulePaths = {path .. "/?.lua"}
 setmodulepaths(modulePaths)
 
 -- Setup Libraries
@@ -21,19 +23,7 @@ require("DefaultHook")
 
 -- Execute Mods
 
-if SERVER and Game.IsDedicated then
-    runDisabledMods = true
-
-    print("LUA LOADER: Dedicated server detected, loading mods regardless being disabled.")
-end
-
-if runDisabledMods then 
-    print("LUA LOADER: Mods will be executed regardless being enabled or not. Lua/LuaSetup.lua")
-else
-    print("LUA LOADER: Only enabled mods will be executed. Lua/LuaSetup.lua")
-end
-
-local enabledPackages = Game.GameSettings.AllEnabledPackages
+local enabledPackages = ContentPackageManager.EnabledPackages.All
 
 local function endsWith(str, suffix)
     return str:sub(-string.len(suffix)) == suffix
@@ -57,43 +47,20 @@ local function runFolder(folder)
 end
 
 if SERVER then
+    
+    for package in enabledPackages do
+        if package then
+            local d = package.Path:gsub("\\", "/")
+            d = d:gsub("/filelist.xml", "")
 
-    if not runDisabledMods then
-    
-        for package in enabledPackages do
-            if package then
-                local d = package.path:gsub("\\", "/")
-                d = d:gsub("/filelist.xml", "")
-    
-                table.insert(modulePaths, (d .. "/Lua/?.lua"))
-    
-                if File.DirectoryExists(d .. "/Lua/Autorun") then
-                    runFolder(d .. "/Lua/Autorun")
-                end
-            end
-        end
-    
-    else
-        for _, d in pairs(File.GetDirectories("Mods")) do
-            d = d:gsub("\\", "/")
-        
             table.insert(modulePaths, (d .. "/Lua/?.lua"))
-        
+
             if File.DirectoryExists(d .. "/Lua/Autorun") then
                 runFolder(d .. "/Lua/Autorun")
             end
         end
     end
     
-end
-
-for _, d in pairs(File.GetDirectories("Mods")) do
-    d = d:gsub("\\", "/")
-
-    if File.DirectoryExists(d .. "/Lua/ForcedAutorun") then
-        table.insert(modulePaths, (d .. "/Lua/?.lua"))
-        runFolder(d .. "/Lua/ForcedAutorun")
-    end
 end
 
 setmodulepaths(modulePaths)

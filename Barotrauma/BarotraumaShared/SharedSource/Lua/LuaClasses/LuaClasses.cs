@@ -51,43 +51,93 @@ namespace Barotrauma
 
 	partial class LuaFile
 	{
-		// TODO: SANDBOXING
-
-		public static bool IsPathAllowed(string path)
+		public static bool CanReadFromPath(string path)
 		{
-			path = Path.GetFullPath(path).CleanUpPath();
+			string getFullPath(string p) => System.IO.Path.GetFullPath(p).CleanUpPath();
 
-			if (path.StartsWith(Path.GetFullPath("Mods").CleanUpPath()))
+			path = getFullPath(path);
+
+			bool pathStartsWith(string prefix) => path.StartsWith(prefix, StringComparison.OrdinalIgnoreCase);
+
+			string localModsDir = getFullPath(ContentPackage.LocalModsDir);
+			string workshopModsDir = getFullPath(ContentPackage.WorkshopModsDir);
+#if CLIENT
+            string tempDownloadDir = getFullPath(ModReceiver.DownloadFolder);
+#endif
+
+
+			if (pathStartsWith(localModsDir))
 				return true;
 
-			if (path.StartsWith(Path.GetFullPath("Submarines").CleanUpPath()))
+			if (pathStartsWith(workshopModsDir))
 				return true;
 
-			if (path.StartsWith(Path.GetFullPath("Data").CleanUpPath()))
+#if CLIENT
+			if (pathStartsWith(tempDownloadDir))
 				return true;
+#endif
 
-			if (path.StartsWith(Path.GetFullPath("Lua").CleanUpPath()))
-				return true;
-
-			if (path.StartsWith(Path.GetFullPath("Content").CleanUpPath()))
+			if (pathStartsWith(getFullPath(".")))
 				return true;
 
 			return false;
 		}
 
-		public static bool IsPathAllowedLuaException(string path)
+		public static bool CanWriteToPath(string path)
 		{
-			if (IsPathAllowed(path))
+			string getFullPath(string p) => System.IO.Path.GetFullPath(p).CleanUpPath();
+
+			path = getFullPath(path);
+
+			bool pathStartsWith(string prefix) => path.StartsWith(prefix, StringComparison.OrdinalIgnoreCase);
+
+
+			if (pathStartsWith(getFullPath(ContentPackage.LocalModsDir + "LuaForBarotraumaUnstable")))
+				return false;
+
+			if (pathStartsWith(getFullPath(ContentPackage.WorkshopModsDir + "LuaForBarotraumaUnstable")))
+				return false;
+#if CLIENT
+			if (pathStartsWith(getFullPath(ModReceiver.DownloadFolder + "LuaForBarotraumaUnstable")))
+				return false;
+#endif
+
+			if (pathStartsWith(getFullPath(ContentPackage.LocalModsDir)))
 				return true;
-			else
-				GameMain.Lua.HandleLuaException(new Exception("File access to \"" + path + "\" not allowed."));
+
+			if (pathStartsWith(getFullPath(ContentPackage.WorkshopModsDir)))
+				return true;
+#if CLIENT
+			if (pathStartsWith(getFullPath(ModReceiver.DownloadFolder)))
+				return true;
+#endif
+
+			return false;
+		}
+
+		public static bool IsPathAllowedLuaException(string path, bool write = true)
+		{
+			if (write)
+			{
+				if (CanWriteToPath(path))
+					return true;
+				else
+					GameMain.Lua.HandleLuaException(new Exception("File access to \"" + path + "\" not allowed."));
+            }
+            else
+            {
+				if (CanReadFromPath(path))
+					return true;
+				else
+					GameMain.Lua.HandleLuaException(new Exception("File access to \"" + path + "\" not allowed."));
+			}
 
 			return false;
 		}
 
 		public static string Read(string path)
 		{
-			if (!IsPathAllowedLuaException(path))
+			if (!IsPathAllowedLuaException(path, false))
 				return "";
 
 			return File.ReadAllText(path);
@@ -103,7 +153,7 @@ namespace Barotrauma
 
 		public static bool Exists(string path)
 		{
-			if (!IsPathAllowedLuaException(path))
+			if (!IsPathAllowedLuaException(path, false))
 				return false;
 
 			return File.Exists(path);
@@ -121,7 +171,7 @@ namespace Barotrauma
 
 		public static bool DirectoryExists(string path)
 		{
-			if (!IsPathAllowedLuaException(path))
+			if (!IsPathAllowedLuaException(path, false))
 				return false;
 
 			return Directory.Exists(path);
@@ -129,12 +179,15 @@ namespace Barotrauma
 
 		public static string[] GetFiles(string path)
 		{
+			if (!IsPathAllowedLuaException(path, false))
+				return null;
+
 			return Directory.GetFiles(path);
 		}
 
 		public static string[] GetDirectories(string path)
 		{
-			if (!IsPathAllowedLuaException(path))
+			if (!IsPathAllowedLuaException(path, false))
 				return new string[] { };
 
 			return Directory.GetDirectories(path);
@@ -142,7 +195,7 @@ namespace Barotrauma
 
 		public static string[] DirSearch(string sDir)
 		{
-			if (!IsPathAllowedLuaException(sDir))
+			if (!IsPathAllowedLuaException(sDir, false))
 				return new string[] { };
 
 			List<string> files = new List<string>();
