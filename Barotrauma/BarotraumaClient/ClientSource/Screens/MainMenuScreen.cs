@@ -523,6 +523,8 @@ namespace Barotrauma
         #region Selection
         public override void Select()
         {
+            GameMain.Lua.Stop();
+
             if (WorkshopItemsToUpdate.Any())
             {
                 while (WorkshopItemsToUpdate.TryDequeue(out ulong workshopId))

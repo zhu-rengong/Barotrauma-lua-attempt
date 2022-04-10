@@ -51,8 +51,11 @@ local function runFolder(folder, rootFolder, package)
         local s = search[i]:gsub("\\", "/")
 
         if endsWith(s, ".lua") then
-            executeProtected(s, rootFolder)
             print(string.format("%s: Executing %s", package.Name, getFileName(s)))
+            local ok, result = pcall(executeProtected, s, rootFolder)
+            if not ok then
+                printerror(result)
+            end
         end
 
     end
@@ -102,7 +105,6 @@ for package in allPackages do
         end
     end
 end
-
 
 setmodulepaths(modulePaths)
 

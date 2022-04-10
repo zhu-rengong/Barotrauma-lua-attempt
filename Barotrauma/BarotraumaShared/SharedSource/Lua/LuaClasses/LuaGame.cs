@@ -211,6 +211,11 @@ namespace Barotrauma
 			return error;
 		}
 
+		public static ContentPackage[] GetEnabledContentPackages()
+        {
+			return ContentPackageManager.EnabledPackages.All.ToArray();
+        }
+
 		public static ItemPrefab GetItemPrefab(string itemNameOrId)
 		{
 			ItemPrefab itemPrefab =
