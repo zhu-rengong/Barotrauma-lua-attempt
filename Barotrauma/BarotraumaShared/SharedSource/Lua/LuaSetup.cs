@@ -26,17 +26,23 @@ namespace Barotrauma
 
 		public static ContentPackage GetLuaPackage()
 		{
-			ContentPackage luaPackage = null;
-
-			foreach (ContentPackage package in ContentPackageManager.EnabledPackages.All)
+			foreach (ContentPackage package in ContentPackageManager.LocalPackages)
 			{
 				if (package.NameMatches(new Identifier("LuaForBarotraumaUnstable")))
 				{
-					luaPackage = package;
+					return package;
 				}
 			}
 
-			return luaPackage;
+			foreach (ContentPackage package in ContentPackageManager.AllPackages)
+			{
+				if (package.NameMatches(new Identifier("LuaForBarotraumaUnstable")))
+				{
+					return package;
+				}
+			}
+
+			return null;
 		}
 
 		public void HandleLuaException(Exception ex, string extra = "")
