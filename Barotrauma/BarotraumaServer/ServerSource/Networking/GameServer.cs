@@ -1798,6 +1798,8 @@ namespace Barotrauma.Networking
             outmsg.Write((byte)ServerNetObject.CLIENT_LIST);
             outmsg.Write(LastClientListUpdateID);
 
+            GameMain.Lua.hook.Call("writeClientList", c, outmsg);
+
             outmsg.Write((byte)connectedClients.Count);
             foreach (Client client in connectedClients)
             {
