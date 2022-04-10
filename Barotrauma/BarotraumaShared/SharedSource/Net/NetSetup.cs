@@ -12,12 +12,13 @@ using System.Runtime.CompilerServices;
 
 namespace Barotrauma
 {
-    partial class NetSetup
+    partial class NetSetup : IDisposable
     {
         public NetScriptLoader Loader { get; private set; }
         public Harmony harmony;
         public LuaHook hook;
         public NetSetup() => Initialize();
+        public void Dispose() => Stop();
 
         public void Reload()
         {
@@ -29,44 +30,7 @@ namespace Barotrauma
         {
             hook = new LuaHook();
             Loader = new NetScriptLoader(this);
-            Loader.SearchFolders();
-
-            //var baseType = typeof(CSharpSyntaxNode);
-            //var typeDict = new Dictionary<Type, object>() { { baseType, new Dictionary<Type, object>() }  };
-            //var sytaxTypes = AppDomain.CurrentDomain
-            //    .GetAssemblies()
-            //    .Where(a => !(a.IsDynamic || string.IsNullOrEmpty(a.Location) || a.Location.Contains("xunit")))
-            //    .Select(a => a.GetTypes().Where(t => t.IsSubclassOf(baseType)))
-            //    .Aggregate((t1, t2) => t1.Concat(t2))
-            //    .ToList();
-
-            //var q = new Queue<(Type, Dictionary<Type, object>)>();
-            //q.Enqueue((baseType, typeDict[baseType] as Dictionary<Type, object>));
-            //while (q.Count > 0)
-            //{
-            //    var entry = q.Dequeue();
-            //    var type = entry.Item1;
-            //    var dict = entry.Item2;
-
-            //    sytaxTypes.Where(t => t.BaseType == type).ToList().ForEach(t =>
-            //    {
-            //        var newDict = new Dictionary<Type, object>();
-            //        dict.Add(t, newDict);
-            //        q.Enqueue((t, newDict));
-            //    });
-            //}
-
-            //Action<int, KeyValuePair<Type, object>> rprint = null;
-            //rprint = (indent, kv) =>
-            //{
-            //    string idnt = "";
-            //    for (int i = 0; i < indent - 1; i++) idnt += "│ ";
-            //    if (indent > 0) idnt += "├─";
-            //    Console.WriteLine(idnt + kv.Key.Name);
-            //    foreach (var _kv in kv.Value as Dictionary<Type, object>)
-            //        rprint(indent + 1, _kv);
-            //};
-            //foreach (var kv in typeDict) rprint(0, kv);
+            Loader.SearchFolders(); 
         }
         public void Execute()
         {
@@ -83,23 +47,22 @@ namespace Barotrauma
         }
         public void Stop()
         {
+            ANetMod.LoadedMods.ForEach(m => m.Dispose());
+            ANetMod.LoadedMods.Clear();
+            Loader.Unload();
+
             harmony?.UnpatchAll();
             hook?.Call("stop", new object[] { });
 
             hook = null;
             Loader = null;
-
-            ANetMod.LoadedMods.ForEach(m => m.Dispose());
-            ANetMod.LoadedMods.Clear();
-            Loader.Unload();
         }
 
         public void Update()
         {
             hook?.Update();
+            ANetMod.LoadedMods.ForEach(m => m.Update());
         }
-
-        private static bool wasPublicized = false;
 
         public static void PrintMessage(object message)
         {
@@ -129,6 +92,11 @@ namespace Barotrauma
 #else
             DebugConsole.NewMessage(message.ToString(), Color.Purple);
 #endif
+        }
+
+        public void HandleException(Exception ex, string? info)
+        {
+            throw new NotImplementedException();
         }
     }
 }

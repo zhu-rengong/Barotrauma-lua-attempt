@@ -437,6 +437,7 @@ namespace Barotrauma
         public void Exit()
         {
             ShouldRun = false;
+            GameMain.Net.Stop();
         }
     }
 }

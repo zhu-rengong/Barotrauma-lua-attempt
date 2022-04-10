@@ -15,8 +15,12 @@ namespace Barotrauma
             LoadedMods.Add(this);
         }
 
-        public abstract void Dispose();
+        /// Error or client exit
+        public virtual void Dispose() {
+            LoadedMods.Remove(this);
+        }
 
         // TODO: some hooks
+        public virtual void Update() { }
     }
 }
