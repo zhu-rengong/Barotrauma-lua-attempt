@@ -8,7 +8,13 @@ local CreateStatic = function (typeName, addCallMethod)
 	if addCallMethod then
 		debug.setmetatable(staticUserdata, {
 			__call = function(obj, ...) 
-				return staticUserdata.__new(...)
+				local success, result = pcall(staticUserdata.__new, ...)
+
+				if not success then
+					error(result, 2)
+				end
+
+				return result
 			end
 		})
 	end
@@ -50,13 +56,16 @@ defaultLib["InputType"] = CreateStatic("Barotrauma.InputType")
 
 defaultLib["ContentPackageManager"] = CreateStatic("Barotrauma.ContentPackageManager")
 defaultLib["GameSettings"] = CreateStatic("Barotrauma.GameSettings")
+defaultLib["RichString"] = CreateStatic("Barotrauma.RichString", true)
 defaultLib["Identifier"] = CreateStatic("Barotrauma.Identifier", true)
 defaultLib["ContentPackage"] = CreateStatic("Barotrauma.ContentPackage", true)
 defaultLib["WayPoint"] = CreateStatic("Barotrauma.WayPoint", true)
 defaultLib["Submarine"] = CreateStatic("Barotrauma.Submarine", true)
 defaultLib["Client"] = CreateStatic("Barotrauma.Networking.Client", true)
 defaultLib["Character"] = CreateStatic("Barotrauma.Character")
+defaultLib["CharacterPrefab"] = CreateStatic("Barotrauma.CharacterPrefab")
 defaultLib["CharacterInfo"] = CreateStatic("Barotrauma.CharacterInfo", true)
+defaultLib["CharacterInfoPrefab"] = CreateStatic("Barotrauma.CharacterInfoPrefab")
 defaultLib["Item"] = CreateStatic("Barotrauma.Item", true)
 defaultLib["ItemPrefab"] = CreateStatic("Barotrauma.ItemPrefab", true)
 defaultLib["FactionPrefab"] = CreateStatic("Barotrauma.FactionPrefab", true)
@@ -131,6 +140,7 @@ elseif CLIENT then
 
 	defaultLib["GUI"] = {
 		GUI = CreateStatic("Barotrauma.GUI", true),
+		GUIStyle = CreateStatic("Barotrauma.GUIStyle", true),
 		RectTransform = CreateStatic("Barotrauma.RectTransform", true),
 		LayoutGroup = CreateStatic("Barotrauma.GUILayoutGroup", true),
 		Button = CreateStatic("Barotrauma.GUIButton", true),

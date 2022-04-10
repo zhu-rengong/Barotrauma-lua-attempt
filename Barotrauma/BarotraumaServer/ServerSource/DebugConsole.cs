@@ -1277,24 +1277,25 @@ namespace Barotrauma
                     {
                         "Barotrauma.dll", "Barotrauma.deps.json",
                         "0harmony.dll", "Mono.Cecil.dll",
-                        "Mono.Cecil.Mdb.dll", "Mono.Cecil.Pdb",
-                        "Mono.Cecil.Rocks", "MonoMod.Common.dll",
+                        "Mono.Cecil.Mdb.dll", "Mono.Cecil.Pdb.dll",
+                        "Mono.Cecil.Rocks.dll", "MonoMod.Common.dll",
                         "MoonSharp.Interpreter.dll",
-                        "mscordaccore_amd64_amd64_4.700.22.11601",
+                        "mscordaccore_amd64_amd64_4.700.22.11601.dll",
                     };
-
 
                     File.Move("Barotrauma.dll", "Barotrauma.dll.old", true);
                     File.Move("Barotrauma.deps.json", "Barotrauma.deps.json.old", true);
 
                     foreach (string file in filesToMove)
                     {
-                        File.Move(Path.Combine(path, "Binary", file), file, true);
+                        File.Copy(Path.Combine(path, "Binary", file), file, true);
                     }
                 }
                 catch (Exception e)
                 {
-                    GameMain.Lua.PrintError("You seem to already have Client Side Lua installed, if you are trying to reinstall, make sure uninstall it first (mainmenu button located top left).");
+                    // GameMain.Lua.PrintError("You seem to already have Client Side Lua installed, if you are trying to reinstall, make sure uninstall it first (mainmenu button located top left).");
+
+                    GameMain.Lua.HandleLuaException(e);
 
                     return;
                 }
