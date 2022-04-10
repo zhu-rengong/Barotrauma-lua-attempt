@@ -24,9 +24,19 @@ namespace Barotrauma
 
 		public LuaScriptLoader luaScriptLoader;
 
-		public void Update()
+		public static ContentPackage GetLuaPackage()
 		{
-			hook?.Update();
+			ContentPackage luaPackage = null;
+
+			foreach (ContentPackage package in ContentPackageManager.EnabledPackages.All)
+			{
+				if (package.NameMatches(new Identifier("LuaForBarotraumaUnstable")))
+				{
+					luaPackage = package;
+				}
+			}
+
+			return luaPackage;
 		}
 
 		public void HandleLuaException(Exception ex, string extra = "")
@@ -218,6 +228,11 @@ namespace Barotrauma
 			luaScriptLoader.ModulePaths = str;
 		}
 
+		public void Update()
+		{
+			hook?.Update();
+		}
+
 		public void Stop()
 		{
 			harmony?.UnpatchAll();
@@ -290,15 +305,7 @@ namespace Barotrauma
 
 			// LuaDocs.GenerateDocsAll();
 
-			ContentPackage luaPackage = null;
-
-			foreach (ContentPackage package in ContentPackageManager.AllPackages)
-			{
-				if (package.NameMatches(new Identifier("LuaForBarotraumaUnstable")))
-				{
-					luaPackage = package;
-				}
-			}
+			ContentPackage luaPackage = GetLuaPackage();
 
 			if (File.Exists(LUA_PATH))
 			{
