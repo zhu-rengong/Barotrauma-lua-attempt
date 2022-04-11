@@ -67,7 +67,7 @@ namespace Barotrauma
             {
                 OnClicked = (guiButton, o) =>
                 {
-                    GameMain.Client.Disconnect();
+                    GameMain.Client?.Disconnect();
                     GameMain.MainMenuScreen.Select();
                     return false;
                 }
@@ -153,7 +153,7 @@ namespace Barotrauma
             buttonContainerSpacing(0.2f);
             button(TextManager.Get("No"), () =>
             {
-                GameMain.Client.Disconnect();
+                GameMain.Client?.Disconnect();
                 GameMain.MainMenuScreen.Select();
             });
             buttonContainerSpacing(0.1f);
@@ -170,11 +170,14 @@ namespace Barotrauma
                 buttonContainerSpacing(0.15f);
                 button(TextManager.Get("SubscribeToAllOnWorkshop"), () =>
                 {
-                    BulkDownloader.SubscribeToServerMods(missingIds,
-                        rejoinEndpoint: GameMain.Client.ClientPeer.ServerConnection.EndPointString,
-                        rejoinLobby: SteamManager.CurrentLobbyID,
-                        rejoinServerName: GameMain.NetLobbyScreen.ServerName.Text);
-                    GameMain.Client.Disconnect();
+                    if (GameMain.Client != null)
+                    {
+                        BulkDownloader.SubscribeToServerMods(missingIds,
+                            rejoinEndpoint: GameMain.Client.ClientPeer.ServerConnection.EndPointString,
+                            rejoinLobby: SteamManager.CurrentLobbyID,
+                            rejoinServerName: GameMain.NetLobbyScreen.ServerName.Text);
+                        GameMain.Client.Disconnect();
+                    }
                     GameMain.MainMenuScreen.Select();
                 }, width: 0.7f);
                 buttonContainerSpacing(0.15f);
