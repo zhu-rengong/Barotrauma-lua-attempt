@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
@@ -8,22 +8,26 @@ using Microsoft.Xna.Framework;
 using MoonSharp.Interpreter.Interop;
 using System.IO.Compression;
 using HarmonyLib;
+using static Barotrauma.LuaCsSetup;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("NetScriptAssembly", AllInternalsVisible = true)]
 namespace Barotrauma
 {
-	partial class LuaSetup
+	partial class LuaCsSetup
 	{
 		public const string LUASETUP_FILE = "Lua/LuaSetup.lua";
 		public const string VERSION_FILE = "luacsversion.txt";
 
 		public Script lua;
 
-		public LuaHook hook;
+		public LuaCsHook hook;
 		public LuaGame game;
 		public LuaNetworking networking;
 		public Harmony harmony;
 
 		public LuaScriptLoader luaScriptLoader;
+		public NetScriptLoader netScriptLoader;
 
 		public static ContentPackage GetPackage()
 		{
@@ -64,9 +68,9 @@ namespace Barotrauma
 			}
 		}
 
-		public void PrintError(object message)
-		{
-			if (message == null) { message = "nil"; }
+		private static void PrintErrorBase(string prefix, object message, string empty)
+        {
+			if (message == null) { message = empty; }
 			string str = message.ToString();
 
 			for (int i = 0; i < str.Length; i += 1024)
@@ -74,12 +78,7 @@ namespace Barotrauma
 				string subStr = str.Substring(i, Math.Min(1024, str.Length - i));
 
 				string errorMsg = subStr;
-				if (i == 0)
-#if SERVER
-					errorMsg = "[SV LUA ERROR] " + errorMsg;
-#else
-					errorMsg = "[CL LUA ERROR] " + errorMsg;
-#endif
+				if (i == 0) errorMsg = prefix + errorMsg;
 
 				DebugConsole.ThrowError(errorMsg);
 
@@ -97,9 +96,17 @@ namespace Barotrauma
 			}
 		}
 
-		public void PrintMessage(object message)
-		{
-			if (message == null) { message = "nil"; }
+#if SERVER
+		private void PrintError(object message) => PrintErrorBase("[SV LUA ERROR] ", message, "nil");
+		public static void PrintCsError(object message) => PrintErrorBase("[SV CS ERROR] ", message, "Null");
+#else
+		private void PrintError(object message) => PrintErrorBase("[CL LUA ERROR] ", message, "nil");
+		public static void PrintCsError(object message) => PrintErrorBase("[CL CS ERROR] ", message, "Null");
+#endif
+
+		private static void PrintMessageBase(string prefix, object message, string empty)
+        {
+			if (message == null) { message = empty; }
 			string str = message.ToString();
 
 			for (int i = 0; i < str.Length; i += 1024)
@@ -115,7 +122,7 @@ namespace Barotrauma
 						GameMain.Server.SendDirectChatMessage(ChatMessage.Create("", subStr, ChatMessageType.Console, null, textColor: Color.MediumPurple), c);
 					}
 
-					GameServer.Log("[LUA] " + subStr, ServerLog.MessageType.ServerMessage);
+					GameServer.Log(prefix + subStr, ServerLog.MessageType.ServerMessage);
 				}
 #endif
 			}
@@ -126,6 +133,8 @@ namespace Barotrauma
 			DebugConsole.NewMessage(message.ToString(), Color.Purple);
 #endif
 		}
+		private void PrintMessage(object message) => PrintMessageBase("[LUA] ", message, "nil");
+		public static void PrintCsMessage(object message) => PrintMessageBase("[CS] ", message, "Null");
 
 		public DynValue DoString(string code, Table globalContext = null, string codeStringFriendly = null)
 		{
@@ -242,25 +251,44 @@ namespace Barotrauma
 
 		public void Stop()
 		{
-			harmony?.UnpatchAll();
+			ANetMod.LoadedMods.ForEach(m => m.Dispose());
+			ANetMod.LoadedMods.Clear();
+			hook?.Call("stop");
 
 			game?.Stop();
-			hook?.Call("stop", new object[] { });
+			harmony?.UnpatchAll();
 
-			hook = new LuaHook();
+			hook = new LuaCsHook();
 			game = new LuaGame();
 			networking = new LuaNetworking();
 			luaScriptLoader = null;
+		}
+
+		private void InitCs()
+        {
+			netScriptLoader = new NetScriptLoader(this);
+			netScriptLoader.SearchFolders();
+			if (netScriptLoader == null) throw new Exception("LuaCsSetup was not properly initialized.");
+			try
+			{
+				var modTypes = netScriptLoader.Compile();
+				modTypes.ForEach(t => t.GetConstructor(new Type[] { }).Invoke(null));
+			}
+			catch (Exception ex)
+			{
+				PrintMessage(ex);
+			}
 		}
 
 		public void Initialize()
 		{
 			Stop();
 
-			PrintMessage("Lua! Version " + AssemblyInfo.GitRevision);
+			PrintMessage("LuaCs! Version " + AssemblyInfo.GitRevision);
 
 			luaScriptLoader = new LuaScriptLoader();
 			luaScriptLoader.ModulePaths = new string[] { };
+			InitCs();
 
 			LuaCustomConverters.RegisterAll();
 
@@ -271,11 +299,11 @@ namespace Barotrauma
 			harmony = new Harmony("com.LuaForBarotrauma");
 			harmony.UnpatchAll();
 
-			hook = new LuaHook();
+			hook = new LuaCsHook();
 			game = new LuaGame();
 			networking = new LuaNetworking();
 
-			UserData.RegisterType<LuaHook>();
+			UserData.RegisterType<LuaCsHook>();
 			UserData.RegisterType<LuaGame>();
 			UserData.RegisterType<LuaTimer>();
 			UserData.RegisterType<LuaFile>();
@@ -333,7 +361,7 @@ namespace Barotrauma
 
 				try
 				{
-					string luaPath = Path.Combine(path, "Binary/Lua/LuaSetup.lua");
+					string luaPath = Path.Combine(path, "Binary/LuaCs/LuaCsSetup.lua");
 					lua.Call(lua.LoadFile(luaPath), Path.GetDirectoryName(luaPath));
 				}
 				catch (Exception e)
@@ -343,13 +371,13 @@ namespace Barotrauma
 			}
 			else
 			{
-				PrintError("Lua loader not found! Lua/LuaSetup.lua, no Lua scripts will be executed or work.");
+				PrintError("LuaCs loader not found! LuaCs/LuaCsSetup.lua, no LuaCs scripts will be executed or work.");
 			}
 		}
 
-		public LuaSetup()
+		public LuaCsSetup()
 		{
-			hook = new LuaHook();
+			hook = new LuaCsHook();
 			game = new LuaGame();
 			networking = new LuaNetworking();
 		}

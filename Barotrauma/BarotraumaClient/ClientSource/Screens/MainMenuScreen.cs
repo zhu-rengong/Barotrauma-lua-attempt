@@ -386,11 +386,11 @@ namespace Barotrauma
 #endif
 
             new GUIButton(new RectTransform(new Point(300, 30), Frame.RectTransform, Anchor.TopLeft) { AbsoluteOffset = new Point(20, 50) },
-    "Remove Client-Side Lua", style: "MainMenuGUIButton", color: GUIStyle.Red)
+    "Remove Client-Side LuaCs", style: "MainMenuGUIButton", color: GUIStyle.Red)
             {
                 IgnoreLayoutGroups = true,
                 UserData = Tab.Empty,
-                ToolTip = "Remove Client-Side Lua.",
+                ToolTip = "Remove Client-Side LuaCs.",
                 OnClicked = (tb, userdata) =>
                 {
 					if (!File.Exists("Barotrauma.dll.old"))
@@ -407,7 +407,7 @@ namespace Barotrauma
                         return false;
                     }
 
-                    var msg = new GUIMessageBox("Confirm", "Are you sure you want to remove Client-Side Lua?", new LocalizedString[2] { TextManager.Get("Yes"), TextManager.Get("Cancel") });
+                    var msg = new GUIMessageBox("Confirm", "Are you sure you want to remove Client-Side LuaCs?", new LocalizedString[2] { TextManager.Get("Yes"), TextManager.Get("Cancel") });
 
                     msg.Buttons[0].OnClicked = (GUIButton button, object obj) =>
                     {
@@ -1118,7 +1118,7 @@ namespace Barotrauma
             }
             ((SinglePlayerCampaign)GameMain.GameSession.GameMode).LoadNewLevel();
 
-            GameMain.Lua.Initialize();
+            GameMain.LuaCs.Initialize();
         }
 
         private void LoadGame(string saveFile)
@@ -1138,7 +1138,7 @@ namespace Barotrauma
             //TODO
             //GameMain.LobbyScreen.Select();
 
-            GameMain.Lua.Initialize();
+            GameMain.LuaCs.Initialize();
         }
 
 #region UI Methods

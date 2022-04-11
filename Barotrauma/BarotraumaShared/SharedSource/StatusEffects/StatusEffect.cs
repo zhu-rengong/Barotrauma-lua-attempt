@@ -1201,7 +1201,7 @@ namespace Barotrauma
             {
                 if (entity is Item item)
                 {
-                    var result = new LuaResult(GameMain.Lua.hook.Call("statusEffect.apply." + item.Prefab.Identifier, this, deltaTime, entity, targets, worldPosition));
+                    var result = new LuaResult(GameMain.LuaCs.hook.Call("statusEffect.apply." + item.Prefab.Identifier, this, deltaTime, entity, targets, worldPosition));
 
                     if (result.Bool())
                         return;
@@ -1209,7 +1209,7 @@ namespace Barotrauma
 
                 if (entity is Character character)
                 {
-                    var result = new LuaResult(GameMain.Lua.hook.Call("statusEffect.apply." + character.SpeciesName, this, deltaTime, entity, targets, worldPosition));
+                    var result = new LuaResult(GameMain.LuaCs.hook.Call("statusEffect.apply." + character.SpeciesName, this, deltaTime, entity, targets, worldPosition));
 
                     if (result.Bool())
                         return;
@@ -1218,7 +1218,7 @@ namespace Barotrauma
 
             foreach (string luaHooks in luaHook)
             {
-                var result = new LuaResult(GameMain.Lua.hook.Call(luaHooks, this, deltaTime, entity, targets, worldPosition));
+                var result = new LuaResult(GameMain.LuaCs.hook.Call(luaHooks, this, deltaTime, entity, targets, worldPosition));
 
                 if (result.Bool())
                     return;

@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Barotrauma
 {
-	partial class LuaSetup {
+	partial class LuaCsSetup {
 
 		public class LuaScriptLoader : ScriptLoaderBase
 		{

@@ -206,7 +206,7 @@ namespace Barotrauma.Networking
 
         protected void UpdatePendingClient(PendingClient pendingClient)
         {
-            var result = new LuaResult(GameMain.Lua.hook.Call("handlePendingClient", pendingClient));
+            var result = new LuaResult(GameMain.LuaCs.hook.Call("handlePendingClient", pendingClient));
 
             if (result.Bool())
                 goto ignore;

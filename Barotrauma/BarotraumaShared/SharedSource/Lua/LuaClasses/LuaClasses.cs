@@ -31,7 +31,7 @@ namespace Barotrauma
 
 		public void Wait(object function, int millisecondDelay)
 		{
-			GameMain.Lua.hook.EnqueueTimedFunction((float)Timing.TotalTime + (millisecondDelay / 1000f), function);
+			GameMain.LuaCs.hook.EnqueueTimedFunction((float)Timing.TotalTime + (millisecondDelay / 1000f), function);
 		}
 
 		public static double GetTime()
@@ -122,14 +122,14 @@ namespace Barotrauma
 				if (CanWriteToPath(path))
 					return true;
 				else
-					GameMain.Lua.HandleLuaException(new Exception("File access to \"" + path + "\" not allowed."));
+					GameMain.LuaCs.HandleLuaException(new Exception("File access to \"" + path + "\" not allowed."));
             }
             else
             {
 				if (CanReadFromPath(path))
 					return true;
 				else
-					GameMain.Lua.HandleLuaException(new Exception("File access to \"" + path + "\" not allowed."));
+					GameMain.LuaCs.HandleLuaException(new Exception("File access to \"" + path + "\" not allowed."));
 			}
 
 			return false;
@@ -239,29 +239,29 @@ namespace Barotrauma
 			{
 				string netMessageName = netMessage.ReadString();
 				if (LuaNetReceives[netMessageName] is Closure)
-					GameMain.Lua.CallFunction(LuaNetReceives[netMessageName], new object[] { netMessage, client });
+					GameMain.LuaCs.CallFunction(LuaNetReceives[netMessageName], new object[] { netMessage, client });
 			}
 			else
 			{
-				GameMain.Lua.hook.Call("netMessageReceived", netMessage, header, client);
+				GameMain.LuaCs.hook.Call("netMessageReceived", netMessage, header, client);
 			}
 		}
 
 #else
-			[MoonSharpHidden]
-			public void NetMessageReceived(IReadMessage netMessage, ServerPacketHeader header, Client client = null)
+		[MoonSharpHidden]
+		public void NetMessageReceived(IReadMessage netMessage, ServerPacketHeader header, Client client = null)
+		{
+			if (header == ServerPacketHeader.LUA_NET_MESSAGE)
 			{
-				if (header == ServerPacketHeader.LUA_NET_MESSAGE)
-				{
-					string netMessageName = netMessage.ReadString();
-					if (LuaNetReceives[netMessageName] is Closure)
-					GameMain.Lua.lua.Call(LuaNetReceives[netMessageName], new object[] { netMessage, client });
-				}
-				else
-				{
-					GameMain.Lua.hook.Call("netMessageReceived", netMessage, header, client);
-				}
+				string netMessageName = netMessage.ReadString();
+				if (LuaNetReceives[netMessageName] is Closure)
+				GameMain.LuaCs.lua.Call(LuaNetReceives[netMessageName], new object[] { netMessage, client });
 			}
+			else
+			{
+				GameMain.LuaCs.hook.Call("netMessageReceived", netMessage, header, client);
+			}
+		}
 #endif
 
 		public void Receive(string netMessageName, object callback)
@@ -327,18 +327,18 @@ namespace Barotrauma
 					{
 						var httpResponse = httpWebRequest.EndGetResponse(result);
 						using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
-							GameMain.Lua.hook.EnqueueFunction(callback, streamReader.ReadToEnd());
+							GameMain.LuaCs.hook.EnqueueFunction(callback, streamReader.ReadToEnd());
 					}
 					catch (Exception e)
 					{
-						GameMain.Lua.hook.EnqueueFunction(callback, e.ToString());
+						GameMain.LuaCs.hook.EnqueueFunction(callback, e.ToString());
 					}
 				}), null);
 
 			}
 			catch (Exception e)
 			{
-				GameMain.Lua.hook.EnqueueFunction(callback, e.ToString());
+				GameMain.LuaCs.hook.EnqueueFunction(callback, e.ToString());
 			}
 		}
 
@@ -354,17 +354,17 @@ namespace Barotrauma
 					{
 						var httpResponse = httpWebRequest.EndGetResponse(result);
 						using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
-							GameMain.Lua.hook.EnqueueFunction(callback, streamReader.ReadToEnd());
+							GameMain.LuaCs.hook.EnqueueFunction(callback, streamReader.ReadToEnd());
 					}
 					catch (Exception e)
 					{
-						GameMain.Lua.hook.EnqueueFunction(callback, e.ToString());
+						GameMain.LuaCs.hook.EnqueueFunction(callback, e.ToString());
 					}
 				}), null);
 			}
 			catch (Exception e)
 			{
-				GameMain.Lua.hook.EnqueueFunction(callback, e.ToString());
+				GameMain.LuaCs.hook.EnqueueFunction(callback, e.ToString());
 			}
 		}
 

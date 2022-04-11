@@ -80,7 +80,7 @@ namespace Barotrauma
 
         public void AddObjective<T>(T objective) where T : AIObjective
         {
-            var result = new LuaResult(GameMain.Lua.hook.Call("AI.AddObjective", this, objective));
+            var result = new LuaResult(GameMain.LuaCs.hook.Call("AI.AddObjective", this, objective));
 
             if (result.Bool()) return;
 

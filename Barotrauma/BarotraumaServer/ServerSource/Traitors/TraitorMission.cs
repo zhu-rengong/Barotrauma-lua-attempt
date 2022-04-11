@@ -92,7 +92,7 @@ namespace Barotrauma
                 var traitorCandidates = new List<Tuple<Client, Character>>();
                 foreach (Client c in server.ConnectedClients)
                 {
-                    var result = new LuaResult(GameMain.Lua.hook.Call("traitor.findTraitorCandidate", new object[] { c, team }));
+                    var result = new LuaResult(GameMain.LuaCs.hook.Call("traitor.findTraitorCandidate", new object[] { c, team }));
 					if (result.Bool())
 					{
                         traitorCandidates.Add(Tuple.Create(c, c.Character));
@@ -234,7 +234,7 @@ namespace Barotrauma
                 foreach (var traitor in Traitors.Values)
                 {
                     traitor.Greet(server, CodeWords, CodeResponse, message => pendingMessages[traitor].Add(message));
-                    GameMain.Lua.hook.Call("traitor.traitorAssigned", new object[] { traitor });
+                    GameMain.LuaCs.hook.Call("traitor.traitorAssigned", new object[] { traitor });
                 }
                 pendingMessages.ForEach(traitor => traitor.Value.ForEach(message => traitor.Key.SendChatMessage(message, Identifier)));
                 pendingMessages.ForEach(traitor => traitor.Value.ForEach(message => traitor.Key.SendChatMessageBox(message, Identifier)));

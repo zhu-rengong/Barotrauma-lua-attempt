@@ -1243,17 +1243,17 @@ namespace Barotrauma
 
             commands.Add(new Command("lua", "lua: runs a string", (string[] args) =>
             {
-                GameMain.Lua.DoString(string.Join(" ", args));
+                GameMain.LuaCs.DoString(string.Join(" ", args));
             }));
 
             commands.Add(new Command("reloadlua", "reloads lua", (string[] args) =>
             {
-                GameMain.Lua.Initialize();
+                GameMain.LuaCs.Initialize();
             }));
 
             commands.Add(new Command("install_cl_lua", "Installs client-Side Lua into your client.", (string[] args) =>
             {
-                ContentPackage luaPackage = LuaSetup.GetPackage();
+                ContentPackage luaPackage = LuaCsSetup.GetLuaPackage();
 
                 if (luaPackage == null)
                 {
@@ -1293,7 +1293,7 @@ namespace Barotrauma
                 }
                 catch (Exception e)
                 {
-                    GameMain.Lua.HandleLuaException(e);
+                    GameMain.LuaCs.HandleLuaException(e);
 
                     return;
                 }

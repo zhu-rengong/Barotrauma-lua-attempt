@@ -29,7 +29,7 @@ namespace Barotrauma
             RegisterAction<Microsoft.Xna.Framework.Graphics.SpriteBatch, float>();
 
             {
-                object Call(object function, params object[] arguments) => GameMain.Lua.CallFunction(function, arguments);
+                object Call(object function, params object[] arguments) => GameMain.LuaCs.CallFunction(function, arguments);
                 void RegisterHandler<T>(Func<Closure, object> converter)
                 {
                     Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(T), v => converter(v.Function));
@@ -122,7 +122,7 @@ namespace Barotrauma
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(Action<T>), v =>
             {
                 var function = v.Function;
-                return (Action<T>)(p => GameMain.Lua.CallFunction(function, p));
+                return (Action<T>)(p => GameMain.LuaCs.CallFunction(function, p));
             });
         }
 
@@ -131,7 +131,7 @@ namespace Barotrauma
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(Action<T1, T2>), v =>
             {
                 var function = v.Function;
-                return (Action<T1, T2>)((a1, a2) => GameMain.Lua.CallFunction(function, a1, a2));
+                return (Action<T1, T2>)((a1, a2) => GameMain.LuaCs.CallFunction(function, a1, a2));
             });
         }
 
@@ -140,7 +140,7 @@ namespace Barotrauma
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(Action), v => 
             {
                 var function = v.Function;
-                return (Action)(() => GameMain.Lua.CallFunction(function));
+                return (Action)(() => GameMain.LuaCs.CallFunction(function));
             });
         }
 

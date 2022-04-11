@@ -1440,11 +1440,11 @@ namespace Barotrauma
                             // -> the character should be revived if there are no major afflictions in addition to lack of oxygen
                             target.Oxygen = Math.Max(target.Oxygen + 10.0f, 10.0f);
 
-                            GameMain.Lua.hook.Call("human.CPRSuccess", this);
-						}
+                            GameMain.LuaCs.hook.Call("human.CPRSuccess", this);
+                        }
 						else
 						{
-                            GameMain.Lua.hook.Call("human.CPRFailed", this);
+                            GameMain.LuaCs.hook.Call("human.CPRFailed", this);
                         }
                     }
                 }

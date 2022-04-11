@@ -690,7 +690,7 @@ namespace Barotrauma.Networking
         {
             ServerPacketHeader header = (ServerPacketHeader)inc.ReadByte();
 
-            GameMain.Lua.networking.NetMessageReceived(inc, header);
+            GameMain.LuaCs.networking.NetMessageReceived(inc, header);
 
             if (roundInitStatus != RoundInitStatus.Started &&
                 roundInitStatus != RoundInitStatus.NotStarted &&
@@ -2704,8 +2704,7 @@ namespace Barotrauma.Networking
 
         public override void Disconnect()
         {
-            GameMain.Lua.Stop();
-            GameMain.Net.Stop();
+            GameMain.LuaCs.Stop();
 
             allowReconnect = false;
 
@@ -2831,7 +2830,7 @@ namespace Barotrauma.Networking
 
         public override void AddChatMessage(ChatMessage message)
         {
-            var should = new LuaResult(GameMain.Lua.hook.Call("chatMessage", new object[] { message.Text, message.SenderClient, message.Type, message }));
+            var should = new LuaResult(GameMain.LuaCs.hook.Call("chatMessage", message.Text, message.SenderClient, message.Type, message));
 
             if (should.Bool()) return;
 

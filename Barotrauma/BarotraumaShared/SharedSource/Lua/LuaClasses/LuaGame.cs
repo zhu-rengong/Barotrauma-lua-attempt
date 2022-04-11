@@ -326,11 +326,11 @@ namespace Barotrauma
 
 		public void AddCommand(string name, string help, object onExecute, object getValidArgs = null, bool isCheat = false)
 		{
-			var cmd = new DebugConsole.Command(name, help, (string[] arg1) => { GameMain.Lua.CallFunction(onExecute, new object[] { arg1 }); },
+			var cmd = new DebugConsole.Command(name, help, (string[] arg1) => { GameMain.LuaCs.CallFunction(onExecute, new object[] { arg1 }); },
 				() =>
 				{
 					if (getValidArgs == null) return null;
-					var result = new LuaResult(GameMain.Lua.CallFunction(getValidArgs, new object[] { }));
+					var result = new LuaResult(GameMain.LuaCs.CallFunction(getValidArgs, new object[] { }));
 					var obj = result.Object();
 					if (obj is string[][]) return (string[][])obj;
 					return null;
@@ -357,7 +357,7 @@ namespace Barotrauma
 
 		public List<DebugConsole.Command> Commands => DebugConsole.Commands;
 
-		public void AssignOnExecute(string names, object onExecute) => DebugConsole.AssignOnExecute(names, (string[] a) => { GameMain.Lua.CallFunction(onExecute, new object[] { a }); });
+		public void AssignOnExecute(string names, object onExecute) => DebugConsole.AssignOnExecute(names, (string[] a) => { GameMain.LuaCs.CallFunction(onExecute, new object[] { a }); });
 
 
 #if SERVER
@@ -412,7 +412,7 @@ namespace Barotrauma
 			GameMain.Server.EndGame();
 		}
 
-		public void AssignOnClientRequestExecute(string names, object onExecute) => DebugConsole.AssignOnClientRequestExecute(names, (Client a, Vector2 b, string[] c) => { GameMain.Lua.CallFunction(onExecute, new object[] { a, b, c }); });
+		public void AssignOnClientRequestExecute(string names, object onExecute) => DebugConsole.AssignOnClientRequestExecute(names, (Client a, Vector2 b, string[] c) => { GameMain.LuaCs.CallFunction(onExecute, new object[] { a, b, c }); });
 
 #endif
 

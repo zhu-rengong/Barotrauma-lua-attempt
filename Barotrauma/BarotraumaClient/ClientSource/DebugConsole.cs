@@ -3223,7 +3223,7 @@ namespace Barotrauma
                     return;
                 }
 
-                GameMain.Lua.DoString(string.Join(" ", args));
+                GameMain.LuaCs.DoString(string.Join(" ", args));
             }));
 
             commands.Add(new Command("cl_reloadlua", "reloads lua on the client", (string[] args) =>
@@ -3234,7 +3234,7 @@ namespace Barotrauma
                     return;
                 }
 
-                GameMain.Lua.Initialize();
+                GameMain.LuaCs.Initialize();
             }));
 
             commands.Add(new Command("cl_net", "lua_net: runs a script on the client", (string[] args) =>
@@ -3245,7 +3245,7 @@ namespace Barotrauma
                     return;
                 }
 
-                GameMain.Lua.DoString(string.Join(" ", args));
+                GameMain.LuaCs.DoString(string.Join(" ", args));
             }));
 
             commands.Add(new Command("cl_reloadnet", "reloads lua on the client", (string[] args) =>
@@ -3256,7 +3256,7 @@ namespace Barotrauma
                     return;
                 }
 
-                GameMain.Lua.Initialize();
+                GameMain.LuaCs.Initialize();
             }));
         }
 
