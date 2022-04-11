@@ -90,6 +90,7 @@ namespace Barotrauma
                             .Where(p => p != null).ToArray());
                 }
                 GameMain.NetLobbyScreen.Select();
+                GameMain.Lua.Initialize();
                 return;
             }
 
@@ -295,6 +296,7 @@ namespace Barotrauma
                     ContentPackageManager.EnabledPackages.SetRegular(regularPackages);
 
                     GameMain.NetLobbyScreen.Select();
+                    GameMain.Lua.Initialize();
                 }
             }
         }
