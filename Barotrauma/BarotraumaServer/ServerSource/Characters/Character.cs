@@ -25,7 +25,7 @@ namespace Barotrauma
                     GameServer.Log(GameServer.CharacterLogName(this) + " has died (Cause of death: " + causeOfDeath + ")", ServerLog.MessageType.Attack);
                 }
             }
-            GameMain.LuaCs.hook.Call("characterDeath", this,causeOfDeathAffliction);
+            GameMain.LuaCs.HookBase.Call("characterDeath", this,causeOfDeathAffliction);
 
             if (HasAbilityFlag(AbilityFlags.RetainExperienceForNewCharacter))
             {

@@ -31,7 +31,7 @@ namespace Barotrauma
 
 		public void Wait(object function, int millisecondDelay)
 		{
-			GameMain.LuaCs.hook.EnqueueTimedFunction((float)Timing.TotalTime + (millisecondDelay / 1000f), function);
+			GameMain.LuaCs.HookBase.EnqueueTimedLuaFunction((float)Timing.TotalTime + (millisecondDelay / 1000f), function);
 		}
 
 		public static double GetTime()
@@ -122,14 +122,14 @@ namespace Barotrauma
 				if (CanWriteToPath(path))
 					return true;
 				else
-					GameMain.LuaCs.HandleLuaException(new Exception("File access to \"" + path + "\" not allowed."));
+					GameMain.LuaCs.HandleException(new Exception("File access to \"" + path + "\" not allowed."));
             }
             else
             {
 				if (CanReadFromPath(path))
 					return true;
 				else
-					GameMain.LuaCs.HandleLuaException(new Exception("File access to \"" + path + "\" not allowed."));
+					GameMain.LuaCs.HandleException(new Exception("File access to \"" + path + "\" not allowed."));
 			}
 
 			return false;
@@ -239,11 +239,11 @@ namespace Barotrauma
 			{
 				string netMessageName = netMessage.ReadString();
 				if (LuaNetReceives[netMessageName] is Closure)
-					GameMain.LuaCs.CallFunction(LuaNetReceives[netMessageName], new object[] { netMessage, client });
+					GameMain.LuaCs.CallLuaFunction(LuaNetReceives[netMessageName], new object[] { netMessage, client });
 			}
 			else
 			{
-				GameMain.LuaCs.hook.Call("netMessageReceived", netMessage, header, client);
+				GameMain.LuaCs.HookBase.Call("netMessageReceived", netMessage, header, client);
 			}
 		}
 
@@ -259,7 +259,7 @@ namespace Barotrauma
 			}
 			else
 			{
-				GameMain.LuaCs.hook.Call("netMessageReceived", netMessage, header, client);
+				GameMain.LuaCs.HookBase.Call("netMessageReceived", netMessage, header, client);
 			}
 		}
 #endif
@@ -327,18 +327,18 @@ namespace Barotrauma
 					{
 						var httpResponse = httpWebRequest.EndGetResponse(result);
 						using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
-							GameMain.LuaCs.hook.EnqueueFunction(callback, streamReader.ReadToEnd());
+							GameMain.LuaCs.HookBase.EnqueueLuaFunction(callback, streamReader.ReadToEnd());
 					}
 					catch (Exception e)
 					{
-						GameMain.LuaCs.hook.EnqueueFunction(callback, e.ToString());
+						GameMain.LuaCs.HookBase.EnqueueLuaFunction(callback, e.ToString());
 					}
 				}), null);
 
 			}
 			catch (Exception e)
 			{
-				GameMain.LuaCs.hook.EnqueueFunction(callback, e.ToString());
+				GameMain.LuaCs.HookBase.EnqueueLuaFunction(callback, e.ToString());
 			}
 		}
 
@@ -354,17 +354,17 @@ namespace Barotrauma
 					{
 						var httpResponse = httpWebRequest.EndGetResponse(result);
 						using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
-							GameMain.LuaCs.hook.EnqueueFunction(callback, streamReader.ReadToEnd());
+							GameMain.LuaCs.HookBase.EnqueueLuaFunction(callback, streamReader.ReadToEnd());
 					}
 					catch (Exception e)
 					{
-						GameMain.LuaCs.hook.EnqueueFunction(callback, e.ToString());
+						GameMain.LuaCs.HookBase.EnqueueLuaFunction(callback, e.ToString());
 					}
 				}), null);
 			}
 			catch (Exception e)
 			{
-				GameMain.LuaCs.hook.EnqueueFunction(callback, e.ToString());
+				GameMain.LuaCs.HookBase.EnqueueLuaFunction(callback, e.ToString());
 			}
 		}
 

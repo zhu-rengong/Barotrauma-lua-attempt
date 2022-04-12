@@ -8,7 +8,6 @@ using Microsoft.Xna.Framework;
 using MoonSharp.Interpreter.Interop;
 using System.IO.Compression;
 using HarmonyLib;
-using static Barotrauma.LuaCsSetup;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("NetScriptAssembly", AllInternalsVisible = true)]
@@ -21,13 +20,27 @@ namespace Barotrauma
 
 		public Script lua;
 
-		public LuaCsHook hook;
+		private LuaHook luaHook;
+		public CsHook Hook { get; private set; }
+		internal LuaCsHook HookBase { get; private set; }
+
 		public LuaGame game;
 		public LuaNetworking networking;
 		public Harmony harmony;
 
 		public LuaScriptLoader luaScriptLoader;
-		public NetScriptLoader netScriptLoader;
+		public CsScriptLoader netScriptLoader;
+
+		public LuaCsSetup()
+		{
+			HookBase = LuaCsHook.Instance;
+			Hook = new CsHook(HookBase);
+			luaHook = new LuaHook(HookBase);
+
+			game = new LuaGame();
+			networking = new LuaNetworking();
+		}
+
 
 		public static ContentPackage GetPackage()
 		{
@@ -50,10 +63,16 @@ namespace Barotrauma
 			return null;
 		}
 
-		public void HandleLuaException(Exception ex, string extra = "")
+		public enum ExceptionType
+        {
+			Lua,
+			CSharp
+        }
+		public void HandleException(Exception ex, string extra = "", ExceptionType exceptionType = ExceptionType.Lua)
 		{
 			if (!string.IsNullOrWhiteSpace(extra))
-				PrintError(extra);
+				if (exceptionType == ExceptionType.Lua) PrintError(extra);
+				else PrintCsError(extra);
 
 			if (ex is InterpreterException)
 			{
@@ -64,7 +83,8 @@ namespace Barotrauma
 			}
 			else
 			{
-				PrintError(ex.ToString());
+				if (exceptionType == ExceptionType.Lua) PrintError(ex);
+				else PrintCsError(ex);
 			}
 		}
 
@@ -144,7 +164,7 @@ namespace Barotrauma
 			}
 			catch (Exception e)
 			{
-				HandleLuaException(e);
+				HandleException(e);
 			}
 
 			return null;
@@ -155,7 +175,7 @@ namespace Barotrauma
 			if (!LuaFile.IsPathAllowedLuaException(file, false)) return null;
 			if (!LuaFile.Exists(file))
 			{
-				HandleLuaException(new Exception($"dofile: File {file} not found."));
+				HandleException(new Exception($"dofile: File {file} not found."));
 				return null;
 			}
 
@@ -166,7 +186,7 @@ namespace Barotrauma
 			}
 			catch (Exception e)
 			{
-				HandleLuaException(e);
+				HandleException(e);
 			}
 
 			return null;
@@ -182,7 +202,7 @@ namespace Barotrauma
 			}
 			catch (Exception e)
 			{
-				HandleLuaException(e);
+				HandleException(e);
 			}
 
 			return null;
@@ -193,7 +213,7 @@ namespace Barotrauma
 			if (!LuaFile.IsPathAllowedLuaException(file, false)) return null;
 			if (!LuaFile.Exists(file))
 			{
-				HandleLuaException(new Exception($"loadfile: File {file} not found."));
+				HandleException(new Exception($"loadfile: File {file} not found."));
 				return null;
 			}
 
@@ -204,7 +224,7 @@ namespace Barotrauma
 			}
 			catch (Exception e)
 			{
-				HandleLuaException(e);
+				HandleException(e);
 			}
 
 			return null;
@@ -219,13 +239,13 @@ namespace Barotrauma
 			}
 			catch (Exception e)
 			{
-				HandleLuaException(e);
+				HandleException(e);
 			}
 
 			return null;
 		}
 
-		public object CallFunction(object function, params object[] arguments)
+		public object CallLuaFunction(object function, params object[] arguments)
 		{
 			try
 			{
@@ -233,7 +253,7 @@ namespace Barotrauma
 			}
 			catch (Exception e)
 			{
-				HandleLuaException(e);
+				HandleException(e);
 			}
 
 			return null;
@@ -246,19 +266,20 @@ namespace Barotrauma
 
 		public void Update()
 		{
-			hook?.Update();
+			HookBase?.Update();
 		}
 
 		public void Stop()
 		{
-			ANetMod.LoadedMods.ForEach(m => m.Dispose());
-			ANetMod.LoadedMods.Clear();
-			hook?.Call("stop");
+			ACsMod.LoadedMods.ForEach(m => m.Dispose());
+			ACsMod.LoadedMods.Clear();
+			HookBase?.Call("stop");
 
 			game?.Stop();
 			harmony?.UnpatchAll();
 
-			hook = new LuaCsHook();
+			//HookBase = new LuaCsHook();
+			HookBase.Clear();
 			game = new LuaGame();
 			networking = new LuaNetworking();
 			luaScriptLoader = null;
@@ -266,13 +287,14 @@ namespace Barotrauma
 
 		private void InitCs()
         {
-			netScriptLoader = new NetScriptLoader(this);
+			netScriptLoader = new CsScriptLoader(this);
 			netScriptLoader.SearchFolders();
 			if (netScriptLoader == null) throw new Exception("LuaCsSetup was not properly initialized.");
 			try
 			{
 				var modTypes = netScriptLoader.Compile();
-				modTypes.ForEach(t => t.GetConstructor(new Type[] { }).Invoke(null));
+				//modTypes.ForEach(t => ACsMod.CreateInstance(t));
+				modTypes.ForEach(t => t.GetConstructor(new Type[] { })?.Invoke(null));
 			}
 			catch (Exception ex)
 			{
@@ -299,11 +321,12 @@ namespace Barotrauma
 			harmony = new Harmony("com.LuaForBarotrauma");
 			harmony.UnpatchAll();
 
-			hook = new LuaCsHook();
+			//HookBase = new LuaCsHook();
 			game = new LuaGame();
 			networking = new LuaNetworking();
 
-			UserData.RegisterType<LuaCsHook>();
+			//UserData.RegisterType<LuaCsHook>();
+			UserData.RegisterType<LuaHook>();
 			UserData.RegisterType<LuaGame>();
 			UserData.RegisterType<LuaTimer>();
 			UserData.RegisterType<LuaFile>();
@@ -324,7 +347,8 @@ namespace Barotrauma
 
 			lua.Globals["LuaUserData"] = UserData.CreateStatic<LuaUserData>();
 			lua.Globals["Game"] = game;
-			lua.Globals["Hook"] = hook;
+			//lua.Globals["Hook"] = HookBase;
+			lua.Globals["Hook"] = luaHook;
 			lua.Globals["Timer"] = new LuaTimer();
 			lua.Globals["File"] = UserData.CreateStatic<LuaFile>();
 			lua.Globals["Networking"] = networking;
@@ -352,7 +376,7 @@ namespace Barotrauma
 				}
 				catch (Exception e)
 				{
-					HandleLuaException(e);
+					HandleException(e);
 				}
 			}
 			else if (luaPackage != null)
@@ -361,25 +385,18 @@ namespace Barotrauma
 
 				try
 				{
-					string luaPath = Path.Combine(path, "Binary/LuaCs/LuaCsSetup.lua");
+					string luaPath = Path.Combine(path, "Binary/Lua/LuaSetup.lua");
 					lua.Call(lua.LoadFile(luaPath), Path.GetDirectoryName(luaPath));
 				}
 				catch (Exception e)
 				{
-					HandleLuaException(e);
+					HandleException(e);
 				}
 			}
 			else
 			{
-				PrintError("LuaCs loader not found! LuaCs/LuaCsSetup.lua, no LuaCs scripts will be executed or work.");
+				PrintError("LuaCs loader not found! Lua/LuaSetup.lua, no Lua scripts will be executed or work.");
 			}
-		}
-
-		public LuaCsSetup()
-		{
-			hook = new LuaCsHook();
-			game = new LuaGame();
-			networking = new LuaNetworking();
 		}
 
 	}

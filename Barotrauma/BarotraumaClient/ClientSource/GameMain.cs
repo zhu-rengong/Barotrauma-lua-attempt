@@ -923,7 +923,7 @@ namespace Barotrauma
                 SoundManager?.Update();
 
                 GameMain.LuaCs.Update();
-                GameMain.LuaCs.hook.Call("think");
+                GameMain.LuaCs.HookBase.Call("think");
 
                 Timing.Accumulator -= Timing.Step;
 

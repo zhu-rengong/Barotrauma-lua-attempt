@@ -348,7 +348,7 @@ namespace Barotrauma
                     CoroutineManager.Update((float)Timing.Step, (float)Timing.Step);
 
                     GameMain.LuaCs.Update();
-                    GameMain.LuaCs.hook.Call("think", new object[] { });
+                    GameMain.LuaCs.HookBase.Call("think", new object[] { });
                     performanceCounterTimer.Stop();
                     LuaTimer.LastUpdateTime = performanceCounterTimer.ElapsedMilliseconds;
                     performanceCounterTimer.Reset();

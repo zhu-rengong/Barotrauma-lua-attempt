@@ -8,9 +8,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection.Metadata;
 
-partial class NetScript
-{
-    public class NetScriptFilter
+namespace Barotrauma {
+    class CsScriptFilter
     {
         private const bool useWhitelist = false;
 

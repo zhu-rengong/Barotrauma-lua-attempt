@@ -9,19 +9,17 @@ using Microsoft.CodeAnalysis;
 using System.Runtime.Loader;
 using System.Reflection.PortableExecutable;
 using System.Reflection.Metadata;
-using static NetScript;
 
 namespace Barotrauma
 {
-
-	class NetScriptLoader : AssemblyLoadContext
+	class CsScriptLoader : AssemblyLoadContext
 	{
 		public LuaCsSetup setup;
 		private List<MetadataReference> defaultReferences;
 		private List<SyntaxTree> syntaxTrees;
 		public Assembly Assembly { get; private set; }
 
-		public NetScriptLoader(LuaCsSetup setup)
+		public CsScriptLoader(LuaCsSetup setup)
 		{
 			this.setup = setup;
 
@@ -70,7 +68,7 @@ namespace Barotrauma
 				foreach (var file in scriptFiles)
 				{
 					var tree = SyntaxFactory.ParseSyntaxTree(File.ReadAllText(file), CSharpParseOptions.Default, file);
-					var error = NetScriptFilter.FilterSyntaxTree(tree as CSharpSyntaxTree);
+					var error = CsScriptFilter.FilterSyntaxTree(tree as CSharpSyntaxTree);
 					if (error != null) throw new Exception(error);
 
 					syntaxTrees.Add(tree);
@@ -114,7 +112,7 @@ namespace Barotrauma
 				else
 				{
 					mem.Seek(0, SeekOrigin.Begin);
-					var errStr = NetScriptFilter.FilterMetadata(new PEReader(mem).GetMetadataReader());
+					var errStr = CsScriptFilter.FilterMetadata(new PEReader(mem).GetMetadataReader());
 					if (errStr == null)
                     {
 						mem.Seek(0, SeekOrigin.Begin);
@@ -126,7 +124,7 @@ namespace Barotrauma
 			syntaxTrees.Clear();
 
 			if (Assembly != null)
-				return Assembly.GetTypes().Where(t => t.IsSubclassOf(typeof(ANetMod))).ToList();
+				return Assembly.GetTypes().Where(t => t.IsSubclassOf(typeof(ACsMod))).ToList();
 			else
 				throw new Exception("Unable to create net mods assembly.");
 		}

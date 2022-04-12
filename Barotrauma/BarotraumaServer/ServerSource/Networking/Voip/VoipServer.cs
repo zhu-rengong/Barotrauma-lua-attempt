@@ -94,7 +94,7 @@ namespace Barotrauma.Networking
                 ChatMessage.CanUseRadio(sender.Character, out WifiComponent senderRadio) && 
                 ChatMessage.CanUseRadio(recipient.Character, out WifiComponent recipientRadio))
             {
-                var should = new LuaResult(GameMain.LuaCs.hook.Call("canUseVoiceRadio", new object[] { sender, recipient }));
+                var should = new LuaResult(GameMain.LuaCs.HookBase.Call("canUseVoiceRadio", new object[] { sender, recipient }));
 
                 if (!should.IsNull())
                     return should.Bool();
@@ -102,7 +102,7 @@ namespace Barotrauma.Networking
                 if (recipientRadio.CanReceive(senderRadio)) { return true; }
             }
 
-            var should2 = new LuaResult(GameMain.LuaCs.hook.Call("changeLocalVoiceRange", new object[] { sender, recipient }));
+            var should2 = new LuaResult(GameMain.LuaCs.HookBase.Call("changeLocalVoiceRange", new object[] { sender, recipient }));
             float range = 1.0f;
 
             if (!should2.IsNull())

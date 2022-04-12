@@ -308,7 +308,7 @@ namespace Barotrauma
                     if (client != null)
                     {
                         GameMain.Server.SetClientCharacter(client, husk);
-                        GameMain.LuaCs.hook.Call("husk.clientControlHusk", new object[] { client, husk });
+                        GameMain.LuaCs.HookBase.Call("husk.clientControlHusk", new object[] { client, husk });
                     }
 #else
                     if (!character.IsRemotelyControlled && character == Character.Controlled)

@@ -133,7 +133,7 @@ namespace Barotrauma.Networking
                 return;
             }
 
-            var should = new LuaResult(GameMain.LuaCs.hook.Call("chatMessage", txt, c, type));
+            var should = new LuaResult(GameMain.LuaCs.HookBase.Call("chatMessage", txt, c, type));
 
             if (should.Bool())
             {

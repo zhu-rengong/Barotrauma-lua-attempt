@@ -541,7 +541,7 @@ namespace Barotrauma
                 return;
             }
 
-            var should = new LuaResult(GameMain.LuaCs.hook.Call("character.applyDamage", new object[] { this, attackResult, hitLimb, allowStacking }));
+            var should = new LuaResult(GameMain.LuaCs.HookBase.Call("character.applyDamage", new object[] { this, attackResult, hitLimb, allowStacking }));
 
             if (should.Bool())
                 return;
@@ -674,7 +674,7 @@ namespace Barotrauma
                 }
             }
 
-            var should = new LuaResult(GameMain.LuaCs.hook.Call("character.applyAffliction", new object[] { this, limbHealth, newAffliction, allowStacking }));
+            var should = new LuaResult(GameMain.LuaCs.HookBase.Call("character.applyAffliction", new object[] { this, limbHealth, newAffliction, allowStacking }));
 
             if (should.Bool())
                 return;

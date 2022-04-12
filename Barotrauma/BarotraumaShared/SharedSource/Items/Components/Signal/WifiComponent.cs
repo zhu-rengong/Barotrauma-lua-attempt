@@ -205,7 +205,7 @@ namespace Barotrauma.Items.Components
 
         public void TransmitSignal(Signal signal, bool sentFromChat)
         {
-            var should = new LuaResult(GameMain.LuaCs.hook.Call("wifiSignalTransmitted", new object[] { this, signal, sentFromChat }));
+            var should = new LuaResult(GameMain.LuaCs.HookBase.Call("wifiSignalTransmitted", new object[] { this, signal, sentFromChat }));
 
             if (should.Bool())
                 return;

@@ -1293,7 +1293,7 @@ namespace Barotrauma
                 }
                 catch (Exception e)
                 {
-                    GameMain.LuaCs.HandleLuaException(e);
+                    GameMain.LuaCs.HandleException(e);
 
                     return;
                 }
