@@ -54,6 +54,7 @@ defaultLib["ClientPermissions"] = CreateEnum("Barotrauma.Networking.ClientPermis
 defaultLib["InputType"] = CreateStatic("Barotrauma.InputType")
 
 
+defaultLib["Inventory"] = CreateStatic("Barotrauma.Inventory")
 defaultLib["ContentPackageManager"] = CreateStatic("Barotrauma.ContentPackageManager")
 defaultLib["GameSettings"] = CreateStatic("Barotrauma.GameSettings")
 defaultLib["RichString"] = CreateStatic("Barotrauma.RichString", true)

@@ -267,6 +267,8 @@ RegisterBarotrauma("GUIScrollBar")
 RegisterBarotrauma("GUIDropDown")
 RegisterBarotrauma("GUINumberInput")
 
+RegisterBarotrauma("Inventory+SlotReference")
+
 end
 
 return descriptors
