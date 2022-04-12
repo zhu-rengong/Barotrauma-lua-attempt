@@ -393,14 +393,14 @@ namespace Barotrauma
                 ToolTip = "Remove Client-Side Lua.",
                 OnClicked = (tb, userdata) =>
                 {
-					if (!File.Exists("Barotrauma.dll.original"))
+					if (!File.Exists("Barotrauma.dll.old"))
 					{
                         new GUIMessageBox("Error", "Error: Barotrauma.dll.original not found, Github version? Use Steam validate files instead.");
 
                         return false;
 					}
 
-                    if (!File.Exists("Barotrauma.deps.json.original"))
+                    if (!File.Exists("Barotrauma.deps.json.old"))
                     {
                         new GUIMessageBox("Error", "Error: Barotrauma.deps.json.original not found, Github version? Use Steam validate files instead.");
 
@@ -418,8 +418,8 @@ namespace Barotrauma
                             System.IO.File.Move("Barotrauma.dll", "Barotrauma.dll.todelete", true);
                             System.IO.File.Move("Barotrauma.deps.json", "Barotrauma.deps.json.todelete", true);
 
-                            System.IO.File.Move("Barotrauma.dll.original", "Barotrauma.dll", true);
-                            System.IO.File.Move("Barotrauma.deps.json.original", "Barotrauma.deps.json", true);
+                            System.IO.File.Move("Barotrauma.dll.old", "Barotrauma.dll", true);
+                            System.IO.File.Move("Barotrauma.deps.json.old", "Barotrauma.deps.json", true);
 
                         }catch(Exception e)
 						{
