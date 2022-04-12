@@ -271,12 +271,12 @@ namespace Barotrauma
 
 		public void Stop()
 		{
-			ACsMod.LoadedMods.ForEach(m => m.Dispose());
+			foreach (var mod in ACsMod.LoadedMods.ToArray()) mod.Dispose();
 			ACsMod.LoadedMods.Clear();
 			HookBase?.Call("stop");
 
 			game?.Stop();
-			harmony?.UnpatchAll();
+			//harmony?.UnpatchAll();
 
 			//HookBase = new LuaCsHook();
 			HookBase.Clear();

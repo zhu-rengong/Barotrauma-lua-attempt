@@ -489,6 +489,8 @@ namespace Barotrauma
 			csHookPostfixMethods.Clear();
 
 			queuedFunctionCalls.Clear();
+
+			GameMain.LuaCs.harmony?.UnpatchAll();
 		}
 
 
