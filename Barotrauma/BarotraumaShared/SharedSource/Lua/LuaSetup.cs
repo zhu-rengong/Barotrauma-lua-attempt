@@ -13,7 +13,8 @@ namespace Barotrauma
 {
 	partial class LuaSetup
 	{
-		public const string LUA_PATH = "Lua/LuaSetup.lua";
+		public const string LUASETUP_FILE = "Lua/LuaSetup.lua";
+		public const string VERSION_FILE = "luacsversion.txt";
 
 		public Script lua;
 
@@ -24,7 +25,7 @@ namespace Barotrauma
 
 		public LuaScriptLoader luaScriptLoader;
 
-		public static ContentPackage GetLuaPackage()
+		public static ContentPackage GetPackage()
 		{
 			foreach (ContentPackage package in ContentPackageManager.LocalPackages)
 			{
@@ -313,13 +314,13 @@ namespace Barotrauma
 
 			// LuaDocs.GenerateDocsAll();
 
-			ContentPackage luaPackage = GetLuaPackage();
+			ContentPackage luaPackage = GetPackage();
 
-			if (File.Exists(LUA_PATH))
+			if (File.Exists(LUASETUP_FILE))
 			{
 				try
 				{
-					lua.Call(lua.LoadFile(LUA_PATH), Path.GetDirectoryName(Path.GetFullPath(LUA_PATH)));
+					lua.Call(lua.LoadFile(LUASETUP_FILE), Path.GetDirectoryName(Path.GetFullPath(LUASETUP_FILE)));
 				}
 				catch (Exception e)
 				{

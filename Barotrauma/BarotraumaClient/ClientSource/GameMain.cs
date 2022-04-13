@@ -563,6 +563,11 @@ namespace Barotrauma
             {
                 DebugConsole.NewMessage("LOADING COROUTINE FINISHED", Color.Lime);
             }
+
+#if CLIENT
+            LuaCsUpdateChecker.Check();
+#endif
+
             yield return CoroutineStatus.Success;
 
         }

@@ -1253,7 +1253,7 @@ namespace Barotrauma
 
             commands.Add(new Command("install_cl_lua", "Installs client-Side Lua into your client.", (string[] args) =>
             {
-                ContentPackage luaPackage = LuaSetup.GetLuaPackage();
+                ContentPackage luaPackage = LuaSetup.GetPackage();
 
                 if (luaPackage == null)
                 {
@@ -1265,7 +1265,7 @@ namespace Barotrauma
                 {
                     string path = Path.GetDirectoryName(luaPackage.Path);
 
-                    string[] filesToMove = new string[]
+                    string[] filesToCopy = new string[]
                     {
                         "Barotrauma.dll", "Barotrauma.deps.json",
                         "0harmony.dll", "Mono.Cecil.dll",
@@ -1278,15 +1278,21 @@ namespace Barotrauma
                     File.Move("Barotrauma.dll", "Barotrauma.dll.old", true);
                     File.Move("Barotrauma.deps.json", "Barotrauma.deps.json.old", true);
 
-                    foreach (string file in filesToMove)
+                    foreach (string file in filesToCopy)
                     {
                         File.Copy(Path.Combine(path, "Binary", file), file, true);
                     }
+
+                    File.WriteAllText(LuaSetup.VERSION_FILE, luaPackage.ModVersion);
+                }
+                catch (UnauthorizedAccessException e)
+                {
+                    GameMain.Lua.PrintError("You seem to already have Client Side Lua installed, if you are trying to reinstall, make sure uninstall it first (mainmenu button located top left).");
+
+                    return;
                 }
                 catch (Exception e)
                 {
-                    // GameMain.Lua.PrintError("You seem to already have Client Side Lua installed, if you are trying to reinstall, make sure uninstall it first (mainmenu button located top left).");
-
                     GameMain.Lua.HandleLuaException(e);
 
                     return;
