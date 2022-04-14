@@ -15,11 +15,11 @@ namespace Barotrauma
             if (luaCsPackage == null) { return; }
 
             string clientVersion = File.ReadAllText(LuaSetup.VERSION_FILE);
-            string serverVersion = luaCsPackage.ModVersion;
+            string workshopVersion = luaCsPackage.ModVersion;
 
-            if (clientVersion == serverVersion) { return; }
+            if (clientVersion == workshopVersion) { return; }
 
-            var msg = new GUIMessageBox("LuaCs Update", $"Your LuaCs client version is different from the version found in the LuaCsForBarotrauma workshop files. Do you want to update?\n\n Client Version: {clientVersion}\n Server Version: {serverVersion}", 
+            var msg = new GUIMessageBox("LuaCs Update", $"Your LuaCs client version is different from the version found in the LuaCsForBarotrauma workshop files. Do you want to update?\n\n Client Version: {clientVersion}\n Workshop Version: {workshopVersion}", 
                 new LocalizedString[2] { TextManager.Get("Yes"), TextManager.Get("Cancel") });
 
             msg.Buttons[0].OnClicked = (GUIButton button, object obj) =>
@@ -39,7 +39,7 @@ namespace Barotrauma
                         File.Copy(Path.Combine(luaCsPath, "Binary", file), file, true);
                     }
 
-                    File.WriteAllText(LuaSetup.VERSION_FILE, serverVersion);
+                    File.WriteAllText(LuaSetup.VERSION_FILE, workshopVersion);
                 }
                 catch (Exception e)
                 {
