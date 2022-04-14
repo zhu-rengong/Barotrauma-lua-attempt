@@ -1831,7 +1831,9 @@ namespace Barotrauma.Networking
                                    !client.HasPermission(ClientPermissions.Unban),
                     IsDownloading = FileSender.ActiveTransfers.Any(t => t.Connection == client.Connection)
                 };
-                
+
+                GameMain.Lua.hook.Call("writeClientList.modifyTempClientData", c, client, tempClientData, outmsg);
+
                 outmsg.Write(tempClientData);
                 outmsg.WritePadBits();
             }
