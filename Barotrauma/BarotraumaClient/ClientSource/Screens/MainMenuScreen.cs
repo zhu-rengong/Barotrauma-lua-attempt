@@ -813,7 +813,7 @@ namespace Barotrauma
 
             foreach (GUITextBlock tutorialText in tutorialList.Content.Children)
             {
-                if (((Tutorial)tutorialText.UserData).Completed)
+                if (CompletedTutorials.Instance.Contains(((Tutorial)tutorialText.UserData).Identifier))
                 {
                     completedTutorials++;
                 }
