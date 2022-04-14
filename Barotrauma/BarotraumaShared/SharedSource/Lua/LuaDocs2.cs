@@ -1317,28 +1317,17 @@ namespace Barotrauma
                 return param.GetCustomAttributes(typeof(ParamArrayAttribute), false).Length > 0;
             }
 
-
             try
             {
-                var outerClass = targetType.DeclaringType;
-                string outerClassName = null;
-                if (outerClass != null)
-                {
-                    outerClassName = outerClass.Name;
-                }
-
-                if (outerClassName != null)
-                {
-                    File.WriteAllText(@$"{BLuaDocPath}/{targetType.Namespace}.{outerClassName}.{targetType.Name}.lua", luadocBuilder.ToString());
-                }
-                else
-                {
-                    File.WriteAllText(@$"{BLuaDocPath}/{targetType.Namespace}.{targetType.Name}.lua", luadocBuilder.ToString());
-                }
+                var declarT = targetType.DeclaringType;
+                File.WriteAllText(declarT != null
+                    ? @$"{BLuaDocPath}/{targetType.Namespace}.{declarT.Name}.{targetType.Name}.lua"
+                    : @$"{BLuaDocPath}/{targetType.Namespace}.{targetType.Name}.lua"
+                    ,luadocBuilder.ToString());
             }
             catch (Exception ex)
             {
-                File.WriteAllText("reportexception.txt", ex.Message);
+                File.WriteAllText("CrashReport.log", ex.Message);
                 throw;
             }
         }
