@@ -67,8 +67,9 @@ namespace Barotrauma
 		static LuaCsHook() => _inst = new LuaCsHook();
 		public static LuaCsHook Instance { get => _inst; }
 
-		private static void _hookLuaCsPatch(MethodBase __originalMethod, object[] __args, object __instance, ref object result, HookMethodType hookMethodType)
+		private static void _hookLuaCsPatch(MethodBase __originalMethod, object[] __args, object __instance, out object result, HookMethodType hookMethodType)
 		{
+			result = null;
 #if CLIENT
 		if (GameMain.GameSession?.IsRunning == false && GameMain.IsSingleplayer)
 			return;
@@ -106,8 +107,18 @@ namespace Barotrauma
 						else
 						{
 							var _result = tuple.Item2(__instance, args);
-							if (_result is LuaResult res && !res.IsNull()) result = _result;
-							else if (_result != null) result = _result;
+							if (_result != null)
+							{
+								if (_result is LuaResult res)
+								{
+									if (!res.IsNull())
+									{
+										if (__originalMethod is MethodInfo mi) result = res.DynValue().ToObject(mi.ReturnType);
+										else result = res.DynValue().ToObject();
+									}
+								}
+								else result = _result;
+							}
 						}
 					}
 					foreach (var tuple in outOfSocpe) methodSet.Remove(tuple);
@@ -122,45 +133,26 @@ namespace Barotrauma
 
 		private static bool HookLuaCsPatchPrefix(MethodBase __originalMethod, object[] __args, object __instance)
 		{
-			object result = null;
-			_hookLuaCsPatch(__originalMethod, __args, __instance, ref result, HookMethodType.Before);
-			if (result != null)
-			{
-				if (result is LuaResult res) return res.IsNull();
-				return false;
-			}
-			else return true;
+			_hookLuaCsPatch(__originalMethod, __args, __instance, out object result, HookMethodType.Before);
+			return result == null;
 		}
-		private static void HookLuaCsPatchPostfix(MethodBase __originalMethod, object[] __args, object __instance)
-		{
-			object result = null;
-			_hookLuaCsPatch(__originalMethod, __args, __instance, ref result, HookMethodType.After);
-		}
+		private static void HookLuaCsPatchPostfix(MethodBase __originalMethod, object[] __args, object __instance) =>
+			_hookLuaCsPatch(__originalMethod, __args, __instance, out object _, HookMethodType.After);
+
 		private static bool HookLuaCsPatchRetPrefix(MethodBase __originalMethod, object[] __args, ref object __result, object __instance)
 		{
-			_hookLuaCsPatch(__originalMethod, __args, __instance, ref __result, HookMethodType.Before);
-			if (__result != null)
+			_hookLuaCsPatch(__originalMethod, __args, __instance, out object result, HookMethodType.Before);
+			if (result != null)
 			{
-				if (__result is LuaResult res)
-				{
-					if (!res.IsNull() && __originalMethod is MethodInfo mi) __result = res.DynValue().ToObject(mi.ReturnType);
-					else __result = res.Object();
-				}
+				__result = result;
 				return false;
 			}
 			else return true;
 		}
 		private static void HookLuaCsPatchRetPostfix(MethodBase __originalMethod, object[] __args, ref object __result, object __instance)
 		{
-			_hookLuaCsPatch(__originalMethod, __args, __instance, ref __result, HookMethodType.After);
-			if (__result != null)
-			{
-				if (__result is LuaResult res)
-				{
-					if (!res.IsNull() && __originalMethod is MethodInfo mi) __result = res.DynValue().ToObject(mi.ReturnType);
-					else __result = res.Object();
-				}
-			}
+			_hookLuaCsPatch(__originalMethod, __args, __instance, out object result, HookMethodType.After);
+			if (result != null) __result = result;
 		}
 
 
@@ -204,6 +196,7 @@ namespace Barotrauma
 
 		public void HookMethod(string identifier, MethodInfo method, CsPatch patch, HookMethodType hookType = HookMethodType.Before, ACsMod owner = null)
 		{
+			Console.WriteLine($"  --==  '{identifier}' {method.ReflectedType.Name}.{method.Name} -> {method.ReturnType.Name}  |  {hookType.ToString("G")}");
 			if (identifier == null || method == null || patch == null) throw new ArgumentNullException("Identifier, Method and Patch arguments must not be null.");
 
 			var funcAddr = ((long)method.MethodHandle.GetFunctionPointer());
@@ -371,10 +364,12 @@ namespace Barotrauma
 		{
 			if (
 				typeof(T) != typeof(object) &&
-				!name.StartsWith("think") &&
 				!name.StartsWith("gapOxygenUpdate") &&
+				!name.StartsWith("signal") &&
 				!name.StartsWith("statusEffect")
-			) Console.WriteLine($"  --==  '{name}'");
+			)
+            {
+            }
 #if CLIENT
 			if (GameMain.GameSession?.IsRunning == false && GameMain.IsSingleplayer)
 				//return null;
@@ -407,8 +402,18 @@ namespace Barotrauma
 						try
 						{
 							var result = tuple.Item1.func(args);
-							if (result is LuaResult lRes && !lRes.IsNull()) lastResult = lRes.DynValue().ToObject<T>();
-							else if (result != null && result is T cRes) lastResult = cRes;
+							if (result != null)
+                            {
+								if (typeof(object) != typeof(T))
+								{
+									if (result is LuaResult lRes)
+									{
+										if (!lRes.IsNull()) lastResult = lRes.DynValue().ToObject<T>();
+									}
+									else if (result is T cRes && cRes != null) lastResult = cRes;
+								}
+								else if (result is T res && res != null) lastResult = res;
+							}
 						}
 						catch (Exception e)
 						{

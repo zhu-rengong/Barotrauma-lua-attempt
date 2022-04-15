@@ -23,10 +23,9 @@ namespace Barotrauma
                 var function = v.Function;
                 return (Func<Fixture, Vector2, Vector2, float, float>)((Fixture a, Vector2 b, Vector2 c, float d) => new LuaResult(function.Call(a, b, c, d)).Float());
             });
-            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(Closure), v => v.Function);
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(CsAction), v => (CsAction)( args => GameMain.LuaCs.CallLuaFunction(v.Function, args) ));
-            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(CsFunc), v => (CsFunc)( args => new LuaResult(GameMain.LuaCs.CallLuaFunction(v.Function, args)).Object() ));
-            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(CsPatch), v => (CsPatch)( (self, args) => new LuaResult(GameMain.LuaCs.CallLuaFunction(v.Function, self, args)).Object() ));
+            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(CsFunc), v => (CsFunc)( args => new LuaResult(GameMain.LuaCs.CallLuaFunction(v.Function, args)) ));
+            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(CsPatch), v => (CsPatch)( (self, args) => new LuaResult(GameMain.LuaCs.CallLuaFunction(v.Function, self, args)) ));
 
 #if CLIENT
             RegisterAction<float>();
