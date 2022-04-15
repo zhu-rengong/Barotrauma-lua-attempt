@@ -302,7 +302,7 @@ namespace Barotrauma
 
             if (Prefab is AfflictionPrefabHusk huskPrefab)
             {
-                if (huskPrefab.ControlHusk || GameMain.LuaCs.game.enableControlHusk)
+                if (huskPrefab.ControlHusk || GameMain.LuaCs.Game.enableControlHusk)
                 {
 #if SERVER
                     if (client != null)

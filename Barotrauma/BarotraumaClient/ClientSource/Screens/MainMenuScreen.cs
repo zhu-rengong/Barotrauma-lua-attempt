@@ -413,17 +413,23 @@ namespace Barotrauma
                     {
                         msg.Close();
 
+                        string[] filesToRemove = new string[]
+                        {
+                            "Barotrauma.dll", "Barotrauma.deps.json",
+                            "System.Reflection.Metadata.dll", "System.Collections.Immutable.dll",
+                            "System.Runtime.CompilerServices.Unsafe.dll"
+                        };
                         try
                         {
-                            System.IO.File.Move("Barotrauma.dll", "Barotrauma.dll.todelete", true);
-                            System.IO.File.Move("Barotrauma.deps.json", "Barotrauma.deps.json.todelete", true);
-
-                            System.IO.File.Move("Barotrauma.dll.old", "Barotrauma.dll", true);
-                            System.IO.File.Move("Barotrauma.deps.json.old", "Barotrauma.deps.json", true);
-
-                        }catch(Exception e)
+                            foreach (string file in filesToRemove)
+                            {
+                                System.IO.File.Move(file, file + ".todelete", true);
+                                System.IO.File.Move(file + ".old", file, true);
+                            }
+                        }
+                        catch(Exception e)
 						{
-                            new GUIMessageBox("Error", "Error: " + e.ToString());
+                            new GUIMessageBox("Error", $"{e} {e.InnerException}");
                             return false;
                         }
 

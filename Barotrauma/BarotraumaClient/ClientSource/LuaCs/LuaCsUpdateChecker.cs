@@ -27,7 +27,17 @@ namespace Barotrauma
                 string[] filesToUpdate = new string[]
                 {
                     "Barotrauma.dll", "Barotrauma.deps.json",
-                    "0harmony.dll", "MoonSharp.Interpreter.dll",
+                    "0harmony.dll", "Mono.Cecil.dll",
+                    "Mono.Cecil.Mdb.dll", "Mono.Cecil.Pdb.dll",
+                    "Mono.Cecil.Rocks.dll", "MonoMod.Common.dll",
+                    "MoonSharp.Interpreter.dll",
+                    "mscordaccore_amd64_amd64_4.700.22.11601.dll",
+
+                    "Microsoft.CodeAnalysis.dll", "Microsoft.CodeAnalysis.CSharp.dll",
+                    "Microsoft.CodeAnalysis.CSharp.Scripting.dll", "Microsoft.CodeAnalysis.Scripting.dll",
+
+                    "System.Reflection.Metadata.dll", "System.Collections.Immutable.dll",
+                    "System.Runtime.CompilerServices.Unsafe.dll"
                 };
 
 

@@ -47,6 +47,8 @@ namespace Barotrauma
 			}
 		}
 
+		private Harmony harmony;
+
 		private Dictionary<string, Dictionary<string, (LuaCsHookCallback, ACsMod)>> hookFunctions;
 
 		private Dictionary<long, HashSet<(string, CsPatch, ACsMod)>> hookPrefixMethods;
@@ -54,7 +56,11 @@ namespace Barotrauma
 
 		private Queue<(float, CsAction, object[])> queuedFunctionCalls;
 
-		private LuaCsHook() {
+		private static LuaCsHook instance;
+
+		public LuaCsHook() {
+			instance = this;
+			
 			hookFunctions = new Dictionary<string, Dictionary<string, (LuaCsHookCallback, ACsMod)>>();
 
 			hookPrefixMethods = new Dictionary<long, HashSet<(string, CsPatch, ACsMod)>>();
@@ -63,10 +69,12 @@ namespace Barotrauma
 			queuedFunctionCalls = new Queue<(float, CsAction, object[])>();
 		}
 
-		private static LuaCsHook _inst;
-		static LuaCsHook() => _inst = new LuaCsHook();
-		public static LuaCsHook Instance { get => _inst; }
+		public void Initialize()
+        {
+			harmony = new Harmony("LuaCsForBarotrauma");
 
+        }
+		
 		private static void _hookLuaCsPatch(MethodBase __originalMethod, object[] __args, object __instance, out object result, HookMethodType hookMethodType)
 		{
 			result = null;
@@ -81,10 +89,10 @@ namespace Barotrauma
 				switch (hookMethodType)
 				{
 					case HookMethodType.Before:
-						_inst.hookPrefixMethods.TryGetValue(funcAddr, out methodSet);
+						instance.hookPrefixMethods.TryGetValue(funcAddr, out methodSet);
 						break;
 					case HookMethodType.After:
-						_inst.hookPostfixMethods.TryGetValue(funcAddr, out methodSet);
+						instance.hookPostfixMethods.TryGetValue(funcAddr, out methodSet);
 						break;
 					default:
 						break;
@@ -196,7 +204,6 @@ namespace Barotrauma
 
 		public void HookMethod(string identifier, MethodInfo method, CsPatch patch, HookMethodType hookType = HookMethodType.Before, ACsMod owner = null)
 		{
-			Console.WriteLine($"  --==  '{identifier}' {method.ReflectedType.Name}.{method.Name} -> {method.ReturnType.Name}  |  {hookType.ToString("G")}");
 			if (identifier == null || method == null || patch == null) throw new ArgumentNullException("Identifier, Method and Patch arguments must not be null.");
 
 			var funcAddr = ((long)method.MethodHandle.GetFunctionPointer());
@@ -208,14 +215,14 @@ namespace Barotrauma
                 {
 					if (patches == null || patches.Prefixes == null || patches.Prefixes.Find(patch => patch.PatchMethod == _miHookLuaCsPatchRetPrefix) == null)
 					{
-						GameMain.LuaCs.harmony.Patch(method, prefix: new HarmonyMethod(_miHookLuaCsPatchRetPrefix));
+						harmony.Patch(method, prefix: new HarmonyMethod(_miHookLuaCsPatchRetPrefix));
 					}
 				}
 				else
                 {
 					if (patches == null || patches.Prefixes == null || patches.Prefixes.Find(patch => patch.PatchMethod == _miHookLuaCsPatchPrefix) == null)
 					{
-						GameMain.LuaCs.harmony.Patch(method, prefix: new HarmonyMethod(_miHookLuaCsPatchPrefix));
+						harmony.Patch(method, prefix: new HarmonyMethod(_miHookLuaCsPatchPrefix));
 					}
 				}
 
@@ -236,14 +243,14 @@ namespace Barotrauma
 				{
 					if (patches == null || patches.Postfixes == null || patches.Postfixes.Find(patch => patch.PatchMethod == _miHookLuaCsPatchRetPostfix) == null)
 					{
-						GameMain.LuaCs.harmony.Patch(method, postfix: new HarmonyMethod(_miHookLuaCsPatchRetPostfix));
+						harmony.Patch(method, postfix: new HarmonyMethod(_miHookLuaCsPatchRetPostfix));
 					}
 				}
 				else
                 {
 					if (patches == null || patches.Postfixes == null || patches.Postfixes.Find(patch => patch.PatchMethod == _miHookLuaCsPatchPostfix) == null)
 					{
-						GameMain.LuaCs.harmony.Patch(method, postfix: new HarmonyMethod(_miHookLuaCsPatchPostfix));
+						harmony.Patch(method, postfix: new HarmonyMethod(_miHookLuaCsPatchPostfix));
 					}
 				}
 
@@ -312,7 +319,6 @@ namespace Barotrauma
 		{
 			name = name.ToLower();
 
-			LuaCsSetup.PrintLogMessage($"'{name}' | '{hookName}'");
 			if (name == null || hookName == null || hook == null) throw new ArgumentNullException("Names and Hook must not be null");
 
 			if (!hookFunctions.ContainsKey(name))
@@ -340,7 +346,7 @@ namespace Barotrauma
 
 			queuedFunctionCalls.Clear();
 
-			GameMain.LuaCs.harmony?.UnpatchAll();
+			harmony?.UnpatchAll();
 		}
 
 
