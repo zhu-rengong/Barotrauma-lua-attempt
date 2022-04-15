@@ -9,6 +9,7 @@ RegisterBarotrauma("LuaFloat")
 
 RegisterBarotrauma("Level+InterestingPosition")
 
+RegisterBarotrauma("RichString")
 RegisterBarotrauma("Identifier")
 
 RegisterBarotrauma("Job")
