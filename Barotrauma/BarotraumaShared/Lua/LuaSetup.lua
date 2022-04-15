@@ -37,4 +37,6 @@ AddTableToGlobal(require("CompatibilityLib"))
 
 require("DefaultHook")
 
+LuaSetup = nil
+
 require("ModLoader")
