@@ -517,6 +517,24 @@ namespace Barotrauma.Networking
                     }
                 }
 
+                if (permissions.HasFlag(Networking.ClientPermissions.ConsoleCommands))
+                {
+                    foreach (XElement commandElement in clientElement.Elements())
+                    {
+                        if (!commandElement.Name.ToString().Equals("command", StringComparison.OrdinalIgnoreCase)) { continue; }
+
+                        string commandName = commandElement.GetAttributeString("name", "");
+                        DebugConsole.Command command = DebugConsole.FindCommand(commandName);
+                        if (command == null)
+                        {
+                            DebugConsole.ThrowError("Error in " + ClientPermissionsFile + " - \"" + commandName + "\" is not a valid console command.");
+                            continue;
+                        }
+
+                        permittedCommands.Add(command);
+                    }
+                }
+
                 if (!string.IsNullOrEmpty(steamIdStr))
                 {
                     if (ulong.TryParse(steamIdStr, out ulong steamID))
@@ -607,17 +625,17 @@ namespace Barotrauma.Networking
                 if (matchingPreset == null)
                 {
                     clientElement.Add(new XAttribute("permissions", clientPermission.Permissions.ToString()));
-                    if (clientPermission.Permissions.HasFlag(Networking.ClientPermissions.ConsoleCommands))
-                    {
-                        foreach (DebugConsole.Command command in clientPermission.PermittedCommands)
-                        {
-                            clientElement.Add(new XElement("command", new XAttribute("name", command.names[0])));
-                        }
-                    }
                 }
                 else
                 {
                     clientElement.Add(new XAttribute("preset", matchingPreset.Name));
+                }
+                if (clientPermission.Permissions.HasFlag(Networking.ClientPermissions.ConsoleCommands))
+                {
+                    foreach (DebugConsole.Command command in clientPermission.PermittedCommands)
+                    {
+                        clientElement.Add(new XElement("command", new XAttribute("name", command.names[0])));
+                    }
                 }
                 doc.Root.Add(clientElement);
             }

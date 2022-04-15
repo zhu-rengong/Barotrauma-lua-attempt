@@ -121,6 +121,11 @@ namespace Barotrauma
 
         public static bool operator !=(string str, in Identifier? identifier) =>
             !(identifier == str);
+
+        public static implicit operator Identifier(string str)
+        {
+            return new Identifier(str);
+        }
     }
 
     public static class IdentifierExtensions

@@ -1,30 +1,7 @@
 local defaultLib = {}
 
-local descriptors = require("DefaultRegister")
-
-local CreateStatic = function (typeName, addCallMethod)
-	local staticUserdata = LuaUserData.CreateStatic(typeName)
-	
-	if addCallMethod then
-		debug.setmetatable(staticUserdata, {
-			__call = function(obj, ...) 
-				local success, result = pcall(staticUserdata.__new, ...)
-
-				if not success then
-					error(result, 2)
-				end
-
-				return result
-			end
-		})
-	end
-
-	return staticUserdata
-end
-
+local CreateStatic = LuaSetup.CreateStatic
 local CreateEnum = LuaUserData.CreateEnumTable
-
-defaultLib["Descriptors"] = descriptors
 
 defaultLib["Byte"] = CreateStatic("Barotrauma.LuaByte", true)
 defaultLib["UShort"] = CreateStatic("Barotrauma.LuaUShort", true)
@@ -115,12 +92,12 @@ defaultLib["AIObjectiveRescue"] = CreateStatic("Barotrauma.AIObjectiveRescue", t
 defaultLib["AIObjectiveRescueAll"] = CreateStatic("Barotrauma.AIObjectiveRescueAll", true)
 defaultLib["AIObjectiveReturn"] = CreateStatic("Barotrauma.AIObjectiveReturn", true)
 
-local barotraumaComponentsToReference = { "DockingPort", "Door", "GeneticMaterial", "Growable", "Holdable", "LevelResource", "ItemComponent", "ItemLabel", "LightComponent", "Controller", "Deconstructor", "Engine", "Fabricator", "OutpostTerminal", "Pump", "Reactor", "Steering", "PowerContainer", "Projectile", "Repairable", "Rope", "Scanner", "ButtonTerminal", "ConnectionPanel", "CustomInterface", "MemoryComponent", "Terminal", "WifiComponent", "Wire", "TriggerComponent", "ElectricalDischarger", "EntitySpawnerComponent", "ProducedItem", "VineTile", "GrowthSideExtension", "IdCard", "MeleeWeapon", "Pickable", "Propulsion", "RangedWeapon", "RepairTool", "Sprayer", "Throwable", "ItemContainer", "Ladder", "LimbPos", "MiniMap", "OxygenGenerator", "Sonar", "SonarTransducer", "Vent", "NameTag", "Planter", "Powered", "PowerTransfer", "Quality", "RemoteController", "AdderComponent", "AndComponent", "ArithmeticComponent", "ColorComponent", "ConcatComponent", "Connection", "DelayComponent", "DivideComponent", "EqualsComponent", "ExponentiationComponent", "FunctionComponent", "GreaterComponent", "ModuloComponent", "MotionSensor", "MultiplyComponent", "NotComponent", "OrComponent", "OscillatorComponent", "OxygenDetector", "RegExFindComponent", "RelayComponent", "SignalCheckComponent", "SmokeDetector", "StringComponent", "SubtractComponent", "TrigonometricFunctionComponent", "WaterDetector", "XorComponent", "StatusHUD", "Turret", "Wearable", "CustomInterface"
+local componentsToReference = { "DockingPort", "Door", "GeneticMaterial", "Growable", "Holdable", "LevelResource", "ItemComponent", "ItemLabel", "LightComponent", "Controller", "Deconstructor", "Engine", "Fabricator", "OutpostTerminal", "Pump", "Reactor", "Steering", "PowerContainer", "Projectile", "Repairable", "Rope", "Scanner", "ButtonTerminal", "ConnectionPanel", "CustomInterface", "MemoryComponent", "Terminal", "WifiComponent", "Wire", "TriggerComponent", "ElectricalDischarger", "EntitySpawnerComponent", "ProducedItem", "VineTile", "GrowthSideExtension", "IdCard", "MeleeWeapon", "Pickable", "Propulsion", "RangedWeapon", "RepairTool", "Sprayer", "Throwable", "ItemContainer", "Ladder", "LimbPos", "MiniMap", "OxygenGenerator", "Sonar", "SonarTransducer", "Vent", "NameTag", "Planter", "Powered", "PowerTransfer", "Quality", "RemoteController", "AdderComponent", "AndComponent", "ArithmeticComponent", "ColorComponent", "ConcatComponent", "Connection", "DelayComponent", "DivideComponent", "EqualsComponent", "ExponentiationComponent", "FunctionComponent", "GreaterComponent", "ModuloComponent", "MotionSensor", "MultiplyComponent", "NotComponent", "OrComponent", "OscillatorComponent", "OxygenDetector", "RegExFindComponent", "RelayComponent", "SignalCheckComponent", "SmokeDetector", "StringComponent", "SubtractComponent", "TrigonometricFunctionComponent", "WaterDetector", "XorComponent", "StatusHUD", "Turret", "Wearable", "CustomInterface"
 }
 
 defaultLib["Components"] = {}
 
-for key, value in pairs(barotraumaComponentsToReference) do
+for key, value in pairs(componentsToReference) do
 	defaultLib["Components"][value] = CreateStatic("Barotrauma.Items.Components." .. value, true)
 end
 
@@ -131,38 +108,5 @@ defaultLib["Color"] = CreateStatic("Microsoft.Xna.Framework.Color", true)
 defaultLib["Point"] = CreateStatic("Microsoft.Xna.Framework.Point", true)
 defaultLib["Rectangle"] = CreateStatic("Microsoft.Xna.Framework.Rectangle", true)
 defaultLib["Matrix"] = CreateStatic("Microsoft.Xna.Framework.Matrix", true)
-
-if SERVER then
-
-elseif CLIENT then
-	defaultLib["Sprite"] = CreateStatic("Barotrauma.Sprite", true)
-	defaultLib["PlayerInput"] = CreateStatic("Barotrauma.PlayerInput", true)
-
-	defaultLib["Keys"] = CreateStatic("Microsoft.Xna.Framework.Input.Keys", true)
-
-	defaultLib["GUI"] = {
-		GUI = CreateStatic("Barotrauma.GUI", true),
-		GUIStyle = CreateStatic("Barotrauma.GUIStyle", true),
-		RectTransform = CreateStatic("Barotrauma.RectTransform", true),
-		LayoutGroup = CreateStatic("Barotrauma.GUILayoutGroup", true),
-		Button = CreateStatic("Barotrauma.GUIButton", true),
-		TextBox = CreateStatic("Barotrauma.GUITextBox", true),
-		Canvas = CreateStatic("Barotrauma.GUICanvas", true),
-		Frame = CreateStatic("Barotrauma.GUIFrame", true),
-		TextBlock = CreateStatic("Barotrauma.GUITextBlock", true),
-		TickBox = CreateStatic("Barotrauma.GUITickBox", true),
-		Image = CreateStatic("Barotrauma.GUIImage", true),
-		ListBox = CreateStatic("Barotrauma.GUIListBox", true),
-		ScrollBar = CreateStatic("Barotrauma.GUIScrollBar", true),
-		DropDown = CreateStatic("Barotrauma.GUIDropDown", true),
-		NumberInput = CreateStatic("Barotrauma.GUINumberInput", true),
-
-		Screen = CreateStatic("Barotrauma.Screen"),
-
-		Anchor = CreateStatic("Barotrauma.Anchor"),
-		Alignment = CreateStatic("Barotrauma.Alignment"),
-		Pivot = CreateStatic("Barotrauma.Pivot"),
-	}
-end
 
 return defaultLib

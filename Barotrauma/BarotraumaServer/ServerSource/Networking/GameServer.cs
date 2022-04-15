@@ -326,6 +326,12 @@ namespace Barotrauma.Networking
             }
 
             UpdateClientPermissions(newClient);
+            //notify the client of everyone else's permissions
+            foreach (Client otherClient in connectedClients)
+            {
+                if (otherClient == newClient) { continue; }
+                CoroutineManager.StartCoroutine(SendClientPermissionsAfterClientListSynced(newClient, otherClient));
+            }
         }
 
         private void OnClientDisconnect(NetworkConnection connection, string disconnectMsg)
@@ -1825,7 +1831,9 @@ namespace Barotrauma.Networking
                                    !client.HasPermission(ClientPermissions.Unban),
                     IsDownloading = FileSender.ActiveTransfers.Any(t => t.Connection == client.Connection)
                 };
-                
+
+                GameMain.Lua.hook.Call("writeClientList.modifyTempClientData", c, client, tempClientData, outmsg);
+
                 outmsg.Write(tempClientData);
                 outmsg.WritePadBits();
             }

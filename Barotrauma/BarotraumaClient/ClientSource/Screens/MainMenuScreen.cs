@@ -442,7 +442,9 @@ namespace Barotrauma
                 }
             };
 
-            new GUITextBlock(new RectTransform(new Point(300, 30), Frame.RectTransform, Anchor.TopLeft) { AbsoluteOffset = new Point(10, 10) }, "Using LuaForBarotrauma version " + AssemblyInfo.GitRevision, Color.Red)
+            string version = File.Exists(LuaSetup.VERSION_FILE) ? File.ReadAllText(LuaSetup.VERSION_FILE) : "Github";
+
+            new GUITextBlock(new RectTransform(new Point(300, 30), Frame.RectTransform, Anchor.TopLeft) { AbsoluteOffset = new Point(10, 10) }, $"Using LuaCsForBarotrauma revision {AssemblyInfo.GitRevision} version {version}", Color.Red)
             {
                 IgnoreLayoutGroups = false
             };
@@ -813,7 +815,7 @@ namespace Barotrauma
 
             foreach (GUITextBlock tutorialText in tutorialList.Content.Children)
             {
-                if (((Tutorial)tutorialText.UserData).Completed)
+                if (CompletedTutorials.Instance.Contains(((Tutorial)tutorialText.UserData).Identifier))
                 {
                     completedTutorials++;
                 }
