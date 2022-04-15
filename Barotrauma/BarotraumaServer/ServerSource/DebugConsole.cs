@@ -1253,7 +1253,7 @@ namespace Barotrauma
 
             commands.Add(new Command("install_cl_lua", "Installs client-Side Lua into your client.", (string[] args) =>
             {
-                ContentPackage luaPackage = LuaCsSetup.GetLuaPackage();
+                ContentPackage luaPackage = LuaCsSetup.GetPackage();
 
                 if (luaPackage == null)
                 {
@@ -1283,11 +1283,11 @@ namespace Barotrauma
                         File.Copy(Path.Combine(path, "Binary", file), file, true);
                     }
 
-                    File.WriteAllText(LuaSetup.VERSION_FILE, luaPackage.ModVersion);
+                    File.WriteAllText(LuaCsSetup.VERSION_FILE, luaPackage.ModVersion);
                 }
                 catch (UnauthorizedAccessException e)
                 {
-                    GameMain.Lua.PrintError("You seem to already have Client Side Lua installed, if you are trying to reinstall, make sure uninstall it first (mainmenu button located top left).");
+                    GameMain.LuaCs.PrintError("You seem to already have Client Side Lua installed, if you are trying to reinstall, make sure uninstall it first (mainmenu button located top left).");
 
                     return;
                 }

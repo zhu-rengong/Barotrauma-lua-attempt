@@ -118,7 +118,7 @@ namespace Barotrauma
 		}
 
 #if SERVER
-		private void PrintError(object message) => PrintErrorBase("[SV LUA ERROR] ", message, "nil");
+		public void PrintError(object message) => PrintErrorBase("[SV LUA ERROR] ", message, "nil");
 		public static void PrintCsError(object message) => PrintErrorBase("[SV CS ERROR] ", message, "Null");
 		public static void PrintBothError(object message) => PrintErrorBase("[SV ERROR] ", message, "Null");
 #else

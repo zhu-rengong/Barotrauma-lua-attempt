@@ -442,7 +442,7 @@ namespace Barotrauma
                 }
             };
 
-            string version = File.Exists(LuaSetup.VERSION_FILE) ? File.ReadAllText(LuaSetup.VERSION_FILE) : "Github";
+            string version = File.Exists(LuaCsSetup.VERSION_FILE) ? File.ReadAllText(LuaCsSetup.VERSION_FILE) : "Github";
 
             new GUITextBlock(new RectTransform(new Point(300, 30), Frame.RectTransform, Anchor.TopLeft) { AbsoluteOffset = new Point(10, 10) }, $"Using LuaCsForBarotrauma revision {AssemblyInfo.GitRevision} version {version}", Color.Red)
             {
@@ -525,7 +525,7 @@ namespace Barotrauma
         #region Selection
         public override void Select()
         {
-            GameMain.Lua.Stop();
+            GameMain.LuaCs.Stop();
 
             if (WorkshopItemsToUpdate.Any())
             {
