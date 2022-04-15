@@ -1,22 +1,7 @@
-local descriptors = {}
-
-local function Register(typeName)
-    local descriptor = LuaUserData.RegisterType(typeName)
-
-    descriptors[typeName] = descriptor
-
-    return descriptor
-end
-
-local function RegisterBarotrauma(typeName)
-    return Register("Barotrauma." .. typeName)
-end
+local Register = LuaSetup.Register
+local RegisterBarotrauma = LuaSetup.RegisterBarotrauma
 
 Register("System.TimeSpan")
-
-if SERVER then
-    RegisterBarotrauma("Networking.GameServer")
-end
 
 RegisterBarotrauma("LuaByte")
 RegisterBarotrauma("LuaUShort")
@@ -25,10 +10,6 @@ RegisterBarotrauma("LuaFloat")
 RegisterBarotrauma("Level+InterestingPosition")
 
 RegisterBarotrauma("Identifier")
-
-RegisterBarotrauma("LocalizedString")
-RegisterBarotrauma("TagLString")
-RegisterBarotrauma("RichString")
 
 RegisterBarotrauma("Job")
 RegisterBarotrauma("JobPrefab")
@@ -89,11 +70,11 @@ RegisterBarotrauma("ItemInventory")
 RegisterBarotrauma("Inventory+ItemSlot")
 RegisterBarotrauma("FireSource")
 
-local barotraumaComponentsToRegister = { "DockingPort", "Door", "GeneticMaterial", "Growable", "Holdable", "LevelResource", "ItemComponent", "ItemLabel", "LightComponent", "Controller", "Deconstructor", "Engine", "Fabricator", "OutpostTerminal", "Pump", "Reactor", "Steering", "PowerContainer", "Projectile", "Repairable", "Rope", "Scanner", "ButtonTerminal", "ConnectionPanel", "CustomInterface", "MemoryComponent", "Terminal", "WifiComponent", "Wire", "TriggerComponent", "ElectricalDischarger", "EntitySpawnerComponent", "ProducedItem", "VineTile", "GrowthSideExtension", "IdCard", "MeleeWeapon", "Pickable", "AbilityItemPickingTime", "Propulsion", "RangedWeapon", "AbilityRangedWeapon", "RepairTool", "Sprayer", "Throwable", "ItemContainer", "AbilityItemContainer", "Ladder", "LimbPos", "AbilityDeconstructedItem", "AbilityItemCreationMultiplier", "AbilityItemDeconstructedInventory", "MiniMap", "OxygenGenerator", "Sonar", "SonarTransducer", "Vent", "NameTag", "Planter", "Powered", "PowerTransfer", "Quality", "RemoteController", "AdderComponent", "AndComponent", "ArithmeticComponent", "ColorComponent", "ConcatComponent", "Connection", "DelayComponent", "DivideComponent", "EqualsComponent", "ExponentiationComponent", "FunctionComponent", "GreaterComponent", "ModuloComponent", "MotionSensor", "MultiplyComponent", "NotComponent", "OrComponent", "OscillatorComponent", "OxygenDetector", "RegExFindComponent", "RelayComponent", "SignalCheckComponent", "SmokeDetector", "StringComponent", "SubtractComponent", "TrigonometricFunctionComponent", "WaterDetector", "XorComponent", "StatusHUD", "Turret", "Wearable",
+local componentsToRegister = { "DockingPort", "Door", "GeneticMaterial", "Growable", "Holdable", "LevelResource", "ItemComponent", "ItemLabel", "LightComponent", "Controller", "Deconstructor", "Engine", "Fabricator", "OutpostTerminal", "Pump", "Reactor", "Steering", "PowerContainer", "Projectile", "Repairable", "Rope", "Scanner", "ButtonTerminal", "ConnectionPanel", "CustomInterface", "MemoryComponent", "Terminal", "WifiComponent", "Wire", "TriggerComponent", "ElectricalDischarger", "EntitySpawnerComponent", "ProducedItem", "VineTile", "GrowthSideExtension", "IdCard", "MeleeWeapon", "Pickable", "AbilityItemPickingTime", "Propulsion", "RangedWeapon", "AbilityRangedWeapon", "RepairTool", "Sprayer", "Throwable", "ItemContainer", "AbilityItemContainer", "Ladder", "LimbPos", "AbilityDeconstructedItem", "AbilityItemCreationMultiplier", "AbilityItemDeconstructedInventory", "MiniMap", "OxygenGenerator", "Sonar", "SonarTransducer", "Vent", "NameTag", "Planter", "Powered", "PowerTransfer", "Quality", "RemoteController", "AdderComponent", "AndComponent", "ArithmeticComponent", "ColorComponent", "ConcatComponent", "Connection", "DelayComponent", "DivideComponent", "EqualsComponent", "ExponentiationComponent", "FunctionComponent", "GreaterComponent", "ModuloComponent", "MotionSensor", "MultiplyComponent", "NotComponent", "OrComponent", "OscillatorComponent", "OxygenDetector", "RegExFindComponent", "RelayComponent", "SignalCheckComponent", "SmokeDetector", "StringComponent", "SubtractComponent", "TrigonometricFunctionComponent", "WaterDetector", "XorComponent", "StatusHUD", "Turret", "Wearable",
 "GridInfo", "PowerSourceGroup"
 }
 
-for key, value in pairs(barotraumaComponentsToRegister) do
+for key, value in pairs(componentsToRegister) do
     RegisterBarotrauma("Items.Components." .. value)
 end
 
@@ -229,51 +210,3 @@ Register("Microsoft.Xna.Framework.Color")
 Register("Microsoft.Xna.Framework.Point")
 Register("Microsoft.Xna.Framework.Rectangle")
 Register("Microsoft.Xna.Framework.Matrix")
-
-if SERVER then
-RegisterBarotrauma("Networking.ServerPeer")
-RegisterBarotrauma("Networking.ServerPeer+PendingClient")
-
-RegisterBarotrauma("Traitor")
-RegisterBarotrauma("Traitor+TraitorMission")
-
-elseif CLIENT then
-
-RegisterBarotrauma("Networking.ClientPeer")
-
-RegisterBarotrauma("ChatBox")
-RegisterBarotrauma("GUICanvas")
-RegisterBarotrauma("Anchor")
-RegisterBarotrauma("Alignment")
-RegisterBarotrauma("Pivot")
-RegisterBarotrauma("Key")
-RegisterBarotrauma("PlayerInput")
-RegisterBarotrauma("ScalableFont")
-
-Register("Microsoft.Xna.Framework.Graphics.Texture2D")
-Register("EventInput.KeyEventArgs")
-Register("Microsoft.Xna.Framework.Input.Keys")
-Register("Microsoft.Xna.Framework.Input.KeyboardState")
-
-RegisterBarotrauma("Sprite")
-RegisterBarotrauma("GUI")
-RegisterBarotrauma("GUIStyle")
-RegisterBarotrauma("GUILayoutGroup")
-RegisterBarotrauma("GUITextBox")
-RegisterBarotrauma("GUITextBlock")
-RegisterBarotrauma("GUIButton")
-RegisterBarotrauma("RectTransform")
-RegisterBarotrauma("GUIFrame")
-RegisterBarotrauma("GUITickBox")
-RegisterBarotrauma("GUICustomComponent")
-RegisterBarotrauma("GUIImage")
-RegisterBarotrauma("GUIListBox")
-RegisterBarotrauma("GUIScrollBar")
-RegisterBarotrauma("GUIDropDown")
-RegisterBarotrauma("GUINumberInput")
-
-RegisterBarotrauma("Inventory+SlotReference")
-
-end
-
-return descriptors
