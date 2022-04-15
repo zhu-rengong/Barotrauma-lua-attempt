@@ -74,7 +74,7 @@ namespace Barotrauma.Items.Components
 #if SERVER
             get
 			{
-                if(GameMain.LuaCs.game.allowWifiChat) return true;
+                if(GameMain.LuaCs.Game.allowWifiChat) return true;
                 return linkToChat;
             }
 

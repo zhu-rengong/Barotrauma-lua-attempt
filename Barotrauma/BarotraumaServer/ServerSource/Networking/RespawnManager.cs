@@ -25,7 +25,7 @@ namespace Barotrauma.Networking
             MultiPlayerCampaign campaign = GameMain.GameSession.GameMode as MultiPlayerCampaign;
             foreach (Client c in networkMember.ConnectedClients)
             {
-                if (GameMain.LuaCs.game.overrideRespawnSub)
+                if (GameMain.LuaCs.Game.overrideRespawnSub)
                     continue;
 
                 if (!c.InGame) { continue; }
@@ -125,7 +125,7 @@ namespace Barotrauma.Networking
 
         private bool ShouldStartRespawnCountdown(int characterToRespawnCount)
         {
-            if (GameMain.LuaCs.game.overrideRespawnSub)
+            if (GameMain.LuaCs.Game.overrideRespawnSub)
             {
                 characterToRespawnCount = 0;
             }
@@ -136,7 +136,7 @@ namespace Barotrauma.Networking
         {
             if (RespawnShuttle != null)
             {
-                if (!GameMain.LuaCs.game.overrideRespawnSub)
+                if (!GameMain.LuaCs.Game.overrideRespawnSub)
                 {
                     RespawnShuttle.Velocity = Vector2.Zero;
                 }
@@ -185,7 +185,7 @@ namespace Barotrauma.Networking
         {
             if (RespawnShuttle != null)
             {
-                if (GameMain.LuaCs.game.overrideRespawnSub)
+                if (GameMain.LuaCs.Game.overrideRespawnSub)
 				{
                     CurrentState = State.Waiting;
                 }
@@ -206,7 +206,7 @@ namespace Barotrauma.Networking
 
                 Vector2 spawnPos = FindSpawnPos();
 
-                if (!GameMain.LuaCs.game.overrideRespawnSub)
+                if (!GameMain.LuaCs.Game.overrideRespawnSub)
                 {
                     RespawnCharacters(spawnPos);
                 }

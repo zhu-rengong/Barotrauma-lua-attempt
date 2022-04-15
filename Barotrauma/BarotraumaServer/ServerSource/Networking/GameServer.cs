@@ -378,7 +378,7 @@ namespace Barotrauma.Networking
                     Character character = Character.CharacterList[i];
                     if (character.IsDead || !character.ClientDisconnected) { continue; }
 
-                    if (!GameMain.LuaCs.game.disableDisconnectCharacter)
+                    if (!GameMain.LuaCs.Game.disableDisconnectCharacter)
                     {
                         character.KillDisconnectedTimer += deltaTime;
                         character.SetStun(1.0f);
@@ -700,7 +700,7 @@ namespace Barotrauma.Networking
 
             ClientPacketHeader header = (ClientPacketHeader)inc.ReadByte();
             
-            GameMain.LuaCs.networking.NetMessageReceived(inc, header, connectedClient);
+            GameMain.LuaCs.Networking.NetMessageReceived(inc, header, connectedClient);
 
             switch (header)
             {
@@ -2429,7 +2429,7 @@ namespace Barotrauma.Networking
             {
                 if (!(GameMain.GameSession?.GameMode is CampaignMode))
                 {
-                    if (!GameMain.LuaCs.game.overrideTraitors)
+                    if (!GameMain.LuaCs.Game.overrideTraitors)
                     {
                         TraitorManager = new TraitorManager();
                         TraitorManager.Start(this);
@@ -3133,7 +3133,7 @@ namespace Barotrauma.Networking
                 senderName = null;
                 senderCharacter = null;
             }
-            else if (type == ChatMessageType.Radio && !GameMain.LuaCs.game.overrideSignalRadio)
+            else if (type == ChatMessageType.Radio && !GameMain.LuaCs.Game.overrideSignalRadio)
             {
                 //send to chat-linked wifi components
                 Signal s = new Signal(message, sender: senderCharacter, source: senderRadio.Item);

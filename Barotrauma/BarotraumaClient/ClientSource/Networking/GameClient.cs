@@ -690,7 +690,7 @@ namespace Barotrauma.Networking
         {
             ServerPacketHeader header = (ServerPacketHeader)inc.ReadByte();
 
-            GameMain.LuaCs.networking.NetMessageReceived(inc, header);
+            GameMain.LuaCs.Networking.NetMessageReceived(inc, header);
 
             if (roundInitStatus != RoundInitStatus.Started &&
                 roundInitStatus != RoundInitStatus.NotStarted &&

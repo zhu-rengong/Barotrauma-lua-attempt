@@ -24,19 +24,18 @@ namespace Barotrauma
 
 		internal LuaCsHook Hook { get; private set; }
 
-		public LuaGame game;
-		public LuaCsNetworking networking;
-		public Harmony harmony;
+		public LuaGame Game;
+		public LuaCsNetworking Networking;
 
-		public LuaScriptLoader luaScriptLoader;
-		public CsScriptLoader netScriptLoader;
+		public LuaScriptLoader LuaScriptLoader;
+		public CsScriptLoader NetScriptLoader;
 
 		public LuaCsSetup()
 		{
-			Hook = LuaCsHook.Instance;
+			Hook = new LuaCsHook();
 
-			game = new LuaGame();
-			networking = new LuaCsNetworking();
+			Game = new LuaGame();
+			Networking = new LuaCsNetworking();
 		}
 
 
@@ -265,7 +264,7 @@ namespace Barotrauma
 
 		public void SetModulePaths(string[] str)
 		{
-			luaScriptLoader.ModulePaths = str;
+			LuaScriptLoader.ModulePaths = str;
 		}
 
 		public void Update()
@@ -279,31 +278,12 @@ namespace Barotrauma
 			ACsMod.LoadedMods.Clear();
 			Hook?.Call("stop");
 
-			game?.Stop();
-			//harmony?.UnpatchAll();
+			Game?.Stop();
 
-			//Hook = new LuaCsHook();
 			Hook.Clear();
-			game = new LuaGame();
-			networking = new LuaCsNetworking();
-			luaScriptLoader = null;
-		}
-
-		private void InitCs()
-        {
-			netScriptLoader = new CsScriptLoader(this);
-			netScriptLoader.SearchFolders();
-			if (netScriptLoader == null) throw new Exception("LuaCsSetup was not properly initialized.");
-			try
-			{
-				var modTypes = netScriptLoader.Compile();
-				//modTypes.ForEach(t => ACsMod.CreateInstance(t));
-				modTypes.ForEach(t => t.GetConstructor(new Type[] { })?.Invoke(null));
-			}
-			catch (Exception ex)
-			{
-				PrintMessage(ex);
-			}
+			Game = new LuaGame();
+			Networking = new LuaCsNetworking();
+			LuaScriptLoader = null;
 		}
 
 		public void Initialize()
@@ -312,32 +292,27 @@ namespace Barotrauma
 
 			PrintMessage("LuaCs! Version " + AssemblyInfo.GitRevision);
 
-			luaScriptLoader = new LuaScriptLoader();
-			luaScriptLoader.ModulePaths = new string[] { };
-			InitCs();
+			LuaScriptLoader = new LuaScriptLoader();
+			LuaScriptLoader.ModulePaths = new string[] { };
+
+			NetScriptLoader = new CsScriptLoader(this);
 
 			LuaCustomConverters.RegisterAll();
 
 			lua = new Script(CoreModules.Preset_SoftSandbox | CoreModules.Debug);
 			lua.Options.DebugPrint = PrintMessage;
-			lua.Options.ScriptLoader = luaScriptLoader;
+			lua.Options.ScriptLoader = LuaScriptLoader;
 
-			harmony = new Harmony("com.LuaForBarotrauma");
-			harmony.UnpatchAll();
+			Hook.Initialize();
+			Game = new LuaGame();
+			Networking = new LuaCsNetworking();
 
-			//Hook = new LuaCsHook();
-			game = new LuaGame();
-			networking = new LuaCsNetworking();
-
-			//UserData.RegisterType<LuaCsHook>();
 			UserData.RegisterType<LuaGame>();
 			UserData.RegisterType<LuaCsTimer>();
 			UserData.RegisterType<LuaCsFile>();
 			UserData.RegisterType<LuaCsNetworking>();
 			UserData.RegisterType<LuaUserData>();
 			UserData.RegisterType<IUserDataDescriptor>();
-
-			lua.Globals["printerror"] = (Action<object>)PrintError;
 			
 			var hookType = UserData.RegisterType<LuaCsHook>();
 			var hookDesc = (StandardUserDataDescriptor)hookType;
@@ -353,6 +328,8 @@ namespace Barotrauma
 				}
 			});
 
+			lua.Globals["printerror"] = (Action<object>)PrintError;
+
 			lua.Globals["setmodulepaths"] = (Action<string[]>)SetModulePaths;
 
 			lua.Globals["dofile"] = (Func<string, Table, string, DynValue>)DoFile;
@@ -363,11 +340,11 @@ namespace Barotrauma
 			lua.Globals["load"] = (Func<string, Table, string, DynValue>)LoadString;
 
 			lua.Globals["LuaUserData"] = UserData.CreateStatic<LuaUserData>();
-			lua.Globals["Game"] = game;
+			lua.Globals["Game"] = Game;
 			lua.Globals["Hook"] = Hook;
 			lua.Globals["Timer"] = new LuaCsTimer();
 			lua.Globals["File"] = UserData.CreateStatic<LuaCsFile>();
-			lua.Globals["Networking"] = networking;
+			lua.Globals["Networking"] = Networking;
 
 			bool isServer;
 
@@ -381,6 +358,20 @@ namespace Barotrauma
 			lua.Globals["CLIENT"] = !isServer;
 
 			// LuaDocs.GenerateDocsAll();
+
+
+			NetScriptLoader.SearchFolders();
+			if (NetScriptLoader == null) throw new Exception("LuaCsSetup was not properly initialized.");
+			try
+			{
+				var modTypes = NetScriptLoader.Compile();
+				modTypes.ForEach(t => t.GetConstructor(new Type[] { })?.Invoke(null));
+			}
+			catch (Exception ex)
+			{
+				PrintMessage(ex);
+			}
+
 
 			ContentPackage luaPackage = GetPackage();
 
@@ -411,7 +402,7 @@ namespace Barotrauma
 			}
 			else
 			{
-				PrintError("LuaCs loader not found! Lua/LuaSetup.lua, no Lua scripts will be executed or work.");
+				PrintError("LuaSetup.lua not found! Lua/LuaSetup.lua, no Lua scripts will be executed or work.");
 			}
 		}
 

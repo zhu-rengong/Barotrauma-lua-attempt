@@ -1273,10 +1273,20 @@ namespace Barotrauma
                         "Mono.Cecil.Rocks.dll", "MonoMod.Common.dll",
                         "MoonSharp.Interpreter.dll",
                         "mscordaccore_amd64_amd64_4.700.22.11601.dll",
+
+                        "Microsoft.CodeAnalysis.dll", "Microsoft.CodeAnalysis.CSharp.dll",
+                        "Microsoft.CodeAnalysis.CSharp.Scripting.dll", "Microsoft.CodeAnalysis.Scripting.dll",
+
+                        "System.Reflection.Metadata.dll", "System.Collections.Immutable.dll", 
+                        "System.Runtime.CompilerServices.Unsafe.dll"
                     };
 
                     File.Move("Barotrauma.dll", "Barotrauma.dll.old", true);
                     File.Move("Barotrauma.deps.json", "Barotrauma.deps.json.old", true);
+
+                    File.Move("System.Reflection.Metadata.dll", "System.Reflection.Metadata.dll.old", true);
+                    File.Move("System.Collections.Immutable.dll", "System.Collections.Immutable.dll.old", true);
+                    File.Move("System.Runtime.CompilerServices.Unsafe.dll", "System.Runtime.CompilerServices.Unsafe.dll.old", true);
 
                     foreach (string file in filesToCopy)
                     {
