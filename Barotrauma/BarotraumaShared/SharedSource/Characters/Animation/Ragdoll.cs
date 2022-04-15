@@ -745,11 +745,11 @@ namespace Barotrauma
 
                         float impactDamage = Math.Min((impact - ImpactTolerance) * ImpactDamageMultiplayer, character.MaxVitality * MaxImpactDamage);
 
-                        var should = new LuaResult(GameMain.LuaCs.HookBase.Call("changeFallDamage", new object[] { impactDamage, character, impactPos, velocity }));
+                        var should = GameMain.LuaCs.Hook.Call<float?>("changeFallDamage", impactDamage, character, impactPos, velocity);
 
-                        if (!should.IsNull())
+                        if (should != null)
 						{
-                            impactDamage = should.Float();
+                            impactDamage = should.Value;
                         }
 
                         character.LastDamageSource = null;

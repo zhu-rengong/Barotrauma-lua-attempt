@@ -184,9 +184,9 @@ namespace Barotrauma.Networking
 
             var skipDeny = false;
             {
-                var result = new LuaResult(GameMain.LuaCs.HookBase.Call("lidgren.handleConnection", inc));
-                if (!result.IsNull()) {
-                    if (result.Bool()) skipDeny = true;
+                var result = GameMain.LuaCs.Hook.Call<bool?>("lidgren.handleConnection", inc);
+                if (result != null) {
+                    if (result.Value) skipDeny = true;
                     else return;
                 }
             }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using MoonSharp.Interpreter;
@@ -17,7 +17,7 @@ using System.Diagnostics;
 
 namespace Barotrauma
 {
-	public partial class LuaTimer
+	public partial class LuaCsTimer
 	{
 		public static long LastUpdateTime = 0;
 
@@ -29,9 +29,9 @@ namespace Barotrauma
 			}
 		}
 
-		public void Wait(object function, int millisecondDelay)
+		public void Wait(CsAction action, int millisecondDelay)
 		{
-			GameMain.LuaCs.HookBase.EnqueueTimedLuaFunction((float)Timing.TotalTime + (millisecondDelay / 1000f), function);
+			GameMain.LuaCs.Hook.EnqueueTimed((float)Timing.TotalTime + (millisecondDelay / 1000f), action);
 		}
 
 		public static double GetTime()
@@ -49,7 +49,7 @@ namespace Barotrauma
 		}
 	}
 
-	partial class LuaFile
+	partial class LuaCsFile
 	{
 		public static bool CanReadFromPath(string path)
 		{
@@ -115,7 +115,7 @@ namespace Barotrauma
 			return false;
 		}
 
-		public static bool IsPathAllowedLuaException(string path, bool write = true)
+		public static bool IsPathAllowedException(string path, bool write = true, LuaCsSetup.ExceptionType exceptionType = LuaCsSetup.ExceptionType.Both)
 		{
 			if (write)
 			{
@@ -123,9 +123,9 @@ namespace Barotrauma
 					return true;
 				else
 					GameMain.LuaCs.HandleException(new Exception("File access to \"" + path + "\" not allowed."));
-            }
-            else
-            {
+			}
+			else
+			{
 				if (CanReadFromPath(path))
 					return true;
 				else
@@ -134,10 +134,14 @@ namespace Barotrauma
 
 			return false;
 		}
+		public static bool IsPathAllowedLuaException(string path, bool write = true) =>
+			IsPathAllowedException(path, write, LuaCsSetup.ExceptionType.Lua);
+		public static bool IsPathAllowedCsException(string path, bool write = true) =>
+			IsPathAllowedException(path, write, LuaCsSetup.ExceptionType.CSharp);
 
 		public static string Read(string path)
 		{
-			if (!IsPathAllowedLuaException(path, false))
+			if (!IsPathAllowedException(path, false))
 				return "";
 
 			return File.ReadAllText(path);
@@ -145,7 +149,7 @@ namespace Barotrauma
 
 		public static void Write(string path, string text)
 		{
-			if (!IsPathAllowedLuaException(path))
+			if (!IsPathAllowedException(path))
 				return;
 
 			File.WriteAllText(path, text);
@@ -153,7 +157,7 @@ namespace Barotrauma
 
 		public static bool Exists(string path)
 		{
-			if (!IsPathAllowedLuaException(path, false))
+			if (!IsPathAllowedException(path, false))
 				return false;
 
 			return File.Exists(path);
@@ -161,7 +165,7 @@ namespace Barotrauma
 
 		public static bool CreateDirectory(string path)
 		{
-			if (!IsPathAllowedLuaException(path))
+			if (!IsPathAllowedException(path))
 				return false;
 
 			Directory.CreateDirectory(path);
@@ -171,7 +175,7 @@ namespace Barotrauma
 
 		public static bool DirectoryExists(string path)
 		{
-			if (!IsPathAllowedLuaException(path, false))
+			if (!IsPathAllowedException(path, false))
 				return false;
 
 			return Directory.Exists(path);
@@ -179,7 +183,7 @@ namespace Barotrauma
 
 		public static string[] GetFiles(string path)
 		{
-			if (!IsPathAllowedLuaException(path, false))
+			if (!IsPathAllowedException(path, false))
 				return null;
 
 			return Directory.GetFiles(path);
@@ -187,7 +191,7 @@ namespace Barotrauma
 
 		public static string[] GetDirectories(string path)
 		{
-			if (!IsPathAllowedLuaException(path, false))
+			if (!IsPathAllowedException(path, false))
 				return new string[] { };
 
 			return Directory.GetDirectories(path);
@@ -195,7 +199,7 @@ namespace Barotrauma
 
 		public static string[] DirSearch(string sDir)
 		{
-			if (!IsPathAllowedLuaException(sDir, false))
+			if (!IsPathAllowedException(sDir, false))
 				return new string[] { };
 
 			List<string> files = new List<string>();
@@ -225,11 +229,10 @@ namespace Barotrauma
 		}
 	}
 
-	partial class LuaNetworking
+	partial class LuaCsNetworking
 	{
 		public bool restrictMessageSize = true;
-
-		public Dictionary<string, object> LuaNetReceives = new Dictionary<string, object>();
+		public Dictionary<string, CsAction> LuaCsNetReceives = new Dictionary<string, CsAction>();
 
 #if SERVER
 		[MoonSharpHidden]
@@ -238,12 +241,11 @@ namespace Barotrauma
 			if (header == ClientPacketHeader.LUA_NET_MESSAGE)
 			{
 				string netMessageName = netMessage.ReadString();
-				if (LuaNetReceives[netMessageName] is Closure)
-					GameMain.LuaCs.CallLuaFunction(LuaNetReceives[netMessageName], new object[] { netMessage, client });
+				if (LuaCsNetReceives.ContainsKey(netMessageName)) LuaCsNetReceives[netMessageName](netMessage, client);
 			}
 			else
 			{
-				GameMain.LuaCs.HookBase.Call("netMessageReceived", netMessage, header, client);
+				GameMain.LuaCs.Hook.Call("netMessageReceived", netMessage, header, client);
 			}
 		}
 
@@ -254,19 +256,17 @@ namespace Barotrauma
 			if (header == ServerPacketHeader.LUA_NET_MESSAGE)
 			{
 				string netMessageName = netMessage.ReadString();
-				if (LuaNetReceives[netMessageName] is Closure)
-				GameMain.LuaCs.lua.Call(LuaNetReceives[netMessageName], new object[] { netMessage, client });
+				if (LuaCsNetReceives.ContainsKey(netMessageName)) LuaCsNetReceives[netMessageName](netMessage, client);
 			}
 			else
 			{
-				GameMain.LuaCs.HookBase.Call("netMessageReceived", netMessage, header, client);
+				GameMain.LuaCs.Hook.Call("netMessageReceived", netMessage, header, client);
 			}
 		}
 #endif
-
-		public void Receive(string netMessageName, object callback)
+		public void Receive(string netMessageName, CsAction callback)
 		{
-			LuaNetReceives[netMessageName] = callback;
+			LuaCsNetReceives[netMessageName] = callback;
 		}
 
 		public IWriteMessage Start(string netMessageName)
@@ -275,7 +275,7 @@ namespace Barotrauma
 #if SERVER
 			message.Write((byte)ServerPacketHeader.LUA_NET_MESSAGE);
 #else
-				message.Write((byte)ClientPacketHeader.LUA_NET_MESSAGE);
+			message.Write((byte)ClientPacketHeader.LUA_NET_MESSAGE);
 #endif
 			message.Write(netMessageName);
 			return ((IWriteMessage)message);
@@ -304,13 +304,13 @@ namespace Barotrauma
 			}
 		}
 #else
-			public void Send(IWriteMessage netMessage, DeliveryMethod deliveryMethod = DeliveryMethod.Reliable)
-			{
-				GameMain.Client.ClientPeer.Send(netMessage, deliveryMethod);
-			}
+		public void Send(IWriteMessage netMessage, DeliveryMethod deliveryMethod = DeliveryMethod.Reliable)
+		{
+			GameMain.Client.ClientPeer.Send(netMessage, deliveryMethod);
+		}
 #endif
 
-		public void RequestPostHTTP(string url, object callback, string data, string contentType = "application/json")
+		public void RequestPostHTTP(string url, CsAction callback, string data, string contentType = "application/json")
 		{
 			try
 			{
@@ -327,22 +327,22 @@ namespace Barotrauma
 					{
 						var httpResponse = httpWebRequest.EndGetResponse(result);
 						using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
-							GameMain.LuaCs.HookBase.EnqueueLuaFunction(callback, streamReader.ReadToEnd());
+							GameMain.LuaCs.Hook.Enqueue(callback, streamReader.ReadToEnd());
 					}
 					catch (Exception e)
 					{
-						GameMain.LuaCs.HookBase.EnqueueLuaFunction(callback, e.ToString());
+						GameMain.LuaCs.Hook.Enqueue(callback, e.ToString());
 					}
 				}), null);
 
 			}
 			catch (Exception e)
 			{
-				GameMain.LuaCs.HookBase.EnqueueLuaFunction(callback, e.ToString());
+				GameMain.LuaCs.Hook.Enqueue(callback, e.ToString());
 			}
 		}
 
-		public void RequestGetHTTP(string url, object callback)
+		public void RequestGetHTTP(string url, CsAction callback)
 		{
 			try
 			{
@@ -354,17 +354,17 @@ namespace Barotrauma
 					{
 						var httpResponse = httpWebRequest.EndGetResponse(result);
 						using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
-							GameMain.LuaCs.HookBase.EnqueueLuaFunction(callback, streamReader.ReadToEnd());
+							GameMain.LuaCs.Hook.Enqueue(callback, streamReader.ReadToEnd());
 					}
 					catch (Exception e)
 					{
-						GameMain.LuaCs.HookBase.EnqueueLuaFunction(callback, e.ToString());
+						GameMain.LuaCs.Hook.Enqueue(callback, e.ToString());
 					}
 				}), null);
 			}
 			catch (Exception e)
 			{
-				GameMain.LuaCs.HookBase.EnqueueLuaFunction(callback, e.ToString());
+				GameMain.LuaCs.Hook.Enqueue(callback, e.ToString());
 			}
 		}
 
@@ -393,90 +393,4 @@ namespace Barotrauma
 		}
 	}
 
-}
-
-public class LuaResult
-{
-	object result;
-	public LuaResult(object arg)
-	{
-		result = arg;
-	}
-
-	public bool IsNull()
-	{
-		if (result == null)
-			return true;
-
-		if (result is DynValue dynValue)
-			return dynValue.IsNil();
-
-		return false;
-	}
-
-	public bool Bool()
-	{
-		if (result is DynValue dynValue)
-		{
-			return dynValue.CastToBool();
-		}
-
-		return false;
-	}
-
-	public float Float()
-	{
-		if (result is DynValue dynValue)
-		{
-			var num = dynValue.CastToNumber();
-			if (num == null) { return 0f; }
-			return (float)num.Value;
-		}
-
-		return 0f;
-	}
-
-	public double Double()
-	{
-		if (result is DynValue dynValue)
-		{
-			var num = dynValue.CastToNumber();
-			if (num == null) { return 0f; }
-			return num.Value;
-		}
-
-		return 0f;
-	}
-
-	public string String()
-	{
-		if (result is DynValue dynValue)
-		{
-			var str = dynValue.CastToString();
-			if (str == null) { return ""; }
-			return str;
-		}
-
-		return "";
-	}
-
-	public object Object()
-	{
-		if (result is DynValue dynValue)
-		{
-			return dynValue.ToObject();
-		}
-
-		return null;
-	}
-
-	public DynValue DynValue()
-	{
-		if (result is DynValue dynValue)
-		{
-			return dynValue;
-		}
-
-		return null;
-	}
 }

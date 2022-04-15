@@ -64,6 +64,8 @@
     <Content Remove="..\BarotraumaShared\**\*.cs" />
     <Content Remove="..\BarotraumaShared\**\*.props" />
     <Compile Include="..\BarotraumaShared\**\*.cs" />
+    <Compile Remove="..\BarotraumaShared\SharedSource\Cs\CsHook.cs" />
+    <Compile Remove="..\BarotraumaShared\SharedSource\Lua\LuaClasses\LuaHook.cs" />
     <Content Remove="DedicatedServer.exe" />
   </ItemGroup>
 

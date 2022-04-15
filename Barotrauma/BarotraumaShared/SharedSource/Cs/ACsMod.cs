@@ -9,12 +9,6 @@ namespace Barotrauma
         private static List<ACsMod> mods = new List<ACsMod>();
         public static List<ACsMod> LoadedMods { get => mods; }
 
-        //public static ACsMod CreateInstance(Type type)
-        //{
-        //    if (!type.IsSubclassOf(typeof(ACsMod))) throw new Exception("Type argument is not the subclass of ACsMod.");
-        //    return type.GetConstructor(new Type[] { }).Invoke(new object[] { }) as ACsMod;
-        //}
-
         public bool IsDisposed { get; private set; }
 
         public ACsMod()

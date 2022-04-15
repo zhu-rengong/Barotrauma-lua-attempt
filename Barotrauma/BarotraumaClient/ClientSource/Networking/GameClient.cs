@@ -2830,9 +2830,8 @@ namespace Barotrauma.Networking
 
         public override void AddChatMessage(ChatMessage message)
         {
-            var should = new LuaResult(GameMain.LuaCs.HookBase.Call("chatMessage", message.Text, message.SenderClient, message.Type, message));
-
-            if (should.Bool()) return;
+            var should = GameMain.LuaCs.Hook.Call<bool?>("chatMessage", message.Text, message.SenderClient, message.Type, message);
+            if (should != null && should.Value) return;
 
             base.AddChatMessage(message);
 

@@ -562,7 +562,7 @@ namespace Barotrauma
                 allowInput = true;
             }
 
-            GameMain.LuaCs.HookBase.Call("keyUpdate", deltaTime);
+            GameMain.LuaCs.Hook.Call("keyUpdate", deltaTime);
 
             oldMouseState = mouseState;
             mouseState = latestMouseState;

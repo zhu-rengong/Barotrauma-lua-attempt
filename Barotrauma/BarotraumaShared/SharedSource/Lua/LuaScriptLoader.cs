@@ -13,14 +13,14 @@ namespace Barotrauma
 
 		public override object LoadFile(string file, Table globalContext)
 		{
-			if (!LuaFile.IsPathAllowedLuaException(file, false)) return null; 
+			if (!LuaCsFile.IsPathAllowedLuaException(file, false)) return null; 
 				
 			return File.ReadAllText(file);
 		}
 
 		public override bool ScriptFileExists(string file)
 		{
-			if (!LuaFile.IsPathAllowedLuaException(file, false)) return false;
+			if (!LuaCsFile.IsPathAllowedLuaException(file, false)) return false;
 
 			return File.Exists(file);
 		}

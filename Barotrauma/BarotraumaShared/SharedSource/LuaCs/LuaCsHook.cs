@@ -5,39 +5,21 @@ using MoonSharp.Interpreter;
 using HarmonyLib;
 using System.Collections.Generic;
 using System.Text;
+using MoonSharp.Interpreter.Interop;
 
 namespace Barotrauma
 {
-	public enum HookMethodType
-	{
-		Before, After
-	}
-
-	public delegate object CsHookDelegate(params object[] args);
-	public delegate object CsPatchDelegate(object self, params object[] args);
-
-	public abstract class LuaCsHookWrapper {
-
-		protected LuaCsHook _hook;
-
-		public LuaCsHookWrapper(LuaCsHook hook)
-		{
-			_hook = hook;
-		}
-
-		public void Remove(string name, string hookName) =>
-			_hook.RemoveHook(name, hookName);
-
-		public void Update() =>
-			_hook.Update();
-
-		public object Call(string name, params object[] args) =>
-			_hook.Call(name, args);
-
-	}
+	public delegate void CsAction(params object[] args);
+	public delegate object CsFunc(params object[] args);
+	public delegate object CsPatch(object self, params object[] args);
 
 	public class LuaCsHook
 	{
+		public enum HookMethodType
+		{
+			Before, After
+		}
+
 		private class LuaHookFunction
 		{
 			public string name;
@@ -51,82 +33,41 @@ namespace Barotrauma
 				function = func;
 			}
 		}
+		private class LuaCsHookCallback
+		{
+			public string name;
+			public string hookName;
+			public CsFunc func;
 
-		private Dictionary<string, Dictionary<string, LuaHookFunction>> luaHookFunctions;
-		private Dictionary<string, Dictionary<string, (CsHookDelegate, ACsMod)>> csHookFunctions;
+			public LuaCsHookCallback(string name, string hookName, CsFunc func)
+			{
+				this.name = name;
+				this.hookName = hookName;
+				this.func = func;
+			}
+		}
 
-		private Dictionary<long, HashSet<(string, object)>> luaHookPrefixMethods;
-		private Dictionary<long, HashSet<(string, object)>> luaHookPostfixMethods;
-		private Dictionary<long, HashSet<(string, CsPatchDelegate, ACsMod)>> csHookPrefixMethods;
-		private Dictionary<long, HashSet<(string, CsPatchDelegate, ACsMod)>> csHookPostfixMethods;
+		private Dictionary<string, Dictionary<string, (LuaCsHookCallback, ACsMod)>> hookFunctions;
 
-		private Queue<Tuple<float, object, object[]>> queuedFunctionCalls;
+		private Dictionary<long, HashSet<(string, CsPatch, ACsMod)>> hookPrefixMethods;
+		private Dictionary<long, HashSet<(string, CsPatch, ACsMod)>> hookPostfixMethods;
+
+		private Queue<(float, CsAction, object[])> queuedFunctionCalls;
 
 		private LuaCsHook() {
-			luaHookFunctions = new Dictionary<string, Dictionary<string, LuaHookFunction>>();
-			csHookFunctions = new Dictionary<string, Dictionary<string, (CsHookDelegate, ACsMod)>>();
+			hookFunctions = new Dictionary<string, Dictionary<string, (LuaCsHookCallback, ACsMod)>>();
 
-			luaHookPrefixMethods = new Dictionary<long, HashSet<(string, object)>>();
-			luaHookPostfixMethods = new Dictionary<long, HashSet<(string, object)>>();
-			csHookPrefixMethods = new Dictionary<long, HashSet<(string, CsPatchDelegate, ACsMod)>>();
-			csHookPostfixMethods = new Dictionary<long, HashSet<(string, CsPatchDelegate, ACsMod)>>();
+			hookPrefixMethods = new Dictionary<long, HashSet<(string, CsPatch, ACsMod)>>();
+			hookPostfixMethods = new Dictionary<long, HashSet<(string, CsPatch, ACsMod)>>();
 
-			queuedFunctionCalls = new Queue<Tuple<float, object, object[]>>();
+			queuedFunctionCalls = new Queue<(float, CsAction, object[])>();
 		}
 
 		private static LuaCsHook _inst;
 		static LuaCsHook() => _inst = new LuaCsHook();
 		public static LuaCsHook Instance { get => _inst; }
 
-
-		static void _hookLuaPatch(MethodBase __originalMethod, object[] __args, object __instance, out LuaResult result, HookMethodType hookMethodType)
-		{
-			result = new LuaResult(null);
-
-#if CLIENT
-			if (GameMain.GameSession?.IsRunning == false && GameMain.IsSingleplayer)
-				return;
-#endif
-
-			try
-			{
-				var funcAddr = ((long)__originalMethod.MethodHandle.GetFunctionPointer());
-				HashSet<(string, object)> methodSet = null;
-				switch (hookMethodType)
-				{
-					case HookMethodType.Before:
-						_inst.luaHookPrefixMethods.TryGetValue(funcAddr, out methodSet);
-						break;
-					case HookMethodType.After:
-						_inst.luaHookPostfixMethods.TryGetValue(funcAddr, out methodSet);
-						break;
-					default:
-						break;
-				}
-
-				if (methodSet != null)
-				{
-					var @params = __originalMethod.GetParameters();
-					var ptable = new Dictionary<string, object>();
-					for (int i = 0; i < @params.Length; i++)
-					{
-						ptable.Add(@params[i].Name, __args[i]);
-					}
-
-					foreach (var tuple in methodSet)
-					{
-						var luaResult = new LuaResult(GameMain.LuaCs.lua.Call(tuple.Item2, __instance, ptable));
-						if (!luaResult.IsNull()) result = luaResult;
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				GameMain.LuaCs.HandleException(ex);
-			}
-		}
-
-		static void _hookCsPatch(MethodBase __originalMethod, object[] __args, object __instance, ref object result, HookMethodType hookMethodType)
+		private static void _hookLuaCsPatch(MethodBase __originalMethod, object[] __args, object __instance, ref object result, HookMethodType hookMethodType)
 		{
 #if CLIENT
 		if (GameMain.GameSession?.IsRunning == false && GameMain.IsSingleplayer)
@@ -135,14 +76,14 @@ namespace Barotrauma
 			try
 			{
 				var funcAddr = ((long)__originalMethod.MethodHandle.GetFunctionPointer());
-				HashSet<(string, CsPatchDelegate, ACsMod)> methodSet = null;
+				HashSet<(string, CsPatch, ACsMod)> methodSet = null;
 				switch (hookMethodType)
 				{
 					case HookMethodType.Before:
-						_inst.csHookPrefixMethods.TryGetValue(funcAddr, out methodSet);
+						_inst.hookPrefixMethods.TryGetValue(funcAddr, out methodSet);
 						break;
 					case HookMethodType.After:
-						_inst.csHookPostfixMethods.TryGetValue(funcAddr, out methodSet);
+						_inst.hookPostfixMethods.TryGetValue(funcAddr, out methodSet);
 						break;
 					default:
 						break;
@@ -157,94 +98,78 @@ namespace Barotrauma
 						args.Add(@params[i].Name, __args[i]);
 					}
 
-					var outOfSocpe = new HashSet<(string, CsPatchDelegate, ACsMod)>();
+					var outOfSocpe = new HashSet<(string, CsPatch, ACsMod)>();
 					foreach (var tuple in methodSet)
 					{
 						if (tuple.Item3 != null && tuple.Item3.IsDisposed)
 							outOfSocpe.Add(tuple);
 						else
-							result = tuple.Item2(__instance, args) ?? result;
+						{
+							var _result = tuple.Item2(__instance, args);
+							if (_result is LuaResult res && !res.IsNull()) result = _result;
+							else if (_result != null) result = _result;
+						}
 					}
 					foreach (var tuple in outOfSocpe) methodSet.Remove(tuple);
 				}
 			}
 			catch (Exception ex)
 			{
-				GameMain.LuaCs.HandleException(ex, exceptionType: LuaCsSetup.ExceptionType.CSharp);
+				GameMain.LuaCs.HandleException(ex, exceptionType: LuaCsSetup.ExceptionType.Both);
 			}
 		}
 
 
-		private static bool HookLuaPatchPrefix(MethodBase __originalMethod, object[] __args, object __instance)
+		private static bool HookLuaCsPatchPrefix(MethodBase __originalMethod, object[] __args, object __instance)
 		{
-			_hookLuaPatch(__originalMethod, __args, __instance, out LuaResult result, HookMethodType.Before);
-
-			return result.IsNull();
-		}
-
-		private static bool HookLuaPatchRetPrefix(MethodBase __originalMethod, object[] __args, ref object __result, object __instance)
-		{
-			_hookLuaPatch(__originalMethod, __args, __instance, out LuaResult result, HookMethodType.Before);
-
-			if (!result.IsNull())
+			object result = null;
+			_hookLuaCsPatch(__originalMethod, __args, __instance, ref result, HookMethodType.Before);
+			if (result != null)
 			{
-
-				if (__originalMethod is MethodInfo mi)
-				{
-					__result = result.DynValue().ToObject(mi.ReturnType);
-				}
-				else
-				{
-					__result = result.Object();
-				}
-
+				if (result is LuaResult res) return res.IsNull();
 				return false;
 			}
-
-			return true;
+			else return true;
 		}
-
-		private static void HookLuaPatchPostfix(MethodBase __originalMethod, object[] __args, object __instance)
+		private static void HookLuaCsPatchPostfix(MethodBase __originalMethod, object[] __args, object __instance)
 		{
-			_hookLuaPatch(__originalMethod, __args, __instance, out LuaResult result, HookMethodType.After);
+			object result = null;
+			_hookLuaCsPatch(__originalMethod, __args, __instance, ref result, HookMethodType.After);
 		}
-		private static void HookLuaPatchRetPostfix(MethodBase __originalMethod, object[] __args, ref object __result, object __instance)
+		private static bool HookLuaCsPatchRetPrefix(MethodBase __originalMethod, object[] __args, ref object __result, object __instance)
 		{
-			_hookLuaPatch(__originalMethod, __args, __instance, out LuaResult result, HookMethodType.After);
-
-			if (!result.IsNull())
+			_hookLuaCsPatch(__originalMethod, __args, __instance, ref __result, HookMethodType.Before);
+			if (__result != null)
 			{
-				if (__originalMethod is MethodInfo mi)
+				if (__result is LuaResult res)
 				{
-					__result = result.DynValue().ToObject(mi.ReturnType);
+					if (!res.IsNull() && __originalMethod is MethodInfo mi) __result = res.DynValue().ToObject(mi.ReturnType);
+					else __result = res.Object();
 				}
-				else
+				return false;
+			}
+			else return true;
+		}
+		private static void HookLuaCsPatchRetPostfix(MethodBase __originalMethod, object[] __args, ref object __result, object __instance)
+		{
+			_hookLuaCsPatch(__originalMethod, __args, __instance, ref __result, HookMethodType.After);
+			if (__result != null)
+			{
+				if (__result is LuaResult res)
 				{
-					__result = result.Object();
+					if (!res.IsNull() && __originalMethod is MethodInfo mi) __result = res.DynValue().ToObject(mi.ReturnType);
+					else __result = res.Object();
 				}
 			}
 		}
-
-		private static bool HookCsPatchPrefix(MethodBase __originalMethod, object[] __args, ref object __result, object __instance)
-		{
-			_hookCsPatch(__originalMethod, __args, __instance, ref __result, HookMethodType.Before);
-
-			if (__result != null) return false;
-			else return true;
-		}
-		private static void HookCsPatchPostfix(MethodBase __originalMethod, object[] __args, ref object __result, object __instance) =>
-			_hookCsPatch(__originalMethod, __args, __instance, ref __result, HookMethodType.After);
 
 
 		private const BindingFlags DefaultBindingFlags = BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-		private static MethodInfo _miHookLuaPatchPrefix = typeof(LuaCsHook).GetMethod("HookLuaPatchPrefix", BindingFlags.NonPublic | BindingFlags.Static);
-		private static MethodInfo _miHookLuaPatchRetPrefix = typeof(LuaCsHook).GetMethod("HookLuaPatchRetPrefix", BindingFlags.NonPublic | BindingFlags.Static);
-		private static MethodInfo _miHookLuaPatchPostfix = typeof(LuaCsHook).GetMethod("HookLuaPatchPostfix", BindingFlags.NonPublic | BindingFlags.Static);
-		private static MethodInfo _miHookLuaPatchRetPostfix = typeof(LuaCsHook).GetMethod("HookLuaPatchRetPostfix", BindingFlags.NonPublic | BindingFlags.Static);
 
-		private static MethodInfo _miHookCsPatchRetPrefix = typeof(LuaCsHook).GetMethod("HookCsPatchPrefix", BindingFlags.NonPublic | BindingFlags.Static);
-		private static MethodInfo _miHookCsPatchRetPostfix = typeof(LuaCsHook).GetMethod("HookCsPatchPostfix", BindingFlags.NonPublic | BindingFlags.Static);
-
+		private static MethodInfo _miHookLuaCsPatchPrefix = typeof(LuaCsHook).GetMethod("HookLuaCsPatchPrefix", BindingFlags.NonPublic | BindingFlags.Static);
+		private static MethodInfo _miHookLuaCsPatchPostfix = typeof(LuaCsHook).GetMethod("HookLuaCsPatchPostfix", BindingFlags.NonPublic | BindingFlags.Static);
+		private static MethodInfo _miHookLuaCsPatchRetPrefix = typeof(LuaCsHook).GetMethod("HookLuaCsPatchRetPrefix", BindingFlags.NonPublic | BindingFlags.Static);
+		private static MethodInfo _miHookLuaCsPatchRetPostfix = typeof(LuaCsHook).GetMethod("HookLuaCsPatchRetPostfix", BindingFlags.NonPublic | BindingFlags.Static);
 
 		private static MethodInfo ResolveMethod(string where, string className, string methodName, string[] parameterNames)
         {
@@ -277,216 +202,145 @@ namespace Barotrauma
 			return methodInfo;
 		}
 
-		public void HookLuaMethod(string identifier, string className, string methodName, string[] parameterNames, object hookMethod, HookMethodType hookMethodType = HookMethodType.Before)
+		public void HookMethod(string identifier, MethodInfo method, CsPatch patch, HookMethodType hookType = HookMethodType.Before, ACsMod owner = null)
 		{
-
-			MethodInfo methodInfo = ResolveMethod("HookMethod", className, methodName, parameterNames);
-			if (methodInfo == null) return;
-
-			identifier = identifier.ToLower();
-			var funcAddr = ((long)methodInfo.MethodHandle.GetFunctionPointer());
-			var patches = Harmony.GetPatchInfo(methodInfo);
-
-			if (hookMethodType == HookMethodType.Before)
-			{
-				if (methodInfo.ReturnType == typeof(void))
-				{
-					if (patches == null || patches.Prefixes == null || patches.Prefixes.Find(patch => patch.PatchMethod == _miHookLuaPatchPrefix) == null)
-					{
-						GameMain.LuaCs.harmony.Patch(methodInfo, prefix: new HarmonyMethod(_miHookLuaPatchPrefix));
-					}
-				}
-				else
-				{
-					if (patches == null || patches.Prefixes == null || patches.Prefixes.Find(patch => patch.PatchMethod == _miHookLuaPatchRetPrefix) == null)
-					{
-						GameMain.LuaCs.harmony.Patch(methodInfo, prefix: new HarmonyMethod(_miHookLuaPatchRetPrefix));
-					}
-				}
-
-				if (luaHookPrefixMethods.TryGetValue(funcAddr, out HashSet<(string, object)> methodSet))
-				{
-					if (identifier != "")
-					{
-						methodSet.RemoveWhere(tuple => tuple.Item1 == identifier);
-					}
-					if (hookMethod != null)
-					{
-						methodSet.Add((identifier, hookMethod));
-					}
-				}
-				else if (hookMethod != null)
-				{
-					luaHookPrefixMethods.Add(funcAddr, new HashSet<(string, object)>() { (identifier, hookMethod) });
-				}
-
-			}
-			else if (hookMethodType == HookMethodType.After)
-			{
-				if (methodInfo.ReturnType == typeof(void))
-				{
-					if (patches == null || patches.Postfixes == null || patches.Postfixes.Find(patch => patch.PatchMethod == _miHookLuaPatchPostfix) == null)
-					{
-						GameMain.LuaCs.harmony.Patch(methodInfo, postfix: new HarmonyMethod(_miHookLuaPatchPostfix));
-					}
-				}
-				else
-				{
-					if (patches == null || patches.Postfixes == null || patches.Postfixes.Find(patch => patch.PatchMethod == _miHookLuaPatchRetPostfix) == null)
-					{
-						GameMain.LuaCs.harmony.Patch(methodInfo, postfix: new HarmonyMethod(_miHookLuaPatchRetPostfix));
-					}
-				}
-
-				if (luaHookPostfixMethods.TryGetValue(funcAddr, out HashSet<(string, object)> methodSet))
-				{
-					if (identifier != "")
-					{
-						methodSet.RemoveWhere(tuple => tuple.Item1 == identifier);
-					}
-					if (hookMethod != null)
-					{
-						methodSet.Add((identifier, hookMethod));
-					}
-				}
-				else if (hookMethod != null)
-				{
-					luaHookPostfixMethods.Add(funcAddr, new HashSet<(string, object)>() { (identifier, hookMethod) });
-				}
-
-			}
-
-		}
-
-		public void HookCsMethod(string identifier, MethodInfo method, CsPatchDelegate hook, HookMethodType hookType = HookMethodType.Before, ACsMod owner = null)
-		{
-			if (identifier == null || method == null || hook == null) throw new ArgumentNullException("Identifier, Method and Hook arguments must not be null.");
+			if (identifier == null || method == null || patch == null) throw new ArgumentNullException("Identifier, Method and Patch arguments must not be null.");
 
 			var funcAddr = ((long)method.MethodHandle.GetFunctionPointer());
 			var patches = Harmony.GetPatchInfo(method);
 
 			if (hookType == HookMethodType.Before)
 			{
-				if (patches == null || patches.Prefixes == null || patches.Prefixes.Find(patch => patch.PatchMethod == _miHookCsPatchRetPrefix) == null)
-				{
-					GameMain.LuaCs.harmony.Patch(method, prefix: new HarmonyMethod(_miHookCsPatchRetPrefix));
+				if (method.ReturnType != typeof(void))
+                {
+					if (patches == null || patches.Prefixes == null || patches.Prefixes.Find(patch => patch.PatchMethod == _miHookLuaCsPatchRetPrefix) == null)
+					{
+						GameMain.LuaCs.harmony.Patch(method, prefix: new HarmonyMethod(_miHookLuaCsPatchRetPrefix));
+					}
+				}
+				else
+                {
+					if (patches == null || patches.Prefixes == null || patches.Prefixes.Find(patch => patch.PatchMethod == _miHookLuaCsPatchPrefix) == null)
+					{
+						GameMain.LuaCs.harmony.Patch(method, prefix: new HarmonyMethod(_miHookLuaCsPatchPrefix));
+					}
 				}
 
-				if (csHookPrefixMethods.TryGetValue(funcAddr, out HashSet<(string, CsPatchDelegate, ACsMod)> methodSet))
+				if (hookPrefixMethods.TryGetValue(funcAddr, out HashSet<(string, CsPatch, ACsMod)> methodSet))
 				{
 					methodSet.RemoveWhere(tuple => tuple.Item1 == identifier);
-					methodSet.Add((identifier, hook, owner));
+					methodSet.Add((identifier, patch, owner));
 				}
-				else if (hook != null)
+				else if (patch != null)
 				{
-					csHookPrefixMethods.Add(funcAddr, new HashSet<(string, CsPatchDelegate, ACsMod)>() { (identifier, hook, owner) });
+					hookPrefixMethods.Add(funcAddr, new HashSet<(string, CsPatch, ACsMod)>() { (identifier, patch, owner) });
 				}
 
 			}
 			else if (hookType == HookMethodType.After)
 			{
-				if (patches == null || patches.Postfixes == null || patches.Postfixes.Find(patch => patch.PatchMethod == _miHookCsPatchRetPrefix) == null)
+				if (method.ReturnType != typeof(void))
 				{
-					GameMain.LuaCs.harmony.Patch(method, postfix: new HarmonyMethod(_miHookCsPatchRetPostfix));
+					if (patches == null || patches.Postfixes == null || patches.Postfixes.Find(patch => patch.PatchMethod == _miHookLuaCsPatchRetPostfix) == null)
+					{
+						GameMain.LuaCs.harmony.Patch(method, postfix: new HarmonyMethod(_miHookLuaCsPatchRetPostfix));
+					}
+				}
+				else
+                {
+					if (patches == null || patches.Postfixes == null || patches.Postfixes.Find(patch => patch.PatchMethod == _miHookLuaCsPatchPostfix) == null)
+					{
+						GameMain.LuaCs.harmony.Patch(method, postfix: new HarmonyMethod(_miHookLuaCsPatchPostfix));
+					}
 				}
 
-				if (csHookPostfixMethods.TryGetValue(funcAddr, out HashSet<(string, CsPatchDelegate, ACsMod)> methodSet))
+				if (hookPostfixMethods.TryGetValue(funcAddr, out HashSet<(string, CsPatch, ACsMod)> methodSet))
 				{
 					methodSet.RemoveWhere(tuple => tuple.Item1 == identifier);
-					methodSet.Add((identifier, hook, owner));
+					methodSet.Add((identifier, patch, owner));
 				}
-				else if (hook != null)
+				else if (patch != null)
 				{
-					csHookPostfixMethods.Add(funcAddr, new HashSet<(string, CsPatchDelegate, ACsMod)>() { (identifier, hook, owner) });
+					hookPostfixMethods.Add(funcAddr, new HashSet<(string, CsPatch, ACsMod)>() { (identifier, patch, owner) });
 				}
 
 			}
 
 		}
 
-		public void RemoveLuaPatch(string identifier, string className, string methodName, string[] parameterNames, HookMethodType hookType = HookMethodType.Before)
-        {
-			MethodInfo methodInfo = ResolveMethod("UnhookMathod", className, methodName, parameterNames);
+		protected void HookMethod(string identifier, string className, string methodName, string[] parameterNames, CsPatch patch, HookMethodType hookMethodType = HookMethodType.Before)
+		{
+
+			MethodInfo methodInfo = ResolveMethod("HookMethod", className, methodName, parameterNames);
 			if (methodInfo == null) return;
-			RemovePatch(identifier, methodInfo, hookType);
+			HookMethod(identifier, methodInfo, patch, hookMethodType);
 		}
-		public void RemovePatch(string identifier, MethodInfo method, HookMethodType hookType = HookMethodType.Before)
+		protected void HookMethod(string identifier, string className, string methodName, CsPatch patch, HookMethodType hookMethodType = HookMethodType.Before) =>
+			HookMethod(identifier, className, methodName, null, patch, hookMethodType);
+		protected void HookMethod(string className, string methodName, CsPatch patch, HookMethodType hookMethodType = HookMethodType.Before) =>
+			HookMethod("", className, methodName, null, patch, hookMethodType);
+		protected void HookMethod(string className, string methodName, string[] parameterNames, CsPatch patch, HookMethodType hookMethodType = HookMethodType.Before) =>
+			HookMethod("", className, methodName, parameterNames, patch, hookMethodType);
+
+
+		public void UnhookMethod(string identifier, MethodInfo method, HookMethodType hookType = HookMethodType.Before)
 		{
 			var funcAddr = ((long)method.MethodHandle.GetFunctionPointer());
 
-			Dictionary<long, HashSet<(string, object)>> luaMethods;
-			Dictionary<long, HashSet<(string, CsPatchDelegate, ACsMod)>> csMethods;
-			if (hookType == HookMethodType.Before)
-			{
-				luaMethods = luaHookPrefixMethods;
-				csMethods = csHookPrefixMethods;
-			}
-			else if (hookType == HookMethodType.After)
-			{
-				luaMethods = luaHookPostfixMethods;
-				csMethods = csHookPostfixMethods;
-			}
+			Dictionary<long, HashSet<(string, CsPatch, ACsMod)>> methods;
+			if (hookType == HookMethodType.Before) methods = hookPrefixMethods;
+			else if (hookType == HookMethodType.After) methods = hookPostfixMethods;
 			else throw null;
 
-			if (luaMethods.ContainsKey(funcAddr)) luaMethods[funcAddr]?.RemoveWhere(t => t.Item1 == identifier);
-			if (csMethods.ContainsKey(funcAddr)) csMethods[funcAddr]?.RemoveWhere(t => t.Item1 == identifier);
+			if (methods.ContainsKey(funcAddr)) methods[funcAddr]?.RemoveWhere(t => t.Item1 == identifier);
 		}
-
-
-		public void EnqueueLuaFunction(object function, params object[] args)
+		protected void UnhookMethod(string identifier, string className, string methodName, string[] parameterNames, HookMethodType hookType = HookMethodType.Before)
 		{
-			queuedFunctionCalls.Enqueue(new Tuple<float, object, object[]>(0, function, args));
+			MethodInfo methodInfo = ResolveMethod("UnhookMathod", className, methodName, parameterNames);
+			if (methodInfo == null) return;
+			UnhookMethod(identifier, methodInfo, hookType);
 		}
 
-		public void EnqueueTimedLuaFunction(float time, object function, params object[] args)
+
+		public void Enqueue(CsAction action, params object[] args)
 		{
-			queuedFunctionCalls.Enqueue(new Tuple<float, object, object[]>(time, function, args));
+			queuedFunctionCalls.Enqueue((0, action, args));
 		}
-
-
-		public void AddLuaHook(string name, string hookName, object function)
+		public void EnqueueTimed(float time, CsAction action, params object[] args)
 		{
-			if (name == null || hookName == null || function == null) return;
-
-			name = name.ToLower();
-
-			if (!luaHookFunctions.ContainsKey(name))
-				luaHookFunctions.Add(name, new Dictionary<string, LuaHookFunction>());
-
-			luaHookFunctions[name][hookName] = new LuaHookFunction(name, hookName, function);
+			queuedFunctionCalls.Enqueue((time, action, args));
 		}
 
-		public void AddCsHook(string name, string hookName, CsHookDelegate hook, ACsMod owner = null)
+		protected void EnqueueFunction(CsAction function, params object[] args) => Enqueue(function, args);
+		protected void EnqueueTimedFunction(float time, CsAction function, params object[] args) => EnqueueTimed(time, function, args);
+
+
+		public void Add(string name, string hookName, CsFunc hook, ACsMod owner = null)
 		{
 			if (name == null || hookName == null || hook == null) throw new ArgumentNullException("Names and Hook must not be null");
 
-			if (!csHookFunctions.ContainsKey(name))
-				csHookFunctions.Add(name, new Dictionary<string, (CsHookDelegate, ACsMod)>());
+			if (!hookFunctions.ContainsKey(name))
+				hookFunctions.Add(name, new Dictionary<string, (LuaCsHookCallback, ACsMod)>());
 
-			csHookFunctions[name][hookName] = (hook, owner);
+			hookFunctions[name][hookName] = (new LuaCsHookCallback(name, hookName, hook), owner);
 		}
 
-		public void RemoveHook(string name, string hookName)
+		public void Remove(string name, string hookName)
 		{
 			if (name == null || hookName == null) return;
 
 			name = name.ToLower();
 
-			if (luaHookFunctions.ContainsKey(name) && luaHookFunctions[name].ContainsKey(hookName))
-				luaHookFunctions[name].Remove(hookName);
-			if (csHookFunctions.ContainsKey(name) && csHookFunctions[name].ContainsKey(hookName))
-				csHookFunctions[name].Remove(hookName);
+			if (hookFunctions.ContainsKey(name) && hookFunctions[name].ContainsKey(hookName))
+				hookFunctions[name].Remove(hookName);
 		}
 
 		public void Clear()
         {
-			luaHookFunctions.Clear();
-			csHookFunctions.Clear();
+			hookFunctions.Clear();
 
-			luaHookPrefixMethods.Clear();
-			luaHookPostfixMethods.Clear();
-			csHookPrefixMethods.Clear();
-			csHookPostfixMethods.Clear();
+			hookPrefixMethods.Clear();
+			hookPostfixMethods.Clear();
 
 			queuedFunctionCalls.Clear();
 
@@ -498,43 +352,53 @@ namespace Barotrauma
 		{
 			try
 			{
-				if (queuedFunctionCalls.TryPeek(out Tuple<float, object, object[]> result))
+				if (queuedFunctionCalls.TryPeek(out (float, CsAction, object[]) result))
 				{
 					if (Timing.TotalTime >= result.Item1)
 					{
-						GameMain.LuaCs.CallLuaFunction(result.Item2, result.Item3);
-
+						result.Item2(result.Item3);
 						queuedFunctionCalls.Dequeue();
 					}
 				}
 			}
 			catch (Exception ex)
 			{
-				GameMain.LuaCs.HandleException(ex, $"queuedFunctionCalls was {queuedFunctionCalls}");
+				GameMain.LuaCs.HandleException(ex, $"queuedFunctionCalls was {queuedFunctionCalls}", LuaCsSetup.ExceptionType.Both);
 			}
 		}
 
-		public object Call(string name, params object[] args)
+		public T Call<T>(string name, params object[] args)
 		{
+			if (
+				typeof(T) != typeof(object) &&
+				!name.StartsWith("think") &&
+				!name.StartsWith("gapOxygenUpdate") &&
+				!name.StartsWith("statusEffect")
+			) Console.WriteLine($"  --==  '{name}'");
 #if CLIENT
 			if (GameMain.GameSession?.IsRunning == false && GameMain.IsSingleplayer)
-				return null;
+				//return null;
+				return default(T);
 #endif
-			if (GameMain.LuaCs == null) return null;
-			if (name == null) return null;
+			//if (GameMain.LuaCs == null) return null;
+			//if (name == null) return null;
+			if (GameMain.LuaCs == null) return default(T);
+			if (name == null) return default(T);
 			if (args == null) { args = new object[] { }; }
 
 			name = name.ToLower();
 
-			if (!luaHookFunctions.ContainsKey(name))
-				return null;
+			if (!hookFunctions.ContainsKey(name))
+				//return null;
+				return default(T);
 
-			object lastResult = null;
+			//object lastResult = null;
+			T lastResult = default(T);
 
-			if (csHookFunctions.ContainsKey(name))
+			if (hookFunctions.ContainsKey(name))
 			{
 				var outOfScope = new List<string>();
-				foreach ((var key, var tuple) in csHookFunctions[name])
+				foreach ((var key, var tuple) in hookFunctions[name])
 				{
 					if (tuple.Item2 != null && tuple.Item2.IsDisposed)
 						outOfScope.Add(key);
@@ -542,8 +406,9 @@ namespace Barotrauma
 					{
 						try
 						{
-							var result = tuple.Item1(args);
-							if (result != null) lastResult = result;
+							var result = tuple.Item1.func(args);
+							if (result is LuaResult lRes && !lRes.IsNull()) lastResult = lRes.DynValue().ToObject<T>();
+							else if (result != null && result is T cRes) lastResult = cRes;
 						}
 						catch (Exception e)
 						{
@@ -551,40 +416,15 @@ namespace Barotrauma
 							foreach (var arg in args) argsSb.Append(arg + " ");
 							GameMain.LuaCs.HandleException(
 								e, $"Error in Hook '{name}'->'{key}', with args '{argsSb}':\n{e}",
-								LuaCsSetup.ExceptionType.CSharp);
+								LuaCsSetup.ExceptionType.Both);
 						}
 					}
 				}
-				foreach (var key in outOfScope) csHookFunctions[name].Remove(key);
-			}
-
-			if (luaHookFunctions.ContainsKey(name))
-			{
-				foreach (LuaHookFunction hf in luaHookFunctions[name].Values)
-				{
-					try
-					{
-						if (hf.function is Closure)
-						{
-							var result = GameMain.LuaCs.lua.Call(hf.function, args);
-							if (!result.IsNil())
-								lastResult = result;
-						}
-					}
-					catch (Exception e)
-					{
-						StringBuilder argsSb = new StringBuilder();
-						foreach (var arg in args)
-						{
-							argsSb.Append(arg + " ");
-						}
-
-						GameMain.LuaCs.HandleException(e, $"Error in Hook '{name}'->'{hf.hookName}', with args '{argsSb}'");
-					}
-				}
+				foreach (var key in outOfScope) hookFunctions[name].Remove(key);
 			}
 
 			return lastResult;
 		}
+		public object Call(string name, params object[] args) => Call<object>(name, args);
 	}
 }

@@ -660,10 +660,9 @@ namespace Barotrauma
                 if (Math.Max(hull1.WorldSurface + hull1.WaveY[hull1.WaveY.Length - 1], hull2.WorldSurface + hull2.WaveY[0]) > WorldRect.Y) { return; }
             }
 
-            var should = new LuaResult(GameMain.LuaCs.HookBase.Call("gapOxygenUpdate", this, hull1, hull2));
+            var should = GameMain.LuaCs.Hook.Call<bool?>("gapOxygenUpdate", this, hull1, hull2);
 
-            if (should.Bool())
-                return;
+            if (should != null && should.Value) return;
 
             float totalOxygen = hull1.Oxygen + hull2.Oxygen;
             float totalVolume = hull1.Volume + hull2.Volume;

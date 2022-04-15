@@ -94,19 +94,19 @@ namespace Barotrauma.Networking
                 ChatMessage.CanUseRadio(sender.Character, out WifiComponent senderRadio) && 
                 ChatMessage.CanUseRadio(recipient.Character, out WifiComponent recipientRadio))
             {
-                var should = new LuaResult(GameMain.LuaCs.HookBase.Call("canUseVoiceRadio", new object[] { sender, recipient }));
+                var should = GameMain.LuaCs.Hook.Call<bool?>("canUseVoiceRadio", new object[] { sender, recipient });
 
-                if (!should.IsNull())
-                    return should.Bool();
+                if (should != null)
+                    return should.Value;
 
                 if (recipientRadio.CanReceive(senderRadio)) { return true; }
             }
 
-            var should2 = new LuaResult(GameMain.LuaCs.HookBase.Call("changeLocalVoiceRange", new object[] { sender, recipient }));
+            var should2 = GameMain.LuaCs.Hook.Call<float?>("changeLocalVoiceRange", sender, recipient);
             float range = 1.0f;
 
-            if (!should2.IsNull())
-                range = should2.Float();
+            if (should2 != null)
+                range = should2.Value;
             
 
             //otherwise do a distance check

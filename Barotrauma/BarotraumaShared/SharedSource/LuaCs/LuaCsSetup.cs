@@ -9,6 +9,8 @@ using MoonSharp.Interpreter.Interop;
 using System.IO.Compression;
 using HarmonyLib;
 using System.Runtime.CompilerServices;
+using System.Linq;
+using System.Reflection;
 
 [assembly: InternalsVisibleTo("NetScriptAssembly", AllInternalsVisible = true)]
 namespace Barotrauma
@@ -20,12 +22,10 @@ namespace Barotrauma
 
 		public Script lua;
 
-		private LuaHook luaHook;
-		public CsHook Hook { get; private set; }
-		internal LuaCsHook HookBase { get; private set; }
+		internal LuaCsHook Hook { get; private set; }
 
 		public LuaGame game;
-		public LuaNetworking networking;
+		public LuaCsNetworking networking;
 		public Harmony harmony;
 
 		public LuaScriptLoader luaScriptLoader;
@@ -33,12 +33,10 @@ namespace Barotrauma
 
 		public LuaCsSetup()
 		{
-			HookBase = LuaCsHook.Instance;
-			Hook = new CsHook(HookBase);
-			luaHook = new LuaHook(HookBase);
+			Hook = LuaCsHook.Instance;
 
 			game = new LuaGame();
-			networking = new LuaNetworking();
+			networking = new LuaCsNetworking();
 		}
 
 
@@ -66,13 +64,15 @@ namespace Barotrauma
 		public enum ExceptionType
         {
 			Lua,
-			CSharp
+			CSharp,
+			Both
         }
 		public void HandleException(Exception ex, string extra = "", ExceptionType exceptionType = ExceptionType.Lua)
 		{
 			if (!string.IsNullOrWhiteSpace(extra))
 				if (exceptionType == ExceptionType.Lua) PrintError(extra);
-				else PrintCsError(extra);
+				else if (exceptionType == ExceptionType.CSharp) PrintCsError(extra);
+				else PrintBothError(extra);
 
 			if (ex is InterpreterException)
 			{
@@ -84,7 +84,8 @@ namespace Barotrauma
 			else
 			{
 				if (exceptionType == ExceptionType.Lua) PrintError(ex);
-				else PrintCsError(ex);
+				else if (exceptionType == ExceptionType.CSharp) PrintCsError(ex);
+				else PrintBothError(ex);
 			}
 		}
 
@@ -119,9 +120,11 @@ namespace Barotrauma
 #if SERVER
 		private void PrintError(object message) => PrintErrorBase("[SV LUA ERROR] ", message, "nil");
 		public static void PrintCsError(object message) => PrintErrorBase("[SV CS ERROR] ", message, "Null");
+		public static void PrintBothError(object message) => PrintErrorBase("[SV ERROR] ", message, "Null");
 #else
 		private void PrintError(object message) => PrintErrorBase("[CL LUA ERROR] ", message, "nil");
 		public static void PrintCsError(object message) => PrintErrorBase("[CL CS ERROR] ", message, "Null");
+		public static void PrintBothError(object message) => PrintErrorBase("[CL ERROR] ", message, "Null");
 #endif
 
 		private static void PrintMessageBase(string prefix, object message, string empty)
@@ -172,8 +175,8 @@ namespace Barotrauma
 
 		public DynValue DoFile(string file, Table globalContext = null, string codeStringFriendly = null)
 		{
-			if (!LuaFile.IsPathAllowedLuaException(file, false)) return null;
-			if (!LuaFile.Exists(file))
+			if (!LuaCsFile.IsPathAllowedLuaException(file, false)) return null;
+			if (!LuaCsFile.Exists(file))
 			{
 				HandleException(new Exception($"dofile: File {file} not found."));
 				return null;
@@ -210,8 +213,8 @@ namespace Barotrauma
 
 		public DynValue LoadFile(string file, Table globalContext = null, string codeStringFriendly = null)
 		{
-			if (!LuaFile.IsPathAllowedLuaException(file, false)) return null;
-			if (!LuaFile.Exists(file))
+			if (!LuaCsFile.IsPathAllowedLuaException(file, false)) return null;
+			if (!LuaCsFile.Exists(file))
 			{
 				HandleException(new Exception($"loadfile: File {file} not found."));
 				return null;
@@ -266,22 +269,22 @@ namespace Barotrauma
 
 		public void Update()
 		{
-			HookBase?.Update();
+			Hook?.Update();
 		}
 
 		public void Stop()
 		{
 			foreach (var mod in ACsMod.LoadedMods.ToArray()) mod.Dispose();
 			ACsMod.LoadedMods.Clear();
-			HookBase?.Call("stop");
+			Hook?.Call("stop");
 
 			game?.Stop();
 			//harmony?.UnpatchAll();
 
-			//HookBase = new LuaCsHook();
-			HookBase.Clear();
+			//Hook = new LuaCsHook();
+			Hook.Clear();
 			game = new LuaGame();
-			networking = new LuaNetworking();
+			networking = new LuaCsNetworking();
 			luaScriptLoader = null;
 		}
 
@@ -321,21 +324,34 @@ namespace Barotrauma
 			harmony = new Harmony("com.LuaForBarotrauma");
 			harmony.UnpatchAll();
 
-			//HookBase = new LuaCsHook();
+			//Hook = new LuaCsHook();
 			game = new LuaGame();
-			networking = new LuaNetworking();
+			networking = new LuaCsNetworking();
 
 			//UserData.RegisterType<LuaCsHook>();
-			UserData.RegisterType<LuaHook>();
 			UserData.RegisterType<LuaGame>();
-			UserData.RegisterType<LuaTimer>();
-			UserData.RegisterType<LuaFile>();
-			UserData.RegisterType<LuaNetworking>();
+			UserData.RegisterType<LuaCsTimer>();
+			UserData.RegisterType<LuaCsFile>();
+			UserData.RegisterType<LuaCsNetworking>();
 			UserData.RegisterType<LuaUserData>();
 			UserData.RegisterType<IUserDataDescriptor>();
 
 			lua.Globals["printerror"] = (Action<object>)PrintError;
 			
+			var hookType = UserData.RegisterType<LuaCsHook>();
+			var hookDesc = (StandardUserDataDescriptor)hookType;
+			typeof(LuaCsHook).GetMethods(BindingFlags.NonPublic | BindingFlags.Instance).ToList().ForEach(m => {
+				if (
+					m.Name.Contains("HookMethod") ||
+					m.Name.Contains("UnhookMethod") ||
+					m.Name.Contains("EnqueueFunction") ||
+					m.Name.Contains("EnqueueTimedFunction")
+				)
+                {
+					hookDesc.AddMember(m.Name, new MethodMemberDescriptor(m, InteropAccessMode.Default));
+				}
+			});
+
 			lua.Globals["setmodulepaths"] = (Action<string[]>)SetModulePaths;
 
 			lua.Globals["dofile"] = (Func<string, Table, string, DynValue>)DoFile;
@@ -347,13 +363,12 @@ namespace Barotrauma
 
 			lua.Globals["LuaUserData"] = UserData.CreateStatic<LuaUserData>();
 			lua.Globals["Game"] = game;
-			//lua.Globals["Hook"] = HookBase;
-			lua.Globals["Hook"] = luaHook;
-			lua.Globals["Timer"] = new LuaTimer();
-			lua.Globals["File"] = UserData.CreateStatic<LuaFile>();
+			lua.Globals["Hook"] = Hook;
+			lua.Globals["Timer"] = new LuaCsTimer();
+			lua.Globals["File"] = UserData.CreateStatic<LuaCsFile>();
 			lua.Globals["Networking"] = networking;
 
-			bool isServer = true;
+			bool isServer;
 
 #if SERVER
 			isServer = true;

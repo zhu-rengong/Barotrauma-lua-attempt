@@ -48,21 +48,12 @@ namespace Barotrauma
 			{
 				var s = str.Replace("\\", "/");
 
-				if (s.EndsWith(".cs"))
-				{
-					LuaCsSetup.PrintCsMessage(s);
-					scriptFiles.Add(s);
-				}
+				if (s.EndsWith(".cs") && LuaCsFile.IsPathAllowedCsException(s)) scriptFiles.Add(s);
 			}
 
 			try
 			{
 				if (scriptFiles.Count <= 0) return;
-
-				var mainFile = scriptFiles.Find(s => s.EndsWith("Main.cs"));
-				if (mainFile == null) throw new Exception("Mod folder has no Main.cs file");
-				scriptFiles.Remove(mainFile);
-				scriptFiles.Add(mainFile);
 
 				// Check file content for prohibited stuff
 				foreach (var file in scriptFiles)

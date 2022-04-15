@@ -388,7 +388,7 @@ namespace Barotrauma
                 AdditionStrength -= amount;
             }
             #if SERVER
-                GameMain.LuaCs.HookBase.Call("afflictionUpdate", new object[] { this, characterHealth, targetLimb, deltaTime });
+                GameMain.LuaCs.Hook.Call("afflictionUpdate", new object[] { this, characterHealth, targetLimb, deltaTime });
             #endif
         }
 

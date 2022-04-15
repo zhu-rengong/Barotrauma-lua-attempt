@@ -526,7 +526,7 @@ namespace Barotrauma
 
             HintManager.OnRoundStarted();
 
-            GameMain.LuaCs.HookBase.Call("roundStart");
+            GameMain.LuaCs.Hook.Call("roundStart");
 #endif
         }
 
@@ -781,7 +781,7 @@ namespace Barotrauma
             RoundEnding = true;
 
 #if CLIENT
-            GameMain.LuaCs.HookBase.Call("roundEnd");
+            GameMain.LuaCs.Hook.Call("roundEnd");
 #endif
             //Clear the grids to allow for garbage collection
             Powered.Grids.Clear();

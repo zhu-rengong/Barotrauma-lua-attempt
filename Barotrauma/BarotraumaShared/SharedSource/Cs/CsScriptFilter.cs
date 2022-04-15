@@ -1,10 +1,8 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Scripting;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection.Metadata;
 
@@ -28,7 +26,7 @@ namespace Barotrauma {
         };
         private static string[] typessProhibited = new string[] {
             //"System.Reflection",
-            "System.IO.File",
+            "System.IO",
         };
         public static bool IsTypeAllowed(string usingName)
         {

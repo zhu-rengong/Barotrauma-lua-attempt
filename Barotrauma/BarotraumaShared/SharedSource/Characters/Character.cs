@@ -1043,7 +1043,7 @@ namespace Barotrauma
             }
 #endif
 
-            GameMain.LuaCs.HookBase.Call("characterCreated", new object[] { newCharacter });
+            GameMain.LuaCs.Hook.Call("characterCreated", new object[] { newCharacter });
 
             return newCharacter;
         }
