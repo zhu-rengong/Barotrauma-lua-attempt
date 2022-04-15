@@ -750,6 +750,9 @@ namespace Barotrauma
         /// </remarks>
         public static ImmutableHashSet<Character> GetSessionCrewCharacters(CharacterType type)
         {
+            var result = GameMain.LuaCs.Hook.Call<Character[]?>("getSessionCrewCharacters", type);
+            if (result != null) return ImmutableHashSet.Create(result);
+
             if (!(GameMain.GameSession.CrewManager is { } crewManager)) { return ImmutableHashSet<Character>.Empty; }
 
             IEnumerable<Character> players;
