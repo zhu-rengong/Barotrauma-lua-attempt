@@ -44,6 +44,9 @@ namespace Barotrauma
 		public ServerSettings ServerSettings => GameMain.Server.ServerSettings;
 #endif
 
+		public DynValue Settings;
+
+
 		public bool allowWifiChat = false;
 		public bool overrideTraitors = false;
 		public bool overrideRespawnSub = false;
@@ -165,6 +168,12 @@ namespace Barotrauma
 			}
 		}
 #endif
+
+		public LuaGame()
+        {
+			LuaUserData.MakeFieldAccessible(UserData.RegisterType(typeof(GameSettings)), "currentConfig");
+			Settings = UserData.CreateStatic(typeof(GameSettings));
+        }
 
 		public void OverrideTraitors(bool o)
 		{
