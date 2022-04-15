@@ -30,6 +30,5 @@ namespace Barotrauma
         public abstract void Start();
         /// Error or client exit
         public abstract void Stop();
-        public virtual void Update() { }
     }
 }
