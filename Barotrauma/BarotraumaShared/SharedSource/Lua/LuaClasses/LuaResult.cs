@@ -101,11 +101,5 @@ namespace Barotrauma
 
 			return null;
 		}
-
-		//public static implicit operator bool(LuaResult res) => res.Bool();
-		//public static implicit operator float(LuaResult res) => res.Float();
-		//public static implicit operator string(LuaResult res) => res.String();
-		//public static implicit operator double(LuaResult res) => res.Double();
-		//public static implicit operator DynValue(LuaResult res) => res.DynValue();
 	}
 }

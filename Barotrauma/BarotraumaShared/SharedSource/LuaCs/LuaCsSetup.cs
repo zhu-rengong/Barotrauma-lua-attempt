@@ -158,6 +158,7 @@ namespace Barotrauma
 		}
 		private void PrintMessage(object message) => PrintMessageBase("[LUA] ", message, "nil");
 		public static void PrintCsMessage(object message) => PrintMessageBase("[CS] ", message, "Null");
+		public static void PrintLogMessage(object message) => PrintMessageBase("[LuaCs LOG] ", message, "Null");
 
 		public DynValue DoString(string code, Table globalContext = null, string codeStringFriendly = null)
 		{

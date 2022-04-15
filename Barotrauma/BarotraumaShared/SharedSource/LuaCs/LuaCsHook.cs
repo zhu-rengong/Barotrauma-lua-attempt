@@ -310,6 +310,9 @@ namespace Barotrauma
 
 		public void Add(string name, string hookName, CsFunc hook, ACsMod owner = null)
 		{
+			name = name.ToLower();
+
+			LuaCsSetup.PrintLogMessage($"'{name}' | '{hookName}'");
 			if (name == null || hookName == null || hook == null) throw new ArgumentNullException("Names and Hook must not be null");
 
 			if (!hookFunctions.ContainsKey(name))
@@ -362,21 +365,10 @@ namespace Barotrauma
 
 		public T Call<T>(string name, params object[] args)
 		{
-			if (
-				typeof(T) != typeof(object) &&
-				!name.StartsWith("gapOxygenUpdate") &&
-				!name.StartsWith("signal") &&
-				!name.StartsWith("statusEffect")
-			)
-            {
-            }
 #if CLIENT
 			if (GameMain.GameSession?.IsRunning == false && GameMain.IsSingleplayer)
-				//return null;
 				return default(T);
 #endif
-			//if (GameMain.LuaCs == null) return null;
-			//if (name == null) return null;
 			if (GameMain.LuaCs == null) return default(T);
 			if (name == null) return default(T);
 			if (args == null) { args = new object[] { }; }
@@ -384,10 +376,8 @@ namespace Barotrauma
 			name = name.ToLower();
 
 			if (!hookFunctions.ContainsKey(name))
-				//return null;
 				return default(T);
 
-			//object lastResult = null;
 			T lastResult = default(T);
 
 			if (hookFunctions.ContainsKey(name))
