@@ -48,7 +48,7 @@ namespace Barotrauma
 #if LINUX
             setLinuxEnv();
 #endif
-            LuaDocs2.Work(); return;
+
             Game = null;
             executableDir = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
             Directory.SetCurrentDirectory(executableDir);

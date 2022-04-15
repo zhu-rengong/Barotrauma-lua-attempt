@@ -401,7 +401,7 @@ namespace Barotrauma
         /// <summary>
         /// This is the new constructor.
         /// </summary>
-        protected GUIComponent(string style, RectTransform rectT)
+        protected GUIComponent([LuadocGUIComponentStyle] string style, RectTransform rectT)
         {
             RectTransform = rectT;
 
@@ -413,7 +413,7 @@ namespace Barotrauma
             if (style != null) { GUIStyle.Apply(this, style); }
         }
 
-        protected GUIComponent(string style)
+        protected GUIComponent([LuadocGUIComponentStyle] string style)
         {
             Visible = true;
             OutlineColor = Color.Transparent;

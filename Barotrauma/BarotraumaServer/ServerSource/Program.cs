@@ -56,7 +56,7 @@ namespace Barotrauma
 #if LINUX
             setLinuxEnv();
 #endif
-            LuaDocs2.Work(); return;
+
             Console.WriteLine("Barotrauma Dedicated Server " + GameMain.Version +
                 " (" + AssemblyInfo.BuildString + ", branch " + AssemblyInfo.GitBranch + ", revision " + AssemblyInfo.GitRevision + ")");
             if (Console.IsOutputRedirected)

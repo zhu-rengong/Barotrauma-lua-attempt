@@ -161,7 +161,7 @@ namespace Barotrauma
             }
         }
                 
-        public GUIDropDown(RectTransform rectT, LocalizedString text = null, int elementCount = 4, string style = "", bool selectMultiple = false, bool dropAbove = false, Alignment textAlignment = Alignment.CenterLeft) : base(style, rectT)
+        public GUIDropDown(RectTransform rectT, LocalizedString text = null, int elementCount = 4, [LuadocGUIComponentStyle] string style = "", bool selectMultiple = false, bool dropAbove = false, Alignment textAlignment = Alignment.CenterLeft) : base(style, rectT)
         {
             text ??= new RawLString("");
 

@@ -97,7 +97,7 @@ namespace Barotrauma
 
         public ComponentState? OverrideState = null;
 
-        public GUIImage(RectTransform rectT, string style, bool scaleToFit = false)
+        public GUIImage(RectTransform rectT, [LuadocGUIComponentStyle] string style, bool scaleToFit = false)
             : this(rectT, null, null, scaleToFit, style)
         {
         }
@@ -107,7 +107,7 @@ namespace Barotrauma
         {
         }
 
-        private GUIImage(RectTransform rectT, Sprite sprite, Rectangle? sourceRect, bool scaleToFit, string style) : base(style, rectT)
+        private GUIImage(RectTransform rectT, Sprite sprite, Rectangle? sourceRect, bool scaleToFit, [LuadocGUIComponentStyle] string style) : base(style, rectT)
         {
             this.scaleToFit = scaleToFit;
             Sprite = sprite;

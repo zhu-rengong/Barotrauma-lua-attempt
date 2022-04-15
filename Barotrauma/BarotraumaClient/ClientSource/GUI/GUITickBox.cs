@@ -129,7 +129,7 @@ namespace Barotrauma
             set { text.Text = value; }
         }
 
-        public GUITickBox(RectTransform rectT, LocalizedString label, GUIFont font = null, string style = "") : base(null, rectT)
+        public GUITickBox(RectTransform rectT, LocalizedString label, GUIFont font = null, [LuadocGUIComponentStyle] string style = "") : base(null, rectT)
         {
             CanBeFocused = true;
             HoverCursor = CursorState.Hand;

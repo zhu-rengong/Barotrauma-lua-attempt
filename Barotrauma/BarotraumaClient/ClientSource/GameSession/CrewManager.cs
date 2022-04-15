@@ -3346,7 +3346,7 @@ namespace Barotrauma
             };
         }
 
-        private void CreateNodeIcon(RectTransform parent, string style, Color? color = null, LocalizedString tooltip = null)
+        private void CreateNodeIcon(RectTransform parent, [LuadocGUIComponentStyle] string style, Color? color = null, LocalizedString tooltip = null)
         {
             // Icon
             var icon = new GUIImage(

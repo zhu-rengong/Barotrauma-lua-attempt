@@ -20,13 +20,15 @@ namespace Barotrauma
 
     public static class LuaDocs2
     {
-        public const int LUA_NAME_CLASS = 1;
-        public const int LUA_NAME_TYPE = 2;
+        const int LUA_NAME_CLASS = 1;
+        const int LUA_NAME_TYPE = 2;
 
+        const string AliasDirName = @"alias";
+        const string SharedPath = @"baroluadocs/types/shared";
 #if SERVER
-        private const string BLuaDocPath = @"baroluadocs/types/server";
+        const string BLuaDocPath = @"baroluadocs/types/server";
 #elif CLIENT
-        private const string BLuaDocPath = @"baroluadocs/types/client";
+        const string BLuaDocPath = @"baroluadocs/types/client";
 #endif
 
         public static ImmutableHashSet<string> LUAKEYWORDS = ImmutableHashSet.Create(
@@ -149,7 +151,7 @@ namespace Barotrauma
                     }
                     else if (TargetType.IsGenericType)
                     {
-                        return IsCompatibleTable(TargetType) ? (true, "table") : (true, "any");
+                        return IsCompatibleTable(TargetType) ? (true, "table") : (true, Obtain(typeof(System.Object)).GetLuaName(LUA_NAME_TYPE).Name);
                     }
                     else
                     {
@@ -248,7 +250,10 @@ namespace Barotrauma
                             metadata.CollectAllToGlobal();
                         }
                     }
-                    GlobalLuaDef.Add((className, ""));
+                    else
+                    {
+                        GlobalLuaDef.Add((className, ""));
+                    }
                 }
             }
 
@@ -265,15 +270,22 @@ namespace Barotrauma
 
         static void Initialize()
         {
-            if (!Directory.Exists(BLuaDocPath))
+            var paths = new string[] { BLuaDocPath, SharedPath,
+                Path.Combine(BLuaDocPath, AliasDirName), Path.Combine(SharedPath, AliasDirName) };
+
+            for (int i = 0; i < paths.Length; i++)
             {
-                Directory.CreateDirectory(BLuaDocPath);
-            }
-            else
-            {
-                foreach (var subfile in Directory.GetFiles(BLuaDocPath))
+                var path = paths[i];
+                if (!Directory.Exists(path))
                 {
-                    File.Delete(subfile);
+                    Directory.CreateDirectory(path);
+                }
+                else
+                {
+                    foreach (var subfile in Directory.GetFiles(path))
+                    {
+                        File.Delete(subfile);
+                    }
                 }
             }
         }
@@ -1025,7 +1037,17 @@ namespace Barotrauma
             Do(typeof(LuaNetworking), "Networking");
             Do(typeof(MoonSharp.Interpreter.Interop.IUserDataDescriptor));
 
+            DoAlias();
             DoGlobal();
+        }
+
+        public static void DoAlias()
+        {
+#if CLIENT
+            var sb = new StringBuilder($"---@alias {LuaAnnotation.GUIComponentStyle.Alias} string\n");
+            foreach (var identifier in GUIStyle.ComponentStyles.Keys) sb.Append($"---| \"{identifier.Value}\"\n");
+            File.WriteAllText(@$"{BLuaDocPath}/{AliasDirName}/{LuaAnnotation.GUIComponentStyle.Alias}.lua", sb.ToString());
+#endif
         }
 
         public static void DoGlobal()
@@ -1142,11 +1164,13 @@ namespace Barotrauma
 
                             var subMetadata = ClassMetadata.Obtain(parameter.ParameterType);
                             subMetadata.CollectAllToGlobal();
-                            var (_, subTypeName) = subMetadata.GetLuaName(LUA_NAME_TYPE);
+                            var typeName = LuaAnnotation.GUIComponentStyle.Match(parameter)
+                                ? LuaAnnotation.GUIComponentStyle.Alias
+                                : subMetadata.GetLuaName(LUA_NAME_TYPE).Name;
                             if (IsOptional(parameter)) { paramName += '?'; }
                             methodTempSb.Append((j == parameters.Length - 1 && IsParams(parameter))
-                                ? $"...:{subTypeName}"
-                                : $"{paramName}:{subTypeName}");
+                                ? $"...:{typeName}"
+                                : $"{paramName}:{typeName}");
 
                             if (j != parameters.Length - 1)
                             {
@@ -1181,11 +1205,13 @@ namespace Barotrauma
 
                             var subMetadata = ClassMetadata.Obtain(parameter.ParameterType);
                             subMetadata.CollectAllToGlobal();
-                            var (_, subTypeName) = subMetadata.GetLuaName(LUA_NAME_TYPE);
+                            var typeName = LuaAnnotation.GUIComponentStyle.Match(parameter)
+                                ? LuaAnnotation.GUIComponentStyle.Alias
+                                : subMetadata.GetLuaName(LUA_NAME_TYPE).Name;
                             if (IsOptional(parameter)) { paramName += '?'; }
                             methodTempSb.Append((j == parameters.Length - 1 && IsParams(parameter))
-                                ? $"---@vararg {subTypeName}\n"
-                                : $"---@param {paramName} {subTypeName}\n");
+                                ? $"---@vararg {typeName}\n"
+                                : $"---@param {paramName} {typeName}\n");
                         }
 
                         if (method.ReturnType != typeof(void))
@@ -1226,11 +1252,13 @@ namespace Barotrauma
 
                         var subMetadata = ClassMetadata.Obtain(parameter.ParameterType);
                         subMetadata.CollectAllToGlobal();
-                        var (_, subTypeName) = subMetadata.GetLuaName(LUA_NAME_TYPE);
+                        var typeName = LuaAnnotation.GUIComponentStyle.Match(parameter)
+                            ? LuaAnnotation.GUIComponentStyle.Alias
+                            : subMetadata.GetLuaName(LUA_NAME_TYPE).Name;
                         if (IsOptional(parameter)) { paramName += '?'; }
                         constructorTempSb.Append((j == parameters.Length - 1 && IsParams(parameter))
-                            ? $"...:{subTypeName}"
-                            : $"{paramName}:{subTypeName}");
+                            ? $"...:{typeName}"
+                            : $"{paramName}:{typeName}");
 
                         if (j != parameters.Length - 1)
                         {
@@ -1254,11 +1282,13 @@ namespace Barotrauma
 
                         var subMetadata = ClassMetadata.Obtain(parameter.ParameterType);
                         subMetadata.CollectAllToGlobal();
-                        var (_, subTypeName) = subMetadata.GetLuaName(LUA_NAME_TYPE);
+                        var typeName = LuaAnnotation.GUIComponentStyle.Match(parameter)
+                            ? LuaAnnotation.GUIComponentStyle.Alias
+                            : subMetadata.GetLuaName(LUA_NAME_TYPE).Name;
                         if (IsOptional(parameter)) { paramName += '?'; }
                         constructorTempSb.Append((j == parameters.Length - 1 && isParams)
-                            ? $"---@vararg {subTypeName}\n"
-                            : $"---@param {paramName} {subTypeName}\n");
+                            ? $"---@vararg {typeName}\n"
+                            : $"---@param {paramName} {typeName}\n");
                     }
 
                     constructorTempSb.Append($"---@return {className}\n");
@@ -1299,7 +1329,13 @@ namespace Barotrauma
             }
         }
 
-
+        public static class LuaAnnotation
+        {
+            public static (Func<ParameterInfo, bool> Match, string Alias) GUIComponentStyle = (
+                param => param.GetCustomAttribute<LuadocGUIComponentStyleAttribute>(false) != null,
+                "alias.style"
+            );
+        }
 
     }
 }
