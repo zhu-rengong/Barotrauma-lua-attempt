@@ -13,6 +13,7 @@ using System.Xml.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Collections.Immutable;
+using System.Runtime.InteropServices;
 
 namespace Barotrauma
 {
@@ -1135,20 +1136,14 @@ namespace Barotrauma
                         {
                             var parameter = parameters[j];
                             var paramName = parameter.Name;
-                            if (LUAKEYWORDS.Contains(paramName))
-                            {
-                                paramName = $"_{paramName}";
-                            }
+                            if (LUAKEYWORDS.Contains(paramName)) { paramName = $"_{paramName}"; }
 
-                            if (j == 0)
-                            {
-                                methodTempSb.Append(@"---@overload fun(");
-                            }
-                            
+                            if (j == 0) { methodTempSb.Append(@"---@overload fun("); }
+
                             var subMetadata = ClassMetadata.Obtain(parameter.ParameterType);
-                            var (_, subClassName) = subMetadata.GetLuaName();
                             subMetadata.CollectAllToGlobal();
                             var (_, subTypeName) = subMetadata.GetLuaName(LUA_NAME_TYPE);
+                            if (IsOptional(parameter)) { paramName += '?'; }
                             methodTempSb.Append((j == parameters.Length - 1 && IsParams(parameter))
                                 ? $"...:{subTypeName}"
                                 : $"{paramName}:{subTypeName}");
@@ -1181,23 +1176,13 @@ namespace Barotrauma
                             var parameter = parameters[j];
                             var paramName = parameter.Name;
                             var isParams = IsParams(parameter);
-                            if (LUAKEYWORDS.Contains(paramName))
-                            {
-                                paramName = $"_{paramName}";
-                            }
-                            if (j == parameters.Length - 1)
-                            {
-                                paramNames = paramNames + (isParams ? "..." : paramName);
-                            }
-                            else
-                            {
-                                paramNames = paramNames + paramName + ", ";
-                            }
+                            if (LUAKEYWORDS.Contains(paramName)) { paramName = $"_{paramName}"; }
+                            paramNames += (j == parameters.Length - 1) ? (isParams ? "..." : paramName) : (paramName + ", ");
 
                             var subMetadata = ClassMetadata.Obtain(parameter.ParameterType);
-                            var (_, subClassName) = subMetadata.GetLuaName();
                             subMetadata.CollectAllToGlobal();
                             var (_, subTypeName) = subMetadata.GetLuaName(LUA_NAME_TYPE);
+                            if (IsOptional(parameter)) { paramName += '?'; }
                             methodTempSb.Append((j == parameters.Length - 1 && IsParams(parameter))
                                 ? $"---@vararg {subTypeName}\n"
                                 : $"---@param {paramName} {subTypeName}\n");
@@ -1235,20 +1220,14 @@ namespace Barotrauma
                     {
                         var parameter = parameters[j];
                         var paramName = parameter.Name;
-                        if (LUAKEYWORDS.Contains(paramName))
-                        {
-                            paramName = $"_{paramName}";
-                        }
+                        if (LUAKEYWORDS.Contains(paramName)) { paramName = $"_{paramName}"; }
 
-                        if (j == 0)
-                        {
-                            constructorTempSb.Append(@"---@overload fun(");
-                        }
+                        if (j == 0) { constructorTempSb.Append(@"---@overload fun("); }
 
                         var subMetadata = ClassMetadata.Obtain(parameter.ParameterType);
-                        var (_, subClassName) = subMetadata.GetLuaName();
                         subMetadata.CollectAllToGlobal();
                         var (_, subTypeName) = subMetadata.GetLuaName(LUA_NAME_TYPE);
+                        if (IsOptional(parameter)) { paramName += '?'; }
                         constructorTempSb.Append((j == parameters.Length - 1 && IsParams(parameter))
                             ? $"...:{subTypeName}"
                             : $"{paramName}:{subTypeName}");
@@ -1270,23 +1249,13 @@ namespace Barotrauma
                         var parameter = parameters[j];
                         var paramName = parameter.Name;
                         var isParams = IsParams(parameter);
-                        if (LUAKEYWORDS.Contains(paramName))
-                        {
-                            paramName = $"_{paramName}";
-                        }
-                        if (j == parameters.Length - 1)
-                        {
-                            paramNames = paramNames + (isParams ? "..." : paramName);
-                        }
-                        else
-                        {
-                            paramNames = paramNames + paramName + ", ";
-                        }
+                        if (LUAKEYWORDS.Contains(paramName)) { paramName = $"_{paramName}"; }
+                        paramNames += (j == parameters.Length - 1) ? (isParams ? "..." : paramName) : (paramName + ", ");
 
                         var subMetadata = ClassMetadata.Obtain(parameter.ParameterType);
-                        var (_, subClassName) = subMetadata.GetLuaName();
                         subMetadata.CollectAllToGlobal();
                         var (_, subTypeName) = subMetadata.GetLuaName(LUA_NAME_TYPE);
+                        if (IsOptional(parameter)) { paramName += '?'; }
                         constructorTempSb.Append((j == parameters.Length - 1 && isParams)
                             ? $"---@vararg {subTypeName}\n"
                             : $"---@param {paramName} {subTypeName}\n");
@@ -1312,10 +1281,8 @@ namespace Barotrauma
                 }
             }
 
-            static bool IsParams(ParameterInfo param)
-            {
-                return param.GetCustomAttributes(typeof(ParamArrayAttribute), false).Length > 0;
-            }
+            static bool IsParams(ParameterInfo param) => param.GetCustomAttribute<ParamArrayAttribute>(false) != null;
+            static bool IsOptional(ParameterInfo param) => param.GetCustomAttribute<OptionalAttribute>(false) != null;
 
             try
             {
