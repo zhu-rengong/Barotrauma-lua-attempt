@@ -33,60 +33,60 @@ namespace Barotrauma
 
             {
                 object Call(object function, params object[] arguments) => GameMain.LuaCs.CallLuaFunction(function, arguments);
-                void RegisterHandler<T>(Func<Closure, object> converter)
-                {
-                    Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(T), v => converter(v.Function));
-                }
+                void RegisterHandler<T>(Func<Closure, T> converter)
+                    => Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(T), v => converter(v.Function));
 
-                RegisterHandler<GUIComponent.SecondaryButtonDownHandler>(f =>
-                               (GUIComponent.SecondaryButtonDownHandler)((GUIComponent a1, object a2) => new LuaResult(Call(f, a1, a2)).Bool()));
+                RegisterHandler(f => (GUIComponent.SecondaryButtonDownHandler)(
+				(a1, a2) => new LuaResult(Call(f, a1, a2)).Bool()));
 
-                RegisterHandler<GUIButton.OnClickedHandler>(f =>
-                               (GUIButton.OnClickedHandler)((GUIButton a1, object a2) => new LuaResult(Call(f, a1, a2)).Bool()));
-                RegisterHandler<GUIButton.OnButtonDownHandler>(f =>
-                               (GUIButton.OnButtonDownHandler)(() => new LuaResult(Call(f)).Bool()));
-                RegisterHandler<GUIButton.OnPressedHandler>(f =>
-                               (GUIButton.OnPressedHandler)(() => new LuaResult(Call(f)).Bool()));
+                RegisterHandler(f => (GUIButton.OnClickedHandler)(
+				(a1, a2) => new LuaResult(Call(f, a1, a2)).Bool()));
+                RegisterHandler(f => (GUIButton.OnButtonDownHandler)(
+				() => new LuaResult(Call(f)).Bool()));
+                RegisterHandler(f => (GUIButton.OnPressedHandler)(
+				() => new LuaResult(Call(f)).Bool()));
 
-                RegisterHandler<GUIColorPicker.OnColorSelectedHandler>(f =>
-                               (GUIColorPicker.OnColorSelectedHandler)((GUIColorPicker a1, Color a2) => new LuaResult(Call(f, a1, a2)).Bool()));
+                RegisterHandler(f => (GUIColorPicker.OnColorSelectedHandler)(
+				(a1, a2) => new LuaResult(Call(f, a1, a2)).Bool()));
 
-                RegisterHandler<GUIDropDown.OnSelectedHandler>(f =>
-                               (GUIDropDown.OnSelectedHandler)((GUIComponent a1, object a2) => new LuaResult(Call(f, a1, a2)).Bool()));
+                RegisterHandler(f => (GUIDropDown.OnSelectedHandler)(
+				(a1, a2) => new LuaResult(Call(f, a1, a2)).Bool()));
 
-                RegisterHandler<GUIListBox.OnSelectedHandler>(f =>
-                               (GUIListBox.OnSelectedHandler)((GUIComponent a1, object a2) => new LuaResult(Call(f, a1, a2)).Bool()));
-                RegisterHandler<GUIListBox.OnRearrangedHandler>(f =>
-                               (GUIListBox.OnRearrangedHandler)((GUIListBox a1, object a2) => Call(f, a1, a2)));
-                RegisterHandler<GUIListBox.CheckSelectedHandler>(f =>
-                               (GUIListBox.CheckSelectedHandler)(() => new LuaResult(Call(f)).Object()));
+                RegisterHandler(f => (GUIListBox.OnSelectedHandler)(
+				(a1, a2) => new LuaResult(Call(f, a1, a2)).Bool()));
+                RegisterHandler(f => (GUIListBox.OnRearrangedHandler)(
+				(a1, a2) => Call(f, a1, a2)));
+                RegisterHandler(f => (GUIListBox.CheckSelectedHandler)(
+				() => new LuaResult(Call(f)).Object()));
 
-                RegisterHandler<GUINumberInput.OnValueChangedHandler>(f =>
-                               (GUINumberInput.OnValueChangedHandler)((GUINumberInput a1) => Call(f, a1)));
+                RegisterHandler(f => (GUINumberInput.OnValueEnteredHandler)(
+                (a1) => Call(f, a1)));
+                RegisterHandler(f => (GUINumberInput.OnValueChangedHandler)(
+				(a1) => Call(f, a1)));
 
-                RegisterHandler<GUIProgressBar.ProgressGetterHandler>(f =>
-                               (GUIProgressBar.ProgressGetterHandler)(() => new LuaResult(Call(f)).Float()));
+                RegisterHandler(f => (GUIProgressBar.ProgressGetterHandler)(
+				() => new LuaResult(Call(f)).Float()));
 
-                RegisterHandler<GUIRadioButtonGroup.RadioButtonGroupDelegate>(f =>
-                               (GUIRadioButtonGroup.RadioButtonGroupDelegate)((GUIRadioButtonGroup a1, int? a2) => Call(f, a1, a2)));
+                RegisterHandler(f => (GUIRadioButtonGroup.RadioButtonGroupDelegate)(
+				(a1, a2) => Call(f, a1, a2)));
 
-                RegisterHandler<GUIScrollBar.OnMovedHandler>(f =>
-                               (GUIScrollBar.OnMovedHandler)((GUIScrollBar a1, float a2) => new LuaResult(Call(f, a1, a2)).Bool()));
-                RegisterHandler<GUIScrollBar.ScrollConversion>(f =>
-                               (GUIScrollBar.ScrollConversion)((GUIScrollBar a1, float a2) => new LuaResult(Call(f, a1, a2)).Float()));
+                RegisterHandler(f => (GUIScrollBar.OnMovedHandler)(
+				(a1, a2) => new LuaResult(Call(f, a1, a2)).Bool()));
+                RegisterHandler(f => (GUIScrollBar.ScrollConversion)(
+				(a1, a2) => new LuaResult(Call(f, a1, a2)).Float()));
 
-                RegisterHandler<GUITextBlock.TextGetterHandler>(f =>
-                               (GUITextBlock.TextGetterHandler)(() => new LuaResult(Call(f, new object[] { })).String()));
+                RegisterHandler(f => (GUITextBlock.TextGetterHandler)(
+				() => new LuaResult(Call(f, new object[] { })).String()));
 
-                RegisterHandler<GUITextBox.OnEnterHandler>(f =>
-                               (GUITextBox.OnEnterHandler)((GUITextBox a1, string a2) => new LuaResult(Call(f, a1, a2)).Bool()));
-                RegisterHandler<GUITextBox.OnTextChangedHandler>(f =>
-                               (GUITextBox.OnTextChangedHandler)((GUITextBox a1, string a2) => new LuaResult(Call(f, a1, a2)).Bool()));
-                RegisterHandler<TextBoxEvent>(f =>
-                               (TextBoxEvent)((GUITextBox a1, Microsoft.Xna.Framework.Input.Keys a2) => Call(f, a1, a2)));
+                RegisterHandler(f => (GUITextBox.OnEnterHandler)(
+				(a1, a2) => new LuaResult(Call(f, a1, a2)).Bool()));
+                RegisterHandler(f => (GUITextBox.OnTextChangedHandler)(
+				(a1, a2) => new LuaResult(Call(f, a1, a2)).Bool()));
+                RegisterHandler(f => (TextBoxEvent)(
+				(a1, a2) => Call(f, a1, a2)));
 
-                RegisterHandler<GUITickBox.OnSelectedHandler>(f =>
-                               (GUITickBox.OnSelectedHandler)((GUITickBox a1) => new LuaResult(Call(f, a1)).Bool()));
+                RegisterHandler(f => (GUITickBox.OnSelectedHandler)(
+				(a1) => new LuaResult(Call(f, a1)).Bool()));
 
             }
 #endif
