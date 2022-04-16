@@ -1112,7 +1112,7 @@ namespace Barotrauma
 
             const BindingFlags Flags = BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
-            var fields = nonGenericBaseType ? targetType.GetFields(Flags).Where(field => field.DeclaringType == targetType) : targetType.GetFields(Flags);
+            var fields = nonGenericBaseType ? targetType.GetFields(Flags | BindingFlags.DeclaredOnly) : targetType.GetFields(Flags);
 
             foreach (var field in fields.Where(f => !f.Name.Contains("k__BackingField")).ToList())
             {
@@ -1125,7 +1125,7 @@ namespace Barotrauma
                 luadocBuilder.Append($"---@field {field.Name} {subTypeName}\n");
             }
 
-            var properties = nonGenericBaseType ? targetType.GetProperties(Flags).Where(prop => prop.DeclaringType == targetType) : targetType.GetProperties(Flags);
+            var properties = nonGenericBaseType ? targetType.GetProperties(Flags | BindingFlags.DeclaredOnly) : targetType.GetProperties(Flags);
 
             foreach (var prop in properties)
             {
@@ -1140,7 +1140,7 @@ namespace Barotrauma
 
             luadocBuilder.Append($"{tableName}={{}}\n\n");
 
-            var methods = nonGenericBaseType ? targetType.GetMethods(Flags).Where(method => method.DeclaringType == targetType) : targetType.GetMethods(Flags);
+            var methods = nonGenericBaseType ? targetType.GetMethods(Flags | BindingFlags.DeclaredOnly) : targetType.GetMethods(Flags);
 
             foreach (var groupMethod in (
                     from method in methods
@@ -1234,12 +1234,12 @@ namespace Barotrauma
                 }
             }
 
-            var constructors = targetType.GetConstructors(Flags);
+            var constructors = targetType.GetConstructors();
 
             var constructorTempSb = new StringBuilder();
             for (int i = 0; i < constructors.Length; i++)
             {
-                var constructor = (ConstructorInfo)constructors[i];
+                var constructor = constructors[i];
                 if (constructor.IsPrivate) { continue; }
                 var paramNames = "";
                 var parameters = constructor.GetParameters();
