@@ -9,9 +9,9 @@ using MoonSharp.Interpreter.Interop;
 
 namespace Barotrauma
 {
-	public delegate void CsAction(params object[] args);
-	public delegate object CsFunc(params object[] args);
-	public delegate object CsPatch(object self, params object[] args);
+	public delegate void LuaCsAction(params object[] args);
+	public delegate object LuaCsFunc(params object[] args);
+	public delegate object LuaCsPatch(object self, object args);
 
 	public class LuaCsHook
 	{
@@ -37,9 +37,9 @@ namespace Barotrauma
 		{
 			public string name;
 			public string hookName;
-			public CsFunc func;
+			public LuaCsFunc func;
 
-			public LuaCsHookCallback(string name, string hookName, CsFunc func)
+			public LuaCsHookCallback(string name, string hookName, LuaCsFunc func)
 			{
 				this.name = name;
 				this.hookName = hookName;
@@ -51,10 +51,10 @@ namespace Barotrauma
 
 		private Dictionary<string, Dictionary<string, (LuaCsHookCallback, ACsMod)>> hookFunctions;
 
-		private Dictionary<long, HashSet<(string, CsPatch, ACsMod)>> hookPrefixMethods;
-		private Dictionary<long, HashSet<(string, CsPatch, ACsMod)>> hookPostfixMethods;
+		private Dictionary<long, HashSet<(string, LuaCsPatch, ACsMod)>> hookPrefixMethods;
+		private Dictionary<long, HashSet<(string, LuaCsPatch, ACsMod)>> hookPostfixMethods;
 
-		private Queue<(float, CsAction, object[])> queuedFunctionCalls;
+		private Queue<(float, LuaCsAction, object[])> queuedFunctionCalls;
 
 		private static LuaCsHook instance;
 
@@ -63,10 +63,10 @@ namespace Barotrauma
 			
 			hookFunctions = new Dictionary<string, Dictionary<string, (LuaCsHookCallback, ACsMod)>>();
 
-			hookPrefixMethods = new Dictionary<long, HashSet<(string, CsPatch, ACsMod)>>();
-			hookPostfixMethods = new Dictionary<long, HashSet<(string, CsPatch, ACsMod)>>();
+			hookPrefixMethods = new Dictionary<long, HashSet<(string, LuaCsPatch, ACsMod)>>();
+			hookPostfixMethods = new Dictionary<long, HashSet<(string, LuaCsPatch, ACsMod)>>();
 
-			queuedFunctionCalls = new Queue<(float, CsAction, object[])>();
+			queuedFunctionCalls = new Queue<(float, LuaCsAction, object[])>();
 		}
 
 		public void Initialize()
@@ -85,7 +85,7 @@ namespace Barotrauma
 			try
 			{
 				var funcAddr = ((long)__originalMethod.MethodHandle.GetFunctionPointer());
-				HashSet<(string, CsPatch, ACsMod)> methodSet = null;
+				HashSet<(string, LuaCsPatch, ACsMod)> methodSet = null;
 				switch (hookMethodType)
 				{
 					case HookMethodType.Before:
@@ -107,7 +107,7 @@ namespace Barotrauma
 						args.Add(@params[i].Name, __args[i]);
 					}
 
-					var outOfSocpe = new HashSet<(string, CsPatch, ACsMod)>();
+					var outOfSocpe = new HashSet<(string, LuaCsPatch, ACsMod)>();
 					foreach (var tuple in methodSet)
 					{
 						if (tuple.Item3 != null && tuple.Item3.IsDisposed)
@@ -202,7 +202,7 @@ namespace Barotrauma
 			return methodInfo;
 		}
 
-		public void HookMethod(string identifier, MethodInfo method, CsPatch patch, HookMethodType hookType = HookMethodType.Before, ACsMod owner = null)
+		public void HookMethod(string identifier, MethodInfo method, LuaCsPatch patch, HookMethodType hookType = HookMethodType.Before, ACsMod owner = null)
 		{
 			if (identifier == null || method == null || patch == null) throw new ArgumentNullException("Identifier, Method and Patch arguments must not be null.");
 
@@ -226,14 +226,14 @@ namespace Barotrauma
 					}
 				}
 
-				if (hookPrefixMethods.TryGetValue(funcAddr, out HashSet<(string, CsPatch, ACsMod)> methodSet))
+				if (hookPrefixMethods.TryGetValue(funcAddr, out HashSet<(string, LuaCsPatch, ACsMod)> methodSet))
 				{
 					methodSet.RemoveWhere(tuple => tuple.Item1 == identifier);
 					methodSet.Add((identifier, patch, owner));
 				}
 				else if (patch != null)
 				{
-					hookPrefixMethods.Add(funcAddr, new HashSet<(string, CsPatch, ACsMod)>() { (identifier, patch, owner) });
+					hookPrefixMethods.Add(funcAddr, new HashSet<(string, LuaCsPatch, ACsMod)>() { (identifier, patch, owner) });
 				}
 
 			}
@@ -254,32 +254,32 @@ namespace Barotrauma
 					}
 				}
 
-				if (hookPostfixMethods.TryGetValue(funcAddr, out HashSet<(string, CsPatch, ACsMod)> methodSet))
+				if (hookPostfixMethods.TryGetValue(funcAddr, out HashSet<(string, LuaCsPatch, ACsMod)> methodSet))
 				{
 					methodSet.RemoveWhere(tuple => tuple.Item1 == identifier);
 					methodSet.Add((identifier, patch, owner));
 				}
 				else if (patch != null)
 				{
-					hookPostfixMethods.Add(funcAddr, new HashSet<(string, CsPatch, ACsMod)>() { (identifier, patch, owner) });
+					hookPostfixMethods.Add(funcAddr, new HashSet<(string, LuaCsPatch, ACsMod)>() { (identifier, patch, owner) });
 				}
 
 			}
 
 		}
 
-		protected void HookMethod(string identifier, string className, string methodName, string[] parameterNames, CsPatch patch, HookMethodType hookMethodType = HookMethodType.Before)
+		protected void HookMethod(string identifier, string className, string methodName, string[] parameterNames, LuaCsPatch patch, HookMethodType hookMethodType = HookMethodType.Before)
 		{
 
 			MethodInfo methodInfo = ResolveMethod("HookMethod", className, methodName, parameterNames);
 			if (methodInfo == null) return;
 			HookMethod(identifier, methodInfo, patch, hookMethodType);
 		}
-		protected void HookMethod(string identifier, string className, string methodName, CsPatch patch, HookMethodType hookMethodType = HookMethodType.Before) =>
+		protected void HookMethod(string identifier, string className, string methodName, LuaCsPatch patch, HookMethodType hookMethodType = HookMethodType.Before) =>
 			HookMethod(identifier, className, methodName, null, patch, hookMethodType);
-		protected void HookMethod(string className, string methodName, CsPatch patch, HookMethodType hookMethodType = HookMethodType.Before) =>
+		protected void HookMethod(string className, string methodName, LuaCsPatch patch, HookMethodType hookMethodType = HookMethodType.Before) =>
 			HookMethod("", className, methodName, null, patch, hookMethodType);
-		protected void HookMethod(string className, string methodName, string[] parameterNames, CsPatch patch, HookMethodType hookMethodType = HookMethodType.Before) =>
+		protected void HookMethod(string className, string methodName, string[] parameterNames, LuaCsPatch patch, HookMethodType hookMethodType = HookMethodType.Before) =>
 			HookMethod("", className, methodName, parameterNames, patch, hookMethodType);
 
 
@@ -287,7 +287,7 @@ namespace Barotrauma
 		{
 			var funcAddr = ((long)method.MethodHandle.GetFunctionPointer());
 
-			Dictionary<long, HashSet<(string, CsPatch, ACsMod)>> methods;
+			Dictionary<long, HashSet<(string, LuaCsPatch, ACsMod)>> methods;
 			if (hookType == HookMethodType.Before) methods = hookPrefixMethods;
 			else if (hookType == HookMethodType.After) methods = hookPostfixMethods;
 			else throw null;
@@ -302,20 +302,20 @@ namespace Barotrauma
 		}
 
 
-		public void Enqueue(CsAction action, params object[] args)
+		public void Enqueue(LuaCsAction action, params object[] args)
 		{
 			queuedFunctionCalls.Enqueue((0, action, args));
 		}
-		public void EnqueueTimed(float time, CsAction action, params object[] args)
+		public void EnqueueTimed(float time, LuaCsAction action, params object[] args)
 		{
 			queuedFunctionCalls.Enqueue((time, action, args));
 		}
 
-		protected void EnqueueFunction(CsAction function, params object[] args) => Enqueue(function, args);
-		protected void EnqueueTimedFunction(float time, CsAction function, params object[] args) => EnqueueTimed(time, function, args);
+		protected void EnqueueFunction(LuaCsAction function, params object[] args) => Enqueue(function, args);
+		protected void EnqueueTimedFunction(float time, LuaCsAction function, params object[] args) => EnqueueTimed(time, function, args);
 
 
-		public void Add(string name, string hookName, CsFunc hook, ACsMod owner = null)
+		public void Add(string name, string hookName, LuaCsFunc hook, ACsMod owner = null)
 		{
 			name = name.ToLower();
 
@@ -354,7 +354,7 @@ namespace Barotrauma
 		{
 			try
 			{
-				if (queuedFunctionCalls.TryPeek(out (float, CsAction, object[]) result))
+				if (queuedFunctionCalls.TryPeek(out (float, LuaCsAction, object[]) result))
 				{
 					if (Timing.TotalTime >= result.Item1)
 					{

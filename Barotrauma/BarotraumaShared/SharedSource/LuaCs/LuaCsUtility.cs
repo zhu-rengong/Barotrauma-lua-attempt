@@ -29,7 +29,7 @@ namespace Barotrauma
 			}
 		}
 
-		public void Wait(CsAction action, int millisecondDelay)
+		public void Wait(LuaCsAction action, int millisecondDelay)
 		{
 			GameMain.LuaCs.Hook.EnqueueTimed((float)Timing.TotalTime + (millisecondDelay / 1000f), action);
 		}
@@ -232,7 +232,7 @@ namespace Barotrauma
 	partial class LuaCsNetworking
 	{
 		public bool restrictMessageSize = true;
-		public Dictionary<string, CsAction> LuaCsNetReceives = new Dictionary<string, CsAction>();
+		public Dictionary<string, LuaCsAction> LuaCsNetReceives = new Dictionary<string, LuaCsAction>();
 
 #if SERVER
 		[MoonSharpHidden]
@@ -264,7 +264,7 @@ namespace Barotrauma
 			}
 		}
 #endif
-		public void Receive(string netMessageName, CsAction callback)
+		public void Receive(string netMessageName, LuaCsAction callback)
 		{
 			LuaCsNetReceives[netMessageName] = callback;
 		}
@@ -310,7 +310,7 @@ namespace Barotrauma
 		}
 #endif
 
-		public void RequestPostHTTP(string url, CsAction callback, string data, string contentType = "application/json")
+		public void RequestPostHTTP(string url, LuaCsAction callback, string data, string contentType = "application/json")
 		{
 			try
 			{
@@ -342,7 +342,7 @@ namespace Barotrauma
 			}
 		}
 
-		public void RequestGetHTTP(string url, CsAction callback)
+		public void RequestGetHTTP(string url, LuaCsAction callback)
 		{
 			try
 			{

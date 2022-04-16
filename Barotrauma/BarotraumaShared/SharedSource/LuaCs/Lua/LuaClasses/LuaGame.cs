@@ -324,7 +324,7 @@ namespace Barotrauma
 			}
 		}
 
-		public void AddCommand(string name, string help, CsAction onExecute, CsFunc getValidArgs = null, bool isCheat = false)
+		public void AddCommand(string name, string help, LuaCsAction onExecute, LuaCsFunc getValidArgs = null, bool isCheat = false)
 		{
 			var cmd = new DebugConsole.Command(name, help, (string[] arg1) => { onExecute(arg1); },
 				() =>
