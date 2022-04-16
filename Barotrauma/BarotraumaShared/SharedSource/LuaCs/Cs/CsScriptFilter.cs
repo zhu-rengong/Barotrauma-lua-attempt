@@ -24,14 +24,14 @@ namespace Barotrauma {
             // Barotrauma
             "Barotrauma",
         };
-        private static string[] typessProhibited = new string[] {
+        private static string[] typesProhibited = new string[] {
             //"System.Reflection",
             "System.IO",
         };
         public static bool IsTypeAllowed(string usingName)
         {
             if (useWhitelist && !typesPermited.Any(u => u.StartsWith(usingName))) return false;
-            if (typessProhibited.Any(u => u.StartsWith(usingName))) return false;
+            if (typesProhibited.Any(u => u.StartsWith(usingName))) return false;
             return true;
         }
 
@@ -45,7 +45,7 @@ namespace Barotrauma {
                 var tlStatements = nodeCheck.Where(n => n is GlobalStatementSyntax).ToList();
                 if (tlStatements.Count > 0)
                 {
-                    string errStr = "Cmopilation Error:";
+                    string errStr = "Compilation Error:";
                     foreach (var tls in tlStatements) tls.GetDiagnostics().ToList().ForEach(d => errStr += $"\n  {d.ToString()}");
                     return errStr;
                 }
