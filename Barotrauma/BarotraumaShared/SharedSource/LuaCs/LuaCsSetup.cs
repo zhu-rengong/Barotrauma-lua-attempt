@@ -369,7 +369,7 @@ namespace Barotrauma
 			}
 			catch (Exception ex)
 			{
-				PrintMessage(ex);
+				HandleException(ex, exceptionType: ExceptionType.CSharp);
 			}
 
 
