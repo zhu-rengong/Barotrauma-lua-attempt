@@ -161,9 +161,9 @@ namespace Barotrauma
 
         public GUISoundType ClickSound { get; set; } = GUISoundType.Click;
 
-        public GUIButton(RectTransform rectT, Alignment textAlignment = Alignment.Center, [LuaAliasGUIComponentStyle] string style = "", Color? color = null) : this(rectT, new RawLString(""), textAlignment, style, color) { }
+        public GUIButton(RectTransform rectT, Alignment textAlignment = Alignment.Center, [LuaAlias.GUIComponentStyle] string style = "", Color? color = null) : this(rectT, new RawLString(""), textAlignment, style, color) { }
 
-        public GUIButton(RectTransform rectT, LocalizedString text, Alignment textAlignment = Alignment.Center, [LuaAliasGUIComponentStyle] string style = "", Color? color = null) : base(style, rectT)
+        public GUIButton(RectTransform rectT, LocalizedString text, Alignment textAlignment = Alignment.Center, [LuaAlias.GUIComponentStyle] string style = "", Color? color = null) : base(style, rectT)
         {
             CanBeFocused = true;
             HoverCursor = CursorState.Hand;

@@ -1041,7 +1041,7 @@ namespace Barotrauma
             return (int)(salary * Job.Prefab.PriceMultiplier);
         }
 
-        public void IncreaseSkillLevel(Identifier skillIdentifier, float increase, bool gainedFromAbility = false)
+        public void IncreaseSkillLevel([LuaAlias.SkillIdentifier] Identifier skillIdentifier, float increase, bool gainedFromAbility = false)
         {
             if (Job == null || (GameMain.NetworkMember != null && GameMain.NetworkMember.IsClient) || Character == null) { return; }
 
@@ -1072,7 +1072,7 @@ namespace Barotrauma
             OnSkillChanged(skillIdentifier, prevLevel, newLevel);
         }
 
-        public void SetSkillLevel(Identifier skillIdentifier, float level)
+        public void SetSkillLevel([LuaAlias.SkillIdentifier] Identifier skillIdentifier, float level)
         {
             if (Job == null) { return; }
 

@@ -228,7 +228,7 @@ namespace Barotrauma
 			return ContentPackageManager.EnabledPackages.All.ToArray();
         }
 
-		public static ItemPrefab GetItemPrefab(string itemNameOrId)
+		public static ItemPrefab GetItemPrefab([LuaAlias.ItemIdentifier] string itemNameOrId)
 		{
 			ItemPrefab itemPrefab =
 			(MapEntityPrefab.Find(itemNameOrId, identifier: null, showErrorMessages: false) ??

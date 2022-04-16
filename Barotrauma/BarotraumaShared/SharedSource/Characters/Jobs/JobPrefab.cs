@@ -80,7 +80,7 @@ namespace Barotrauma
         public static IReadOnlyDictionary<Identifier, float> ItemRepairPriorities => _itemRepairPriorities;
 
         public static ContentXElement NoJobElement;
-        public static JobPrefab Get(string identifier)
+        public static JobPrefab Get([LuaAlias.JobIdentifier] string identifier)
         {
             if (Prefabs.ContainsKey(identifier))
             {

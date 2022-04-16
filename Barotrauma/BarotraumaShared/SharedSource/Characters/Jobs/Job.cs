@@ -82,14 +82,14 @@ namespace Barotrauma
             return new Job(prefab, randSync, variant);
         } 
 
-        public float GetSkillLevel(Identifier skillIdentifier)
+        public float GetSkillLevel([LuaAlias.SkillIdentifier] Identifier skillIdentifier)
         {
             if (skillIdentifier.IsEmpty) { return 0.0f; }
             skills.TryGetValue(skillIdentifier, out Skill skill);
             return skill?.Level ?? 0.0f;
         }
 
-        public void IncreaseSkillLevel(Identifier skillIdentifier, float increase, bool increasePastMax)
+        public void IncreaseSkillLevel([LuaAlias.SkillIdentifier] Identifier skillIdentifier, float increase, bool increasePastMax)
         {
             if (skills.TryGetValue(skillIdentifier, out Skill skill))
             {

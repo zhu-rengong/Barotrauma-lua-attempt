@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using MoonSharp.Interpreter;
@@ -15,6 +15,18 @@ using System.Text.RegularExpressions;
 using System.Collections.Immutable;
 using System.Runtime.InteropServices;
 
+/// <summary>
+/// 把.net框架下定义的Class转换成lua文档的形式，包括字段、属性、方法、构造器的成员信息。
+/// 文档特性：
+/// 每个C#类型在lua文档中有单独的class名称格式
+/// 可感知
+///     类的继承关系
+///     （非）公共、静态、实例成员
+///     重载的方法、构造器
+///     可选参数、参量参数
+///     嵌套的数组、列表、字典、集合及元素类型
+///     Vallina 原版内容包预设的参数值
+/// </summary>
 namespace Barotrauma
 {
 
@@ -1344,7 +1356,11 @@ namespace Barotrauma
 #if CLIENT
                     AliasAnnotation.GUIComponentStyle,
 #endif
-                    AliasAnnotation.Skill
+                    AliasAnnotation.SkillIdentifier,
+                    AliasAnnotation.JobIdentifier,
+                    AliasAnnotation.AfflictionIdentifier,
+                    AliasAnnotation.AfflictionType,
+                    AliasAnnotation.ItemIdentifier
                 };
             }
 
@@ -1359,7 +1375,7 @@ namespace Barotrauma
 
 #if CLIENT
             public static (Func<ParameterInfo, bool> Match, string Alias, Func<StringBuilder, string> Content) GUIComponentStyle = (
-                param => param.GetCustomAttribute<LuaAliasGUIComponentStyleAttribute>(false) != null,
+                param => param.GetCustomAttribute<LuaAlias.GUIComponentStyleAttribute>(false) != null,
                 "gui.component.style",
                 (sb) => 
                 {
@@ -1369,9 +1385,9 @@ namespace Barotrauma
             );
 #endif
 
-            public static (Func<ParameterInfo, bool> Match, string Alias, Func<StringBuilder, string> Content) Skill = (
-                param => param.GetCustomAttribute<LuaAliasSkillAttribute>(false) != null,
-                "skill",
+            public static (Func<ParameterInfo, bool> Match, string Alias, Func<StringBuilder, string> Content) SkillIdentifier = (
+                param => param.GetCustomAttribute<LuaAlias.SkillIdentifierAttribute>(false) != null,
+                "skill.identifier",
                 (sb) =>
                 {
                     var skillPrefabs = new HashSet<string>();
@@ -1387,6 +1403,57 @@ namespace Barotrauma
                     foreach (var skill in distinct)
                         sb.Append($"---| \"{skill}\"\n");
 
+                    return sb.ToString();
+                }
+            );
+
+            public static (Func<ParameterInfo, bool> Match, string Alias, Func<StringBuilder, string> Content) JobIdentifier = (
+                param => param.GetCustomAttribute<LuaAlias.JobIdentifierAttribute>(false) != null,
+                "job.identifier",
+                (sb) =>
+                {
+                    foreach (var identifier in JobPrefab.Prefabs.Keys) sb.Append($"---| \"{identifier.Value}\"\n");
+                    return sb.ToString();
+                }
+            );
+
+            public static (Func<ParameterInfo, bool> Match, string Alias, Func<StringBuilder, string> Content) AfflictionIdentifier = (
+                param => param.GetCustomAttribute<LuaAlias.AfflictionIdentifierAttribute>(false) != null,
+                "affliction.identifier",
+                (sb) =>
+                {
+                    foreach (var identifier in AfflictionPrefab.Prefabs.Keys) sb.Append($"---| \"{identifier.Value}\"\n");
+                    return sb.ToString();
+                }
+            );
+
+            public static (Func<ParameterInfo, bool> Match, string Alias, Func<StringBuilder, string> Content) AfflictionType = (
+                param => param.GetCustomAttribute<LuaAlias.AfflictionTypeAttribute>(false) != null,
+                "affliction.type",
+                (sb) =>
+                {
+                    var afflictionTypes = new HashSet<string>();
+                    foreach (var prefab in AfflictionPrefab.Prefabs)
+                            afflictionTypes.Add(prefab.AfflictionType.ToString());
+
+                    var distinct = new HashSet<string>();
+                    foreach (var type in afflictionTypes)
+                        if (!distinct.Contains(type))
+                            distinct.Add(type);
+
+                    foreach (var type in distinct)
+                        sb.Append($"---| \"{type}\"\n");
+
+                    return sb.ToString();
+                }
+            );
+
+            public static (Func<ParameterInfo, bool> Match, string Alias, Func<StringBuilder, string> Content) ItemIdentifier = (
+                param => param.GetCustomAttribute<LuaAlias.ItemIdentifierAttribute>(false) != null,
+                "item.identifier",
+                (sb) =>
+                {
+                    foreach (var identifier in ItemPrefab.Prefabs.Keys) sb.Append($"---| \"{identifier.Value}\"\n");
                     return sb.ToString();
                 }
             );

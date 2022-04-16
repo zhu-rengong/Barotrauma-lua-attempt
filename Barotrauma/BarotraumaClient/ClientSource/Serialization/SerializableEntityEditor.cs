@@ -288,14 +288,14 @@ namespace Barotrauma
             }
         }
 
-        public SerializableEntityEditor(RectTransform parent, ISerializableEntity entity, bool inGame, bool showName, [LuaAliasGUIComponentStyle] string style = "", int elementHeight = 24, GUIFont titleFont = null)
+        public SerializableEntityEditor(RectTransform parent, ISerializableEntity entity, bool inGame, bool showName, [LuaAlias.GUIComponentStyle] string style = "", int elementHeight = 24, GUIFont titleFont = null)
             : this(parent, entity, inGame ? 
                 SerializableProperty.GetProperties<InGameEditable>(entity).Union(SerializableProperty.GetProperties<ConditionallyEditable>(entity).Where(p => p.GetAttribute<ConditionallyEditable>()?.IsEditable(entity) ?? false)) 
                 : SerializableProperty.GetProperties<Editable>(entity).Where(p => p.GetAttribute<ConditionallyEditable>()?.IsEditable(entity) ?? true), showName, style, elementHeight, titleFont)
         {
         }
 
-        public SerializableEntityEditor(RectTransform parent, ISerializableEntity entity, IEnumerable<SerializableProperty> properties, bool showName, [LuaAliasGUIComponentStyle] string style = "", int elementHeight = 24, GUIFont titleFont = null)
+        public SerializableEntityEditor(RectTransform parent, ISerializableEntity entity, IEnumerable<SerializableProperty> properties, bool showName, [LuaAlias.GUIComponentStyle] string style = "", int elementHeight = 24, GUIFont titleFont = null)
             : base(style, new RectTransform(Vector2.One, parent))
         {
             this.elementHeight =  (int)(elementHeight * GUI.Scale);

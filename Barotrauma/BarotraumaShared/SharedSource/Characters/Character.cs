@@ -1461,10 +1461,10 @@ namespace Barotrauma
             }
         }
 
-        public float GetSkillLevel([LuaAliasSkillAttribute] string skillIdentifier) =>
+        public float GetSkillLevel([LuaAlias.SkillIdentifier] string skillIdentifier) =>
             GetSkillLevel(skillIdentifier.ToIdentifier());
         
-        public float GetSkillLevel([LuaAliasSkillAttribute] Identifier skillIdentifier)
+        public float GetSkillLevel([LuaAlias.SkillIdentifier] Identifier skillIdentifier)
         {
             if (Info?.Job == null) { return 0.0f; }
             float skillLevel = Info.Job.GetSkillLevel(skillIdentifier);
@@ -4801,7 +4801,7 @@ namespace Barotrauma
             }
         }
         
-        private static StatTypes GetSkillStatType(Identifier skillIdentifier)
+        private static StatTypes GetSkillStatType([LuaAlias.SkillIdentifier] Identifier skillIdentifier)
         {
             // Using this method to translate between skill identifiers and stat types. Feel free to replace it if there's a better way
             switch (skillIdentifier.Value.ToLowerInvariant())
