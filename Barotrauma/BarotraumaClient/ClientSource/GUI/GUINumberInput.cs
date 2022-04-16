@@ -190,7 +190,7 @@ namespace Barotrauma
         private float pressedDelay = 0.5f;
         private bool IsPressedTimerRunning { get { return pressedTimer > 0; } }
 
-        public GUINumberInput(RectTransform rectT, NumberType inputType, [LuadocGUIComponentStyle] string style = "", Alignment textAlignment = Alignment.Center, float? relativeButtonAreaWidth = null, bool hidePlusMinusButtons = false) : base(style, rectT)
+        public GUINumberInput(RectTransform rectT, NumberType inputType, [LuaAliasGUIComponentStyle] string style = "", Alignment textAlignment = Alignment.Center, float? relativeButtonAreaWidth = null, bool hidePlusMinusButtons = false) : base(style, rectT)
         {
             LayoutGroup = new GUILayoutGroup(new RectTransform(Vector2.One, rectT), isHorizontal: true, childAnchor: Anchor.CenterLeft) { Stretch = true };
 

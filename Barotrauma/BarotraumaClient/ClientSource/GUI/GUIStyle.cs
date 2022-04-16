@@ -149,10 +149,10 @@ namespace Barotrauma
         public static Point ItemFrameMargin => new Point(50, 56).Multiply(GUI.SlicedSpriteScale);
         public static Point ItemFrameOffset => new Point(0, 3).Multiply(GUI.SlicedSpriteScale);
 
-        public static GUIComponentStyle GetComponentStyle([LuadocGUIComponentStyle] string name)
+        public static GUIComponentStyle GetComponentStyle([LuaAliasGUIComponentStyle] string name)
             => ComponentStyles.ContainsKey(name) ? ComponentStyles[name] : null;
 
-        public static void Apply(GUIComponent targetComponent, [LuadocGUIComponentStyle] string styleName = "", GUIComponent parent = null)
+        public static void Apply(GUIComponent targetComponent, [LuaAliasGUIComponentStyle] string styleName = "", GUIComponent parent = null)
         {
             Apply(targetComponent, styleName.ToIdentifier(), parent);
         }

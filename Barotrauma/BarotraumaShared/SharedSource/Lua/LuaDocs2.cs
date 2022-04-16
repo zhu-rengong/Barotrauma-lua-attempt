@@ -23,7 +23,7 @@ namespace Barotrauma
         const int LUA_NAME_CLASS = 1;
         const int LUA_NAME_TYPE = 2;
 
-        const string AliasDirName = @"alias";
+        const string AliasDir = @"alias";
         const string SharedPath = @"baroluadocs/types/shared";
 #if SERVER
         const string BLuaDocPath = @"baroluadocs/types/server";
@@ -271,7 +271,7 @@ namespace Barotrauma
         static void Initialize()
         {
             var paths = new string[] { BLuaDocPath, SharedPath,
-                Path.Combine(BLuaDocPath, AliasDirName), Path.Combine(SharedPath, AliasDirName) };
+                Path.Combine(BLuaDocPath, AliasDir), Path.Combine(SharedPath, AliasDir) };
 
             for (int i = 0; i < paths.Length; i++)
             {
@@ -1037,17 +1037,8 @@ namespace Barotrauma
             Do(typeof(LuaNetworking), "Networking");
             Do(typeof(MoonSharp.Interpreter.Interop.IUserDataDescriptor));
 
-            DoAlias();
+            AliasAnnotation.Do();
             DoGlobal();
-        }
-
-        public static void DoAlias()
-        {
-#if CLIENT
-            var sb = new StringBuilder($"---@alias {LuaAnnotation.GUIComponentStyle.Alias} string\n");
-            foreach (var identifier in GUIStyle.ComponentStyles.Keys) sb.Append($"---| \"{identifier.Value}\"\n");
-            File.WriteAllText(@$"{BLuaDocPath}/{AliasDirName}/{LuaAnnotation.GUIComponentStyle.Alias}.lua", sb.ToString());
-#endif
         }
 
         public static void DoGlobal()
@@ -1093,9 +1084,9 @@ namespace Barotrauma
 
             luadocBuilder.Append($"---'{targetType.FullName}'\n");
 
-            bool nonBaseTypeGeneric = targetType.BaseType != null && !targetType.BaseType.IsGenericType;
+            bool nonGenericBaseType = targetType.BaseType != null && !targetType.BaseType.IsGenericType;
 
-            if (nonBaseTypeGeneric)
+            if (nonGenericBaseType)
             {
                 var subMetadata = ClassMetadata.Obtain(targetType.BaseType);
                 var (_, subClassName) = subMetadata.GetLuaName();
@@ -1107,10 +1098,11 @@ namespace Barotrauma
                 luadocBuilder.Append($"---@class {className}\n");
             }
 
-            MemberInfo[] members = nonBaseTypeGeneric ? targetType.GetMembers().ToList().FindAll(member => member.DeclaringType == targetType).ToArray() : targetType.GetMembers();
-            var fields = members.Where((member => member.MemberType == MemberTypes.Field)).ToArray();
+            const BindingFlags Flags = BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
-            foreach (FieldInfo field in fields)
+            var fields = nonGenericBaseType ? targetType.GetFields(Flags).Where(field => field.DeclaringType == targetType) : targetType.GetFields(Flags);
+
+            foreach (var field in fields.Where(f => !f.Name.Contains("k__BackingField")).ToList())
             {
                 var subMetadata = ClassMetadata.Obtain(field.FieldType);
                 var (_, subClassName) = subMetadata.GetLuaName();
@@ -1121,9 +1113,9 @@ namespace Barotrauma
                 luadocBuilder.Append($"---@field {field.Name} {subTypeName}\n");
             }
 
-            var properties = members.Where((member => member.MemberType == MemberTypes.Property)).ToArray();
+            var properties = nonGenericBaseType ? targetType.GetProperties(Flags).Where(prop => prop.DeclaringType == targetType) : targetType.GetProperties(Flags);
 
-            foreach (PropertyInfo prop in properties)
+            foreach (var prop in properties)
             {
                 var subMetadata = ClassMetadata.Obtain(prop.PropertyType);
                 var (_, subClassName) = subMetadata.GetLuaName();
@@ -1136,10 +1128,12 @@ namespace Barotrauma
 
             luadocBuilder.Append($"{tableName}={{}}\n\n");
 
-            var methods = members.Where((member => member.MemberType == MemberTypes.Method)).ToArray();
+            var methods = nonGenericBaseType ? targetType.GetMethods(Flags).Where(method => method.DeclaringType == targetType) : targetType.GetMethods(Flags);
+
             foreach (var groupMethod in (
-                    from MethodInfo method in methods
+                    from method in methods
                     where !method.Name.StartsWith("get_") && !method.Name.StartsWith("set_")
+                    where !Regex.IsMatch(method.Name, @"<.*?>")
                     group method by method.Name
                 )
             )
@@ -1164,9 +1158,7 @@ namespace Barotrauma
 
                             var subMetadata = ClassMetadata.Obtain(parameter.ParameterType);
                             subMetadata.CollectAllToGlobal();
-                            var typeName = LuaAnnotation.GUIComponentStyle.Match(parameter)
-                                ? LuaAnnotation.GUIComponentStyle.Alias
-                                : subMetadata.GetLuaName(LUA_NAME_TYPE).Name;
+                            var typeName = AliasAnnotation.Analyze(parameter) ?? subMetadata.GetLuaName(LUA_NAME_TYPE).Name;
                             if (IsOptional(parameter)) { paramName += '?'; }
                             methodTempSb.Append((j == parameters.Length - 1 && IsParams(parameter))
                                 ? $"...:{typeName}"
@@ -1205,9 +1197,7 @@ namespace Barotrauma
 
                             var subMetadata = ClassMetadata.Obtain(parameter.ParameterType);
                             subMetadata.CollectAllToGlobal();
-                            var typeName = LuaAnnotation.GUIComponentStyle.Match(parameter)
-                                ? LuaAnnotation.GUIComponentStyle.Alias
-                                : subMetadata.GetLuaName(LUA_NAME_TYPE).Name;
+                            var typeName = AliasAnnotation.Analyze(parameter) ?? subMetadata.GetLuaName(LUA_NAME_TYPE).Name;
                             if (IsOptional(parameter)) { paramName += '?'; }
                             methodTempSb.Append((j == parameters.Length - 1 && IsParams(parameter))
                                 ? $"---@vararg {typeName}\n"
@@ -1232,7 +1222,8 @@ namespace Barotrauma
                 }
             }
 
-            var constructors = members.Where((member => member.MemberType == MemberTypes.Constructor)).ToArray();
+            var constructors = targetType.GetConstructors(Flags);
+
             var constructorTempSb = new StringBuilder();
             for (int i = 0; i < constructors.Length; i++)
             {
@@ -1252,9 +1243,7 @@ namespace Barotrauma
 
                         var subMetadata = ClassMetadata.Obtain(parameter.ParameterType);
                         subMetadata.CollectAllToGlobal();
-                        var typeName = LuaAnnotation.GUIComponentStyle.Match(parameter)
-                            ? LuaAnnotation.GUIComponentStyle.Alias
-                            : subMetadata.GetLuaName(LUA_NAME_TYPE).Name;
+                        var typeName = AliasAnnotation.Analyze(parameter) ?? subMetadata.GetLuaName(LUA_NAME_TYPE).Name;
                         if (IsOptional(parameter)) { paramName += '?'; }
                         constructorTempSb.Append((j == parameters.Length - 1 && IsParams(parameter))
                             ? $"...:{typeName}"
@@ -1282,9 +1271,7 @@ namespace Barotrauma
 
                         var subMetadata = ClassMetadata.Obtain(parameter.ParameterType);
                         subMetadata.CollectAllToGlobal();
-                        var typeName = LuaAnnotation.GUIComponentStyle.Match(parameter)
-                            ? LuaAnnotation.GUIComponentStyle.Alias
-                            : subMetadata.GetLuaName(LUA_NAME_TYPE).Name;
+                        var typeName = AliasAnnotation.Analyze(parameter) ?? subMetadata.GetLuaName(LUA_NAME_TYPE).Name;
                         if (IsOptional(parameter)) { paramName += '?'; }
                         constructorTempSb.Append((j == parameters.Length - 1 && isParams)
                             ? $"---@vararg {typeName}\n"
@@ -1329,11 +1316,79 @@ namespace Barotrauma
             }
         }
 
-        public static class LuaAnnotation
+        public static class AliasAnnotation
         {
-            public static (Func<ParameterInfo, bool> Match, string Alias) GUIComponentStyle = (
-                param => param.GetCustomAttribute<LuadocGUIComponentStyleAttribute>(false) != null,
-                "alias.style"
+            public const string PREFIX = "alias.annotation.";
+
+            public static Func<ParameterInfo, string> Alternative = (param) => ClassMetadata.Obtain(param.ParameterType).GetLuaName(LUA_NAME_TYPE).Name;
+
+            public static string Analyze(ParameterInfo param)
+            {
+                foreach (var resolver in Resolvers)
+                {
+                    if (resolver.Match(param))
+                    {
+                        return $"{PREFIX}{resolver.Alias}|{Alternative(param)}";
+                    }
+                }
+
+                return null;
+            }
+
+            public static List<(Func<ParameterInfo, bool> Match, string Alias, Func<StringBuilder, string> Content)> Resolvers;
+
+            static AliasAnnotation()
+            {
+                Resolvers = new List<(Func<ParameterInfo, bool>, string, Func<StringBuilder, string>)>()
+                {
+#if CLIENT
+                    AliasAnnotation.GUIComponentStyle,
+#endif
+                    AliasAnnotation.Skill
+                };
+            }
+
+            public static void Do()
+            {
+                foreach (var resolver in Resolvers)
+                {
+                    var content = resolver.Content(new StringBuilder($"---@alias {PREFIX}{resolver.Alias}\n"));
+                    File.WriteAllText(@$"{BLuaDocPath}/{AliasDir}/{resolver.Alias}.lua", content);
+                }
+            }
+
+#if CLIENT
+            public static (Func<ParameterInfo, bool> Match, string Alias, Func<StringBuilder, string> Content) GUIComponentStyle = (
+                param => param.GetCustomAttribute<LuaAliasGUIComponentStyleAttribute>(false) != null,
+                "gui.component.style",
+                (sb) => 
+                {
+                    foreach (var identifier in GUIStyle.ComponentStyles.Keys) sb.Append($"---| \"{identifier.Value}\"\n");
+                    return sb.ToString();
+                }
+            );
+#endif
+
+            public static (Func<ParameterInfo, bool> Match, string Alias, Func<StringBuilder, string> Content) Skill = (
+                param => param.GetCustomAttribute<LuaAliasSkillAttribute>(false) != null,
+                "skill",
+                (sb) =>
+                {
+                    var skillPrefabs = new HashSet<string>();
+                    foreach (var prefab in JobPrefab.Prefabs)
+                        foreach (var skill in prefab.Skills)
+                            skillPrefabs.Add(skill.Identifier.Value);
+
+                    var distinct = new HashSet<string>();
+                    foreach (var skill in skillPrefabs)
+                        if (!distinct.Contains(skill))
+                            distinct.Add(skill);
+
+                    foreach (var skill in distinct)
+                        sb.Append($"---| \"{skill}\"\n");
+
+                    return sb.ToString();
+                }
             );
         }
 

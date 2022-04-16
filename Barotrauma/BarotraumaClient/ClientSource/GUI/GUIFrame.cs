@@ -8,7 +8,7 @@ namespace Barotrauma
     {
         public float OutlineThickness { get; set; }
 
-        public GUIFrame(RectTransform rectT, [LuadocGUIComponentStyle] string style = "", Color? color = null) : base(style, rectT)
+        public GUIFrame(RectTransform rectT, [LuaAliasGUIComponentStyle] string style = "", Color? color = null) : base(style, rectT)
         {
             Enabled = true;
             if (color.HasValue)

@@ -4,5 +4,6 @@ using Barotrauma.Networking;
 
 namespace Barotrauma
 {
-    public class LuadocGUIComponentStyleAttribute : Attribute { }
+    public class LuaAliasGUIComponentStyleAttribute : Attribute { }
+    public class LuaAliasSkillAttribute : Attribute { }
 }

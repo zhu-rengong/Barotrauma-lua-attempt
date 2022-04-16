@@ -1461,10 +1461,10 @@ namespace Barotrauma
             }
         }
 
-        public float GetSkillLevel(string skillIdentifier) =>
+        public float GetSkillLevel([LuaAliasSkillAttribute] string skillIdentifier) =>
             GetSkillLevel(skillIdentifier.ToIdentifier());
         
-        public float GetSkillLevel(Identifier skillIdentifier)
+        public float GetSkillLevel([LuaAliasSkillAttribute] Identifier skillIdentifier)
         {
             if (Info?.Job == null) { return 0.0f; }
             float skillLevel = Info.Job.GetSkillLevel(skillIdentifier);

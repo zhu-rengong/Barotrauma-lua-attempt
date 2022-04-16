@@ -1870,7 +1870,7 @@ namespace Barotrauma
             Anchor anchor = Anchor.TopLeft, Pivot? pivot = null, Point? minSize = null, Point? maxSize = null,
             int absoluteSpacing = 0, float relativeSpacing = 0, Func<int, int> extraSpacing = null,
             int startOffsetAbsolute = 0, float startOffsetRelative = 0, bool isHorizontal = false,
-            Alignment textAlignment = Alignment.Center, [LuadocGUIComponentStyle] string style = "")
+            Alignment textAlignment = Alignment.Center, [LuaAliasGUIComponentStyle] string style = "")
         {
             Func<RectTransform, GUIButton> constructor = rectT => new GUIButton(rectT, string.Empty, textAlignment, style);
             return CreateElements(count, relativeSize, parent, constructor, anchor, pivot, minSize, maxSize, absoluteSpacing, relativeSpacing, extraSpacing, startOffsetAbsolute, startOffsetRelative, isHorizontal);
@@ -1883,7 +1883,7 @@ namespace Barotrauma
             Anchor anchor = Anchor.TopLeft, Pivot? pivot = null,
             int absoluteSpacing = 0, float relativeSpacing = 0, Func<int, int> extraSpacing = null,
             int startOffsetAbsolute = 0, float startOffsetRelative = 0, bool isHorizontal = false,
-            Alignment textAlignment = Alignment.Center, [LuadocGUIComponentStyle] string style = "")
+            Alignment textAlignment = Alignment.Center, [LuaAliasGUIComponentStyle] string style = "")
         {
             Func<RectTransform, GUIButton> constructor = rectT => new GUIButton(rectT, string.Empty, textAlignment, style);
             return CreateElements(count, absoluteSize, parent, constructor, anchor, pivot, absoluteSpacing, relativeSpacing, extraSpacing, startOffsetAbsolute, startOffsetRelative, isHorizontal);

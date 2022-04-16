@@ -56,7 +56,7 @@ namespace Barotrauma
         /// <param name="header">Header text</param>
         /// <param name="style">Background style</param>
         /// <param name="options">list of context menu options</param>
-        public GUIContextMenu(Vector2? position, LocalizedString header, [LuadocGUIComponentStyle] string style, params ContextMenuOption[] options) : base(style, new RectTransform(Point.Zero, GUI.Canvas))
+        public GUIContextMenu(Vector2? position, LocalizedString header, [LuaAliasGUIComponentStyle] string style, params ContextMenuOption[] options) : base(style, new RectTransform(Point.Zero, GUI.Canvas))
         {
             Vector2 pos = position ?? PlayerInput.MousePosition;
             GUIFont headerFont = GUIStyle.SubHeadingFont;

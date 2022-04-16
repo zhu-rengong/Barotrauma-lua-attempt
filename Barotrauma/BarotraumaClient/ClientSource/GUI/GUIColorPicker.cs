@@ -32,7 +32,7 @@ namespace Barotrauma
         private readonly Color transparentWhite = Color.White * 0.8f,
                                transparentBlack = Color.Black * 0.8f;
 
-        public GUIColorPicker(RectTransform rectT, [LuadocGUIComponentStyle] string? style = null) : base(style, rectT) { }
+        public GUIColorPicker(RectTransform rectT, [LuaAliasGUIComponentStyle] string? style = null) : base(style, rectT) { }
 
         private void Init()
         {

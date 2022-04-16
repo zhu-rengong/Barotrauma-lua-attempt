@@ -262,7 +262,7 @@ namespace Barotrauma
         public bool Readonly { get; set; }
 
         public GUITextBox(RectTransform rectT, string text = "", Color? textColor = null, GUIFont font = null,
-                          Alignment textAlignment = Alignment.Left, bool wrap = false, [LuadocGUIComponentStyle] string style = "", Color? color = null, bool createClearButton = false, bool createPenIcon = true)
+                          Alignment textAlignment = Alignment.Left, bool wrap = false, [LuaAliasGUIComponentStyle] string style = "", Color? color = null, bool createClearButton = false, bool createPenIcon = true)
             : base(style, rectT)
         {
             HoverCursor = CursorState.IBeam;
