@@ -37,6 +37,8 @@ AddTableToGlobal(require("CompatibilityLib"))
 
 require("DefaultHook")
 
+Descriptors = LuaSetup.Descriptors
+
 LuaSetup = nil
 
 require("ModLoader")
