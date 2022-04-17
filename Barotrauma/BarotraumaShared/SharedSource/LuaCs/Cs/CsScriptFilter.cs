@@ -11,15 +11,7 @@ namespace Barotrauma {
     {
         private static readonly string[] typesPermitted = new string[] {
             // Basics
-            "System.Runtime.CompilerServices.CompilationRelaxationsAttribute",
-            "System.Runtime.CompilerServices.RuntimeCompatibilityAttribute",
-            "System.Diagnostics.DebuggableAttribute",
-            "System.Object",
-            "System.String",
-            "System.Collections",
             "System",
-            // Some roslyn magic
-            ".DebuggingModes",
             // Barotrauma
             "Barotrauma",
             // Lua
@@ -33,8 +25,6 @@ namespace Barotrauma {
             "MoonSharp.Interpreter.DataType",
         };
         private static readonly string[] typesProhibited = new string[] {
-            //"System.Reflection",
-            //"System.Type",
             "System.IO",
             "Moonsharp",
             "Barotrauma.IO",
@@ -76,7 +66,18 @@ namespace Barotrauma {
             reader.TypeReferences.ToList().ForEach(t =>
             {
                 var tRef = reader.GetTypeReference(t);
-                var typeName = $"{reader.GetString(tRef.Namespace)}.{reader.GetString(tRef.Name)}";
+
+                var typeName = $"{reader.GetString(tRef.Name)}";
+                EntityHandle handle = tRef.ResolutionScope;
+                TypeReference tr = tRef;
+                while (!handle.IsNil && handle.Kind == HandleKind.TypeReference)
+                {
+                    tr = reader.GetTypeReference((TypeReferenceHandle)handle);
+                    handle = tr.ResolutionScope;
+                    typeName = $"{reader.GetString(tr.Name)}.{typeName}";
+                }
+                typeName = $"{reader.GetString(tr.Namespace)}.{typeName}";
+
                 if (!IsTypeAllowed(typeName)) conflictingTypes.Add(typeName);
             });
 
