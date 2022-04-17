@@ -34,8 +34,10 @@ namespace Barotrauma {
         };
         private static readonly string[] typesProhibited = new string[] {
             //"System.Reflection",
+            //"System.Type",
             "System.IO",
-            "Moonsharp"
+            "Moonsharp",
+            "Barotrauma.IO",
         };
         public static bool IsTypeAllowed(string name)
         {

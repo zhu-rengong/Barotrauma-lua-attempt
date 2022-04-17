@@ -215,9 +215,14 @@ namespace Barotrauma
 			return methodInfo;
 		}
 
+		private static readonly string[] prohibitedHooks = {
+			"Barotrauma.Lua",
+			"Barotrauma.Cs"
+		};
 		public void HookMethod(string identifier, MethodInfo method, LuaCsPatch patch, HookMethodType hookType = HookMethodType.Before, ACsMod owner = null)
 		{
 			if (identifier == null || method == null || patch == null) throw new ArgumentNullException("Identifier, Method and Patch arguments must not be null.");
+			if (prohibitedHooks.Any(h => method.DeclaringType.FullName.StartsWith(h))) throw new ArgumentException("Hooks into Modding Environment are prohibited.");
 
 			var funcAddr = ((long)method.MethodHandle.GetFunctionPointer());
 			var patches = Harmony.GetPatchInfo(method);
