@@ -72,11 +72,11 @@ namespace Barotrauma
 				{
 					errStr += "\n" + diag.ToString();
 				}
-				LuaCsSetup.PrintCsMessage(errStr);
+				LuaCsSetup.PrintCsError(errStr);
 			}
 			catch (Exception ex)
             {
-				LuaCsSetup.PrintCsMessage("Error loading '" + folder + "':\n" + ex.Message + "\n" + ex.StackTrace);
+				LuaCsSetup.PrintCsError("Error loading '" + folder + "':\n" + ex.Message + "\n" + ex.StackTrace);
 			}
 		}
 
@@ -98,7 +98,7 @@ namespace Barotrauma
 					string errStr = "NET MODS NOT LOADED | Mod cmopilation errors:";
 					foreach (Diagnostic diagnostic in failures)
 						errStr = $"\n{diagnostic}";
-					LuaCsSetup.PrintCsMessage(errStr);
+					LuaCsSetup.PrintCsError(errStr);
 				}
 				else
 				{
@@ -109,7 +109,7 @@ namespace Barotrauma
 						mem.Seek(0, SeekOrigin.Begin);
 						Assembly = LoadFromStream(mem);
 					}
-					else LuaCsSetup.PrintCsMessage(errStr);
+					else LuaCsSetup.PrintCsError(errStr);
 				}
 			}
 			syntaxTrees.Clear();

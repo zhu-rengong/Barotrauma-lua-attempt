@@ -9,30 +9,36 @@ using System.Reflection.Metadata;
 namespace Barotrauma {
     class CsScriptFilter
     {
-        private const bool useWhitelist = false;
-
-        private static string[] typesPermited = new string[] {
+        private static readonly string[] typesPermitted = new string[] {
             // Basics
-            "System.Runtime.CompilerServices.CompilationRelaxationsAttribute",
-            "System.Runtime.CompilerServices.RuntimeCompatibilityAttribute",
-            "System.Diagnostics.DebuggableAttribute",
-            "System.Object",
-            "System.String",
-            "System.Collections",
-            // Some roslyn magic
-            ".DebuggingModes",
+            "System",
             // Barotrauma
             "Barotrauma",
+            // Lua
+            "MoonSharp.Interpreter.DynValue",
+            "MoonSharp.Interpreter.Closure",
+            "MoonSharp.Interpreter.Coroutine",
+            "MoonSharp.Interpreter.CoroutineState",
+            "MoonSharp.Interpreter.Table",
+            "MoonSharp.Interpreter.YieldRequest",
+            "MoonSharp.Interpreter.TailCallData",
+            "MoonSharp.Interpreter.DataType",
         };
-        private static string[] typesProhibited = new string[] {
+        private static readonly string[] typesProhibited = new string[] {
             //"System.Reflection",
+            //"System.Type",
             "System.IO",
+            "Moonsharp",
+            "Barotrauma.IO",
         };
-        public static bool IsTypeAllowed(string usingName)
+        public static bool IsTypeAllowed(string name)
         {
-            if (useWhitelist && !typesPermited.Any(u => u.StartsWith(usingName))) return false;
-            if (typesProhibited.Any(u => u.StartsWith(usingName))) return false;
-            return true;
+            var matchPermitted = typesPermitted.Where(s => name.StartsWith(s));
+            var longestPemitted = matchPermitted.Count() > 0 ? matchPermitted.Max(s => s.Length) : 0;
+            var matchProhibited = typesProhibited.Where(s => name.StartsWith(s));
+            var longestProhibited = matchProhibited.Count() > 0 ? matchProhibited.Max(s => s.Length) : 0;
+            if (longestPemitted == 0 || longestPemitted < longestProhibited) return false;
+            else return true;
         }
 
         public static string FilterSyntaxTree(CSharpSyntaxTree tree)
@@ -62,7 +68,18 @@ namespace Barotrauma {
             reader.TypeReferences.ToList().ForEach(t =>
             {
                 var tRef = reader.GetTypeReference(t);
-                var typeName = $"{reader.GetString(tRef.Namespace)}.{reader.GetString(tRef.Name)}";
+
+                var typeName = $"{reader.GetString(tRef.Name)}";
+                EntityHandle handle = tRef.ResolutionScope;
+                TypeReference tr = tRef;
+                while (!handle.IsNil && handle.Kind == HandleKind.TypeReference)
+                {
+                    tr = reader.GetTypeReference((TypeReferenceHandle)handle);
+                    handle = tr.ResolutionScope;
+                    typeName = $"{reader.GetString(tr.Name)}.{typeName}";
+                }
+                typeName = $"{reader.GetString(tr.Namespace)}.{typeName}";
+
                 if (!IsTypeAllowed(typeName)) conflictingTypes.Add(typeName);
             });
 

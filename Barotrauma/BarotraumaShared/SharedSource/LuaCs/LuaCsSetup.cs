@@ -13,6 +13,7 @@ using System.Linq;
 using System.Reflection;
 
 [assembly: InternalsVisibleTo("NetScriptAssembly", AllInternalsVisible = true)]
+[assembly: InternalsVisibleTo("NetOneTimeScriptAssembly", AllInternalsVisible = true)]
 namespace Barotrauma
 {
 	partial class LuaCsSetup
@@ -20,19 +21,22 @@ namespace Barotrauma
 		public const string LUASETUP_FILE = "Lua/LuaSetup.lua";
 		public const string VERSION_FILE = "luacsversion.txt";
 
-		public Script lua;
+		private Script lua;
+		public CsScriptRunner CsScript { get; private set; }
+		public LuaGame Game { get; private set; }
+		public LuaScriptLoader LuaScriptLoader { get; private set; }
 
-		internal LuaCsHook Hook { get; private set; }
+		public LuaCsHook Hook { get; private set; }
+		public LuaCsNetworking Networking { get; private set; }
+		public LuaCsModStore ModStore { get; private set; }
 
-		public LuaGame Game;
-		public LuaCsNetworking Networking;
-
-		public LuaScriptLoader LuaScriptLoader;
-		public CsScriptLoader NetScriptLoader;
+		public CsScriptLoader NetScriptLoader { get; private set; }
+		public CsLua Lua { get; private set; }
 
 		public LuaCsSetup()
 		{
 			Hook = new LuaCsHook();
+			ModStore = new LuaCsModStore();
 
 			Game = new LuaGame();
 			Networking = new LuaCsNetworking();
@@ -159,7 +163,7 @@ namespace Barotrauma
 		public static void PrintCsMessage(object message) => PrintMessageBase("[CS] ", message, "Null");
 		public static void PrintLogMessage(object message) => PrintMessageBase("[LuaCs LOG] ", message, "Null");
 
-		public DynValue DoString(string code, Table globalContext = null, string codeStringFriendly = null)
+		private DynValue DoString(string code, Table globalContext = null, string codeStringFriendly = null)
 		{
 			try
 			{
@@ -173,7 +177,7 @@ namespace Barotrauma
 			return null;
 		}
 
-		public DynValue DoFile(string file, Table globalContext = null, string codeStringFriendly = null)
+		private DynValue DoFile(string file, Table globalContext = null, string codeStringFriendly = null)
 		{
 			if (!LuaCsFile.IsPathAllowedLuaException(file, false)) return null;
 			if (!LuaCsFile.Exists(file))
@@ -196,7 +200,7 @@ namespace Barotrauma
 		}
 
 
-		public DynValue LoadString(string file, Table globalContext = null, string codeStringFriendly = null)
+		private DynValue LoadString(string file, Table globalContext = null, string codeStringFriendly = null)
 		{
 			try
 			{
@@ -211,7 +215,7 @@ namespace Barotrauma
 			return null;
 		}
 
-		public DynValue LoadFile(string file, Table globalContext = null, string codeStringFriendly = null)
+		private DynValue LoadFile(string file, Table globalContext = null, string codeStringFriendly = null)
 		{
 			if (!LuaCsFile.IsPathAllowedLuaException(file, false)) return null;
 			if (!LuaCsFile.Exists(file))
@@ -233,7 +237,7 @@ namespace Barotrauma
 			return null;
 		}
 
-		public DynValue Require(string modname, Table globalContext)
+		private DynValue Require(string modname, Table globalContext)
 		{
 			try
 			{
@@ -262,7 +266,7 @@ namespace Barotrauma
 			return null;
 		}
 
-		public void SetModulePaths(string[] str)
+		private void SetModulePaths(string[] str)
 		{
 			LuaScriptLoader.ModulePaths = str;
 		}
@@ -281,9 +285,12 @@ namespace Barotrauma
 			Game?.Stop();
 
 			Hook.Clear();
+			ModStore.Clear();
 			Game = new LuaGame();
 			Networking = new LuaCsNetworking();
 			LuaScriptLoader = null;
+			Lua = null;
+			CsScript = null;
 		}
 
 		public void Initialize()
@@ -302,31 +309,21 @@ namespace Barotrauma
 			lua = new Script(CoreModules.Preset_SoftSandbox | CoreModules.Debug);
 			lua.Options.DebugPrint = PrintMessage;
 			lua.Options.ScriptLoader = LuaScriptLoader;
+			Lua = new CsLua(this);
+			CsScript = new CsScriptRunner(this);
 
-			Hook.Initialize();
 			Game = new LuaGame();
 			Networking = new LuaCsNetworking();
+			Hook.Initialize();
+			ModStore.Initialize();
 
+			UserData.RegisterType<CsScriptRunner>();
 			UserData.RegisterType<LuaGame>();
 			UserData.RegisterType<LuaCsTimer>();
 			UserData.RegisterType<LuaCsFile>();
 			UserData.RegisterType<LuaCsNetworking>();
 			UserData.RegisterType<LuaUserData>();
 			UserData.RegisterType<IUserDataDescriptor>();
-			
-			var hookType = UserData.RegisterType<LuaCsHook>();
-			var hookDesc = (StandardUserDataDescriptor)hookType;
-			typeof(LuaCsHook).GetMethods(BindingFlags.NonPublic | BindingFlags.Instance).ToList().ForEach(m => {
-				if (
-					m.Name.Contains("HookMethod") ||
-					m.Name.Contains("UnhookMethod") ||
-					m.Name.Contains("EnqueueFunction") ||
-					m.Name.Contains("EnqueueTimedFunction")
-				)
-                {
-					hookDesc.AddMember(m.Name, new MethodMemberDescriptor(m, InteropAccessMode.Default));
-				}
-			});
 
 			lua.Globals["printerror"] = (Action<object>)PrintError;
 
@@ -339,9 +336,11 @@ namespace Barotrauma
 			lua.Globals["dostring"] = (Func<string, Table, string, DynValue>)DoString;
 			lua.Globals["load"] = (Func<string, Table, string, DynValue>)LoadString;
 
+			lua.Globals["CsScript"] = CsScript;
 			lua.Globals["LuaUserData"] = UserData.CreateStatic<LuaUserData>();
 			lua.Globals["Game"] = Game;
 			lua.Globals["Hook"] = Hook;
+			lua.Globals["ModStore"] = ModStore;
 			lua.Globals["Timer"] = new LuaCsTimer();
 			lua.Globals["File"] = UserData.CreateStatic<LuaCsFile>();
 			lua.Globals["Networking"] = Networking;
