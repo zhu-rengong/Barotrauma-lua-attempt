@@ -297,7 +297,7 @@ namespace Barotrauma
 		{
 			Stop();
 
-			PrintMessage("LuaCs! Version " + AssemblyInfo.GitRevision);
+			PrintMessage("Lua! Version " + AssemblyInfo.GitRevision);
 
 			LuaScriptLoader = new LuaScriptLoader();
 			LuaScriptLoader.ModulePaths = new string[] { };
@@ -373,6 +373,8 @@ namespace Barotrauma
 				{
 					HandleException(ex, exceptionType: ExceptionType.CSharp);
 				}
+
+				PrintMessage("Cs! Version " + AssemblyInfo.GitRevision);
 			}
 
 
