@@ -19,7 +19,7 @@ namespace Barotrauma
 		private List<SyntaxTree> syntaxTrees;
 		public Assembly Assembly { get; private set; }
 
-		public CsScriptLoader(LuaCsSetup setup)
+		public CsScriptLoader(LuaCsSetup setup) : base(isCollectible: true)
 		{
 			this.setup = setup;
 
@@ -97,7 +97,7 @@ namespace Barotrauma
 
 					string errStr = "NET MODS NOT LOADED | Mod cmopilation errors:";
 					foreach (Diagnostic diagnostic in failures)
-						errStr = $"\n{diagnostic}";
+						errStr += $"\n{diagnostic}";
 					LuaCsSetup.PrintCsError(errStr);
 				}
 				else
