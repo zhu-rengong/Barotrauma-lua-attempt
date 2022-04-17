@@ -47,7 +47,7 @@ namespace Barotrauma
 		{
 			foreach (ContentPackage package in ContentPackageManager.LocalPackages)
 			{
-				if (package.NameMatches(new Identifier("LuaForBarotraumaUnstable")))
+				if (package.NameMatches(new Identifier("LuaCsForBarotraumaUnstable")))
 				{
 					return package;
 				}
@@ -55,7 +55,7 @@ namespace Barotrauma
 
 			foreach (ContentPackage package in ContentPackageManager.AllPackages)
 			{
-				if (package.NameMatches(new Identifier("LuaForBarotraumaUnstable")))
+				if (package.NameMatches(new Identifier("LuaCsForBarotraumaUnstable")))
 				{
 					return package;
 				}
@@ -372,7 +372,7 @@ namespace Barotrauma
 			}
 
 
-			ContentPackage luaPackage = GetPackage();
+			ContentPackage luaCsPackage = GetPackage();
 
 			if (File.Exists(LUASETUP_FILE))
 			{
@@ -385,9 +385,9 @@ namespace Barotrauma
 					HandleException(e);
 				}
 			}
-			else if (luaPackage != null)
+			else if (luaCsPackage != null)
 			{
-				string path = Path.GetDirectoryName(luaPackage.Path);
+				string path = Path.GetDirectoryName(luaCsPackage.Path);
 
 				try
 				{
