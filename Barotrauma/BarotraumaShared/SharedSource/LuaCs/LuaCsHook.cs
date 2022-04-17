@@ -6,6 +6,7 @@ using HarmonyLib;
 using System.Collections.Generic;
 using System.Text;
 using MoonSharp.Interpreter.Interop;
+using static Barotrauma.LuaCsSetup;
 
 namespace Barotrauma
 {
@@ -221,8 +222,16 @@ namespace Barotrauma
 		};
 		public void HookMethod(string identifier, MethodInfo method, LuaCsPatch patch, HookMethodType hookType = HookMethodType.Before, ACsMod owner = null)
 		{
-			if (identifier == null || method == null || patch == null) throw new ArgumentNullException("Identifier, Method and Patch arguments must not be null.");
-			if (prohibitedHooks.Any(h => method.DeclaringType.FullName.StartsWith(h))) throw new ArgumentException("Hooks into Modding Environment are prohibited.");
+			if (identifier == null || method == null || patch == null)
+			{
+				GameMain.LuaCs.HandleException(new ArgumentNullException("Identifier, Method and Patch arguments must not be null."), exceptionType: ExceptionType.Both);
+				return;
+			}
+			if (prohibitedHooks.Any(h => method.DeclaringType.FullName.StartsWith(h)))
+			{
+				GameMain.LuaCs.HandleException(new ArgumentException("Hooks into Modding Environment are prohibited."), exceptionType: ExceptionType.Both);
+				return;
+			}
 
 			var funcAddr = ((long)method.MethodHandle.GetFunctionPointer());
 			var patches = Harmony.GetPatchInfo(method);
