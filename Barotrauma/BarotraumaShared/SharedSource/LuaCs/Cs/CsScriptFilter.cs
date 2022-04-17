@@ -23,18 +23,27 @@ namespace Barotrauma {
             // Barotrauma
             "Barotrauma",
             // Lua
-            "MoonSharp.Interpreter"
+            "MoonSharp.Interpreter.DynValue",
+            "MoonSharp.Interpreter.Closure",
+            "MoonSharp.Interpreter.Coroutine",
+            "MoonSharp.Interpreter.CoroutineState",
+            "MoonSharp.Interpreter.Table",
+            "MoonSharp.Interpreter.YieldRequest",
+            "MoonSharp.Interpreter.TailCallData",
+            "MoonSharp.Interpreter.DataType",
         };
         private static readonly string[] typesProhibited = new string[] {
             //"System.Reflection",
             "System.IO",
-            "Moonsharp.Interpreter.UserData"
+            "Moonsharp"
         };
         public static bool IsTypeAllowed(string name)
         {
-            var longestPemited = typesPermitted.Where(s => s.StartsWith(name)).Max(s => s.Length);
-            var longestProhibitted = typesProhibited.Where(s => s.StartsWith(name)).Max(s => s.Length);
-            if (longestPemited == 0 || longestPemited < longestProhibitted) return false;
+            var matchPermitted = typesPermitted.Where(s => name.StartsWith(s));
+            var longestPemitted = matchPermitted.Count() > 0 ? matchPermitted.Max(s => s.Length) : 0;
+            var matchProhibited = typesProhibited.Where(s => name.StartsWith(s));
+            var longestProhibited = matchProhibited.Count() > 0 ? matchProhibited.Max(s => s.Length) : 0;
+            if (longestPemitted == 0 || longestPemitted < longestProhibited) return false;
             else return true;
         }
 
