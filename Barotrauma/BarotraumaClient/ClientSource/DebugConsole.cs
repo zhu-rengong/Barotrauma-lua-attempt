@@ -3223,32 +3223,20 @@ namespace Barotrauma
                     return;
                 }
 
-                GameMain.LuaCs.DoString(string.Join(" ", args));
+                GameMain.LuaCs.Lua.DoString(string.Join(" ", args));
+            }));
+            commands.Add(new Command("cl_cs", "cs_cl: runs a string on the client", (string[] args) =>
+            {
+                if (GameMain.Client != null && !GameMain.Client.HasPermission(ClientPermissions.ConsoleCommands))
+                {
+                    ThrowError("Command not permitted.");
+                    return;
+                }
+
+                GameMain.LuaCs.CsScript.Run(string.Join(" ", args));
             }));
 
             commands.Add(new Command("cl_reloadlua", "reloads lua on the client", (string[] args) =>
-            {
-                if (GameMain.Client != null && !GameMain.Client.HasPermission(ClientPermissions.ConsoleCommands))
-                {
-                    ThrowError("Command not permitted.");
-                    return;
-                }
-
-                GameMain.LuaCs.Initialize();
-            }));
-
-            commands.Add(new Command("cl_net", "lua_net: runs a script on the client", (string[] args) =>
-            {
-                if (GameMain.Client != null && !GameMain.Client.HasPermission(ClientPermissions.ConsoleCommands))
-                {
-                    ThrowError("Command not permitted.");
-                    return;
-                }
-
-                GameMain.LuaCs.DoString(string.Join(" ", args));
-            }));
-
-            commands.Add(new Command("cl_reloadnet", "reloads lua on the client", (string[] args) =>
             {
                 if (GameMain.Client != null && !GameMain.Client.HasPermission(ClientPermissions.ConsoleCommands))
                 {

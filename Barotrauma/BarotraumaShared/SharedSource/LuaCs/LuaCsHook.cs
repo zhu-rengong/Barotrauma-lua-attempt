@@ -73,7 +73,20 @@ namespace Barotrauma
         {
 			harmony = new Harmony("LuaCsForBarotrauma");
 
-        }
+			var hookType = UserData.RegisterType<LuaCsHook>();
+			var hookDesc = (StandardUserDataDescriptor)hookType;
+			typeof(LuaCsHook).GetMethods(BindingFlags.NonPublic | BindingFlags.Instance).ToList().ForEach(m => {
+				if (
+					m.Name.Contains("HookMethod") ||
+					m.Name.Contains("UnhookMethod") ||
+					m.Name.Contains("EnqueueFunction") ||
+					m.Name.Contains("EnqueueTimedFunction")
+				)
+				{
+					hookDesc.AddMember(m.Name, new MethodMemberDescriptor(m, InteropAccessMode.Default));
+				}
+			});
+		}
 		
 		private static void _hookLuaCsPatch(MethodBase __originalMethod, object[] __args, object __instance, out object result, HookMethodType hookMethodType)
 		{

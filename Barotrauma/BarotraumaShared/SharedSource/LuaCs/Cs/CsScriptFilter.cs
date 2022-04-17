@@ -9,9 +9,7 @@ using System.Reflection.Metadata;
 namespace Barotrauma {
     class CsScriptFilter
     {
-        private const bool useWhitelist = false;
-
-        private static string[] typesPermited = new string[] {
+        private static readonly string[] typesPermitted = new string[] {
             // Basics
             "System.Runtime.CompilerServices.CompilationRelaxationsAttribute",
             "System.Runtime.CompilerServices.RuntimeCompatibilityAttribute",
@@ -19,20 +17,25 @@ namespace Barotrauma {
             "System.Object",
             "System.String",
             "System.Collections",
+            "System",
             // Some roslyn magic
             ".DebuggingModes",
             // Barotrauma
             "Barotrauma",
+            // Lua
+            "MoonSharp.Interpreter"
         };
-        private static string[] typesProhibited = new string[] {
+        private static readonly string[] typesProhibited = new string[] {
             //"System.Reflection",
             "System.IO",
+            "Moonsharp.Interpreter.UserData"
         };
-        public static bool IsTypeAllowed(string usingName)
+        public static bool IsTypeAllowed(string name)
         {
-            if (useWhitelist && !typesPermited.Any(u => u.StartsWith(usingName))) return false;
-            if (typesProhibited.Any(u => u.StartsWith(usingName))) return false;
-            return true;
+            var longestPemited = typesPermitted.Where(s => s.StartsWith(name)).Max(s => s.Length);
+            var longestProhibitted = typesProhibited.Where(s => s.StartsWith(name)).Max(s => s.Length);
+            if (longestPemited == 0 || longestPemited < longestProhibitted) return false;
+            else return true;
         }
 
         public static string FilterSyntaxTree(CSharpSyntaxTree tree)
