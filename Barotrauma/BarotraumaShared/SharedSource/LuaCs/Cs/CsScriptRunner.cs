@@ -65,7 +65,7 @@ namespace Barotrauma
 					{
 						IEnumerable<Diagnostic> failures = result.Diagnostics.Where(d => d.IsWarningAsError || d.Severity == DiagnosticSeverity.Error);
 
-						string errStr = "Script cmopilation errors:";
+						string errStr = "Script compilation errors:";
 						var lineErr = new SortedDictionary<int, (string, string)>();
 						foreach (Diagnostic diagnostic in failures)
                         {

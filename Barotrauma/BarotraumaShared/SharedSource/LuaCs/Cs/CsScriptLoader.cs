@@ -67,7 +67,7 @@ namespace Barotrauma
             }
 			catch (CompilationErrorException ex)
 			{
-				string errStr = "Cmopilation Error in '" + folder + "':";
+				string errStr = "Compilation Error in '" + folder + "':";
 				foreach (var diag in ex.Diagnostics)
 				{
 					errStr += "\n" + diag.ToString();
@@ -95,7 +95,7 @@ namespace Barotrauma
 				{
 					IEnumerable<Diagnostic> failures = result.Diagnostics.Where(d => d.IsWarningAsError || d.Severity == DiagnosticSeverity.Error);
 
-					string errStr = "NET MODS NOT LOADED | Mod cmopilation errors:";
+					string errStr = "NET MODS NOT LOADED | Mod compilation errors:";
 					foreach (Diagnostic diagnostic in failures)
 						errStr += $"\n{diagnostic}";
 					LuaCsSetup.PrintCsError(errStr);

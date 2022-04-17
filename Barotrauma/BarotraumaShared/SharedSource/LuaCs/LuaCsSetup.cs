@@ -43,11 +43,11 @@ namespace Barotrauma
 		}
 
 
-		public static ContentPackage GetPackage()
+		public static ContentPackage GetPackage(Identifier name)
 		{
 			foreach (ContentPackage package in ContentPackageManager.LocalPackages)
 			{
-				if (package.NameMatches(new Identifier("LuaCsForBarotraumaUnstable")))
+				if (package.NameMatches(name))
 				{
 					return package;
 				}
@@ -55,7 +55,7 @@ namespace Barotrauma
 
 			foreach (ContentPackage package in ContentPackageManager.AllPackages)
 			{
-				if (package.NameMatches(new Identifier("LuaCsForBarotraumaUnstable")))
+				if (package.NameMatches(name))
 				{
 					return package;
 				}
@@ -297,12 +297,10 @@ namespace Barotrauma
 		{
 			Stop();
 
-			PrintMessage("LuaCs! Version " + AssemblyInfo.GitRevision);
+			PrintMessage("Lua! Version " + AssemblyInfo.GitRevision);
 
 			LuaScriptLoader = new LuaScriptLoader();
 			LuaScriptLoader.ModulePaths = new string[] { };
-
-			NetScriptLoader = new CsScriptLoader(this);
 
 			LuaCustomConverters.RegisterAll();
 
@@ -358,21 +356,29 @@ namespace Barotrauma
 
 			// LuaDocs.GenerateDocsAll();
 
+			ContentPackage csPackage = GetPackage("CsForBarotrauma");
 
-			NetScriptLoader.SearchFolders();
-			if (NetScriptLoader == null) throw new Exception("LuaCsSetup was not properly initialized.");
-			try
+
+			if (csPackage != null)
 			{
-				var modTypes = NetScriptLoader.Compile();
-				modTypes.ForEach(t => t.GetConstructor(new Type[] { })?.Invoke(null));
-			}
-			catch (Exception ex)
-			{
-				HandleException(ex, exceptionType: ExceptionType.CSharp);
+				NetScriptLoader = new CsScriptLoader(this);
+
+				NetScriptLoader.SearchFolders();
+				try
+				{
+					var modTypes = NetScriptLoader.Compile();
+					modTypes.ForEach(t => t.GetConstructor(new Type[] { })?.Invoke(null));
+				}
+				catch (Exception ex)
+				{
+					HandleException(ex, exceptionType: ExceptionType.CSharp);
+				}
+
+				PrintMessage("Cs! Version " + AssemblyInfo.GitRevision);
 			}
 
 
-			ContentPackage luaCsPackage = GetPackage();
+			ContentPackage luaPackage = GetPackage("LuaForBarotraumaUnstable");
 
 			if (File.Exists(LUASETUP_FILE))
 			{
@@ -385,9 +391,9 @@ namespace Barotrauma
 					HandleException(e);
 				}
 			}
-			else if (luaCsPackage != null)
+			else if (luaPackage != null)
 			{
-				string path = Path.GetDirectoryName(luaCsPackage.Path);
+				string path = Path.GetDirectoryName(luaPackage.Path);
 
 				try
 				{
