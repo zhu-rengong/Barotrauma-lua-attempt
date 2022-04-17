@@ -1253,17 +1253,17 @@ namespace Barotrauma
 
             commands.Add(new Command("install_cl_lua", "Installs client-Side Lua into your client.", (string[] args) =>
             {
-                ContentPackage luaPackage = LuaCsSetup.GetPackage();
+                ContentPackage luaCsPackage = LuaCsSetup.GetPackage();
 
-                if (luaPackage == null)
+                if (luaCsPackage == null)
                 {
-                    GameMain.Server.SendChatMessage("Couldn't find the LuaForBarotrauma package.", ChatMessageType.ServerMessageBox);
+                    GameMain.Server.SendChatMessage("Couldn't find the LuaCsForBarotrauma package.", ChatMessageType.ServerMessageBox);
                     return;
                 }
 
                 try
                 {
-                    string path = Path.GetDirectoryName(luaPackage.Path);
+                    string path = Path.GetDirectoryName(luaCsPackage.Path);
 
                     string[] filesToCopy = new string[]
                     {
@@ -1293,7 +1293,7 @@ namespace Barotrauma
                         File.Copy(Path.Combine(path, "Binary", file), file, true);
                     }
 
-                    File.WriteAllText(LuaCsSetup.VERSION_FILE, luaPackage.ModVersion);
+                    File.WriteAllText(LuaCsSetup.VERSION_FILE, luaCsPackage.ModVersion);
                 }
                 catch (UnauthorizedAccessException e)
                 {
