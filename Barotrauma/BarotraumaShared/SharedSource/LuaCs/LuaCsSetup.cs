@@ -30,7 +30,7 @@ namespace Barotrauma
 		public LuaCsNetworking Networking { get; private set; }
 		public LuaCsModStore ModStore { get; private set; }
 
-		public CsScriptLoader NetScriptLoader { get; private set; }
+		public CsScriptLoader CsScriptLoader { get; private set; }
 		public CsLua Lua { get; private set; }
 
 		public LuaCsSetup()
@@ -315,6 +315,9 @@ namespace Barotrauma
 			Hook.Initialize();
 			ModStore.Initialize();
 
+			UserData.RegisterType<LuaCsAction>();
+			UserData.RegisterType<LuaCsFile>();
+			UserData.RegisterType<LuaCsPatch>();
 			UserData.RegisterType<CsScriptRunner>();
 			UserData.RegisterType<LuaGame>();
 			UserData.RegisterType<LuaCsTimer>();
@@ -356,18 +359,21 @@ namespace Barotrauma
 
 			// LuaDocs.GenerateDocsAll();
 
-			ContentPackage csPackage = GetPackage("CsForBarotrauma");
+			//ContentPackage csPackage = GetPackage("CsForBarotrauma");
 
 
-			if (csPackage != null)
-			{
-				NetScriptLoader = new CsScriptLoader(this);
+			//if (csPackage != null)
+			//{
+				CsScriptLoader = new CsScriptLoader(this);
 
-				NetScriptLoader.SearchFolders();
+				CsScriptLoader.SearchFolders();
 				try
 				{
-					var modTypes = NetScriptLoader.Compile();
-					modTypes.ForEach(t => t.GetConstructor(new Type[] { })?.Invoke(null));
+					var modTypes = CsScriptLoader.Compile();
+					modTypes.ForEach(t => {
+						UserData.RegisterType(t);
+						t.GetConstructor(new Type[] { })?.Invoke(null);
+					});
 				}
 				catch (Exception ex)
 				{
@@ -375,7 +381,7 @@ namespace Barotrauma
 				}
 
 				PrintMessage("Cs! Version " + AssemblyInfo.GitRevision);
-			}
+			//}
 
 
 			ContentPackage luaPackage = GetPackage("LuaForBarotraumaUnstable");
