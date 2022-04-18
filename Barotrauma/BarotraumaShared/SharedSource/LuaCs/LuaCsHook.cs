@@ -435,7 +435,14 @@ namespace Barotrauma
 									}
 									else if (result is T cRes && cRes != null) lastResult = cRes;
 								}
-								else if (result is T res && res != null) lastResult = res;
+								else
+								{
+									if (result is LuaResult lRes)
+									{
+										if (!lRes.IsNull()) lastResult = (T)(object)lRes.DynValue();
+									}
+									else lastResult = (T)result;
+								}
 							}
 						}
 						catch (Exception e)
@@ -443,8 +450,7 @@ namespace Barotrauma
 							StringBuilder argsSb = new StringBuilder();
 							foreach (var arg in args) argsSb.Append(arg + " ");
 							GameMain.LuaCs.HandleException(
-								e, $"Error in Hook '{name}'->'{key}', with args '{argsSb}':\n{e}",
-								LuaCsSetup.ExceptionType.Both);
+								e, $"Error in Hook '{name}'->'{key}', with args '{argsSb}':\n{e}", ExceptionType.Both);
 						}
 					}
 				}
