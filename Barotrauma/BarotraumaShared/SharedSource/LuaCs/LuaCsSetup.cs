@@ -18,7 +18,7 @@ namespace Barotrauma
 {
 	class LuaCsSetupConfig
     {
-		public bool FirstTimeCsWaring = true;
+		public bool FirstTimeCsWarning = true;
 
 		public LuaCsSetupConfig() { }
 	}
@@ -413,13 +413,14 @@ namespace Barotrauma
 			lua.Globals["SERVER"] = IsServer;
 			lua.Globals["CLIENT"] = IsClient;
 
-			CsScriptLoader = new CsScriptLoader(this);
-			CsScriptLoader.SearchFolders();
-			if (CsScriptLoader.HasSources)
+
+			if (GetPackage("CsForBarotrauma", false) != null)
 			{
-				if (Config.FirstTimeCsWaring)
+				PrintMessage("Cs! Version " + AssemblyInfo.GitRevision);
+
+				if (Config.FirstTimeCsWarning)
 				{
-					Config.FirstTimeCsWaring = false;
+					Config.FirstTimeCsWarning = false;
 					UpdateConfig();
 
 					LuaCsTimer.Wait((args) => PrintCsError(@"
@@ -427,7 +428,7 @@ namespace Barotrauma
 
         WARNING!
   --  --  --  --  --  --
-  !Use of Cs Mods detected!
+  !Cs Package Enabled!
 
     Cs Mods are questionably
 sandboxed, as they have
@@ -440,20 +441,25 @@ modding needs.
 "), 200);
 				}
 
-				try
+				CsScriptLoader = new CsScriptLoader(this);
+				CsScriptLoader.SearchFolders();
+				if (CsScriptLoader.HasSources)
 				{
-					var modTypes = CsScriptLoader.Compile();
-					modTypes.ForEach(t => {
-						UserData.RegisterType(t);
-						t.GetConstructor(new Type[] { })?.Invoke(null);
-					});
-				}
-				catch (Exception ex)
-				{
-					HandleException(ex, exceptionType: ExceptionType.CSharp);
+					try
+					{
+						var modTypes = CsScriptLoader.Compile();
+						modTypes.ForEach(t =>
+						{
+							UserData.RegisterType(t);
+							t.GetConstructor(new Type[] { })?.Invoke(null);
+						});
+					}
+					catch (Exception ex)
+					{
+						HandleException(ex, exceptionType: ExceptionType.CSharp);
+					}
 				}
 
-				PrintMessage("Cs! Version " + AssemblyInfo.GitRevision);
 			}
 
 
