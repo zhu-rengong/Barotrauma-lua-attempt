@@ -9,7 +9,7 @@ using System.Reflection.Metadata;
 namespace Barotrauma {
     class CsScriptFilter
     {
-        private static readonly string[] typesPermitted = new string[] {
+        private static readonly string[] typesPermitted = {
             // Basics
             "System",
             // Barotrauma
@@ -24,12 +24,12 @@ namespace Barotrauma {
             "MoonSharp.Interpreter.TailCallData",
             "MoonSharp.Interpreter.DataType",
         };
-        private static readonly string[] typesProhibited = new string[] {
-            //"System.Reflection",
-            //"System.Type",
+        private static readonly string[] typesProhibited = {
             "System.IO",
-            "Moonsharp",
             "Barotrauma.IO",
+            "System.Xml.XmlReader",
+            "System.Xml.XmlWriter",
+            "Barotrauma.LuaUserData",
         };
         public static bool IsTypeAllowed(string name)
         {
@@ -60,6 +60,24 @@ namespace Barotrauma {
             return null; 
         }
 
+        private static string ResolveTypeRef(MetadataReader reader, TypeReferenceHandle t)
+        {
+            var tRef = reader.GetTypeReference(t);
+
+            var typeName = $"{reader.GetString(tRef.Name)}";
+            EntityHandle handle = tRef.ResolutionScope;
+            TypeReference tr = tRef;
+            while (!handle.IsNil && handle.Kind == HandleKind.TypeReference)
+            {
+                tr = reader.GetTypeReference((TypeReferenceHandle)handle);
+                handle = tr.ResolutionScope;
+                typeName = $"{reader.GetString(tr.Name)}.{typeName}";
+            }
+            typeName = $"{reader.GetString(tr.Namespace)}.{typeName}";
+
+            return typeName;
+        }
+
         public static string FilterMetadata(MetadataReader reader)
         {
             if (reader == null) throw new ArgumentNullException("Metadata Reader must not be null.");
@@ -67,18 +85,7 @@ namespace Barotrauma {
             var conflictingTypes = new List<string>();
             reader.TypeReferences.ToList().ForEach(t =>
             {
-                var tRef = reader.GetTypeReference(t);
-
-                var typeName = $"{reader.GetString(tRef.Name)}";
-                EntityHandle handle = tRef.ResolutionScope;
-                TypeReference tr = tRef;
-                while (!handle.IsNil && handle.Kind == HandleKind.TypeReference)
-                {
-                    tr = reader.GetTypeReference((TypeReferenceHandle)handle);
-                    handle = tr.ResolutionScope;
-                    typeName = $"{reader.GetString(tr.Name)}.{typeName}";
-                }
-                typeName = $"{reader.GetString(tr.Namespace)}.{typeName}";
+                var typeName = ResolveTypeRef(reader, t);
 
                 if (!IsTypeAllowed(typeName)) conflictingTypes.Add(typeName);
             });
@@ -88,6 +95,49 @@ namespace Barotrauma {
                 string errStr = "Metadata Error:";
                 conflictingTypes.ForEach(t => errStr += $"\n  Usage of type '{t}' in mods is prohibited.");
                 return errStr;
+            }
+
+            return null;
+        }
+
+        private static readonly string[] permitedDefinitions = {
+            ".<Module>",
+            "NetOneTimeScript.NetOneTimeScriptRunner"
+        };
+        private static readonly string[] permitedMethods = {
+            ".ctor",
+            "Run"
+        };
+        public static string FilterOneTimeMetadata(MetadataReader reader)
+        {
+            var errStr = FilterMetadata(reader);
+            if (errStr != null) return errStr;
+
+            TypeDefinition? runDef = null;
+            reader.TypeDefinitions.Select(t => reader.GetTypeDefinition(t)).ToList().ForEach(t =>
+            {
+                var typeName = $"{reader.GetString(t.Name)}";
+                if (typeName == "NetOneTimeScriptRunner") runDef = t;
+                while (t.IsNested)
+                {
+                    t = reader.GetTypeDefinition(t.GetDeclaringType());
+                    typeName = $"{reader.GetString(t.Name)}.{typeName}";
+                }
+                typeName = $"{reader.GetString(t.Namespace)}.{typeName}";
+                if (!permitedDefinitions.Contains(typeName)) errStr = "Malformed assembly";
+            });
+            if (errStr != null) return errStr;
+
+            if (runDef == null) return "runner class not detected";
+            else
+            {
+                var methods = runDef.Value.GetMethods();
+                if (methods.Count > 2) return "malformed runner class";
+
+                methods.Select(m => reader.GetMethodDefinition(m)).ToList().ForEach(m => {
+                    if (!permitedMethods.Contains(reader.GetString(m.Name))) errStr = "malformed runner class";
+                });
+                if (errStr != null) return errStr;
             }
 
             return null;

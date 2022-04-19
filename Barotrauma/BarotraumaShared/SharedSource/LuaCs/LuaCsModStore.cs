@@ -97,12 +97,16 @@ namespace Barotrauma
 
             public CsModStore GetCsStore(string modName) {
                 var result = csModInterface.Where(i => i.Mod.GetType().FullName == modName).FirstOrDefault();
-                if (!result.Mod.IsDisposed) return result;
-                else
+                if (result != null)
                 {
-                    csModInterface.Remove(result);
-                    return null;
+                    if (!result.Mod.IsDisposed) return result;
+                    else
+                    {
+                        csModInterface.Remove(result);
+                        return null;
+                    }
                 }
+                else return null;
             }
             protected LuaModStore GetLuaStore(string modName) => luaModInterface.Where(i => i.Name == modName).FirstOrDefault();
         }

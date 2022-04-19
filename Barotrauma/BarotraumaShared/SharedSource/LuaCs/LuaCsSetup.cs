@@ -16,10 +16,27 @@ using System.Reflection;
 [assembly: InternalsVisibleTo("NetOneTimeScriptAssembly", AllInternalsVisible = true)]
 namespace Barotrauma
 {
+	class LuaCsSetupConfig
+    {
+		public bool FirstTimeCsWaring = true;
+
+		public LuaCsSetupConfig() { }
+	}
+
 	partial class LuaCsSetup
 	{
 		public const string LUASETUP_FILE = "Lua/LuaSetup.lua";
 		public const string VERSION_FILE = "luacsversion.txt";
+
+		private const string configFileName = "LuaCsSetupConfig.xml";
+
+#if SERVER
+		public const bool IsServer = true;
+		public const bool IsClient = false;
+#else
+		public const bool IsServer = false;
+		public const bool IsClient = true;
+#endif
 
 		private Script lua;
 		public CsScriptRunner CsScript { get; private set; }
@@ -31,8 +48,10 @@ namespace Barotrauma
 		public LuaCsModStore ModStore { get; private set; }
 		private LuaRequire require { get; set; }
 
-		public CsScriptLoader NetScriptLoader { get; private set; }
+		public CsScriptLoader CsScriptLoader { get; private set; }
 		public CsLua Lua { get; private set; }
+
+		public LuaCsSetupConfig Config { get; private set; }
 
 		public LuaCsSetup()
 		{
@@ -41,6 +60,15 @@ namespace Barotrauma
 
 			Game = new LuaGame();
 			Networking = new LuaCsNetworking();
+		}
+
+		public void UpdateConfig()
+        {
+			FileStream file;
+			if (!File.Exists(configFileName)) file = File.Create(configFileName);
+			else file = File.Open(configFileName, FileMode.Truncate, FileAccess.Write);
+			LuaCsConfig.Save(file, Config);
+			file.Close();
 		}
 
 
@@ -286,6 +314,10 @@ namespace Barotrauma
 
 		public void Stop()
 		{
+			foreach (var type in AppDomain.CurrentDomain.GetAssemblies().Where(a => a.GetName().Name == "NetScriptAssembly").SelectMany(assembly => assembly.GetTypes()))
+			{
+				UserData.UnregisterType(type);
+			}
 			foreach (var mod in ACsMod.LoadedMods.ToArray()) mod.Dispose();
 			ACsMod.LoadedMods.Clear();
 			Hook?.Call("stop");
@@ -297,8 +329,19 @@ namespace Barotrauma
 			Game = new LuaGame();
 			Networking = new LuaCsNetworking();
 			LuaScriptLoader = null;
+			lua = null;
 			Lua = null;
 			CsScript = null;
+			Config = null;
+
+            if (CsScriptLoader != null)
+			{
+				CsScriptLoader.Clear();
+				CsScriptLoader.Unload();
+				CsScriptLoader = null;
+				GC.Collect();
+				GC.WaitForPendingFinalizers();
+			}
 		}
 
 		public void Initialize()
@@ -306,6 +349,15 @@ namespace Barotrauma
 			Stop();
 
 			PrintMessage("Lua! Version " + AssemblyInfo.GitRevision);
+
+
+			if (File.Exists(configFileName))
+			{
+				using (var file = File.Open(configFileName, FileMode.Open, FileAccess.Read))
+					Config = LuaCsConfig.Load<LuaCsSetupConfig>(file);
+			}
+			else Config = new LuaCsSetupConfig();
+
 
 			LuaScriptLoader = new LuaScriptLoader();
 			LuaScriptLoader.ModulePaths = new string[] { };
@@ -325,6 +377,11 @@ namespace Barotrauma
 			Hook.Initialize();
 			ModStore.Initialize();
 
+			UserData.RegisterType<LuaCsConfig>();
+			UserData.RegisterType<LuaCsAction>();
+			UserData.RegisterType<LuaCsFile>();
+			UserData.RegisterType<LuaCsPatch>();
+			UserData.RegisterType<LuaCsConfig>();
 			UserData.RegisterType<CsScriptRunner>();
 			UserData.RegisterType<LuaGame>();
 			UserData.RegisterType<LuaCsTimer>();
@@ -353,31 +410,43 @@ namespace Barotrauma
 			lua.Globals["File"] = UserData.CreateStatic<LuaCsFile>();
 			lua.Globals["Networking"] = Networking;
 
-			bool isServer;
+			lua.Globals["SERVER"] = IsServer;
+			lua.Globals["CLIENT"] = IsClient;
 
-#if SERVER
-			isServer = true;
-#else
-			isServer = false;
-#endif
-
-			lua.Globals["SERVER"] = isServer;
-			lua.Globals["CLIENT"] = !isServer;
-
-			// LuaDocs.GenerateDocsAll();
-
-			ContentPackage csPackage = GetPackage("CsForBarotrauma", false);
-
-
-			if (csPackage != null)
+			CsScriptLoader = new CsScriptLoader(this);
+			CsScriptLoader.SearchFolders();
+			if (CsScriptLoader.HasSources)
 			{
-				NetScriptLoader = new CsScriptLoader(this);
+				if (Config.FirstTimeCsWaring)
+				{
+					Config.FirstTimeCsWaring = false;
+					UpdateConfig();
 
-				NetScriptLoader.SearchFolders();
+					LuaCsTimer.Wait((args) => PrintCsError(@"
+  ----====    ====----
+
+        WARNING!
+  --  --  --  --  --  --
+  !Use of Cs Mods detected!
+
+    Cs Mods are questionably
+sandboxed, as they have
+access to reflection, due to
+modding needs.
+
+    USE ON YOUR OWN RISK!
+
+  ----====    ====----
+"), 200);
+				}
+
 				try
 				{
-					var modTypes = NetScriptLoader.Compile();
-					modTypes.ForEach(t => t.GetConstructor(new Type[] { })?.Invoke(null));
+					var modTypes = CsScriptLoader.Compile();
+					modTypes.ForEach(t => {
+						UserData.RegisterType(t);
+						t.GetConstructor(new Type[] { })?.Invoke(null);
+					});
 				}
 				catch (Exception ex)
 				{
