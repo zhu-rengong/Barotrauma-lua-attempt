@@ -144,5 +144,14 @@ namespace Barotrauma
 			return files.ToArray();
 		}
 
+		public void Clear()
+        {
+			Assembly = null;
+        }
+
+		~CsScriptLoader()
+		{
+			
+		}
 	}
 }

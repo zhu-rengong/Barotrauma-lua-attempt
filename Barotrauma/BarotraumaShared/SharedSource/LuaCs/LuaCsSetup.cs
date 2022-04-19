@@ -278,6 +278,10 @@ namespace Barotrauma
 
 		public void Stop()
 		{
+			foreach (var type in AppDomain.CurrentDomain.GetAssemblies().Where(a => a.GetName().Name == "NetScriptAssembly").SelectMany(assembly => assembly.GetTypes()))
+			{
+				UserData.UnregisterType(type, true);
+			}
 			foreach (var mod in ACsMod.LoadedMods.ToArray()) mod.Dispose();
 			ACsMod.LoadedMods.Clear();
 			Hook?.Call("stop");
@@ -289,8 +293,18 @@ namespace Barotrauma
 			Game = new LuaGame();
 			Networking = new LuaCsNetworking();
 			LuaScriptLoader = null;
+			lua = null;
 			Lua = null;
 			CsScript = null;
+
+            if (CsScriptLoader != null)
+			{
+				CsScriptLoader.Clear();
+				CsScriptLoader.Unload();
+				CsScriptLoader = null;
+				GC.Collect();
+				GC.WaitForPendingFinalizers();
+			}
 		}
 
 		public void Initialize()
