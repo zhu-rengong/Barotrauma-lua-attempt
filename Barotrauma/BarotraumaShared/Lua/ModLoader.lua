@@ -1,5 +1,9 @@
-local allPackages = ContentPackageManager.AllPackages
-local localPackages = ContentPackageManager.LocalPackages
+local LUA_MOD_REQUIRE_PATH       = "/Lua/?.lua"
+local LUA_MOD_AUTORUN_PATH       = "/Lua/Autorun"
+local LUA_MOD_FORCEDAUTORUN_PATH = "/Lua/ForcedAutorun"
+
+local allPackages     = ContentPackageManager.AllPackages
+local localPackages   = ContentPackageManager.LocalPackages
 local enabledPackages = ContentPackageManager.EnabledPackages.All
 
 local function EndsWith(str, suffix)
@@ -30,52 +34,111 @@ local function RunFolder(folder, rootFolder, package)
     end
 end
 
+local function assertTypes(expectedTypes, ...)
+    local args = table.pack(...)
+    assert(
+        #args == #expectedTypes,
+        string.format(
+            "Assertion failed: incorrect number of args\n\texpected = %s\n\tgot = %s",
+            #expectedTypes,
+            #args
+        )
+    )
+    for i = 1, #args do
+        local arg = args[i]
+        local expectedType = expectedTypes[i]
+        assert(
+            type(arg) == expectedType,
+            string.format(
+                "Assertion failed: incorrect argument type (arg #%d)\n\texpected = %s\n\tgot = %s",
+                i,
+                expectedType,
+                type(arg)
+            )
+        )
+    end
+end
 
-for contentPackage in enabledPackages do
-    if contentPackage then
-        local d = contentPackage.Path:gsub("\\", "/")
-        d = d:gsub("/filelist.xml", "")
+local function ExecutionQueue()
+    local queue = {}
+    local function processQueueFIFO()
+        while queue[1] ~= nil do
+            RunFolder(
+                table.unpack(
+                    table.remove(queue)
+                )
+            )
+        end
+    end
+    local function queueExecutionFIFO(...)
+        assertTypes(
+            { 'string', 'string', 'userdata' },
+            ...
+        )
+        table.insert(
+            queue,
+            table.pack(...)
+        )
+    end
+    return queueExecutionFIFO, processQueueFIFO
+end
 
-        table.insert(package.path, (d .. "/Lua/?.lua"))
+local queueAutorun, processAutorun = ExecutionQueue()
+local queueForcedAutorun, processForcedAutorun = ExecutionQueue()
 
-        if File.DirectoryExists(d .. "/Lua/Autorun") then
-            RunFolder(d .. "/Lua/Autorun", d, contentPackage)
+local function processPackages(packages, fn)
+    for pkg in packages do
+        if pkg then
+            local pkgPath = pkg.Path
+                :gsub("\\", "/")
+                :gsub("/filelist.xml", "")
+            fn(pkg, pkgPath)
         end
     end
 end
+
+processPackages(
+    enabledPackages,
+    function(pkg, pkgPath)
+        table.insert(package.path, pkgPath .. LUA_MOD_REQUIRE_PATH)
+        local autorunPath = pkgPath .. LUA_MOD_AUTORUN_PATH
+        if File.DirectoryExists(autorunPath) then
+            queueAutorun(autorunPath, pkgPath, pkg)
+        end
+    end
+)
 
 -- we don't want to execute workshop ForcedAutorun if we have a local Package
 local executedLocalPackages = {}
 
-for contentPackage in localPackages do
-    if contentPackage then
-        local d = contentPackage.Path:gsub("\\", "/")
-        d = d:gsub("/filelist.xml", "")
-
-        table.insert(package.path, (d .. "/Lua/?.lua"))
-
-        if File.DirectoryExists(d .. "/Lua/ForcedAutorun") then
-            RunFolder(d .. "/Lua/ForcedAutorun", d, contentPackage)
-
-            executedLocalPackages[contentPackage.Name] = true
+processPackages(
+    localPackages,
+    function(pkg, pkgPath)
+        table.insert(package.path, pkgPath .. LUA_MOD_REQUIRE_PATH)
+        local forcedAutorunPath = pkgPath .. LUA_MOD_FORCEDAUTORUN_PATH
+        if File.DirectoryExists(forcedAutorunPath) then
+            queueForcedAutorun(forcedAutorunPath, pkgPath, pkg)
+            executedLocalPackages[pkg.Name] = true
         end
     end
-end
+)
 
-for contentPackage in allPackages do
-    if contentPackage and executedLocalPackages[contentPackage.Name] == nil then
-        local d = contentPackage.Path:gsub("\\", "/")
-        d = d:gsub("/filelist.xml", "")
-
-        table.insert(package.path, (d .. "/Lua/?.lua"))
-
-        if File.DirectoryExists(d .. "/Lua/ForcedAutorun") then
-            RunFolder(d .. "/Lua/ForcedAutorun", d, contentPackage)
+processPackages(
+    allPackages,
+    function(pkg, pkgPath)
+        if not executedLocalPackages[pkg.Name] then
+            table.insert(package.path, pkgPath .. LUA_MOD_REQUIRE_PATH)
+            local forcedAutorunPath = pkgPath .. LUA_MOD_FORCEDAUTORUN_PATH
+            if File.DirectoryExists(forcedAutorunPath) then
+                queueForcedAutorun(forcedAutorunPath, pkgPath, pkg)
+            end
         end
     end
-end
+)
 
 setmodulepaths(package.path)
+processAutorun()
+processForcedAutorun()
 
 Hook.Add("stop", "luaSetup.stop", function ()
     print("Stopping Lua...")

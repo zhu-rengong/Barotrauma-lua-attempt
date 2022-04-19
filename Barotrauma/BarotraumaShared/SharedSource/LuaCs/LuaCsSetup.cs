@@ -46,6 +46,7 @@ namespace Barotrauma
 		public LuaCsHook Hook { get; private set; }
 		public LuaCsNetworking Networking { get; private set; }
 		public LuaCsModStore ModStore { get; private set; }
+		private LuaRequire require { get; set; }
 
 		public CsScriptLoader CsScriptLoader { get; private set; }
 		public CsLua Lua { get; private set; }
@@ -71,9 +72,9 @@ namespace Barotrauma
 		}
 
 
-		public static ContentPackage GetPackage(Identifier name)
+		public static ContentPackage GetPackage(Identifier name, bool fallbackToAll = true)
 		{
-			foreach (ContentPackage package in ContentPackageManager.LocalPackages)
+			foreach (ContentPackage package in ContentPackageManager.EnabledPackages.All)
 			{
 				if (package.NameMatches(name))
 				{
@@ -81,11 +82,22 @@ namespace Barotrauma
 				}
 			}
 
-			foreach (ContentPackage package in ContentPackageManager.AllPackages)
+			if (fallbackToAll)
 			{
-				if (package.NameMatches(name))
+				foreach (ContentPackage package in ContentPackageManager.LocalPackages)
 				{
-					return package;
+					if (package.NameMatches(name))
+					{
+						return package;
+					}
+				}
+
+				foreach (ContentPackage package in ContentPackageManager.AllPackages)
+				{
+					if (package.NameMatches(name))
+					{
+						return package;
+					}
 				}
 			}
 
@@ -264,22 +276,18 @@ namespace Barotrauma
 
 			return null;
 		}
-
-		private DynValue Require(string modname, Table globalContext)
+		public DynValue Require(string moduleName, Table globalContexts)
 		{
 			try
 			{
-				return lua.Call(lua.RequireModule(modname, globalContext));
-
+				return require.Require(moduleName, globalContexts);
 			}
 			catch (Exception e)
 			{
 				HandleException(e);
 			}
-
 			return null;
 		}
-
 		public object CallLuaFunction(object function, params object[] arguments)
 		{
 			try
@@ -361,6 +369,8 @@ namespace Barotrauma
 			lua.Options.ScriptLoader = LuaScriptLoader;
 			Lua = new CsLua(this);
 			CsScript = new CsScriptRunner(this);
+
+			require = new LuaRequire(lua);
 
 			Game = new LuaGame();
 			Networking = new LuaCsNetworking();
