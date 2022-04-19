@@ -13,7 +13,7 @@ namespace Barotrauma
 		{
 			var type = Type.GetType(typeName);
 			if (type != null) return type;
-			foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
+			foreach (var a in AppDomain.CurrentDomain.GetAssemblies().Reverse())
 			{
 				type = a.GetType(typeName);
 				if (type != null)
