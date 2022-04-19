@@ -46,7 +46,7 @@ namespace Barotrauma
 
 		public static ContentPackage GetPackage(Identifier name, bool fallbackToAll = true)
 		{
-			foreach (ContentPackage package in ContentPackageManager.LocalPackages)
+			foreach (ContentPackage package in ContentPackageManager.EnabledPackages.All)
 			{
 				if (package.NameMatches(name))
 				{
@@ -56,6 +56,14 @@ namespace Barotrauma
 
 			if (fallbackToAll)
 			{
+				foreach (ContentPackage package in ContentPackageManager.LocalPackages)
+				{
+					if (package.NameMatches(name))
+					{
+						return package;
+					}
+				}
+
 				foreach (ContentPackage package in ContentPackageManager.AllPackages)
 				{
 					if (package.NameMatches(name))
@@ -358,7 +366,7 @@ namespace Barotrauma
 
 			// LuaDocs.GenerateDocsAll();
 
-			ContentPackage csPackage = GetPackage("CsForBarotrauma", true);
+			ContentPackage csPackage = GetPackage("CsForBarotrauma", false);
 
 
 			if (csPackage != null)
