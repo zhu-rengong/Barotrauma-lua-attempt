@@ -26,8 +26,10 @@ namespace Barotrauma {
         };
         private static readonly string[] typesProhibited = {
             "System.IO",
-            "Moonsharp",
             "Barotrauma.IO",
+            "System.Xml.XmlReader",
+            "System.Xml.XmlWriter",
+            "Barotrauma.LuaUserData",
         };
         public static bool IsTypeAllowed(string name)
         {

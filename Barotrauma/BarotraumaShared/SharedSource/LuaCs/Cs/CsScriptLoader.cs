@@ -16,7 +16,8 @@ namespace Barotrauma
 	{
 		public LuaCsSetup setup;
 		private List<MetadataReference> defaultReferences;
-		private List<SyntaxTree> syntaxTrees;
+
+		private Dictionary<string, List<string>> sources;
 		public Assembly Assembly { get; private set; }
 
 		public CsScriptLoader(LuaCsSetup setup) : base(isCollectible: true)
@@ -28,7 +29,7 @@ namespace Barotrauma
 				.Select(a => MetadataReference.CreateFromFile(a.Location) as MetadataReference)
 				.ToList();
 
-			syntaxTrees = new List<SyntaxTree>();
+			sources = new Dictionary<string, List<string>>();
 			Assembly = null;
 		}
 
@@ -41,47 +42,52 @@ namespace Barotrauma
             }
 		}
 
-        private void RunFolder(string folder)
+		public bool HasSources { get => sources.Count > 0; }
+
+		private void RunFolder(string folder)
 		{
-			var scriptFiles = new List<string>();
 			foreach (var str in DirSearch(folder))
 			{
 				var s = str.Replace("\\", "/");
 
-				if (s.EndsWith(".cs") && LuaCsFile.IsPathAllowedCsException(s)) scriptFiles.Add(s);
-			}
-
-			try
-			{
-				if (scriptFiles.Count <= 0) return;
-
-				// Check file content for prohibited stuff
-				foreach (var file in scriptFiles)
+				if (s.EndsWith(".cs") && LuaCsFile.IsPathAllowedCsException(s))
 				{
-					var tree = SyntaxFactory.ParseSyntaxTree(File.ReadAllText(file), CSharpParseOptions.Default, file);
-					var error = CsScriptFilter.FilterSyntaxTree(tree as CSharpSyntaxTree);
-					if (error != null) throw new Exception(error);
-
-					syntaxTrees.Add(tree);
+					if (sources.ContainsKey(folder)) sources[folder].Add(s);
+					else sources.Add(folder, new List<string> { s });
 				}
-            }
-			catch (CompilationErrorException ex)
-			{
-				string errStr = "Compilation Error in '" + folder + "':";
-				foreach (var diag in ex.Diagnostics)
-				{
-					errStr += "\n" + diag.ToString();
-				}
-				LuaCsSetup.PrintCsError(errStr);
 			}
-			catch (Exception ex)
+		}
+
+		private IEnumerable<SyntaxTree> ParseSources() {
+			var syntaxTrees = new List<SyntaxTree>();
+
+			if (sources.Count <= 0) throw new Exception("No Cs sources detected");
+			foreach ((var folder, var src) in sources)
             {
-				LuaCsSetup.PrintCsError("Error loading '" + folder + "':\n" + ex.Message + "\n" + ex.StackTrace);
+				try
+				{
+					foreach (var file in src)
+					{
+						var tree = SyntaxFactory.ParseSyntaxTree(File.ReadAllText(file), CSharpParseOptions.Default, file);
+						var error = CsScriptFilter.FilterSyntaxTree(tree as CSharpSyntaxTree); // Check file content for prohibited stuff
+						if (error != null) throw new Exception(error);
+
+						syntaxTrees.Add(tree);
+					}
+				}
+				catch (Exception ex)
+				{
+					LuaCsSetup.PrintCsError("Error loading '" + folder + "':\n" + ex.Message + "\n" + ex.StackTrace);
+				}
 			}
+
+			return syntaxTrees;
 		}
 
         public List<Type> Compile()
         {
+			IEnumerable<SyntaxTree> syntaxTrees = ParseSources();
+
 			var options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
 				.WithMetadataImportOptions(MetadataImportOptions.All)
 				.WithOptimizationLevel(OptimizationLevel.Release)
@@ -112,7 +118,6 @@ namespace Barotrauma
 					else LuaCsSetup.PrintCsError(errStr);
 				}
 			}
-			syntaxTrees.Clear();
 
 			if (Assembly != null)
 				return Assembly.GetTypes().Where(t => t.IsSubclassOf(typeof(ACsMod))).ToList();

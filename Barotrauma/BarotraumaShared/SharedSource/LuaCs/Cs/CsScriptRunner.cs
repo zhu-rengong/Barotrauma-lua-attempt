@@ -101,7 +101,11 @@ namespace Barotrauma
 								if (method != null)
                                 {
 									scriptResilt = method.Invoke(runner, null);
-									foreach (var type in assembly.GetTypes()) { UserData.UnregisterType(type, true); }
+									foreach (var type in assembly.GetTypes())
+									{
+										//UserData.UnregisterType(type, true);
+										UserData.UnregisterType(type);
+									}
 								}
 								else LuaCsSetup.PrintCsError("Script Error - no run method detected");
 							}

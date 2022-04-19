@@ -16,10 +16,27 @@ using System.Reflection;
 [assembly: InternalsVisibleTo("NetOneTimeScriptAssembly", AllInternalsVisible = true)]
 namespace Barotrauma
 {
+	class LuaCsSetupConfig
+    {
+		public bool FirstTimeCsWaring = true;
+
+		public LuaCsSetupConfig() { }
+	}
+
 	partial class LuaCsSetup
 	{
 		public const string LUASETUP_FILE = "Lua/LuaSetup.lua";
 		public const string VERSION_FILE = "luacsversion.txt";
+
+		private const string configFileName = "LuaCsSetupConfig.xml";
+
+#if SERVER
+		public const bool IsServer = true;
+		public const bool IsClient = false;
+#else
+		public const bool IsServer = false;
+		public const bool IsClient = true;
+#endif
 
 		private Script lua;
 		public CsScriptRunner CsScript { get; private set; }
@@ -33,6 +50,8 @@ namespace Barotrauma
 		public CsScriptLoader CsScriptLoader { get; private set; }
 		public CsLua Lua { get; private set; }
 
+		public LuaCsSetupConfig Config { get; private set; }
+
 		public LuaCsSetup()
 		{
 			Hook = new LuaCsHook();
@@ -40,6 +59,15 @@ namespace Barotrauma
 
 			Game = new LuaGame();
 			Networking = new LuaCsNetworking();
+		}
+
+		public void UpdateConfig()
+        {
+			FileStream file;
+			if (!File.Exists(configFileName)) file = File.Create(configFileName);
+			else file = File.Open(configFileName, FileMode.Truncate, FileAccess.Write);
+			LuaCsConfig.Save(file, Config);
+			file.Close();
 		}
 
 
@@ -280,7 +308,7 @@ namespace Barotrauma
 		{
 			foreach (var type in AppDomain.CurrentDomain.GetAssemblies().Where(a => a.GetName().Name == "NetScriptAssembly").SelectMany(assembly => assembly.GetTypes()))
 			{
-				UserData.UnregisterType(type, true);
+				UserData.UnregisterType(type);
 			}
 			foreach (var mod in ACsMod.LoadedMods.ToArray()) mod.Dispose();
 			ACsMod.LoadedMods.Clear();
@@ -296,6 +324,7 @@ namespace Barotrauma
 			lua = null;
 			Lua = null;
 			CsScript = null;
+			Config = null;
 
             if (CsScriptLoader != null)
 			{
@@ -313,6 +342,15 @@ namespace Barotrauma
 
 			PrintMessage("Lua! Version " + AssemblyInfo.GitRevision);
 
+
+			if (File.Exists(configFileName))
+			{
+				using (var file = File.Open(configFileName, FileMode.Open, FileAccess.Read))
+					Config = LuaCsConfig.Load<LuaCsSetupConfig>(file);
+			}
+			else Config = new LuaCsSetupConfig();
+
+
 			LuaScriptLoader = new LuaScriptLoader();
 			LuaScriptLoader.ModulePaths = new string[] { };
 
@@ -329,9 +367,11 @@ namespace Barotrauma
 			Hook.Initialize();
 			ModStore.Initialize();
 
+			UserData.RegisterType<LuaCsConfig>();
 			UserData.RegisterType<LuaCsAction>();
 			UserData.RegisterType<LuaCsFile>();
 			UserData.RegisterType<LuaCsPatch>();
+			UserData.RegisterType<LuaCsConfig>();
 			UserData.RegisterType<CsScriptRunner>();
 			UserData.RegisterType<LuaGame>();
 			UserData.RegisterType<LuaCsTimer>();
@@ -360,27 +400,36 @@ namespace Barotrauma
 			lua.Globals["File"] = UserData.CreateStatic<LuaCsFile>();
 			lua.Globals["Networking"] = Networking;
 
-			bool isServer;
+			lua.Globals["SERVER"] = IsServer;
+			lua.Globals["CLIENT"] = IsClient;
 
-#if SERVER
-			isServer = true;
-#else
-			isServer = false;
-#endif
+			CsScriptLoader = new CsScriptLoader(this);
+			CsScriptLoader.SearchFolders();
+			if (CsScriptLoader.HasSources)
+			{
+				if (Config.FirstTimeCsWaring)
+				{
+					Config.FirstTimeCsWaring = false;
+					UpdateConfig();
 
-			lua.Globals["SERVER"] = isServer;
-			lua.Globals["CLIENT"] = !isServer;
+					LuaCsTimer.Wait((args) => PrintCsError(@"
+  ----====    ====----
 
-			// LuaDocs.GenerateDocsAll();
+        WARNING!
+  --  --  --  --  --  --
+  !Use of Cs Mods detected!
 
-			//ContentPackage csPackage = GetPackage("CsForBarotrauma");
+    Cs Mods are questionably
+sandboxed, as they have
+access to reflection, due to
+modding needs.
 
+    USE ON YOUR OWN RISK!
 
-			//if (csPackage != null)
-			//{
-				CsScriptLoader = new CsScriptLoader(this);
+  ----====    ====----
+"), 200);
+				}
 
-				CsScriptLoader.SearchFolders();
 				try
 				{
 					var modTypes = CsScriptLoader.Compile();
@@ -395,7 +444,7 @@ namespace Barotrauma
 				}
 
 				PrintMessage("Cs! Version " + AssemblyInfo.GitRevision);
-			//}
+			}
 
 
 			ContentPackage luaPackage = GetPackage("LuaForBarotraumaUnstable");
