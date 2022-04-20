@@ -1257,7 +1257,7 @@ namespace Barotrauma
 
             commands.Add(new Command("install_cl_lua", "Installs Client-Side Lua into your client.", (string[] args) =>
             {
-                ContentPackage luaPackage = LuaCsSetup.GetPackage("LuaForBarotraumaUnstable");
+                ContentPackage luaPackage = LuaCsSetup.GetPackage("Lua For Barotrauma");
 
                 if (luaPackage == null)
                 {

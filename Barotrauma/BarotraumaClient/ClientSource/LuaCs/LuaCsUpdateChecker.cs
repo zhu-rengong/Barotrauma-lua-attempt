@@ -9,7 +9,7 @@ namespace Barotrauma
         {
             if (!File.Exists(LuaCsSetup.VERSION_FILE)) { return; }
 
-            ContentPackage luaPackage = LuaCsSetup.GetPackage("LuaForBarotrauma");
+            ContentPackage luaPackage = LuaCsSetup.GetPackage("Lua For Barotrauma");
             string luaCsPath = Path.GetDirectoryName(luaPackage.Path);
 
             if (luaPackage == null) { return; }
