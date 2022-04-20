@@ -463,7 +463,7 @@ modding needs.
 			}
 
 
-			ContentPackage luaPackage = GetPackage("LuaForBarotraumaUnstable");
+			ContentPackage luaPackage = GetPackage("LuaForBarotrauma");
 
 			if (File.Exists(LUASETUP_FILE))
 			{
