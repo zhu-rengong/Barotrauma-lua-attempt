@@ -14,7 +14,7 @@ Now you can open **test.lua** in your favorite text editor (<a href="https://cod
 
 If you wish to separate your Lua scripts into multiple files, you can do it by either having multiple scripts in the Autorun folder, or having a single script that is responsible for executing the rest of your Lua scripts, for that you will need to get relative paths to your mod, here's an example of how to do it:
 
-```lua
+```
 -- this variable will be accessible to any other script, so you can use it to get the mod's path.
 MyModGlobal = {}
 
