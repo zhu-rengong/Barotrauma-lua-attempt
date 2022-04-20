@@ -1261,7 +1261,7 @@ namespace Barotrauma
 
                 if (luaPackage == null)
                 {
-                    GameMain.Server.SendChatMessage("Couldn't find the LuaCsForBarotrauma package.", ChatMessageType.ServerMessageBox);
+                    GameMain.Server.SendChatMessage("Couldn't find the Lua For Barotrauma package.", ChatMessageType.ServerMessageBox);
                     return;
                 }
 
