@@ -384,9 +384,10 @@ namespace Barotrauma
                 }
             };
 #endif
+            string additional = LuaCsSetup.GetPackage("CsForBarotrauma", false) == null ? "" : "Cs";
 
             new GUIButton(new RectTransform(new Point(300, 30), Frame.RectTransform, Anchor.TopLeft) { AbsoluteOffset = new Point(20, 50) },
-    "Remove Client-Side LuaCs", style: "MainMenuGUIButton", color: GUIStyle.Red)
+    $"Remove Client-Side Lua{additional}", style: "MainMenuGUIButton", color: GUIStyle.Red)
             {
                 IgnoreLayoutGroups = true,
                 UserData = Tab.Empty,
@@ -450,7 +451,7 @@ namespace Barotrauma
 
             string version = File.Exists(LuaCsSetup.VERSION_FILE) ? File.ReadAllText(LuaCsSetup.VERSION_FILE) : "Github";
 
-            new GUITextBlock(new RectTransform(new Point(300, 30), Frame.RectTransform, Anchor.TopLeft) { AbsoluteOffset = new Point(10, 10) }, $"Using LuaCsForBarotrauma revision {AssemblyInfo.GitRevision} version {version}", Color.Red)
+            new GUITextBlock(new RectTransform(new Point(300, 30), Frame.RectTransform, Anchor.TopLeft) { AbsoluteOffset = new Point(10, 10) }, $"Using Lua{additional}ForBarotrauma revision {AssemblyInfo.GitRevision} version {version}", Color.Red)
             {
                 IgnoreLayoutGroups = false
             };

@@ -19,7 +19,9 @@ namespace Barotrauma
 
             if (clientVersion == workshopVersion) { return; }
 
-            var msg = new GUIMessageBox("LuaCs Update", $"Your LuaCs client version is different from the version found in the LuaCsForBarotrauma workshop files. Do you want to update?\n\n Client Version: {clientVersion}\n Workshop Version: {workshopVersion}", 
+            string additional = LuaCsSetup.GetPackage("CsForBarotrauma", false) == null ? "" : "Cs";
+
+            var msg = new GUIMessageBox($"Lua{additional} Update", $"Your Lua{additional} client version is different from the version found in the Lua{additional}ForBarotrauma workshop files. Do you want to update?\n\n Client Version: {clientVersion}\n Workshop Version: {workshopVersion}", 
                 new LocalizedString[2] { TextManager.Get("Yes"), TextManager.Get("Cancel") });
 
             msg.Buttons[0].OnClicked = (GUIButton button, object obj) =>
@@ -59,7 +61,7 @@ namespace Barotrauma
                     return true;
                 }
 
-                new GUIMessageBox("Restart", "LuaCs updated! Restart your game to apply the changes.");
+                new GUIMessageBox("Restart", $"Lua{additional} updated! Restart your game to apply the changes.");
 
                 msg.Close();
                 return true;
