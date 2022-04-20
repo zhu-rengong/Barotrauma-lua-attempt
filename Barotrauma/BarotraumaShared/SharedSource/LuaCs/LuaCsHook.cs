@@ -396,6 +396,7 @@ namespace Barotrauma
 			}
 		}
 
+		[MoonSharpHidden]
 		public T Call<T>(string name, params object[] args)
 		{
 #if CLIENT
