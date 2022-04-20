@@ -148,7 +148,11 @@ namespace Barotrauma
         }
 
         // TODO: fix implicit hiding
-        public bool Selected { get; set; }
+        public override bool Selected
+        {
+            get { return isSelected; }
+            set { isSelected = value; }
+        }
 
         public IReadOnlyList<GUIComponent> AllSelected => selected;
 
@@ -328,7 +332,7 @@ namespace Barotrauma
             };
             if (style != null)
             {
-                GUI.Style.Apply(ContentBackground, "", this);
+                GUIStyle.Apply(ContentBackground, "", this);
             }
             if (color.HasValue)
             {
@@ -398,8 +402,7 @@ namespace Barotrauma
             int i = 0;
             foreach (GUIComponent child in children)
             {
-                if ((child.UserData != null && child.UserData.Equals(userData)) ||
-                    (child.UserData == null && userData == null))
+                if (Equals(child.UserData, userData))
                 {
                     Select(i, force, autoScroll);
                     if (!SelectMultiple) { return; }
@@ -435,7 +438,7 @@ namespace Barotrauma
             Vector2 topOffset = CalculateTopOffset();
             int x = (int)topOffset.X;
             int y = (int)topOffset.Y;
-            
+
             for (int i = 0; i < Content.CountChildren; i++)
             {
                 GUIComponent child = Content.GetChild(i);
@@ -509,23 +512,36 @@ namespace Barotrauma
         }
 
         /// <summary>
-        /// Scrolls the list to the specific element, currently only works when smooth scrolling and PadBottom are enabled.
+        /// Scrolls the list to the specific element.
         /// </summary>
         /// <param name="component"></param>
-        public void ScrollToElement(GUIComponent component)
+        public void ScrollToElement(GUIComponent component, bool playSound = true)
         {
-            SoundPlayer.PlayUISound(GUISoundType.Click);
+            if (playSound) { SoundPlayer.PlayUISound(GUISoundType.Click); }
             List<GUIComponent> children = Content.Children.ToList();
             int index = children.IndexOf(component);
             if (index < 0) { return; }
 
+            void performScroll(GUIComponent c)
+            {
+                if (SmoothScroll && PadBottom)
+                {
+                    scrollToElement = c;
+                }
+                else
+                {
+                    float diff = isHorizontal ? c.Rect.X - Content.Rect.X : c.Rect.Y - Content.Rect.Y;
+                    ScrollBar.BarScroll += diff / TotalSize;
+                }
+            }
+            
             if (!Content.Children.Contains(component) || !component.Visible)
             {
-                scrollToElement = null;
+                performScroll(null);
             }
             else
             {
-                scrollToElement = component;
+                performScroll(component);
             }
         }
 
@@ -1215,6 +1231,20 @@ namespace Barotrauma
                 i++;
             }
 
+            if (isDraggingElement && CurrentDragMode == DragMode.DragOutsideBox && HideDraggedElement)
+            {
+                Rectangle drawRect = DraggedElement.Rect;
+                int draggedElementIndex = Content.GetChildIndex(DraggedElement);
+                CalculateChildrenOffsets((index, point) =>
+                {
+                    if (draggedElementIndex == index)
+                    {
+                        drawRect.Location = Content.Rect.Location + point;
+                    }
+                });
+                GUI.DrawRectangle(spriteBatch, drawRect, Color.White * 0.5f, thickness: 2f);
+            }
+            
             if (HideChildrenOutsideFrame)
             {
                 spriteBatch.End();

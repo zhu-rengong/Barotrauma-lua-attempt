@@ -15,13 +15,15 @@ function LoadPreviousSave() end
 -- @realm shared
 -- @tparam SubmarineInfo newSubmarine
 -- @tparam number cost
+-- @tparam Client client
 -- @treturn SubmarineInfo
-function SwitchSubmarine(newSubmarine, cost) end
+function SwitchSubmarine(newSubmarine, cost, client) end
 
 --- PurchaseSubmarine
 -- @realm shared
 -- @tparam SubmarineInfo newSubmarine
-function PurchaseSubmarine(newSubmarine) end
+-- @tparam Client client
+function PurchaseSubmarine(newSubmarine, client) end
 
 --- IsSubmarineOwned
 -- @realm shared
@@ -78,8 +80,9 @@ function EnforceMissionOrder(missionIdentifiers) end
 
 --- GetSessionCrewCharacters
 -- @realm shared
--- @treturn Enumerable
-function GameSession.GetSessionCrewCharacters() end
+-- @tparam CharacterType type
+-- @treturn ImmutableHashSet`1
+function GameSession.GetSessionCrewCharacters(type) end
 
 --- EndRound
 -- @realm shared
@@ -105,10 +108,10 @@ function ReviveCharacter(character) end
 
 --- IsCompatibleWithEnabledContentPackages
 -- @realm shared
--- @tparam IList`1 contentPackagePaths
--- @tparam String& errorMsg
+-- @tparam IList`1 contentPackageNames
+-- @tparam LocalizedString& errorMsg
 -- @treturn bool
-function GameSession.IsCompatibleWithEnabledContentPackages(contentPackagePaths, errorMsg) end
+function GameSession.IsCompatibleWithEnabledContentPackages(contentPackageNames, errorMsg) end
 
 --- Save
 -- @realm shared
@@ -140,6 +143,11 @@ function GetHashCode() end
 -- Missions, Field of type Enumerable
 -- @realm shared
 -- @Enumerable Missions
+
+---
+-- Casualties, Field of type Enumerable
+-- @realm shared
+-- @Enumerable Casualties
 
 ---
 -- IsRunning, Field of type bool

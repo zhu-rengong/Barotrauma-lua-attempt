@@ -51,3 +51,8 @@ function GetHashCode() end
 -- @realm shared
 -- @number GameTime
 
+---
+-- IsEditor, Field of type bool
+-- @realm shared
+-- @bool IsEditor
+

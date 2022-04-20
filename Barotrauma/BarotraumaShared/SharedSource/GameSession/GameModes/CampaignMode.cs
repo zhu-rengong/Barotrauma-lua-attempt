@@ -53,7 +53,7 @@ namespace Barotrauma
         public int GetAddedMissionCount()
         {
             int count = 0;
-            foreach (Character character in GameSession.GetSessionCrewCharacters())
+            foreach (Character character in GameSession.GetSessionCrewCharacters(CharacterType.Both))
             {
                 count += (int)character.GetStatValue(StatTypes.ExtraMissionCount);
             }
@@ -68,7 +68,16 @@ namespace Barotrauma
 
     abstract partial class CampaignMode : GameMode
     {
-        const int MaxMoney = int.MaxValue / 2; //about 1 billion
+        [NetworkSerialize]
+        public struct SaveInfo : INetSerializableStruct
+        {
+            public string FilePath;
+            public int SaveTime;
+            public string SubmarineName;
+            public string[] EnabledContentPackageNames;
+        }
+
+        public const int MaxMoney = int.MaxValue / 2; //about 1 billion
         public const int InitialMoney = 8500;
 
         //duration of the cinematic + credits at the end of the campaign
@@ -101,6 +110,8 @@ namespace Barotrauma
         public CampaignSettings Settings;
 
         private readonly List<Mission> extraMissions = new List<Mission>();
+
+        public readonly NamedEvent<WalletChangedEvent> OnMoneyChanged = new NamedEvent<WalletChangedEvent>();
 
         public enum TransitionType
         {
@@ -167,12 +178,7 @@ namespace Barotrauma
             }
         }
 
-        private int money;
-        public int Money
-        {
-            get { return money; }
-            set { money = MathHelper.Clamp(value, 0, MaxMoney); }
-        }
+        public Wallet Bank;
 
         public LevelData NextLevel
         {
@@ -183,9 +189,42 @@ namespace Barotrauma
         protected CampaignMode(GameModePreset preset)
             : base(preset)
         {
-            Money = InitialMoney;
+            Bank = new Wallet(Option<Character>.None())
+            {
+                Balance = InitialMoney
+            };
+
             CargoManager = new CargoManager(this);
             MedicalClinic = new MedicalClinic(this);
+            Identifier messageIdentifier = new Identifier("money");
+
+#if CLIENT
+            OnMoneyChanged.RegisterOverwriteExisting(new Identifier("CampaignMoneyChangeNotification"), e =>
+            {
+                if (!(e.ChangedData.BalanceChanged is Some<int> { Value: var changed })) { return; }
+
+                bool isGain = changed > 0;
+
+                Color clr = isGain ? GUIStyle.Yellow : GUIStyle.Red;
+
+                switch (e.Owner)
+                {
+                    case Some<Character> { Value: var owner}:
+                        owner.AddMessage(FormatMessage(), clr, playSound: Character.Controlled == owner, messageIdentifier, changed);
+                        break;
+                    case None<Character> _ when IsSinglePlayer:
+                        Character.Controlled?.AddMessage(FormatMessage(), clr, playSound: true, messageIdentifier, changed);
+                        break;
+                }
+
+                string FormatMessage() => TextManager.GetWithVariable(isGain ? "moneygainformat" : "moneyloseformat", "[money]", TextManager.FormatCurrency(Math.Abs(changed))).ToString();
+            });
+#endif
+        }
+
+        public virtual Wallet GetWallet(Client client = null)
+        {
+            return Bank;
         }
 
         /// <summary>
@@ -200,7 +239,7 @@ namespace Barotrauma
             {
                 return Level.Loaded.EndLocation;
             }
-            return Level.Loaded?.StartLocation ?? Map.CurrentLocation;            
+            return Level.Loaded?.StartLocation ?? Map.CurrentLocation;
         }
 
         public List<Submarine> GetSubsToLeaveBehind(Submarine leavingSub)
@@ -255,8 +294,6 @@ namespace Barotrauma
             PurchasedLostShuttles = false;
             var connectedSubs = Submarine.MainSub.GetConnectedSubs();
             wasDocked = Level.Loaded.StartOutpost != null && connectedSubs.Contains(Level.Loaded.StartOutpost);
-
-            ResetTalentData();
         }
 
         public void InitCampaignData()
@@ -304,11 +341,11 @@ namespace Barotrauma
 
                 if (levelData.HasBeaconStation && !levelData.IsBeaconActive)
                 {
-                    var beaconMissionPrefabs = MissionPrefab.List.FindAll(m => m.Tags.Any(t => t.Equals("beaconnoreward", StringComparison.OrdinalIgnoreCase)));
+                    var beaconMissionPrefabs = MissionPrefab.Prefabs.Where(m => m.Tags.Any(t => t.Equals("beaconnoreward", StringComparison.OrdinalIgnoreCase))).OrderBy(m => m.UintIdentifier);
                     if (beaconMissionPrefabs.Any())
                     {
                         Random rand = new MTRandom(ToolBox.StringToInt(levelData.Seed));
-                        var beaconMissionPrefab = ToolBox.SelectWeightedRandom(beaconMissionPrefabs, beaconMissionPrefabs.Select(p => (float)p.Commonness).ToList(), rand);
+                        var beaconMissionPrefab = ToolBox.SelectWeightedRandom(beaconMissionPrefabs, p => (float)p.Commonness, rand);
                         if (!Missions.Any(m => m.Prefab.Type == beaconMissionPrefab.Type))
                         {
                             extraMissions.Add(beaconMissionPrefab.Instantiate(Map.SelectedConnection.Locations, Submarine.MainSub));
@@ -317,15 +354,32 @@ namespace Barotrauma
                 }
                 if (levelData.HasHuntingGrounds)
                 {
-                    var huntingGroundsMissionPrefabs = MissionPrefab.List.FindAll(m => m.Tags.Any(t => t.Equals("huntinggroundsnoreward", StringComparison.OrdinalIgnoreCase)));
+                    var huntingGroundsMissionPrefabs = MissionPrefab.Prefabs.Where(m => m.Tags.Any(t => t.Equals("huntinggrounds", StringComparison.OrdinalIgnoreCase))).OrderBy(m => m.UintIdentifier);
                     if (!huntingGroundsMissionPrefabs.Any())
                     {
-                        DebugConsole.AddWarning("Could not find a hunting grounds mission for the level. No mission with the tag \"huntinggroundsnoreward\" found.");
+                        DebugConsole.AddWarning("Could not find a hunting grounds mission for the level. No mission with the tag \"huntinggrounds\" found.");
                     }
                     else
                     {
                         Random rand = new MTRandom(ToolBox.StringToInt(levelData.Seed));
-                        var huntingGroundsMissionPrefab = ToolBox.SelectWeightedRandom(huntingGroundsMissionPrefabs, huntingGroundsMissionPrefabs.Select(p => (float)Math.Max(p.Commonness, 0.1f)).ToList(), rand);
+                        // Adjust the prefab commonness based on the difficulty tag
+                        var prefabs = huntingGroundsMissionPrefabs.ToList();
+                        var weights = prefabs.Select(p => (float)Math.Max(p.Commonness, 1)).ToList();
+                        for (int i = 0; i < prefabs.Count; i++)
+                        {
+                            var prefab = prefabs[i];
+                            var weight = weights[i];
+                            if (prefab.Tags.Contains("easy"))
+                            {
+                                weight *= MathHelper.Lerp(0.2f, 2f, MathUtils.InverseLerp(80, LevelData.HuntingGroundsDifficultyThreshold, levelData.Difficulty));
+                            }
+                            else if (prefab.Tags.Contains("hard"))
+                            {
+                                weight *= MathHelper.Lerp(0.5f, 1.5f, MathUtils.InverseLerp(LevelData.HuntingGroundsDifficultyThreshold + 10, 80, levelData.Difficulty));
+                            }
+                            weights[i] = weight;
+                        }
+                        var huntingGroundsMissionPrefab = ToolBox.SelectWeightedRandom(prefabs, weights, rand);
                         if (!Missions.Any(m => m.Prefab.Tags.Any(t => t.Equals("huntinggrounds", StringComparison.OrdinalIgnoreCase))))
                         {
                             extraMissions.Add(huntingGroundsMissionPrefab.Instantiate(Map.SelectedConnection.Locations, Submarine.MainSub));
@@ -592,22 +646,22 @@ namespace Barotrauma
             if (map != null && CargoManager != null)
             {
                 map.CurrentLocation.RegisterTakenItems(takenItems);
-                map.CurrentLocation.AddToStock(CargoManager.SoldItems);
+                map.CurrentLocation.AddStock(CargoManager.SoldItems);
                 CargoManager.ClearSoldItemsProjSpecific();
-                map.CurrentLocation.RemoveFromStock(CargoManager.PurchasedItems);
+                map.CurrentLocation.RemoveStock(CargoManager.PurchasedItems);
             }
             if (GameMain.NetworkMember == null)
             {
-                CargoManager.ClearItemsInBuyCrate();
-                CargoManager.ClearItemsInSellCrate();
-                CargoManager.ClearItemsInSellFromSubCrate();
+                CargoManager?.ClearItemsInBuyCrate();
+                CargoManager?.ClearItemsInSellCrate();
+                CargoManager?.ClearItemsInSellFromSubCrate();
             }
             else
             {
                 if (GameMain.NetworkMember.IsServer)
                 {
                     CargoManager?.ClearItemsInBuyCrate();
-                    // TODO: CargoManager?.ClearItemsInSellFromSubCrate();
+                    CargoManager?.ClearItemsInSellFromSubCrate();
                 }
                 else if (GameMain.NetworkMember.IsClient)
                 {
@@ -692,32 +746,31 @@ namespace Barotrauma
 
             if (CampaignMetadata != null)
             {
-                int loops = CampaignMetadata.GetInt("campaign.endings", 0);
-                CampaignMetadata.SetValue("campaign.endings",  loops + 1);
+                int loops = CampaignMetadata.GetInt("campaign.endings".ToIdentifier(), 0);
+                CampaignMetadata.SetValue("campaign.endings".ToIdentifier(),  loops + 1);
             }
 
             GameAnalyticsManager.AddProgressionEvent(
                 GameAnalyticsManager.ProgressionStatus.Complete,
-                Preset?.Identifier ?? "none");
+                Preset?.Identifier.Value ?? "none");
             string eventId = "FinishCampaign:";
             GameAnalyticsManager.AddDesignEvent(eventId + "Submarine:" + (Submarine.MainSub?.Info?.Name ?? "none"));
             GameAnalyticsManager.AddDesignEvent(eventId + "CrewSize:" + (CrewManager?.CharacterInfos?.Count() ?? 0));
-            GameAnalyticsManager.AddDesignEvent(eventId + "Money", Money);
+            GameAnalyticsManager.AddDesignEvent(eventId + "Money", Bank.Balance);
             GameAnalyticsManager.AddDesignEvent(eventId + "Playtime", TotalPlayTime);
             GameAnalyticsManager.AddDesignEvent(eventId + "PassedLevels", TotalPassedLevels);
         }
 
         protected virtual void EndCampaignProjSpecific() { }
 
-        public bool TryHireCharacter(Location location, CharacterInfo characterInfo)
+        public bool TryHireCharacter(Location location, CharacterInfo characterInfo, Client client = null)
         {
             if (characterInfo == null) { return false; }
-            if (Money < characterInfo.Salary) { return false; }
+            if (!GetWallet(client).TryDeduct(characterInfo.Salary)) { return false; }
             characterInfo.IsNewHire = true;
             location.RemoveHireableCharacter(characterInfo);
             CrewManager.AddCharacterInfo(characterInfo);
-            Money -= characterInfo.Salary;
-            GameAnalyticsManager.AddMoneySpentEvent(characterInfo.Salary, GameAnalyticsManager.MoneySink.Crew, characterInfo.Job?.Prefab.Identifier ?? "unknown");
+            GameAnalyticsManager.AddMoneySpentEvent(characterInfo.Salary, GameAnalyticsManager.MoneySink.Crew, characterInfo.Job?.Prefab.Identifier.Value ?? "unknown");
             return true;
         }
 
@@ -740,8 +793,8 @@ namespace Barotrauma
             HumanAIController humanAI = npc.AIController as HumanAIController;
             if (humanAI == null) { yield return CoroutineStatus.Success; }
 
-            var waitOrder = Order.PrefabList.Find(o => o.Identifier.Equals("wait", StringComparison.OrdinalIgnoreCase));
-            humanAI.SetForcedOrder(waitOrder, string.Empty, null);
+            var waitOrder = OrderPrefab.Prefabs["wait"].CreateInstance(OrderPrefab.OrderTargetType.Entity);
+            humanAI.SetForcedOrder(waitOrder);
             var waitObjective = humanAI.ObjectiveManager.ForcedOrder;
             humanAI.FaceTarget(interactor);
             
@@ -769,6 +822,11 @@ namespace Barotrauma
         public void AssignNPCMenuInteraction(Character character, InteractionType interactionType)
         {
             character.CampaignInteractionType = interactionType;
+            if (character.CampaignInteractionType == InteractionType.Store &&
+                character.HumanPrefab is { Identifier: var merchantId })
+            {
+                character.MerchantIdentifier = merchantId;
+            }
             character.DisableHealthWindow =
                 interactionType != InteractionType.None &&
                 interactionType != InteractionType.Examine &&
@@ -782,7 +840,7 @@ namespace Barotrauma
             character.SetCustomInteract(
                 NPCInteract,
 #if CLIENT
-                hudText: TextManager.GetWithVariable("CampaignInteraction." + interactionType, "[key]", GameMain.Config.KeyBindText(InputType.Use)));
+                hudText: TextManager.GetWithVariable("CampaignInteraction." + interactionType, "[key]", GameSettings.CurrentConfig.KeyMap.KeyBindText(InputType.Use)));
 #else
                 hudText: TextManager.Get("CampaignInteraction." + interactionType));
 #endif
@@ -855,8 +913,8 @@ namespace Barotrauma
                         {
                         
                             GameMain.Server.SendDirectChatMessage(Networking.ChatMessage.Create(
-                                TextManager.Get("RadioAnnouncerName"), 
-                                TextManager.Get("TooFarFromOutpostWarning"),  Networking.ChatMessageType.Default, null), c);
+                                TextManager.Get("RadioAnnouncerName").Value,
+                                TextManager.Get("TooFarFromOutpostWarning").Value,  Networking.ChatMessageType.Default, null), c);
                         }
 #endif
                     }
@@ -905,7 +963,7 @@ namespace Barotrauma
         public void LogState()
         {
             DebugConsole.NewMessage("********* CAMPAIGN STATUS *********", Color.White);
-            DebugConsole.NewMessage("   Money: " + Money, Color.White);
+            DebugConsole.NewMessage("   Money: " + Bank.Balance, Color.White);
             DebugConsole.NewMessage("   Current location: " + map.CurrentLocation.Name, Color.White);
 
             DebugConsole.NewMessage("   Available destinations: ", Color.White);
@@ -958,14 +1016,6 @@ namespace Barotrauma
                 }
             }
         }
-
-        // Talent relevant data, only stored for the duration of the mission
-        private void ResetTalentData()
-        {
-            CrewHasDied = false;
-        }
-
-        public bool CrewHasDied { get; set; }
 
     }
 }

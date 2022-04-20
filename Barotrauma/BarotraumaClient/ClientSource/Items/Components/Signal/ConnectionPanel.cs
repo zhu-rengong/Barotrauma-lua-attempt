@@ -107,7 +107,7 @@ namespace Barotrauma.Items.Components
             HighlightedWire = null;
             Connection.DrawConnections(spriteBatch, this, user);
 
-            foreach (UISprite sprite in GUI.Style.GetComponentStyle("ConnectionPanelFront").Sprites[GUIComponent.ComponentState.None])
+            foreach (UISprite sprite in GUIStyle.GetComponentStyle("ConnectionPanelFront").Sprites[GUIComponent.ComponentState.None])
             {
                 sprite.Draw(spriteBatch, GuiFrame.Rect, Color.White, SpriteEffects.None);
             }
@@ -139,7 +139,7 @@ namespace Barotrauma.Items.Components
             }
         }
 
-        public void ClientRead(ServerNetObject type, IReadMessage msg, float sendingTime)
+        public void ClientEventRead(IReadMessage msg, float sendingTime)
         {
             if (GameMain.Client.MidRoundSyncing)
             {
@@ -161,7 +161,7 @@ namespace Barotrauma.Items.Components
                 }
                 int msgLength = (int)(msg.BitPosition - msgStartPos);
                 msg.BitPosition = (int)msgStartPos;
-                StartDelayedCorrection(type, msg.ExtractBits(msgLength), sendingTime, waitForMidRoundSync: true);
+                StartDelayedCorrection(msg.ExtractBits(msgLength), sendingTime, waitForMidRoundSync: true);
             }
             else
             {

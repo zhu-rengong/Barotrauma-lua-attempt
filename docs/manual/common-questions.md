@@ -67,12 +67,12 @@ local prefab = ItemPrefab.GetItemPrefab("screwdriver")
 local firstPlayerCharacter = Client.ClientList[1].Character
 
 -- Spawn on the world
-Entity.Spawner.AddToSpawnQueue(prefab, firstPlayerCharacter.WorldPosition, nil, nil, function(item)
+Entity.Spawner.AddItemToSpawnQueue(prefab, firstPlayerCharacter.WorldPosition, nil, nil, function(item)
     print(item.Name .. " Has been spawned.")
 end)
 
 -- Spawn inside an inventory
-Entity.Spawner.AddToSpawnQueue(prefab, firstPlayerCharacter.Inventory, nil, nil, function(item)
+Entity.Spawner.AddItemToSpawnQueue(prefab, firstPlayerCharacter.Inventory, nil, nil, function(item)
     print(item.Name .. " Has been spawned.")
 end)
 ```
@@ -104,5 +104,6 @@ print(char.CharacterHealth.GetAffliction("burn", char.AnimController.Limbs[1]))
 
 ```
 local chatMessage = ChatMessage.Create("Sender name", "text here", ChatMessageType.MessageBox, nil, nil)
+chatMessage.Color = Color(255, 255, 0, 255)
 Game.SendDirectChatMessage(chatMessage, ChatMessageType.MessageBox)
 ```

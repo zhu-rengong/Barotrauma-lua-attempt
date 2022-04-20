@@ -76,19 +76,18 @@ function CreateNetworkEvent() end
 -- @tparam Item item
 function RemoveItem(item) end
 
---- ServerRead
+--- ServerEventRead
 -- @realm shared
--- @tparam ClientNetObject type
 -- @tparam IReadMessage msg
 -- @tparam Client c
-function ServerRead(type, msg, c) end
+function ServerEventRead(msg, c) end
 
---- ServerWrite
+--- ServerEventWrite
 -- @realm shared
 -- @tparam IWriteMessage msg
 -- @tparam Client c
--- @tparam Object[] extraData
-function ServerWrite(msg, c, extraData) end
+-- @tparam IData extraData
+function ServerEventWrite(msg, c, extraData) end
 
 --- Contains
 -- @realm shared
@@ -179,14 +178,14 @@ function FindAllItems(predicate, recursive, list) end
 
 --- FindItemByTag
 -- @realm shared
--- @tparam string tag
+-- @tparam Identifier tag
 -- @tparam bool recursive
 -- @treturn Item
 function FindItemByTag(tag, recursive) end
 
 --- FindItemByIdentifier
 -- @realm shared
--- @tparam string identifier
+-- @tparam Identifier identifier
 -- @tparam bool recursive
 -- @treturn Item
 function FindItemByIdentifier(identifier, recursive) end
@@ -203,10 +202,16 @@ function ForceToSlot(item, index) end
 -- @tparam number index
 function ForceRemoveFromSlot(item, index) end
 
+--- SharedRead
+-- @realm shared
+-- @tparam IReadMessage msg
+-- @tparam List`1[]& newItemIds
+function SharedRead(msg, newItemIds) end
+
 --- SharedWrite
 -- @realm shared
 -- @tparam IWriteMessage msg
--- @tparam Object[] extraData
+-- @tparam IData extraData
 function SharedWrite(msg, extraData) end
 
 --- DeleteAllItems

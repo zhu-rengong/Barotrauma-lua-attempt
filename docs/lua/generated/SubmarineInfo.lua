@@ -72,6 +72,11 @@ function SaveAs(filePath, previewImage) end
 -- @tparam SubmarineInfo subInfo
 function SubmarineInfo.AddToSavedSubs(subInfo) end
 
+--- RemoveSavedSub
+-- @realm shared
+-- @tparam string filePath
+function SubmarineInfo.RemoveSavedSub(filePath) end
+
 --- RefreshSavedSub
 -- @realm shared
 -- @tparam string filePath
@@ -131,14 +136,14 @@ function GetHashCode() end
 -- @string Name
 
 ---
--- DisplayName, Field of type string
+-- DisplayName, Field of type LocalizedString
 -- @realm shared
--- @string DisplayName
+-- @LocalizedString DisplayName
 
 ---
--- Description, Field of type string
+-- Description, Field of type LocalizedString
 -- @realm shared
--- @string Description
+-- @LocalizedString Description
 
 ---
 -- Price, Field of type number
@@ -299,9 +304,4 @@ function GetHashCode() end
 -- OutpostNPCs, Field of type table
 -- @realm shared
 -- @table OutpostNPCs
-
----
--- SubmarineInfo.SavePath, Field of type string
--- @realm shared
--- @string SubmarineInfo.SavePath
 

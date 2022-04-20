@@ -44,7 +44,7 @@ namespace Barotrauma.Items.Components
                         UserData = ciElement
                     };
                     new GUITextBlock(new RectTransform(new Vector2(0.5f, 1.0f), layoutGroup.RectTransform), 
-                        TextManager.Get(ciElement.Label, returnNull: true) ?? ciElement.Label);
+                        TextManager.Get(ciElement.Label).Fallback(ciElement.Label));
                     if (!ciElement.IsIntegerInput)
                     {
                         var textBox = new GUITextBox(new RectTransform(new Vector2(0.5f, 1.0f), layoutGroup.RectTransform), ciElement.Signal, style: "GUITextBoxNoIcon")
@@ -107,7 +107,7 @@ namespace Barotrauma.Items.Components
                     var tickBox = new GUITickBox(new RectTransform(new Vector2(1.0f, elementSize), uiElementContainer.RectTransform)
                     {
                         MaxSize = ElementMaxSize
-                    }, TextManager.Get(ciElement.Label, returnNull: true) ?? ciElement.Label)
+                    }, TextManager.Get(ciElement.Label).Fallback(ciElement.Label))
                     {
                         UserData = ciElement
                     };
@@ -131,19 +131,20 @@ namespace Barotrauma.Items.Components
                 else
                 {
                     var btn = new GUIButton(new RectTransform(new Vector2(1.0f, elementSize), uiElementContainer.RectTransform),
-                        TextManager.Get(ciElement.Label, returnNull: true) ?? ciElement.Label, style: "DeviceButton")
+                        TextManager.Get(ciElement.Label).Fallback(ciElement.Label), style: "DeviceButton")
                     {
                         UserData = ciElement
                     };
                     btn.OnClicked += (_, userdata) =>
                     {
+                        CustomInterfaceElement btnElement = userdata as CustomInterfaceElement;;
                         if (GameMain.Client == null)
                         {
-                            ButtonClicked(userdata as CustomInterfaceElement);
+                            ButtonClicked(btnElement);
                         }
                         else
                         {
-                            GameMain.Client.CreateEntityEvent(item, new object[] { NetEntityEvent.Type.ComponentState, item.GetComponentIndex(this), userdata as CustomInterfaceElement });
+                            item.CreateClientEvent(this, new EventData(btnElement));
                         }
                         return true;
                     };
@@ -250,7 +251,7 @@ namespace Barotrauma.Items.Components
                 }
             }
 
-            string CreateLabelText(int elementIndex)
+            LocalizedString CreateLabelText(int elementIndex)
             {
                 return string.IsNullOrWhiteSpace(customInterfaceElementList[elementIndex].Label) ?
                     TextManager.GetWithVariable("connection.signaloutx", "[num]", (elementIndex + 1).ToString()) :
@@ -301,7 +302,7 @@ namespace Barotrauma.Items.Components
             }
         }
 
-        public void ClientWrite(IWriteMessage msg, object[] extraData = null)
+        public void ClientEventWrite(IWriteMessage msg, NetEntityEvent.IData extraData = null)
         {
             //extradata contains an array of buttons clicked by the player (or nothing if the player didn't click anything)
             for (int i = 0; i < customInterfaceElementList.Count; i++)
@@ -323,12 +324,12 @@ namespace Barotrauma.Items.Components
                 }
                 else
                 {
-                    msg.Write(extraData != null && extraData.Any(d => d as CustomInterfaceElement == customInterfaceElementList[i]));
+                    msg.Write(extraData is Item.ComponentStateEventData { ComponentData: EventData eventData } && eventData.BtnElement == customInterfaceElementList[i]);
                 }
             }
         }
 
-        public void ClientRead(ServerNetObject type, IReadMessage msg, float sendingTime)
+        public void ClientEventRead(IReadMessage msg, float sendingTime)
         {
             for (int i = 0; i < customInterfaceElementList.Count; i++)
             {

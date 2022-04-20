@@ -11,20 +11,21 @@ local AfflictionPrefab = {}
 -- @realm shared
 function Dispose() end
 
---- LoadAll
+--- LoadAllEffects
 -- @realm shared
--- @tparam Enumerable files
-function AfflictionPrefab.LoadAll(files) end
+function AfflictionPrefab.LoadAllEffects() end
 
---- LoadFromFile
+--- ClearAllEffects
 -- @realm shared
--- @tparam ContentFile file
-function AfflictionPrefab.LoadFromFile(file) end
+function AfflictionPrefab.ClearAllEffects() end
 
---- RemoveByFile
+--- LoadEffects
 -- @realm shared
--- @tparam string filePath
-function AfflictionPrefab.RemoveByFile(filePath) end
+function LoadEffects() end
+
+--- ClearEffects
+-- @realm shared
+function ClearEffects() end
 
 --- ToString
 -- @realm shared
@@ -67,34 +68,54 @@ function Equals(obj) end
 function GetHashCode() end
 
 ---
+-- AfflictionPrefab.InternalDamage, Field of type AfflictionPrefab
+-- @realm shared
+-- @AfflictionPrefab AfflictionPrefab.InternalDamage
+
+---
+-- AfflictionPrefab.ImpactDamage, Field of type AfflictionPrefab
+-- @realm shared
+-- @AfflictionPrefab AfflictionPrefab.ImpactDamage
+
+---
+-- AfflictionPrefab.Bleeding, Field of type AfflictionPrefab
+-- @realm shared
+-- @AfflictionPrefab AfflictionPrefab.Bleeding
+
+---
+-- AfflictionPrefab.Burn, Field of type AfflictionPrefab
+-- @realm shared
+-- @AfflictionPrefab AfflictionPrefab.Burn
+
+---
+-- AfflictionPrefab.OxygenLow, Field of type AfflictionPrefab
+-- @realm shared
+-- @AfflictionPrefab AfflictionPrefab.OxygenLow
+
+---
+-- AfflictionPrefab.Bloodloss, Field of type AfflictionPrefab
+-- @realm shared
+-- @AfflictionPrefab AfflictionPrefab.Bloodloss
+
+---
+-- AfflictionPrefab.Pressure, Field of type AfflictionPrefab
+-- @realm shared
+-- @AfflictionPrefab AfflictionPrefab.Pressure
+
+---
+-- AfflictionPrefab.Stun, Field of type AfflictionPrefab
+-- @realm shared
+-- @AfflictionPrefab AfflictionPrefab.Stun
+
+---
+-- AfflictionPrefab.RadiationSickness, Field of type AfflictionPrefab
+-- @realm shared
+-- @AfflictionPrefab AfflictionPrefab.RadiationSickness
+
+---
 -- AfflictionPrefab.List, Field of type Enumerable
 -- @realm shared
 -- @Enumerable AfflictionPrefab.List
-
----
--- FilePath, Field of type string
--- @realm shared
--- @string FilePath
-
----
--- UIntIdentifier, Field of type number
--- @realm shared
--- @number UIntIdentifier
-
----
--- Identifier, Field of type string
--- @realm shared
--- @string Identifier
-
----
--- OriginalName, Field of type string
--- @realm shared
--- @string OriginalName
-
----
--- ContentPackage, Field of type ContentPackage
--- @realm shared
--- @ContentPackage ContentPackage
 
 ---
 -- Effects, Field of type Enumerable
@@ -112,14 +133,24 @@ function GetHashCode() end
 -- @Enumerable TreatmentSuitability
 
 ---
--- AfflictionPrefab.ListArray, Field of type AfflictionPrefab[]
+-- UintIdentifier, Field of type number
 -- @realm shared
--- @AfflictionPrefab[] AfflictionPrefab.ListArray
+-- @number UintIdentifier
 
 ---
--- AfflictionType, Field of type string
+-- ContentPackage, Field of type ContentPackage
 -- @realm shared
--- @string AfflictionType
+-- @ContentPackage ContentPackage
+
+---
+-- FilePath, Field of type ContentPath
+-- @realm shared
+-- @ContentPath FilePath
+
+---
+-- AfflictionType, Field of type Identifier
+-- @realm shared
+-- @Identifier AfflictionType
 
 ---
 -- LimbSpecific, Field of type bool
@@ -132,19 +163,19 @@ function GetHashCode() end
 -- @LimbType IndicatorLimb
 
 ---
--- Name, Field of type string
+-- Name, Field of type LocalizedString
 -- @realm shared
--- @string Name
+-- @LocalizedString Name
 
 ---
--- Description, Field of type string
+-- Description, Field of type LocalizedString
 -- @realm shared
--- @string Description
+-- @LocalizedString Description
 
 ---
--- TranslationOverride, Field of type string
+-- TranslationIdentifier, Field of type Identifier
 -- @realm shared
--- @string TranslationOverride
+-- @Identifier TranslationIdentifier
 
 ---
 -- IsBuff, Field of type bool
@@ -167,14 +198,14 @@ function GetHashCode() end
 -- @number BaseHealCost
 
 ---
--- CauseOfDeathDescription, Field of type string
+-- CauseOfDeathDescription, Field of type LocalizedString
 -- @realm shared
--- @string CauseOfDeathDescription
+-- @LocalizedString CauseOfDeathDescription
 
 ---
--- SelfCauseOfDeathDescription, Field of type string
+-- SelfCauseOfDeathDescription, Field of type LocalizedString
 -- @realm shared
--- @string SelfCauseOfDeathDescription
+-- @LocalizedString SelfCauseOfDeathDescription
 
 ---
 -- ActivationThreshold, Field of type number
@@ -227,9 +258,9 @@ function GetHashCode() end
 -- @number DamageOverlayAlpha
 
 ---
--- AchievementOnRemoved, Field of type string
+-- AchievementOnRemoved, Field of type Identifier
 -- @realm shared
--- @string AchievementOnRemoved
+-- @Identifier AchievementOnRemoved
 
 ---
 -- Icon, Field of type Sprite
@@ -252,52 +283,17 @@ function GetHashCode() end
 -- @bool AfflictionOverlayAlphaIsLinear
 
 ---
--- AfflictionPrefab.InternalDamage, Field of type AfflictionPrefab
--- @realm shared
--- @AfflictionPrefab AfflictionPrefab.InternalDamage
-
----
--- AfflictionPrefab.ImpactDamage, Field of type AfflictionPrefab
--- @realm shared
--- @AfflictionPrefab AfflictionPrefab.ImpactDamage
-
----
--- AfflictionPrefab.Bleeding, Field of type AfflictionPrefab
--- @realm shared
--- @AfflictionPrefab AfflictionPrefab.Bleeding
-
----
--- AfflictionPrefab.Burn, Field of type AfflictionPrefab
--- @realm shared
--- @AfflictionPrefab AfflictionPrefab.Burn
-
----
--- AfflictionPrefab.OxygenLow, Field of type AfflictionPrefab
--- @realm shared
--- @AfflictionPrefab AfflictionPrefab.OxygenLow
-
----
--- AfflictionPrefab.Bloodloss, Field of type AfflictionPrefab
--- @realm shared
--- @AfflictionPrefab AfflictionPrefab.Bloodloss
-
----
--- AfflictionPrefab.Pressure, Field of type AfflictionPrefab
--- @realm shared
--- @AfflictionPrefab AfflictionPrefab.Pressure
-
----
--- AfflictionPrefab.Stun, Field of type AfflictionPrefab
--- @realm shared
--- @AfflictionPrefab AfflictionPrefab.Stun
-
----
--- AfflictionPrefab.RadiationSickness, Field of type AfflictionPrefab
--- @realm shared
--- @AfflictionPrefab AfflictionPrefab.RadiationSickness
-
----
 -- AfflictionPrefab.Prefabs, Field of type PrefabCollection`1
 -- @realm shared
 -- @PrefabCollection`1 AfflictionPrefab.Prefabs
+
+---
+-- Identifier, Field of type Identifier
+-- @realm shared
+-- @Identifier Identifier
+
+---
+-- ContentFile, Field of type ContentFile
+-- @realm shared
+-- @ContentFile ContentFile
 

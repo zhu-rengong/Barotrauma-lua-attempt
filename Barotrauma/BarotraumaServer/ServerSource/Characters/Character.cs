@@ -5,9 +5,7 @@ namespace Barotrauma
 {
     partial class Character
     {
-        public static Character Controlled = null;
-
-        partial void InitProjSpecific(XElement mainElement) { }
+        public static Character Controlled => null;
 
         partial void OnAttackedProjSpecific(Character attacker, AttackResult attackResult, float stun)
         {
@@ -20,14 +18,14 @@ namespace Barotrauma
             {
                 if (causeOfDeath == CauseOfDeathType.Affliction)
                 {
-                    GameServer.Log(GameServer.CharacterLogName(this) + " has died (Cause of death: " + causeOfDeathAffliction.Prefab.Name + ")", ServerLog.MessageType.Attack);
+                    GameServer.Log(GameServer.CharacterLogName(this) + " has died (Cause of death: " + causeOfDeathAffliction.Prefab.Name.Value + ")", ServerLog.MessageType.Attack);
                 }
                 else
                 {
                     GameServer.Log(GameServer.CharacterLogName(this) + " has died (Cause of death: " + causeOfDeath + ")", ServerLog.MessageType.Attack);
                 }
             }
-            GameMain.Lua.hook.Call("characterDeath", new object[] { this,causeOfDeathAffliction });
+            GameMain.LuaCs.Hook.Call("characterDeath", this,causeOfDeathAffliction);
 
             if (HasAbilityFlag(AbilityFlags.RetainExperienceForNewCharacter))
             {
@@ -45,7 +43,7 @@ namespace Barotrauma
                 var owner = GameMain.Server.ConnectedClients.Find(c => c.Character == this);
                 if (owner != null)
                 {
-                    if (!GameMain.Lua.game.overrideTraitors)
+                    if (!GameMain.LuaCs.Game.overrideTraitors)
                     {
                         GameMain.Server.SendDirectChatMessage(TextManager.FormatServerMessage("KilledByTraitorNotification"), owner, ChatMessageType.ServerMessageBoxInGame);
                     }
@@ -62,7 +60,7 @@ namespace Barotrauma
 
         partial void OnMoneyChanged(int prevAmount, int newAmount)
         {
-            GameMain.NetworkMember.CreateEntityEvent(this, new object[] { NetEntityEvent.Type.UpdateMoney });
+            GameMain.NetworkMember.CreateEntityEvent(this, new UpdateMoneyEventData());
         }
 
         partial void OnTalentGiven(TalentPrefab talentPrefab)

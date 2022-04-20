@@ -1,21 +1,30 @@
 # Installing Lua For Barotrauma Manually
 
+### Notice: Using the LuaForBarotrauma package is not required if it's installed manually, but you may use it anyway if you wish to support the mod, since players automatically download packages when joining the server.
+
 ## Adding Lua For Barotrauma to an existing server
 1 - Download [latest version of LuaForBarotrauma](https://github.com/evilfactory/Barotrauma-lua-attempt/releases/tag/latest), choose the correct platform in the assets drop down.<br>
 2 - Extract the zip file<br>
 3 - Copy the following files inside the extracted zip:<br>
 
-- **DedicatedServer.deps.json** 
-- **DedicatedServer.dll** 
-- **DedicatedServer.pdb** 
-- **0Harmony.dll** 
-- **MoonSharp.Interpreter.dll** 
+- **DedicatedServer.deps.json**
+- **DedicatedServer.dll**
+- **DedicatedServer.pdb**
+- **0Harmony.dll**
+- **MoonSharp.Interpreter.dll**
 - **MonoMod.Common.dll**
 - **Mono.Cecil.dll**
 - **Mono.Cecil.Mdb.dll**
 - **Mono.Cecil.Pdb.dll**
 - **Mono.Cecil.Rocks.dll**
-- file that starts with **mscordaccore_amd64_amd64_**
+- **Microsoft.CodeAnalysis.CSharp.Scripting.dll**
+- **Microsoft.CodeAnalysis.CSharp.dll**
+- **Microsoft.CodeAnalysis.dll**
+- **Microsoft.CodeAnalysis.Scripting.dll**
+- **System.Collections.Immutable.dll**
+- **System.Reflection.Metadata.dll**
+- **System.Runtime.CompilerServices.Unsafe.dll**
+- file that starts with **mscordaccoreamd64amd64_**
 - and the **Lua/** folder
 
 4 - Paste them to your existing server, and let it replace the files<br>
@@ -24,16 +33,24 @@
 
 Same as above, but instead you need to copy/replace the following files:
 
-- **Barotrauma.deps.json** 
-- **Barotrauma.dll** 
-- **0Harmony.dll** 
-- **MoonSharp.Interpreter.dll** 
+- **Barotrauma.deps.json**
+- **Barotrauma.dll**
+- **Barotrauma.pdb**
+- **0Harmony.dll**
+- **MoonSharp.Interpreter.dll**
 - **MonoMod.Common.dll**
 - **Mono.Cecil.dll**
 - **Mono.Cecil.Mdb.dll**
 - **Mono.Cecil.Pdb.dll**
 - **Mono.Cecil.Rocks.dll**
-- file that starts with **mscordaccore_amd64_amd64_**
+- **Microsoft.CodeAnalysis.CSharp.Scripting.dll**
+- **Microsoft.CodeAnalysis.CSharp.dll**
+- **Microsoft.CodeAnalysis.dll**
+- **Microsoft.CodeAnalysis.Scripting.dll**
+- **System.Collections.Immutable.dll**
+- **System.Reflection.Metadata.dll**
+- **System.Runtime.CompilerServices.Unsafe.dll**
+- file that starts with **mscordaccoreamd64amd64_**
 - and the **Lua/** folder
 
 
@@ -53,7 +70,7 @@ Same as above, but instead you need to copy/replace the following files:
 
 ![](https://cdn.discordapp.com/attachments/799752463619325968/833133217300742154/unknown.png)
 
-6 - Optional: Copy config_player.xml
+6 - Optional: Copy config_player.xml from your original game so it retains your configurations.
 
 7 - Done! Now run DedicatedServer.exe to run the modded server or run Barotrauma.exe to run the modded client.<br>
 
@@ -64,4 +81,4 @@ Sometimes you will get steam initialization errors, most of the time it's becaus
 
 ## Checking if everything is working
 
-If the commands `reloadlua` or `cl_reloadlua` work, it means you successfully installed the mod.
+If the commands `reloadlua` or `cl_reloadlua` work without errors, it means you successfully installed the mod.

@@ -43,7 +43,7 @@ namespace Barotrauma
             public string GlobalEndMessageFailureDeadTextId { get; private set; }
             public string GlobalEndMessageFailureDetainedTextId { get; private set; }
 
-            public readonly string Identifier;
+            public readonly Identifier Identifier;
 
             public virtual IEnumerable<string> GlobalEndMessageKeys => new string[] { "[traitorname]", "[traitorgoalinfos]" };
             public virtual IEnumerable<string> GlobalEndMessageValues {
@@ -60,7 +60,7 @@ namespace Barotrauma
             {
                 get
                 {
-                    if (Traitors.Any() && allObjectives.Count > 0)
+                    if (Traitors.Any() && allObjectives.Count > 0)
                     {
                         return TextManager.JoinServerMessages("\n",
                             Traitors.Values.Select(traitor =>
@@ -71,7 +71,7 @@ namespace Barotrauma
                                 var messageId = isSuccess
                                     ? (traitorIsDead ? GlobalEndMessageSuccessDeadTextId : traitorIsDetained ? GlobalEndMessageSuccessDetainedTextId : GlobalEndMessageSuccessTextId)
                                     : (traitorIsDead ? GlobalEndMessageFailureDeadTextId : traitorIsDetained ? GlobalEndMessageFailureDetainedTextId : GlobalEndMessageFailureTextId);
-                                return TextManager.FormatServerMessageWithGenderPronouns(traitor.Character?.Info?.Gender ?? Gender.None, messageId, GlobalEndMessageKeys.ToArray(), GlobalEndMessageValues.ToArray());
+                                return TextManager.FormatServerMessageWithPronouns(traitor.Character.Info, messageId, GlobalEndMessageKeys.Zip(GlobalEndMessageValues).ToArray());
                             }).ToArray());
                     }
                     return "";
@@ -92,8 +92,8 @@ namespace Barotrauma
                 var traitorCandidates = new List<Tuple<Client, Character>>();
                 foreach (Client c in server.ConnectedClients)
                 {
-                    var result = new LuaResult(GameMain.Lua.hook.Call("traitor.findTraitorCandidate", new object[] { c, team }));
-					if (result.Bool())
+                    var result = GameMain.LuaCs.Hook.Call<bool?>("traitor.findTraitorCandidate", c, team);
+					if (result != null && result.Value)
 					{
                         traitorCandidates.Add(Tuple.Create(c, c.Character));
                         continue;
@@ -234,7 +234,7 @@ namespace Barotrauma
                 foreach (var traitor in Traitors.Values)
                 {
                     traitor.Greet(server, CodeWords, CodeResponse, message => pendingMessages[traitor].Add(message));
-                    GameMain.Lua.hook.Call("traitor.traitorAssigned", new object[] { traitor });
+                    GameMain.LuaCs.Hook.Call("traitor.traitorAssigned", new object[] { traitor });
                 }
                 pendingMessages.ForEach(traitor => traitor.Value.ForEach(message => traitor.Key.SendChatMessage(message, Identifier)));
                 pendingMessages.ForEach(traitor => traitor.Value.ForEach(message => traitor.Key.SendChatMessageBox(message, Identifier)));
@@ -384,7 +384,7 @@ namespace Barotrauma
                 }
             }
 
-            public TraitorMission(string identifier, string startText, string globalEndMessageSuccessTextId, string globalEndMessageSuccessDeadTextId, string globalEndMessageSuccessDetainedTextId, string globalEndMessageFailureTextId, string globalEndMessageFailureDeadTextId, string globalEndMessageFailureDetainedTextId, IEnumerable<KeyValuePair<string, RoleFilter>> roles, ICollection<Objective> objectives)
+            public TraitorMission(Identifier identifier, string startText, string globalEndMessageSuccessTextId, string globalEndMessageSuccessDeadTextId, string globalEndMessageSuccessDetainedTextId, string globalEndMessageFailureTextId, string globalEndMessageFailureDeadTextId, string globalEndMessageFailureDetainedTextId, IEnumerable<KeyValuePair<string, RoleFilter>> roles, ICollection<Objective> objectives)
             {
                 Identifier = identifier;
                 StartText = startText;

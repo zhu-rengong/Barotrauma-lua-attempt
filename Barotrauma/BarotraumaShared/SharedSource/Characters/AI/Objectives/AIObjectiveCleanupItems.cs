@@ -8,7 +8,7 @@ namespace Barotrauma
 {
     class AIObjectiveCleanupItems : AIObjectiveLoop<Item>
     {
-        public override string Identifier { get; set; } = "cleanup items";
+        public override Identifier Identifier { get; set; } = "cleanup items".ToIdentifier();
         public override bool KeepDivingGearOn => true;
         public override bool AllowAutomaticItemUnequipping => false;
         protected override bool ForceOrderPriority => false;
@@ -79,18 +79,17 @@ namespace Barotrauma
 
         public static bool IsValidContainer(Item container, Character character, bool allowUnloading = true) =>
             allowUnloading &&
-            !container.IgnoreByAI(character) && 
-            container.IsInteractable(character) && 
+            container.HasAccess(character) && 
             container.HasTag("allowcleanup") && 
             container.ParentInventory == null && container.OwnInventory != null && container.OwnInventory.AllItems.Any() && 
-            container.GetComponent<ItemContainer>() is ItemContainer itemContainer && itemContainer.HasAccess(character) &&
-            IsItemInsideValidSubmarine(container, character);
+            container.GetComponent<ItemContainer>() != null &&
+            IsItemInsideValidSubmarine(container, character) &&
+            !container.IsClaimedByBallastFlora;
 
         public static bool IsValidTarget(Item item, Character character, bool checkInventory, bool allowUnloading = true)
         {
             if (item == null) { return false; }
-            if (item.IgnoreByAI(character)) { return false; }
-            if (!item.IsInteractable(character)) { return false; }
+            if (!item.HasAccess(character)) { return false; }
             if ((item.SpawnedInCurrentOutpost && !item.AllowStealing) == character.IsOnPlayerTeam) { return false; }
             if (item.ParentInventory != null)
             {
@@ -102,6 +101,7 @@ namespace Barotrauma
                 if (!IsValidContainer(item.Container, character, allowUnloading)) { return false; }
             }
             if (character != null && !IsItemInsideValidSubmarine(item, character)) { return false; }
+            if (item.HasBallastFloraInHull) { return false; }
             var pickable = item.GetComponent<Pickable>();
             if (pickable == null) { return false; }
             if (pickable is Holdable h && h.Attachable && h.Attached) { return false; }

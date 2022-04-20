@@ -268,7 +268,7 @@ namespace Barotrauma.Networking
             doc.Root.SetAttributeValue("HiddenSubs", string.Join(",", HiddenSubs));
             
             doc.Root.SetAttributeValue("AllowedRandomMissionTypes", string.Join(",", AllowedRandomMissionTypes));
-            doc.Root.SetAttributeValue("AllowedClientNameChars", string.Join(",", AllowedClientNameChars.Select(c => c.First + "-" + c.Second)));
+            doc.Root.SetAttributeValue("AllowedClientNameChars", string.Join(",", AllowedClientNameChars.Select(c => $"{c.Start}-{c.End}")));
 
             SerializableProperty.SerializeProperties(this, doc.Root, true);
 
@@ -307,13 +307,13 @@ namespace Barotrauma.Networking
 
             if (string.IsNullOrEmpty(doc.Root.GetAttributeString("losmode", "")))
             {
-                LosMode = GameMain.Config.LosMode;
+                LosMode = GameSettings.CurrentConfig.Graphics.LosMode;
             }
 
             AutoRestart = doc.Root.GetAttributeBool("autorestart", false);
                         
-            Voting.AllowSubVoting = SubSelectionMode == SelectionMode.Vote;            
-            Voting.AllowModeVoting = ModeSelectionMode == SelectionMode.Vote;
+            AllowSubVoting = SubSelectionMode == SelectionMode.Vote;            
+            AllowModeVoting = ModeSelectionMode == SelectionMode.Vote;
 
             selectedLevelDifficulty = doc.Root.GetAttributeFloat("LevelDifficulty", 20.0f);
             GameMain.NetLobbyScreen.SetLevelDifficulty(selectedLevelDifficulty);
@@ -321,11 +321,16 @@ namespace Barotrauma.Networking
             GameMain.NetLobbyScreen.SetTraitorsEnabled(traitorsEnabled);
 
             HiddenSubs.UnionWith(doc.Root.GetAttributeStringArray("HiddenSubs", Array.Empty<string>()));
+            if (HiddenSubs.Any())
+            {
+                UpdateFlag(NetFlags.HiddenSubs);
+            }
 
             SelectedSubmarine = SelectNonHiddenSubmarine(SelectedSubmarine);
 
             string[] defaultAllowedClientNameChars = 
-                new string[] {
+                new string[] 
+                {
                     "32-33",
                     "38-46",
                     "48-57",
@@ -370,7 +375,12 @@ namespace Barotrauma.Networking
                     }
                 }
 
-                if (min > -1 && max > -1) { AllowedClientNameChars.Add(new Pair<int, int>(min, max)); }
+                if (min > max)
+                {
+                    //swap min and max
+                    (min, max) = (max, min);
+                }
+                if (min > -1 && max > -1) { AllowedClientNameChars.Add(new Range<int>(min, max)); }
             }
 
             AllowedRandomMissionTypes = new List<MissionType>();
@@ -399,12 +409,7 @@ namespace Barotrauma.Networking
             GameMain.NetLobbyScreen.SetBotSpawnMode(BotSpawnMode);
             GameMain.NetLobbyScreen.SetBotCount(BotCount);
 
-            List<string> monsterNames = CharacterPrefab.Prefabs.Select(p => p.Identifier).ToList();
-            MonsterEnabled = new Dictionary<string, bool>();
-            foreach (string s in monsterNames)
-            {
-                if (!MonsterEnabled.ContainsKey(s)) MonsterEnabled.Add(s, true);
-            }
+            MonsterEnabled ??= CharacterPrefab.Prefabs.Select(p => (p.Identifier, true)).ToDictionary();
         }
 
         public string SelectNonHiddenSubmarine(string current = null)
@@ -512,6 +517,24 @@ namespace Barotrauma.Networking
                     }
                 }
 
+                if (permissions.HasFlag(Networking.ClientPermissions.ConsoleCommands))
+                {
+                    foreach (XElement commandElement in clientElement.Elements())
+                    {
+                        if (!commandElement.Name.ToString().Equals("command", StringComparison.OrdinalIgnoreCase)) { continue; }
+
+                        string commandName = commandElement.GetAttributeString("name", "");
+                        DebugConsole.Command command = DebugConsole.FindCommand(commandName);
+                        if (command == null)
+                        {
+                            DebugConsole.ThrowError("Error in " + ClientPermissionsFile + " - \"" + commandName + "\" is not a valid console command.");
+                            continue;
+                        }
+
+                        permittedCommands.Add(command);
+                    }
+                }
+
                 if (!string.IsNullOrEmpty(steamIdStr))
                 {
                     if (ulong.TryParse(steamIdStr, out ulong steamID))
@@ -602,17 +625,17 @@ namespace Barotrauma.Networking
                 if (matchingPreset == null)
                 {
                     clientElement.Add(new XAttribute("permissions", clientPermission.Permissions.ToString()));
-                    if (clientPermission.Permissions.HasFlag(Networking.ClientPermissions.ConsoleCommands))
-                    {
-                        foreach (DebugConsole.Command command in clientPermission.PermittedCommands)
-                        {
-                            clientElement.Add(new XElement("command", new XAttribute("name", command.names[0])));
-                        }
-                    }
                 }
                 else
                 {
                     clientElement.Add(new XAttribute("preset", matchingPreset.Name));
+                }
+                if (clientPermission.Permissions.HasFlag(Networking.ClientPermissions.ConsoleCommands))
+                {
+                    foreach (DebugConsole.Command command in clientPermission.PermittedCommands)
+                    {
+                        clientElement.Add(new XElement("command", new XAttribute("name", command.names[0])));
+                    }
                 }
                 doc.Root.Add(clientElement);
             }

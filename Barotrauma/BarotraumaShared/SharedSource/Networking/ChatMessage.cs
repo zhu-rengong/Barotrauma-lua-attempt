@@ -56,9 +56,9 @@ namespace Barotrauma.Networking
             {
                 if (Type.HasFlag(ChatMessageType.Server) || Type.HasFlag(ChatMessageType.Error) || Type.HasFlag(ChatMessageType.ServerLog))
                 {
-                    if (translatedText == null || translatedText.Length == 0)
+                    if (translatedText.IsNullOrEmpty())
                     {
-                        translatedText = TextManager.GetServerMessage(Text);
+                        translatedText = TextManager.GetServerMessage(Text).Value;
                     }
 
                     return translatedText;
@@ -214,8 +214,12 @@ namespace Barotrauma.Networking
         public static string ApplyDistanceEffect(string message, ChatMessageType type, Character sender, Character receiver)
         {
             if (sender == null) { return ""; }
-
-            string spokenMsg = ApplyDistanceEffect(receiver, sender, message, SpeakRange * (1.0f - sender.SpeechImpediment / 100.0f), 3.0f);
+            float range = SpeakRange;
+            if (type == ChatMessageType.Default && sender.SpeechImpediment > 0)
+            {
+                range *= 1.0f - sender.SpeechImpediment / 100.0f;
+            }
+            string spokenMsg = ApplyDistanceEffect(receiver, sender, message, range, 3.0f);
 
             switch (type)
             {

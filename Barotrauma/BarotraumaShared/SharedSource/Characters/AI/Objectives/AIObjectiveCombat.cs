@@ -10,7 +10,7 @@ namespace Barotrauma
 {
     class AIObjectiveCombat : AIObjective
     {
-        public override string Identifier { get; set; } = "combat";
+        public override Identifier Identifier { get; set; } = "combat".ToIdentifier();
 
         public override bool KeepDivingGearOn => true;
         public override bool IgnoreUnsafeHulls => true;
@@ -212,10 +212,14 @@ namespace Barotrauma
 
         protected override bool CheckObjectiveSpecific()
         {
-            if (sqrDistance > maxDistance * maxDistance)
+            if (character.Submarine == null || character.Submarine.TeamID != CharacterTeamType.FriendlyNPC)
             {
-                // The target escaped from us.
-                return true;
+                // Can't lose the target in friendly outposts.
+                if (sqrDistance > maxDistance * maxDistance)
+                {
+                    // The target escaped from us.
+                    return true;
+                }
             }
             return IsEnemyDisabled || (AllowCoolDown && coolDownTimer <= 0);
         }
@@ -250,17 +254,17 @@ namespace Barotrauma
                     case CombatMode.Offensive:
                         if (TargetEliminated && objectiveManager.IsCurrentOrder<AIObjectiveFightIntruders>())
                         {
-                            character.Speak(TextManager.Get("DialogTargetDown"), null, 3.0f, "targetdown", 30.0f);
+                            character.Speak(TextManager.Get("DialogTargetDown").Value, null, 3.0f, "targetdown".ToIdentifier(), 30.0f);
                         }
                         break;
                     case CombatMode.Arrest:
-                        if (HumanAIController.HasItem(Enemy, "handlocker", out _, requireEquipped: true))
+                        if (HumanAIController.HasItem(Enemy, "handlocker".ToIdentifier(), out _, requireEquipped: true))
                         {
                             IsCompleted = true;
                         }
                         else if (Enemy.IsKnockedDown && 
                             !objectiveManager.IsCurrentObjective<AIObjectiveFightIntruders>() && 
-                            !HumanAIController.HasItem(character, "handlocker", out _, requireEquipped: false))
+                            !HumanAIController.HasItem(character, "handlocker".ToIdentifier(), out _, requireEquipped: false))
                         {
                             IsCompleted = true;
                         }
@@ -399,7 +403,7 @@ namespace Barotrauma
                     RemoveSubObjective(ref retreatObjective);
                     RemoveSubObjective(ref followTargetObjective);
                     TryAddSubObjective(ref seekWeaponObjective,
-                        constructor: () => new AIObjectiveGetItem(character, "weapon", objectiveManager, equip: true, checkInventory: false)
+                        constructor: () => new AIObjectiveGetItem(character, "weapon".ToIdentifier(), objectiveManager, equip: true, checkInventory: false)
                         {
                             AllowStealing = HumanAIController.IsMentallyUnstable,
                             EvaluateCombatPriority = false,  // Use a custom formula instead
@@ -636,7 +640,7 @@ namespace Barotrauma
                 // If there's an item container that takes a battery,
                 // assume that it's required for the stun effect
                 // as we can't check the status effect conditions here.
-                var mobileBatteryTag = "mobilebattery";
+                var mobileBatteryTag = "mobilebattery".ToIdentifier();
                 var containers = weapon.Item.Components.Where(ic => 
                     ic is ItemContainer container &&
                     container.ContainableItemIdentifiers.Contains(mobileBatteryTag));
@@ -777,7 +781,7 @@ namespace Barotrauma
             }
             if (retreatTarget != null && character.CurrentHull != retreatTarget)
             {
-                TryAddSubObjective(ref retreatObjective, () => new AIObjectiveGoTo(retreatTarget, character, objectiveManager, false, true)
+                TryAddSubObjective(ref retreatObjective, () => new AIObjectiveGoTo(retreatTarget, character, objectiveManager)
                 {
                     UsePathingOutside = false
                 },
@@ -848,7 +852,7 @@ namespace Barotrauma
             if (followTargetObjective == null) { return; }
             if (Mode == CombatMode.Arrest && Enemy.IsKnockedDown)
             {
-                if (HumanAIController.HasItem(character, "handlocker", out _))
+                if (HumanAIController.HasItem(character, "handlocker".ToIdentifier(), out _))
                 {
                     if (!arrestingRegistered)
                     {
@@ -861,10 +865,10 @@ namespace Barotrauma
                 {
                     if (character.TeamID == CharacterTeamType.FriendlyNPC)
                     {
-                        ItemPrefab prefab = ItemPrefab.Find(null, "handcuffs");
+                        ItemPrefab prefab = ItemPrefab.Find(null, "handcuffs".ToIdentifier());
                         if (prefab != null)
                         {
-                            Entity.Spawner.AddToSpawnQueue(prefab, character.Inventory, onSpawned: (Item i) => i.SpawnedInCurrentOutpost = true);
+                            Entity.Spawner.AddItemToSpawnQueue(prefab, character.Inventory, onSpawned: (Item i) => i.SpawnedInCurrentOutpost = true);
                         }
                     }
                     RemoveFollowTarget();
@@ -914,7 +918,7 @@ namespace Barotrauma
                     }
                 }
             }
-            if (HumanAIController.HasItem(character, "handlocker", out IEnumerable<Item> matchingItems) && !Enemy.IsUnconscious && Enemy.IsKnockedDown && character.CanInteractWith(Enemy))
+            if (HumanAIController.HasItem(character, "handlocker".ToIdentifier(), out IEnumerable<Item> matchingItems) && !Enemy.IsUnconscious && Enemy.IsKnockedDown && character.CanInteractWith(Enemy))
             {
                 var handCuffs = matchingItems.First();
                 if (!HumanAIController.TakeItem(handCuffs, Enemy.Inventory, equip: true))
@@ -928,7 +932,7 @@ namespace Barotrauma
                         return;
                     }
                 }
-                character.Speak(TextManager.Get("DialogTargetArrested"), null, 3.0f, "targetarrested", 30.0f);
+                character.Speak(TextManager.Get("DialogTargetArrested").Value, null, 3.0f, "targetarrested".ToIdentifier(), 30.0f);
             }
             if (!objectiveManager.IsCurrentObjective<AIObjectiveFightIntruders>())
             {
@@ -939,7 +943,7 @@ namespace Barotrauma
         /// <summary>
         /// Seeks for more ammunition. Creates a new subobjective.
         /// </summary>
-        private void SeekAmmunition(string[] ammunitionIdentifiers)
+        private void SeekAmmunition(Identifier[] ammunitionIdentifiers)
         {
             retreatTarget = null;
             RemoveSubObjective(ref retreatObjective);
@@ -974,7 +978,7 @@ namespace Barotrauma
             HumanAIController.UnequipEmptyItems(Weapon);
             RelatedItem item = null;
             Item ammunition = null;
-            string[] ammunitionIdentifiers = null;
+            Identifier[] ammunitionIdentifiers = null;
             if (WeaponComponent.requiredItems.ContainsKey(RelatedItem.RelationType.Contained))
             {
                 foreach (RelatedItem requiredItem in WeaponComponent.requiredItems[RelatedItem.RelationType.Contained])
@@ -1212,17 +1216,17 @@ namespace Barotrauma
             retreatTarget = null;
         }
 
-        private void SpeakNoWeapons() => Speak("dialogcombatnoweapons", delay: 0, minDuration: 30);
-        private void AskHelp() => Speak("dialogcombatretreating", delay: Rand.Range(0f, 1f), minDuration: 20);
+        private void SpeakNoWeapons() => Speak("dialogcombatnoweapons".ToIdentifier(), delay: 0, minDuration: 30);
+        private void AskHelp() => Speak("dialogcombatretreating".ToIdentifier(), delay: Rand.Range(0f, 1f), minDuration: 20);
 
-        private void Speak(string textIdentifier, float delay, float minDuration)
+        private void Speak(Identifier textIdentifier, float delay, float minDuration)
         {
             if (character.IsOnPlayerTeam && !character.IsInFriendlySub)
             {
-                string msg = TextManager.Get(textIdentifier, true);
-                if (msg != null)
+                LocalizedString msg = TextManager.Get(textIdentifier);
+                if (!msg.IsNullOrEmpty())
                 {
-                    character.Speak(msg, identifier: textIdentifier, delay: delay, minDurationBetweenSimilar: minDuration);
+                    character.Speak(msg.Value, identifier: textIdentifier, delay: delay, minDurationBetweenSimilar: minDuration);
                 }
             }
         }

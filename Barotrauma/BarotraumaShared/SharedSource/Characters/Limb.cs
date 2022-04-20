@@ -540,6 +540,8 @@ namespace Barotrauma
             private set;
         }
 
+        public Items.Components.Rope AttachedRope { get; set; }
+
         public string Name => Params.Name;
 
         // These properties are exposed for status effects
@@ -576,15 +578,15 @@ namespace Barotrauma
             }
         }
 
-        public Dictionary<string, SerializableProperty> SerializableProperties
+        public Dictionary<Identifier, SerializableProperty> SerializableProperties
         {
             get;
             private set;
         }
 
-        private readonly List<StatusEffect> statusEffects = new List<StatusEffect>();
+        private readonly Dictionary<ActionType, List<StatusEffect>> statusEffects = new Dictionary<ActionType, List<StatusEffect>>();
 
-        public IEnumerable<StatusEffect> StatusEffects { get { return statusEffects; } }
+        public Dictionary<ActionType, List<StatusEffect>> StatusEffects { get { return statusEffects; } }
 
         public Limb(Ragdoll ragdoll, Character character, LimbParams limbParams)
         {
@@ -622,7 +624,7 @@ namespace Barotrauma
 
             body.BodyType = BodyType.Dynamic;
 
-            foreach (XElement subElement in element.Elements())
+            foreach (var subElement in element.Elements())
             {
                 switch (subElement.Name.ToString().ToLowerInvariant())
                 {
@@ -644,9 +646,10 @@ namespace Barotrauma
                             }
                             attack.DamageRange = ConvertUnits.ToDisplayUnits(attack.DamageRange);
                         }
-                        if (character.VariantOf != null && character.Params.VariantFile != null)
+                        if (!character.VariantOf.IsEmpty)
                         {
-                            var attackElement = character.Params.VariantFile.Root.GetChildElement("attack");
+                            var attackElement = CharacterPrefab.Prefabs.TryGet(character.VariantOf, out var basePrefab)
+                                ? basePrefab.ConfigElement.GetChildElement("attack") : null;
                             if (attackElement != null)
                             {
                                 attack.DamageMultiplier = attackElement.GetAttributeFloat("damagemultiplier", 1f);
@@ -659,7 +662,15 @@ namespace Barotrauma
                         DamageModifiers.Add(new DamageModifier(subElement, character.Name));
                         break;
                     case "statuseffect":
-                        statusEffects.Add(StatusEffect.Load(subElement, Name));
+                        var statusEffect = StatusEffect.Load(subElement, Name);
+                        if (statusEffect != null)
+                        {
+                            if (!statusEffects.ContainsKey(statusEffect.type))
+                            {
+                                statusEffects.Add(statusEffect.type, new List<StatusEffect>());
+                            }
+                            statusEffects[statusEffect.type].Add(statusEffect);
+                        }
                         break;
                 }
             }
@@ -668,7 +679,7 @@ namespace Barotrauma
 
             InitProjSpecific(element);
         }
-        partial void InitProjSpecific(XElement element);
+        partial void InitProjSpecific(ContentXElement element);
 
         public void MoveToPos(Vector2 pos, float force, bool pullFromCenter = false)
         {
@@ -1010,15 +1021,9 @@ namespace Barotrauma
                     ExecuteAttack(damageTarget, targetLimb, out attackResult);
                 }
 #if SERVER
-                GameMain.NetworkMember.CreateEntityEvent(character, new object[] 
-                { 
-                    NetEntityEvent.Type.ExecuteAttack, 
-                    this, 
-                    (damageTarget as Entity)?.ID ?? Entity.NullEntityID, 
-                    damageTarget is Character && targetLimb != null ? Array.IndexOf(((Character)damageTarget).AnimController.Limbs, targetLimb) : 0,
-                    attackSimPos.X,
-                    attackSimPos.Y
-                });   
+                GameMain.NetworkMember.CreateEntityEvent(character, new Character.ExecuteAttackEventData(
+                    attackLimb: this, targetEntity: damageTarget, targetLimb: targetLimb,
+                    targetSimPos: attackSimPos));
 #endif
             }
 
@@ -1054,7 +1059,10 @@ namespace Barotrauma
             if (!attack.IsRunning)
             {
                 // Set the main collider where the body lands after the attack
-                character.AnimController.Collider.SetTransform(character.AnimController.MainLimb.body.SimPosition, rotation: character.AnimController.Collider.Rotation);
+                if (Vector2.DistanceSquared(character.AnimController.Collider.SimPosition, character.AnimController.MainLimb.body.SimPosition) > 0.1f * 0.1f)
+                {
+                    character.AnimController.Collider.SetTransform(character.AnimController.MainLimb.body.SimPosition, rotation: character.AnimController.Collider.Rotation);
+                }
             }
             return wasHit;
         }
@@ -1084,7 +1092,7 @@ namespace Barotrauma
                     attackResult = attack.DoDamage(character, damageTarget, WorldPosition, 1.0f, playSound, body, this);
                 }
             }
-            /*if (structureBody != null && attack.StickChance > Rand.Range(0.0f, 1.0f, Rand.RandSync.Server))
+            /*if (structureBody != null && attack.StickChance > Rand.Range(0.0f, 1.0f, Rand.RandSync.ServerAndClient))
             {
                 // TODO: use the hit pos?
                 var localFront = body.GetLocalFront(Params.GetSpriteOrientation());
@@ -1159,9 +1167,9 @@ namespace Barotrauma
         private readonly List<ISerializableEntity> targets = new List<ISerializableEntity>();
         public void ApplyStatusEffects(ActionType actionType, float deltaTime)
         {
-            foreach (StatusEffect statusEffect in statusEffects)
+            if (!statusEffects.TryGetValue(actionType, out var statusEffectList)) { return; }
+            foreach (StatusEffect statusEffect in statusEffectList)
             {
-                if (statusEffect.type != actionType) { continue; }
                 if (statusEffect.type == ActionType.OnDamaged)
                 {
                     if (!statusEffect.HasRequiredAfflictions(character.LastDamage)) { continue; }

@@ -26,13 +26,13 @@ namespace Barotrauma
         
         public override string ToString()
         {
-            return "ArtifactEvent (" + (itemPrefab == null ? "null" : itemPrefab.Name) + ")";
+            return $"ArtifactEvent ({(itemPrefab == null ? "null" : itemPrefab.Name)})";
         }
 
         public ArtifactEvent(EventPrefab prefab)
             : base(prefab)
         {
-            if (prefab.ConfigElement.Attribute("itemname") != null)
+            if (prefab.ConfigElement.GetAttribute("itemname") != null)
             {
                 DebugConsole.ThrowError("Error in ArtifactEvent - use item identifier instead of the name of the item.");
                 string itemName = prefab.ConfigElement.GetAttributeString("itemname", "");
@@ -56,7 +56,7 @@ namespace Barotrauma
         public override void Init(bool affectSubImmediately)
         {
             spawnPos = Level.Loaded.GetRandomItemPos(
-                (Rand.Value(Rand.RandSync.Server) < 0.5f) ? 
+                (Rand.Value(Rand.RandSync.ServerAndClient) < 0.5f) ? 
                 Level.PositionType.MainPath | Level.PositionType.SidePath : 
                 Level.PositionType.Cave | Level.PositionType.Ruin,
                 500.0f, 10000.0f, 30.0f, SpawnPosFilter);
@@ -79,7 +79,7 @@ namespace Barotrauma
                 if (itemContainer.Combine(item, user: null)) break; // Placement successful
             }
 
-            if (GameSettings.VerboseLogging)
+            if (GameSettings.CurrentConfig.VerboseLogging)
             {
                 DebugConsole.NewMessage("Initialized ArtifactEvent (" + item.Name + ")", Color.White);
             }
@@ -87,7 +87,7 @@ namespace Barotrauma
 #if SERVER
             if (GameMain.Server != null)
             {
-                Entity.Spawner.CreateNetworkEvent(item, false);
+                Entity.Spawner.CreateNetworkEvent(new EntitySpawner.SpawnEntity(item));
             }
 #endif
         }

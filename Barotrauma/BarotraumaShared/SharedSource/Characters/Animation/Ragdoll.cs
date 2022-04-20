@@ -69,7 +69,7 @@ namespace Barotrauma
                             "Attempted to access a potentially removed ragdoll. Character: " + character.SpeciesName + ", id: " + character.ID + ", removed: " + character.Removed + ", ragdoll removed: " + !list.Contains(this) + "\n" + Environment.StackTrace.CleanupStackTrace());
                         accessRemovedCharacterErrorShown = true;
                     }
-                    return new Limb[0];
+                    return Array.Empty<Limb>();
                 }
                 return limbs;
             }
@@ -424,13 +424,13 @@ namespace Barotrauma
 #endif
 
                 var characterPrefab = CharacterPrefab.FindByFilePath(character.ConfigPath);
-                if (characterPrefab?.XDocument != null)
+                if (characterPrefab?.ConfigElement != null)
                 {
-                    var mainElement = characterPrefab.XDocument.Root.IsOverride() ? characterPrefab.XDocument.Root.FirstElement() : characterPrefab.XDocument.Root;
+                    var mainElement = characterPrefab.ConfigElement;
                     foreach (var huskAppendage in mainElement.GetChildElements("huskappendage"))
                     {
                         if (!inEditor && huskAppendage.GetAttributeBool("onlyfromafflictions", false)) { continue; }
-                        AfflictionHusk.AttachHuskAppendage(character, huskAppendage.GetAttributeString("affliction", string.Empty), huskAppendage, ragdoll: this);
+                        AfflictionHusk.AttachHuskAppendage(character, huskAppendage.GetAttributeIdentifier("affliction", Identifier.Empty), huskAppendage, ragdoll: this);
                     }
                 }
             }
@@ -745,11 +745,11 @@ namespace Barotrauma
 
                         float impactDamage = Math.Min((impact - ImpactTolerance) * ImpactDamageMultiplayer, character.MaxVitality * MaxImpactDamage);
 
-                        var should = new LuaResult(GameMain.Lua.hook.Call("changeFallDamage", new object[] { impactDamage, character, impactPos, velocity }));
+                        var should = GameMain.LuaCs.Hook.Call<float?>("changeFallDamage", impactDamage, character, impactPos, velocity);
 
-						if (!should.IsNull())
+                        if (should != null)
 						{
-                            impactDamage = should.Float();
+                            impactDamage = should.Value;
                         }
 
                         character.LastDamageSource = null;
@@ -811,9 +811,9 @@ namespace Barotrauma
             }
 
             SeverLimbJointProjSpecific(limbJoint, playSound: true);
-            if (GameMain.NetworkMember != null && GameMain.NetworkMember.IsServer)
+            if (GameMain.NetworkMember is { IsServer: true })
             {
-                GameMain.NetworkMember.CreateEntityEvent(character, new object[] { NetEntityEvent.Type.Status });
+                GameMain.NetworkMember.CreateEntityEvent(character, new Character.CharacterStatusEventData());
             }
             return true;
         }
@@ -1201,13 +1201,9 @@ namespace Barotrauma
                 headInWater = false;
                 inWater = false;
                 RefreshFloorY(ignoreStairs: Stairs == null);
-                if (currentHull.WaterVolume > currentHull.Volume * 0.95f)
+                if (currentHull.WaterPercentage > 0.001f)
                 {
-                    inWater = true;
-                }
-                else
-                {
-                    float waterSurface = ConvertUnits.ToSimUnits(currentHull.Surface);
+                    float waterSurface = ConvertUnits.ToSimUnits(GetSurfaceY());
                     if (targetMovement.Y < 0.0f)
                     {
                         Vector2 colliderBottom = GetColliderBottom();
@@ -1220,11 +1216,8 @@ namespace Barotrauma
                             if (lowerHull != null) floorY = ConvertUnits.ToSimUnits(lowerHull.Rect.Y - lowerHull.Rect.Height);
                         }
                     }
-                    float standHeight =
-                        HeadPosition.HasValue ? HeadPosition.Value :
-                        TorsoPosition.HasValue ? TorsoPosition.Value :
-                        Collider.GetMaxExtent() * 0.5f;
-                    if (Collider.SimPosition.Y < waterSurface && waterSurface - floorY > standHeight * 0.95f)
+                    float standHeight = HeadPosition ?? TorsoPosition ?? Collider.GetMaxExtent() * 0.5f;
+                    if (Collider.SimPosition.Y < waterSurface && waterSurface - floorY > standHeight * 0.8f)
                     {
                         inWater = true;
                     }
@@ -1416,7 +1409,7 @@ namespace Barotrauma
 #else
                 DebugConsole.NewMessage(errorMsg.Replace("[name]", Character.Name), Color.Red);
 #endif
-                GameAnalyticsManager.AddErrorEventOnce("Ragdoll.CheckValidity:" + character.ID, GameAnalyticsManager.ErrorSeverity.Error, errorMsg.Replace("[name]", Character.SpeciesName));
+                GameAnalyticsManager.AddErrorEventOnce("Ragdoll.CheckValidity:" + character.ID, GameAnalyticsManager.ErrorSeverity.Error, errorMsg.Replace("[name]", Character.SpeciesName.Value));
 
                 if (!MathUtils.IsValid(Collider.SimPosition) || Math.Abs(Collider.SimPosition.X) > 1e10f || Math.Abs(Collider.SimPosition.Y) > 1e10f)
                 {
@@ -1528,7 +1521,6 @@ namespace Barotrauma
                 lastFloorCheckIgnorePlatforms = IgnorePlatforms;
             }
         }
-
 
         private float GetFloorY(Vector2 simPosition, bool ignoreStairs = false)
         {
@@ -1648,6 +1640,51 @@ namespace Barotrauma
             }
         }
 
+        public float GetSurfaceY()
+        {
+            //check both hulls: the hull whose coordinate space the ragdoll is in, and the hull whose bounds the character's origin actually is inside
+            if (currentHull == null || character.CurrentHull == null)
+            {
+                return float.PositiveInfinity;
+            }
+            
+            float surfacePos = currentHull.Surface;
+            float surfaceThreshold = ConvertUnits.ToDisplayUnits(Collider.SimPosition.Y + 1.0f);
+            //if the hull is almost full of water, check if there's a water-filled hull above it
+            //and use its water surface instead of the current hull's 
+            if (currentHull.Rect.Y - currentHull.Surface < 5.0f)
+            {
+                GetSurfacePos(currentHull, ref surfacePos);
+                void GetSurfacePos(Hull hull, ref float prevSurfacePos)
+                {
+                    if (prevSurfacePos > surfaceThreshold) { return; }
+                    foreach (Gap gap in hull.ConnectedGaps)
+                    {
+                        if (gap.IsHorizontal || gap.Open <= 0.0f || gap.WorldPosition.Y < hull.WorldPosition.Y) { continue; }
+                        if (Collider.SimPosition.X < ConvertUnits.ToSimUnits(gap.Rect.X) || Collider.SimPosition.X > ConvertUnits.ToSimUnits(gap.Rect.Right)) { continue; }
+
+                        //if the gap is above us and leads outside, there's no surface to limit the movement
+                        if (!gap.IsRoomToRoom && gap.Position.Y > hull.Position.Y)
+                        {
+                            prevSurfacePos += 100000.0f;
+                            return;
+                        }
+
+                        foreach (var linkedTo in gap.linkedTo)
+                        {
+                            if (linkedTo is Hull otherHull && otherHull != hull && otherHull != currentHull)
+                            {
+                                prevSurfacePos = Math.Max(surfacePos, otherHull.Surface);
+                                GetSurfacePos(otherHull, ref prevSurfacePos);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            return surfacePos;            
+        }
+
         public void SetPosition(Vector2 simPosition, bool lerp = false, bool ignorePlatforms = true, bool forceMainLimbToCollider = false, bool detachProjectiles = true)
         {
             if (!MathUtils.IsValid(simPosition))
@@ -1701,7 +1738,7 @@ namespace Barotrauma
                     if (limb.IsSevered) { continue; }
                     //check visibility from the new position of the collider to the new position of this limb
                     Vector2 movePos = limb.SimPosition + limbMoveAmount;
-                    TrySetLimbPosition(limb, simPosition, movePos, lerp, ignorePlatforms);
+                    TrySetLimbPosition(limb, simPosition, movePos, limb.Rotation, lerp, ignorePlatforms);
                 }
             }
         }
@@ -1716,7 +1753,7 @@ namespace Barotrauma
             IsHanging = true;
         }
 
-        protected void TrySetLimbPosition(Limb limb, Vector2 original, Vector2 simPosition, bool lerp = false, bool ignorePlatforms = true)
+        protected void TrySetLimbPosition(Limb limb, Vector2 original, Vector2 simPosition, float rotation, bool lerp = false, bool ignorePlatforms = true)
         {
             Vector2 movePos = simPosition;
 
@@ -1738,11 +1775,12 @@ namespace Barotrauma
             if (lerp)
             {
                 limb.body.TargetPosition = movePos;
-                limb.body.MoveToTargetPosition(true);                
+                limb.body.TargetRotation = rotation;
+                limb.body.MoveToTargetPosition(true);
             }
             else
             {
-                limb.body.SetTransform(movePos, limb.Rotation);
+                limb.body.SetTransform(movePos, rotation);
                 limb.PullJointWorldAnchorB = limb.PullJointWorldAnchorA;
                 limb.PullJointEnabled = false;
             }

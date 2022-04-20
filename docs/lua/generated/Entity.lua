@@ -120,9 +120,24 @@ function GetHashCode() end
 -- @number SpawnTime
 
 ---
+-- ErrorLine, Field of type string
+-- @realm shared
+-- @string ErrorLine
+
+---
 -- ID, Field of type number
 -- @realm shared
 -- @number ID
+
+---
+-- CreationStackTrace, Field of type string
+-- @realm shared
+-- @string CreationStackTrace
+
+---
+-- CreationIndex, Field of type number
+-- @realm shared
+-- @number CreationIndex
 
 ---
 -- Entity.Spawner, Field of type EntitySpawner

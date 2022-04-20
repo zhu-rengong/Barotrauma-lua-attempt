@@ -46,10 +46,6 @@ Hook.HookMethod(
 
 Hook.HookMethod(
 	"Barotrauma.Item", "Drop",
-	{
-		"Barotrauma.Character",
-		"System.Boolean"
-	},
 	function (instance, p)
 		if Hook.Call("item.drop", instance, p.dropper) == true then
 			return false

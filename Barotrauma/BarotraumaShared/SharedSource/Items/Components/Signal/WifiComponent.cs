@@ -30,10 +30,10 @@ namespace Barotrauma.Items.Components
         private Connection signalInConnection;
         private Connection signalOutConnection;
 
-        [Serialize(CharacterTeamType.None, true, description: "WiFi components can only communicate with components that have the same Team ID.", alwaysUseInstanceValues: true)]
+        [Serialize(CharacterTeamType.None, IsPropertySaveable.Yes, description: "WiFi components can only communicate with components that have the same Team ID.", alwaysUseInstanceValues: true)]
         public CharacterTeamType TeamID { get; set; }
 
-        [Editable, Serialize(20000.0f, false, description: "How close the recipient has to be to receive a signal from this WiFi component.", alwaysUseInstanceValues: true)]
+        [Editable, Serialize(20000.0f, IsPropertySaveable.No, description: "How close the recipient has to be to receive a signal from this WiFi component.", alwaysUseInstanceValues: true)]
         public float Range
         {
             get { return range; }
@@ -46,7 +46,7 @@ namespace Barotrauma.Items.Components
             }
         }
 
-        [InGameEditable, Serialize(0, true, description: "WiFi components can only communicate with components that use the same channel.", alwaysUseInstanceValues: true)]
+        [InGameEditable, Serialize(0, IsPropertySaveable.Yes, description: "WiFi components can only communicate with components that use the same channel.", alwaysUseInstanceValues: true)]
         public int Channel
         {
             get { return channel; }
@@ -57,7 +57,7 @@ namespace Barotrauma.Items.Components
         }
 
 
-        [Editable, Serialize(false, true, description: "Can the component communicate with wifi components in another team's submarine (e.g. enemy sub in Combat missions, respawn shuttle). Needs to be enabled on both the component transmitting the signal and the component receiving it.", alwaysUseInstanceValues: true)]
+        [Editable, Serialize(false, IsPropertySaveable.Yes, description: "Can the component communicate with wifi components in another team's submarine (e.g. enemy sub in Combat missions, respawn shuttle). Needs to be enabled on both the component transmitting the signal and the component receiving it.", alwaysUseInstanceValues: true)]
         public bool AllowCrossTeamCommunication
         {
             get;
@@ -67,14 +67,14 @@ namespace Barotrauma.Items.Components
         private bool linkToChat = false;
 
         [ConditionallyEditable(ConditionallyEditable.ConditionType.AllowLinkingWifiToChat)]
-        [Serialize(false, false, description: "If enabled, any signals received from another chat-linked wifi component are displayed " +
+        [Serialize(false, IsPropertySaveable.No, description: "If enabled, any signals received from another chat-linked wifi component are displayed " +
             "as chat messages in the chatbox of the player holding the item.", alwaysUseInstanceValues: true)]
         public bool LinkToChat
         {
 #if SERVER
             get
 			{
-                if(GameMain.Lua.game.allowWifiChat) return true;
+                if(GameMain.LuaCs.Game.allowWifiChat) return true;
                 return linkToChat;
             }
 
@@ -88,7 +88,7 @@ namespace Barotrauma.Items.Components
 #endif
         }
 
-        [Editable, Serialize(1.0f, true, description: "How many seconds have to pass between signals for a message to be displayed in the chatbox. " +
+        [Editable, Serialize(1.0f, IsPropertySaveable.Yes, description: "How many seconds have to pass between signals for a message to be displayed in the chatbox. " +
             "Setting this to a very low value is not recommended, because it may cause an excessive amount of chat messages to be created " +
             "if there are chat-linked wifi components that transmit a continuous signal.")]
         public float MinChatMessageInterval
@@ -97,15 +97,15 @@ namespace Barotrauma.Items.Components
             set;
         }
 
-        [Editable, Serialize(false, true, description: "If set to true, the component will only create chat messages when the received signal changes.")]
+        [Editable, Serialize(false, IsPropertySaveable.Yes, description: "If set to true, the component will only create chat messages when the received signal changes.")]
         public bool DiscardDuplicateChatMessages
         {
             get;
             set;
         }
 
-        public WifiComponent(Item item, XElement element)
-            : base(item, element)
+        public WifiComponent(Item item, ContentXElement element)
+            : base (item, element)
         {
             list.Add(this);
             IsActive = true;
@@ -205,17 +205,15 @@ namespace Barotrauma.Items.Components
 
         public void TransmitSignal(Signal signal, bool sentFromChat)
         {
-            var should = new LuaResult(GameMain.Lua.hook.Call("wifiSignalTransmitted", new object[] { this, signal, sentFromChat }));
+            var should = GameMain.LuaCs.Hook.Call<bool?>("wifiSignalTransmitted", this, signal, sentFromChat);
 
-            if (should.Bool())
+            if (should != null && should.Value)
                 return;
 
             if (sentFromChat)
             {
                 item.LastSentSignalRecipients.Clear();
             }
-            var senderComponent = signal.source?.GetComponent<WifiComponent>();
-            if (senderComponent != null && !CanReceive(senderComponent)) { return; }
 
             bool chatMsgSent = false;
 
@@ -267,7 +265,7 @@ namespace Barotrauma.Items.Components
                         wifiComp.item.ParentInventory.Owner != null)
                     {
                         string chatMsg = signal.value;
-                        if (senderComponent != null)
+                        if (sentSignalStrength <= 1.0f)
                         {
                             chatMsg = ChatMessage.ApplyDistanceEffect(chatMsg, 1.0f - sentSignalStrength);
                         }

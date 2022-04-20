@@ -25,7 +25,7 @@ namespace Barotrauma.Networking
             MultiPlayerCampaign campaign = GameMain.GameSession.GameMode as MultiPlayerCampaign;
             foreach (Client c in networkMember.ConnectedClients)
             {
-                if (GameMain.Lua.game.overrideRespawnSub)
+                if (GameMain.LuaCs.Game.overrideRespawnSub)
                     continue;
 
                 if (!c.InGame) { continue; }
@@ -125,7 +125,7 @@ namespace Barotrauma.Networking
 
         private bool ShouldStartRespawnCountdown(int characterToRespawnCount)
         {
-            if (GameMain.Lua.game.overrideRespawnSub)
+            if (GameMain.LuaCs.Game.overrideRespawnSub)
             {
                 characterToRespawnCount = 0;
             }
@@ -136,7 +136,7 @@ namespace Barotrauma.Networking
         {
             if (RespawnShuttle != null)
             {
-                if (!GameMain.Lua.game.overrideRespawnSub)
+                if (!GameMain.LuaCs.Game.overrideRespawnSub)
                 {
                     RespawnShuttle.Velocity = Vector2.Zero;
                 }
@@ -185,7 +185,7 @@ namespace Barotrauma.Networking
         {
             if (RespawnShuttle != null)
             {
-                if (GameMain.Lua.game.overrideRespawnSub)
+                if (GameMain.LuaCs.Game.overrideRespawnSub)
 				{
                     CurrentState = State.Waiting;
                 }
@@ -206,7 +206,7 @@ namespace Barotrauma.Networking
 
                 Vector2 spawnPos = FindSpawnPos();
 
-                if (!GameMain.Lua.game.overrideRespawnSub)
+                if (!GameMain.LuaCs.Game.overrideRespawnSub)
                 {
                     RespawnCharacters(spawnPos);
                 }
@@ -248,7 +248,7 @@ namespace Barotrauma.Networking
             }
 
             var shuttleGaps = Gap.GapList.FindAll(g => g.Submarine == RespawnShuttle && g.ConnectedWall != null);
-            shuttleGaps.ForEach(g => Spawner.AddToRemoveQueue(g));
+            shuttleGaps.ForEach(g => Spawner.AddEntityToRemoveQueue(g));
 
             var dockingPorts = Item.ItemList.FindAll(i => i.Submarine == RespawnShuttle && i.GetComponent<DockingPort>() != null);
             dockingPorts.ForEach(d => d.GetComponent<DockingPort>().Undock());
@@ -376,7 +376,7 @@ namespace Barotrauma.Networking
             {
                 if (campaign?.GetClientCharacterData(c) == null || c.CharacterInfo.Job == null)
                 {
-                    c.CharacterInfo.Job = new Job(c.AssignedJob.First, Rand.RandSync.Unsynced, c.AssignedJob.Second);
+                    c.CharacterInfo.Job = new Job(c.AssignedJob.Prefab, Rand.RandSync.Unsynced, c.AssignedJob.Variant);
                 }
             }
 
@@ -390,17 +390,17 @@ namespace Barotrauma.Networking
             if ((shuttlePos != null && Level.Loaded.GetRealWorldDepth(shuttlePos.Value.Y) > Level.DefaultRealWorldCrushDepth) ||
                 Level.Loaded.GetRealWorldDepth(Submarine.MainSub.WorldPosition.Y) > Level.DefaultRealWorldCrushDepth)
             {
-                divingSuitPrefab = ItemPrefab.Prefabs.FirstOrDefault(it => it.Tags.Any(t => t.Equals("respawnsuitdeep", StringComparison.OrdinalIgnoreCase)));
+                divingSuitPrefab = ItemPrefab.Prefabs.FirstOrDefault(it => it.Tags.Any(t => t == "respawnsuitdeep"));
             }
             if (divingSuitPrefab == null)
             {
                 divingSuitPrefab = 
-                    ItemPrefab.Prefabs.FirstOrDefault(it => it.Tags.Any(t => t.Equals("respawnsuit", StringComparison.OrdinalIgnoreCase))) ??
-                    ItemPrefab.Find(null, "divingsuit");
+                    ItemPrefab.Prefabs.FirstOrDefault(it => it.Tags.Any(t => t == "respawnsuit")) ??
+                    ItemPrefab.Find(null, "divingsuit".ToIdentifier());
             }
-            ItemPrefab oxyPrefab = ItemPrefab.Find(null, "oxygentank");
-            ItemPrefab scooterPrefab = ItemPrefab.Find(null, "underwaterscooter");
-            ItemPrefab batteryPrefab = ItemPrefab.Find(null, "batterycell");
+            ItemPrefab oxyPrefab = ItemPrefab.Find(null, "oxygentank".ToIdentifier());
+            ItemPrefab scooterPrefab = ItemPrefab.Find(null, "underwaterscooter".ToIdentifier());
+            ItemPrefab batteryPrefab = ItemPrefab.Find(null, "batterycell".ToIdentifier());
 
             var cargoSp = WayPoint.WayPointList.Find(wp => wp.Submarine == respawnSub && wp.SpawnType == SpawnType.Cargo);
 
@@ -468,11 +468,11 @@ namespace Barotrauma.Networking
                     if (divingSuitPrefab != null && oxyPrefab != null)
                     {
                         var divingSuit = new Item(divingSuitPrefab, pos, respawnSub);
-                        Spawner.CreateNetworkEvent(divingSuit, false);
+                        Spawner.CreateNetworkEvent(new EntitySpawner.SpawnEntity(divingSuit));
                         respawnItems.Add(divingSuit);
 
                         var oxyTank = new Item(oxyPrefab, pos, respawnSub);
-                        Spawner.CreateNetworkEvent(oxyTank, false);
+                        Spawner.CreateNetworkEvent(new EntitySpawner.SpawnEntity(oxyTank));
                         divingSuit.Combine(oxyTank, user: null);
                         respawnItems.Add(oxyTank);
                     }
@@ -480,10 +480,10 @@ namespace Barotrauma.Networking
                     if (scooterPrefab != null && batteryPrefab != null)
                     {
                         var scooter = new Item(scooterPrefab, pos, respawnSub);
-                        Spawner.CreateNetworkEvent(scooter, false);
+                        Spawner.CreateNetworkEvent(new EntitySpawner.SpawnEntity(scooter));
 
                         var battery = new Item(batteryPrefab, pos, respawnSub);
-                        Spawner.CreateNetworkEvent(battery, false);
+                        Spawner.CreateNetworkEvent(new EntitySpawner.SpawnEntity(battery));
 
                         scooter.Combine(battery, user: null);
                         respawnItems.Add(scooter);
@@ -543,13 +543,13 @@ namespace Barotrauma.Networking
             if (characterInfo?.Job == null) { return; }
             foreach (Skill skill in characterInfo.Job.Skills)
             {
-                var skillPrefab = characterInfo.Job.Prefab.Skills.Find(s => skill.Identifier.Equals(s.Identifier, StringComparison.OrdinalIgnoreCase));
+                var skillPrefab = characterInfo.Job.Prefab.Skills.Find(s => skill.Identifier == s.Identifier);
                 if (skillPrefab == null) { continue; }
                 skill.Level = MathHelper.Lerp(skill.Level, skillPrefab.LevelRange.Start, SkillReductionOnCampaignMidroundRespawn);
             }
         }
 
-        public void ServerWrite(IWriteMessage msg, Client c, object[] extraData = null)
+        public void ServerEventWrite(IWriteMessage msg, Client c, NetEntityEvent.IData extraData = null)
         {
             msg.WriteRangedInteger((int)CurrentState, 0, Enum.GetNames(typeof(State)).Length);
 

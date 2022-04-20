@@ -36,8 +36,8 @@ namespace Barotrauma.Items.Components
                 return picker; 
             }
         }
-        
-        public Pickable(Item item, XElement element)
+
+        public Pickable(Item item, ContentXElement element)
             : base(item, element)
         {
             allowedSlots = new List<InvSlotType>();
@@ -181,7 +181,7 @@ namespace Barotrauma.Items.Components
                     this,
                     item.WorldPosition,
                     pickTimer / requiredTime,
-                    GUI.Style.Red, GUI.Style.Green,
+                    GUIStyle.Red, GUIStyle.Green,
                     !string.IsNullOrWhiteSpace(PickingMsg) ? PickingMsg : this is Door ? "progressbar.opening" : "progressbar.deattaching");
 #endif
                 
@@ -282,12 +282,12 @@ namespace Barotrauma.Items.Components
             }
         }
 
-        public virtual void ServerWrite(IWriteMessage msg, Client c, object[] extraData = null)
+        public virtual void ServerEventWrite(IWriteMessage msg, Client c, NetEntityEvent.IData extraData = null)
         {
-            msg.Write(activePicker == null ? (ushort)0 : activePicker.ID);
+            msg.Write(activePicker?.ID ?? (ushort)0);
         }
 
-        public virtual void ClientRead(ServerNetObject type, IReadMessage msg, float sendingTime)
+        public virtual void ClientEventRead(IReadMessage msg, float sendingTime)
         {
             ushort pickerID = msg.ReadUInt16();
             if (pickerID == 0)
