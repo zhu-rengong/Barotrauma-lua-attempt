@@ -1,6 +1,8 @@
 # Installing Lua For Barotrauma Manually
 
-### Notice: Using the LuaForBarotrauma package is not required if it's installed manually, but you may use it anyway if you wish to support the mod, since players automatically download packages when joining the server.
+## Notice: Using the LuaForBarotrauma package is not required if it's installed manually, but you may use it anyway if you wish to support the mod, since players automatically download packages when joining the server.
+
+## If you are getting TextManager errors, open config_player.xml in your server and change the language from None to English
 
 ## Adding Lua For Barotrauma to an existing server
 1 - Download [latest version of LuaForBarotrauma](https://github.com/evilfactory/Barotrauma-lua-attempt/releases/tag/latest), choose the correct platform in the assets drop down.<br>
