@@ -1248,6 +1248,7 @@ namespace Barotrauma
             commands.Add(new Command("cs", "cs: runs a string", (string[] args) =>
             {
                 GameMain.LuaCs.CsScript.Run(string.Join(" ", args));
+                GameMain.LuaCs.RecreateCsScript();
             }));
 
             commands.Add(new Command("reloadlua", "reloads lua", (string[] args) =>
