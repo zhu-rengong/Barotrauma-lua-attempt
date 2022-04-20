@@ -11,32 +11,31 @@ Barotrauma source code: [EntitySpawner.cs](https://github.com/evilfactory/Barotr
 
 --- CreateNetworkEvent
 -- @realm shared
--- @tparam Entity entity
--- @tparam bool remove
-function CreateNetworkEvent(entity, remove) end
+-- @tparam SpawnOrRemove spawnOrRemove
+function CreateNetworkEvent(spawnOrRemove) end
 
---- ServerWrite
+--- ServerEventWrite
 -- @realm shared
 -- @tparam IWriteMessage message
 -- @tparam Client client
--- @tparam Object[] extraData
-function ServerWrite(message, client, extraData) end
+-- @tparam IData extraData
+function ServerEventWrite(message, client, extraData) end
 
 --- ToString
 -- @realm shared
 -- @treturn string
 function ToString() end
 
---- AddToSpawnQueue
+--- AddItemToSpawnQueue
 -- @realm shared
 -- @tparam ItemPrefab itemPrefab
 -- @tparam Vector2 worldPosition
 -- @tparam Nullable`1 condition
 -- @tparam Nullable`1 quality
 -- @tparam function onSpawned
-function AddToSpawnQueue(itemPrefab, worldPosition, condition, quality, onSpawned) end
+function AddItemToSpawnQueue(itemPrefab, worldPosition, condition, quality, onSpawned) end
 
---- AddToSpawnQueue
+--- AddItemToSpawnQueue
 -- @realm shared
 -- @tparam ItemPrefab itemPrefab
 -- @tparam Vector2 position
@@ -44,9 +43,9 @@ function AddToSpawnQueue(itemPrefab, worldPosition, condition, quality, onSpawne
 -- @tparam Nullable`1 condition
 -- @tparam Nullable`1 quality
 -- @tparam function onSpawned
-function AddToSpawnQueue(itemPrefab, position, sub, condition, quality, onSpawned) end
+function AddItemToSpawnQueue(itemPrefab, position, sub, condition, quality, onSpawned) end
 
---- AddToSpawnQueue
+--- AddItemToSpawnQueue
 -- @realm shared
 -- @tparam ItemPrefab itemPrefab
 -- @tparam Inventory inventory
@@ -56,40 +55,40 @@ function AddToSpawnQueue(itemPrefab, position, sub, condition, quality, onSpawne
 -- @tparam bool spawnIfInventoryFull
 -- @tparam bool ignoreLimbSlots
 -- @tparam InvSlotType slot
-function AddToSpawnQueue(itemPrefab, inventory, condition, quality, onSpawned, spawnIfInventoryFull, ignoreLimbSlots, slot) end
+function AddItemToSpawnQueue(itemPrefab, inventory, condition, quality, onSpawned, spawnIfInventoryFull, ignoreLimbSlots, slot) end
 
---- AddToSpawnQueue
+--- AddCharacterToSpawnQueue
 -- @realm shared
--- @tparam string speciesName
+-- @tparam Identifier speciesName
 -- @tparam Vector2 worldPosition
 -- @tparam function onSpawn
-function AddToSpawnQueue(speciesName, worldPosition, onSpawn) end
+function AddCharacterToSpawnQueue(speciesName, worldPosition, onSpawn) end
 
---- AddToSpawnQueue
+--- AddCharacterToSpawnQueue
 -- @realm shared
--- @tparam string speciesName
+-- @tparam Identifier speciesName
 -- @tparam Vector2 position
 -- @tparam Submarine sub
 -- @tparam function onSpawn
-function AddToSpawnQueue(speciesName, position, sub, onSpawn) end
+function AddCharacterToSpawnQueue(speciesName, position, sub, onSpawn) end
 
---- AddToSpawnQueue
+--- AddCharacterToSpawnQueue
 -- @realm shared
--- @tparam string speciesName
+-- @tparam Identifier speciesName
 -- @tparam Vector2 worldPosition
 -- @tparam CharacterInfo characterInfo
 -- @tparam function onSpawn
-function AddToSpawnQueue(speciesName, worldPosition, characterInfo, onSpawn) end
+function AddCharacterToSpawnQueue(speciesName, worldPosition, characterInfo, onSpawn) end
 
---- AddToRemoveQueue
+--- AddEntityToRemoveQueue
 -- @realm shared
 -- @tparam Entity entity
-function AddToRemoveQueue(entity) end
+function AddEntityToRemoveQueue(entity) end
 
---- AddToRemoveQueue
+--- AddItemToRemoveQueue
 -- @realm shared
 -- @tparam Item item
-function AddToRemoveQueue(item) end
+function AddItemToRemoveQueue(item) end
 
 --- IsInSpawnQueue
 -- @realm shared
@@ -193,7 +192,22 @@ function GetHashCode() end
 -- @number SpawnTime
 
 ---
+-- ErrorLine, Field of type string
+-- @realm shared
+-- @string ErrorLine
+
+---
 -- ID, Field of type number
 -- @realm shared
 -- @number ID
+
+---
+-- CreationStackTrace, Field of type string
+-- @realm shared
+-- @string CreationStackTrace
+
+---
+-- CreationIndex, Field of type number
+-- @realm shared
+-- @number CreationIndex
 

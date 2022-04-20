@@ -46,6 +46,54 @@ function SendSignal(signalOrString, connectionOrConnectionName) end
 -- @Vector2 WorldPosition
 
 
+--- ApplyStatusEffects
+-- @realm shared
+-- @tparam function type
+-- @tparam number deltaTime
+-- @tparam Character character
+-- @tparam Limb limb
+-- @tparam Entity useTarget
+-- @tparam bool isNetworkEvent
+-- @tparam Nullable`1 worldPosition
+function ApplyStatusEffects(type, deltaTime, character, limb, useTarget, isNetworkEvent, worldPosition) end
+
+--- ApplyStatusEffect
+-- @realm shared
+-- @tparam StatusEffect effect
+-- @tparam function type
+-- @tparam number deltaTime
+-- @tparam Character character
+-- @tparam Limb limb
+-- @tparam Entity useTarget
+-- @tparam bool isNetworkEvent
+-- @tparam bool checkCondition
+-- @tparam Nullable`1 worldPosition
+function ApplyStatusEffect(effect, type, deltaTime, character, limb, useTarget, isNetworkEvent, checkCondition, worldPosition) end
+
+--- AddDamage
+-- @realm shared
+-- @tparam Character attacker
+-- @tparam Vector2 worldPosition
+-- @tparam Attack attack
+-- @tparam number deltaTime
+-- @tparam bool playSound
+-- @treturn AttackResult
+function AddDamage(attacker, worldPosition, attack, deltaTime, playSound) end
+
+--- SendPendingNetworkUpdates
+-- @realm shared
+function SendPendingNetworkUpdates() end
+
+--- CreateStatusEvent
+-- @realm shared
+function CreateStatusEvent() end
+
+--- Update
+-- @realm shared
+-- @tparam number deltaTime
+-- @tparam Camera cam
+function Update(deltaTime, cam) end
+
 --- UpdateTransform
 -- @realm shared
 function UpdateTransform() end
@@ -63,26 +111,28 @@ function FlipY(relativeToSub) end
 --- GetConnectedComponents
 -- @realm shared
 -- @tparam bool recursive
+-- @tparam bool allowTraversingBackwards
 -- @treturn table
-function GetConnectedComponents(recursive) end
+function GetConnectedComponents(recursive, allowTraversingBackwards) end
 
 --- GetConnectedComponentsRecursive
 -- @realm shared
 -- @tparam Connection c
 -- @tparam bool ignoreInactiveRelays
+-- @tparam bool allowTraversingBackwards
 -- @treturn table
-function GetConnectedComponentsRecursive(c, ignoreInactiveRelays) end
+function GetConnectedComponentsRecursive(c, ignoreInactiveRelays, allowTraversingBackwards) end
 
 --- FindController
 -- @realm shared
--- @tparam String[] tags
+-- @tparam Nullable`1 tags
 -- @treturn Controller
 function FindController(tags) end
 
 --- TryFindController
 -- @realm shared
 -- @tparam Controller& controller
--- @tparam String[] tags
+-- @tparam Nullable`1 tags
 -- @treturn bool
 function TryFindController(controller, tags) end
 
@@ -168,7 +218,8 @@ function Combine(item, user) end
 -- @realm shared
 -- @tparam Character dropper
 -- @tparam bool createNetworkEvent
-function Drop(dropper, createNetworkEvent) end
+-- @tparam bool setTransform
+function Drop(dropper, createNetworkEvent, setTransform) end
 
 --- Equip
 -- @realm shared
@@ -187,7 +238,7 @@ function GetProperties() end
 
 --- Load
 -- @realm shared
--- @tparam XElement element
+-- @tparam ContentXElement element
 -- @tparam Submarine submarine
 -- @tparam IdRemap idRemap
 -- @treturn Item
@@ -195,7 +246,7 @@ function Item.Load(element, submarine, idRemap) end
 
 --- Load
 -- @realm shared
--- @tparam XElement element
+-- @tparam ContentXElement element
 -- @tparam Submarine submarine
 -- @tparam bool createNetworkEvent
 -- @tparam IdRemap idRemap
@@ -228,11 +279,6 @@ function Remove() end
 -- @realm shared
 -- @tparam ItemPrefab prefab
 function Item.RemoveByPrefab(prefab) end
-
---- AddToRemoveQueue
--- @realm shared
--- @tparam Item item
-function Item.AddToRemoveQueue(item) end
 
 --- GetComponentString
 -- @realm shared
@@ -357,11 +403,11 @@ function FindHull() end
 -- @treturn Item
 function GetRootContainer() end
 
---- IsThisOrAnyContainerIgnoredByAI
+--- HasAccess
 -- @realm shared
 -- @tparam Character character
 -- @treturn bool
-function IsThisOrAnyContainerIgnoredByAI(character) end
+function HasAccess(character) end
 
 --- IsOwnedBy
 -- @realm shared
@@ -389,9 +435,20 @@ function SetContainedItemPositions() end
 -- @tparam string tag
 function AddTag(tag) end
 
+--- AddTag
+-- @realm shared
+-- @tparam Identifier tag
+function AddTag(tag) end
+
 --- HasTag
 -- @realm shared
 -- @tparam string tag
+-- @treturn bool
+function HasTag(tag) end
+
+--- HasTag
+-- @realm shared
+-- @tparam Identifier tag
 -- @treturn bool
 function HasTag(tag) end
 
@@ -399,6 +456,12 @@ function HasTag(tag) end
 -- @realm shared
 -- @tparam string tag
 -- @tparam string newTag
+function ReplaceTag(tag, newTag) end
+
+--- ReplaceTag
+-- @realm shared
+-- @tparam Identifier tag
+-- @tparam Identifier newTag
 function ReplaceTag(tag, newTag) end
 
 --- GetTags
@@ -412,63 +475,18 @@ function GetTags() end
 -- @treturn bool
 function HasTag(allowedTags) end
 
---- ApplyStatusEffects
--- @realm shared
--- @tparam function type
--- @tparam number deltaTime
--- @tparam Character character
--- @tparam Limb limb
--- @tparam Entity useTarget
--- @tparam bool isNetworkEvent
--- @tparam Nullable`1 worldPosition
-function ApplyStatusEffects(type, deltaTime, character, limb, useTarget, isNetworkEvent, worldPosition) end
-
---- ApplyStatusEffect
--- @realm shared
--- @tparam StatusEffect effect
--- @tparam function type
--- @tparam number deltaTime
--- @tparam Character character
--- @tparam Limb limb
--- @tparam Entity useTarget
--- @tparam bool isNetworkEvent
--- @tparam bool checkCondition
--- @tparam Nullable`1 worldPosition
-function ApplyStatusEffect(effect, type, deltaTime, character, limb, useTarget, isNetworkEvent, checkCondition, worldPosition) end
-
---- AddDamage
--- @realm shared
--- @tparam Character attacker
--- @tparam Vector2 worldPosition
--- @tparam Attack attack
--- @tparam number deltaTime
--- @tparam bool playSound
--- @treturn AttackResult
-function AddDamage(attacker, worldPosition, attack, deltaTime, playSound) end
-
---- SendPendingNetworkUpdates
--- @realm shared
-function SendPendingNetworkUpdates() end
-
---- Update
--- @realm shared
--- @tparam number deltaTime
--- @tparam Camera cam
-function Update(deltaTime, cam) end
-
---- ServerWrite
+--- ServerEventWrite
 -- @realm shared
 -- @tparam IWriteMessage msg
 -- @tparam Client c
--- @tparam Object[] extraData
-function ServerWrite(msg, c, extraData) end
+-- @tparam IData extraData
+function ServerEventWrite(msg, c, extraData) end
 
---- ServerRead
+--- ServerEventRead
 -- @realm shared
--- @tparam ClientNetObject type
 -- @tparam IReadMessage msg
 -- @tparam Client c
-function ServerRead(type, msg, c) end
+function ServerEventRead(msg, c) end
 
 --- WriteSpawnData
 -- @realm shared
@@ -476,7 +494,8 @@ function ServerRead(type, msg, c) end
 -- @tparam number entityID
 -- @tparam number originalInventoryID
 -- @tparam Byte originalItemContainerIndex
-function WriteSpawnData(msg, entityID, originalInventoryID, originalItemContainerIndex) end
+-- @tparam number originalSlotIndex
+function WriteSpawnData(msg, entityID, originalInventoryID, originalItemContainerIndex, originalSlotIndex) end
 
 --- GetPositionUpdateInterval
 -- @realm shared
@@ -488,8 +507,7 @@ function GetPositionUpdateInterval(recipient) end
 -- @realm shared
 -- @tparam IWriteMessage msg
 -- @tparam Client c
--- @tparam Object[] extraData
-function ServerWritePosition(msg, c, extraData) end
+function ServerWritePosition(msg, c) end
 
 --- CreateServerEvent
 -- @realm shared
@@ -499,7 +517,7 @@ function CreateServerEvent(ic) end
 --- CreateServerEvent
 -- @realm shared
 -- @tparam T ic
--- @tparam Object[] extraData
+-- @tparam IEventData extraData
 function CreateServerEvent(ic, extraData) end
 
 --- CreateServerEventString
@@ -521,6 +539,11 @@ function CreateServerEventString(component, extraData) end
 -- @treturn bool
 function IsInteractable(character) end
 
+--- AddLinked
+-- @realm shared
+-- @tparam MapEntity entity
+function AddLinked(entity) end
+
 --- ResolveLinks
 -- @realm shared
 -- @tparam IdRemap childRemap
@@ -534,13 +557,13 @@ function IsMouseOn(position) end
 
 --- HasUpgrade
 -- @realm shared
--- @tparam string identifier
+-- @tparam Identifier identifier
 -- @treturn bool
 function HasUpgrade(identifier) end
 
 --- GetUpgrade
 -- @realm shared
--- @tparam string identifier
+-- @tparam Identifier identifier
 -- @treturn Upgrade
 function GetUpgrade(identifier) end
 
@@ -741,9 +764,9 @@ function GetHashCode() end
 -- @Color ContainerColor
 
 ---
--- ContainerIdentifier, Field of type string
+-- ContainerIdentifier, Field of type Identifier
 -- @realm shared
--- @string ContainerIdentifier
+-- @Identifier ContainerIdentifier
 
 ---
 -- SonarLabel, Field of type string
@@ -896,9 +919,9 @@ function GetHashCode() end
 -- @table LastSentSignalRecipients
 
 ---
--- ConfigFile, Field of type string
+-- ConfigFilePath, Field of type ContentPath
 -- @realm shared
--- @string ConfigFile
+-- @ContentPath ConfigFilePath
 
 ---
 -- AllowedSlots, Field of type Enumerable
@@ -971,6 +994,16 @@ function GetHashCode() end
 -- @bool OrderedToBeIgnored
 
 ---
+-- HasBallastFloraInHull, Field of type bool
+-- @realm shared
+-- @bool HasBallastFloraInHull
+
+---
+-- IsClaimedByBallastFlora, Field of type bool
+-- @realm shared
+-- @bool IsClaimedByBallastFlora
+
+---
 -- DisallowedUpgrades, Field of type string
 -- @realm shared
 -- @string DisallowedUpgrades
@@ -1011,9 +1044,9 @@ function GetHashCode() end
 -- @bool DrawOverWater
 
 ---
--- AllowedLinks, Field of type table
+-- AllowedLinks, Field of type Enumerable
 -- @realm shared
--- @table AllowedLinks
+-- @Enumerable AllowedLinks
 
 ---
 -- ResizeHorizontal, Field of type bool
@@ -1106,6 +1139,11 @@ function GetHashCode() end
 -- @number SpawnTime
 
 ---
+-- ErrorLine, Field of type string
+-- @realm shared
+-- @string ErrorLine
+
+---
 -- PreviousParentInventory, Field of type Inventory
 -- @realm shared
 -- @Inventory PreviousParentInventory
@@ -1151,14 +1189,14 @@ function GetHashCode() end
 -- @bool Item.ShowLinks
 
 ---
--- Item.connectionPairs, Field of type ValueTuple`2[]
+-- Item.connectionPairs, Field of type ImmutableArray`1
 -- @realm shared
--- @ValueTuple`2[] Item.connectionPairs
+-- @ImmutableArray`1 Item.connectionPairs
 
 ---
--- prefab, Field of type MapEntityPrefab
+-- Prefab, Field of type MapEntityPrefab
 -- @realm shared
--- @MapEntityPrefab prefab
+-- @MapEntityPrefab Prefab
 
 ---
 -- unresolvedLinkedToID, Field of type table
@@ -1166,9 +1204,9 @@ function GetHashCode() end
 -- @table unresolvedLinkedToID
 
 ---
--- disallowedUpgrades, Field of type HashSet`1
+-- DisallowedUpgradeSet, Field of type HashSet`1
 -- @realm shared
--- @HashSet`1 disallowedUpgrades
+-- @HashSet`1 DisallowedUpgradeSet
 
 ---
 -- linkedTo, Field of type table
@@ -1199,4 +1237,14 @@ function GetHashCode() end
 -- ID, Field of type number
 -- @realm shared
 -- @number ID
+
+---
+-- CreationStackTrace, Field of type string
+-- @realm shared
+-- @string CreationStackTrace
+
+---
+-- CreationIndex, Field of type number
+-- @realm shared
+-- @number CreationIndex
 

@@ -67,6 +67,7 @@ tparam_alias("CharacterInventory", "CharacterInventory")
 tparam_alias("ItemInventory", "ItemInventory")
 tparam_alias("Camera", "Camera")
 tparam_alias("Enumerable", "Enumerable")
+tparam_alias("Identifier", "Identifier")
 
 
 tparam_alias("string", "string")

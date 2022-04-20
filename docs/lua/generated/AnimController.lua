@@ -93,6 +93,13 @@ function ApplyTestPose() end
 -- @tparam RagdollParams ragdollParams
 function Recreate(ragdollParams) end
 
+--- GetLimb
+-- @realm shared
+-- @tparam LimbType limbType
+-- @tparam bool excludeSevered
+-- @treturn Limb
+function GetLimb(limbType, excludeSevered) end
+
 --- GetMouthPosition
 -- @realm shared
 -- @treturn Nullable`1
@@ -223,6 +230,11 @@ function Update(deltaTime, cam) end
 -- @realm shared
 function ForceRefreshFloorY() end
 
+--- GetSurfaceY
+-- @realm shared
+-- @treturn number
+function GetSurfaceY() end
+
 --- SetPosition
 -- @realm shared
 -- @tparam Vector2 simPosition
@@ -235,13 +247,6 @@ function SetPosition(simPosition, lerp, ignorePlatforms, forceMainLimbToCollider
 --- Hang
 -- @realm shared
 function Hang() end
-
---- GetLimb
--- @realm shared
--- @tparam LimbType limbType
--- @tparam bool excludeSevered
--- @treturn Limb
-function GetLimb(limbType, excludeSevered) end
 
 --- GetType
 -- @realm shared

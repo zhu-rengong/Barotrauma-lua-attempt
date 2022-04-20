@@ -116,9 +116,9 @@ function GetHashCode() end
 -- @number SelectedModeIndex
 
 ---
--- SelectedModeIdentifier, Field of type string
+-- SelectedModeIdentifier, Field of type Identifier
 -- @realm shared
--- @string SelectedModeIdentifier
+-- @Identifier SelectedModeIdentifier
 
 ---
 -- SelectedMode, Field of type GameModePreset
@@ -154,6 +154,11 @@ function GetHashCode() end
 -- Cam, Field of type Camera
 -- @realm shared
 -- @Camera Cam
+
+---
+-- IsEditor, Field of type bool
+-- @realm shared
+-- @bool IsEditor
 
 ---
 -- RadiationEnabled, Field of type bool

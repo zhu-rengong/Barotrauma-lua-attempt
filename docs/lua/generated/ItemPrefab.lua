@@ -36,56 +36,36 @@ function ItemPrefab.GetItemPrefab(itemNameOrId) end
 -- @string Identifier
 
 
---- RemoveByFile
--- @realm shared
--- @tparam string filePath
-function ItemPrefab.RemoveByFile(filePath) end
-
---- LoadFromFile
--- @realm shared
--- @tparam ContentFile file
-function ItemPrefab.LoadFromFile(file) end
-
---- LoadAll
--- @realm shared
--- @tparam Enumerable files
-function ItemPrefab.LoadAll(files) end
-
---- InitFabricationRecipes
--- @realm shared
-function ItemPrefab.InitFabricationRecipes() end
-
 --- GenerateLegacyIdentifier
 -- @realm shared
 -- @tparam string name
--- @treturn string
+-- @treturn Identifier
 function ItemPrefab.GenerateLegacyIdentifier(name) end
 
 --- GetTreatmentSuitability
 -- @realm shared
--- @tparam string treatmentIdentifier
+-- @tparam Identifier treatmentIdentifier
 -- @treturn number
 function GetTreatmentSuitability(treatmentIdentifier) end
 
 --- GetPriceInfo
 -- @realm shared
--- @tparam Location location
+-- @tparam StoreInfo store
 -- @treturn PriceInfo
-function GetPriceInfo(location) end
+function GetPriceInfo(store) end
 
---- CanBeBoughtAtLocation
+--- CanBeBoughtFrom
 -- @realm shared
--- @tparam Location location
+-- @tparam StoreInfo store
 -- @tparam PriceInfo& priceInfo
 -- @treturn bool
-function CanBeBoughtAtLocation(location, priceInfo) end
+function CanBeBoughtFrom(store, priceInfo) end
 
---- Find
+--- CanBeBoughtFrom
 -- @realm shared
--- @tparam string name
--- @tparam string identifier
--- @treturn ItemPrefab
-function ItemPrefab.Find(name, identifier) end
+-- @tparam Location location
+-- @treturn bool
+function CanBeBoughtFrom(location) end
 
 --- GetMinPrice
 -- @realm shared
@@ -105,6 +85,13 @@ function GetBuyPricesUnder(maxCost) end
 -- @treturn ImmutableDictionary`2
 function GetSellPricesOver(minCost, sellingImportant) end
 
+--- Find
+-- @realm shared
+-- @tparam string name
+-- @tparam Identifier identifier
+-- @treturn ItemPrefab
+function ItemPrefab.Find(name, identifier) end
+
 --- IsContainerPreferred
 -- @realm shared
 -- @tparam Item item
@@ -118,7 +105,7 @@ function IsContainerPreferred(item, targetContainer, isPreferencesDefined, isSec
 --- IsContainerPreferred
 -- @realm shared
 -- @tparam Item item
--- @tparam String[] identifiersOrTags
+-- @tparam Identifier[] identifiersOrTags
 -- @tparam Boolean& isPreferencesDefined
 -- @tparam Boolean& isSecondary
 -- @treturn bool
@@ -138,6 +125,15 @@ function ItemPrefab.IsContainerPreferred(preferences, c) end
 -- @treturn bool
 function ItemPrefab.IsContainerPreferred(preferences, ids) end
 
+--- Dispose
+-- @realm shared
+function Dispose() end
+
+--- InheritFrom
+-- @realm shared
+-- @tparam ItemPrefab parent
+function InheritFrom(parent) end
+
 --- ToString
 -- @realm shared
 -- @treturn string
@@ -148,24 +144,6 @@ function ToString() end
 -- @tparam string itemNameOrId
 -- @treturn ItemPrefab
 function ItemPrefab.GetItemPrefab(itemNameOrId) end
-
---- AddToSpawnQueue
--- @realm shared
--- @tparam ItemPrefab itemPrefab
--- @tparam Vector2 position
--- @tparam Object spawned
-function ItemPrefab.AddToSpawnQueue(itemPrefab, position, spawned) end
-
---- AddToSpawnQueue
--- @realm shared
--- @tparam ItemPrefab itemPrefab
--- @tparam Inventory inventory
--- @tparam Object spawned
-function ItemPrefab.AddToSpawnQueue(itemPrefab, inventory, spawned) end
-
---- Dispose
--- @realm shared
-function Dispose() end
 
 --- GetItemNameTextId
 -- @realm shared
@@ -179,7 +157,7 @@ function GetHullNameTextId() end
 
 --- GetAllowedUpgrades
 -- @realm shared
--- @treturn String[]
+-- @treturn Enumerable
 function GetAllowedUpgrades() end
 
 --- HasSubCategory
@@ -229,24 +207,49 @@ function Equals(obj) end
 function GetHashCode() end
 
 ---
--- Name, Field of type string
+-- Size, Field of type Vector2
 -- @realm shared
--- @string Name
+-- @Vector2 Size
 
 ---
--- ConfigElement, Field of type XElement
+-- DefaultPrice, Field of type PriceInfo
 -- @realm shared
--- @XElement ConfigElement
+-- @PriceInfo DefaultPrice
 
 ---
--- DeconstructItems, Field of type table
+-- CanBeBought, Field of type bool
 -- @realm shared
--- @table DeconstructItems
+-- @bool CanBeBought
 
 ---
--- FabricationRecipes, Field of type table
+-- CanBeSold, Field of type bool
 -- @realm shared
--- @table FabricationRecipes
+-- @bool CanBeSold
+
+---
+-- Triggers, Field of type ImmutableArray`1
+-- @realm shared
+-- @ImmutableArray`1 Triggers
+
+---
+-- IsOverride, Field of type bool
+-- @realm shared
+-- @bool IsOverride
+
+---
+-- ConfigElement, Field of type ContentXElement
+-- @realm shared
+-- @ContentXElement ConfigElement
+
+---
+-- DeconstructItems, Field of type ImmutableArray`1
+-- @realm shared
+-- @ImmutableArray`1 DeconstructItems
+
+---
+-- FabricationRecipes, Field of type ImmutableDictionary`2
+-- @realm shared
+-- @ImmutableDictionary`2 FabricationRecipes
 
 ---
 -- DeconstructTime, Field of type number
@@ -257,6 +260,86 @@ function GetHashCode() end
 -- AllowDeconstruct, Field of type bool
 -- @realm shared
 -- @bool AllowDeconstruct
+
+---
+-- PreferredContainers, Field of type ImmutableArray`1
+-- @realm shared
+-- @ImmutableArray`1 PreferredContainers
+
+---
+-- SwappableItem, Field of type SwappableItem
+-- @realm shared
+-- @SwappableItem SwappableItem
+
+---
+-- LevelCommonness, Field of type ImmutableDictionary`2
+-- @realm shared
+-- @ImmutableDictionary`2 LevelCommonness
+
+---
+-- LevelQuantity, Field of type ImmutableDictionary`2
+-- @realm shared
+-- @ImmutableDictionary`2 LevelQuantity
+
+---
+-- CanSpriteFlipX, Field of type bool
+-- @realm shared
+-- @bool CanSpriteFlipX
+
+---
+-- CanSpriteFlipY, Field of type bool
+-- @realm shared
+-- @bool CanSpriteFlipY
+
+---
+-- AllowAsExtraCargo, Field of type Nullable`1
+-- @realm shared
+-- @Nullable`1 AllowAsExtraCargo
+
+---
+-- RandomDeconstructionOutput, Field of type bool
+-- @realm shared
+-- @bool RandomDeconstructionOutput
+
+---
+-- RandomDeconstructionOutputAmount, Field of type number
+-- @realm shared
+-- @number RandomDeconstructionOutputAmount
+
+---
+-- Sprite, Field of type Sprite
+-- @realm shared
+-- @Sprite Sprite
+
+---
+-- OriginalName, Field of type string
+-- @realm shared
+-- @string OriginalName
+
+---
+-- Name, Field of type LocalizedString
+-- @realm shared
+-- @LocalizedString Name
+
+---
+-- Tags, Field of type ImmutableHashSet`1
+-- @realm shared
+-- @ImmutableHashSet`1 Tags
+
+---
+-- AllowedLinks, Field of type ImmutableHashSet`1
+-- @realm shared
+-- @ImmutableHashSet`1 AllowedLinks
+
+---
+-- Category, Field of type MapEntityCategory
+-- @realm shared
+-- @MapEntityCategory Category
+
+---
+-- Aliases, Field of type ImmutableHashSet`1
+-- @realm shared
+-- @ImmutableHashSet`1 Aliases
 
 ---
 -- InteractDistance, Field of type number
@@ -434,26 +517,6 @@ function GetHashCode() end
 -- @bool ShowContentsInTooltip
 
 ---
--- PreferredContainers, Field of type table
--- @realm shared
--- @table PreferredContainers
-
----
--- SwappableItem, Field of type SwappableItem
--- @realm shared
--- @SwappableItem SwappableItem
-
----
--- LevelCommonness, Field of type table
--- @realm shared
--- @table LevelCommonness
-
----
--- LevelQuantity, Field of type table
--- @realm shared
--- @table LevelQuantity
-
----
 -- CanFlipX, Field of type bool
 -- @realm shared
 -- @bool CanFlipX
@@ -469,16 +532,6 @@ function GetHashCode() end
 -- @bool IsDangerous
 
 ---
--- CanSpriteFlipX, Field of type bool
--- @realm shared
--- @bool CanSpriteFlipX
-
----
--- CanSpriteFlipY, Field of type bool
--- @realm shared
--- @bool CanSpriteFlipY
-
----
 -- MaxStackSize, Field of type number
 -- @realm shared
 -- @number MaxStackSize
@@ -489,39 +542,14 @@ function GetHashCode() end
 -- @bool AllowDroppingOnSwap
 
 ---
--- AllowDroppingOnSwapWith, Field of type Enumerable
+-- AllowDroppingOnSwapWith, Field of type ImmutableHashSet`1
 -- @realm shared
--- @Enumerable AllowDroppingOnSwapWith
+-- @ImmutableHashSet`1 AllowDroppingOnSwapWith
 
 ---
--- Size, Field of type Vector2
+-- VariantOf, Field of type Identifier
 -- @realm shared
--- @Vector2 Size
-
----
--- CanBeBought, Field of type bool
--- @realm shared
--- @bool CanBeBought
-
----
--- CanBeSold, Field of type bool
--- @realm shared
--- @bool CanBeSold
-
----
--- RandomDeconstructionOutput, Field of type bool
--- @realm shared
--- @bool RandomDeconstructionOutput
-
----
--- RandomDeconstructionOutputAmount, Field of type number
--- @realm shared
--- @number RandomDeconstructionOutputAmount
-
----
--- UIntIdentifier, Field of type number
--- @realm shared
--- @number UIntIdentifier
+-- @Identifier VariantOf
 
 ---
 -- ResizeHorizontal, Field of type bool
@@ -534,34 +562,9 @@ function GetHashCode() end
 -- @bool ResizeVertical
 
 ---
--- OriginalName, Field of type string
+-- Description, Field of type LocalizedString
 -- @realm shared
--- @string OriginalName
-
----
--- Identifier, Field of type string
--- @realm shared
--- @string Identifier
-
----
--- FilePath, Field of type string
--- @realm shared
--- @string FilePath
-
----
--- ContentPackage, Field of type ContentPackage
--- @realm shared
--- @ContentPackage ContentPackage
-
----
--- Tags, Field of type HashSet`1
--- @realm shared
--- @HashSet`1 Tags
-
----
--- Description, Field of type string
--- @realm shared
--- @string Description
+-- @LocalizedString Description
 
 ---
 -- AllowedUpgrades, Field of type string
@@ -584,16 +587,6 @@ function GetHashCode() end
 -- @bool Linkable
 
 ---
--- AllowedLinks, Field of type table
--- @realm shared
--- @table AllowedLinks
-
----
--- Category, Field of type MapEntityCategory
--- @realm shared
--- @MapEntityCategory Category
-
----
 -- SpriteColor, Field of type Color
 -- @realm shared
 -- @Color SpriteColor
@@ -604,34 +597,19 @@ function GetHashCode() end
 -- @number Scale
 
 ---
--- Aliases, Field of type HashSet`1
+-- UintIdentifier, Field of type number
 -- @realm shared
--- @HashSet`1 Aliases
+-- @number UintIdentifier
 
 ---
--- DefaultPrice, Field of type PriceInfo
+-- ContentPackage, Field of type ContentPackage
 -- @realm shared
--- @PriceInfo DefaultPrice
+-- @ContentPackage ContentPackage
 
 ---
--- Triggers, Field of type table
+-- FilePath, Field of type ContentPath
 -- @realm shared
--- @table Triggers
-
----
--- IsOverride, Field of type bool
--- @realm shared
--- @bool IsOverride
-
----
--- VariantOf, Field of type ItemPrefab
--- @realm shared
--- @ItemPrefab VariantOf
-
----
--- AllowAsExtraCargo, Field of type Nullable`1
--- @realm shared
--- @Nullable`1 AllowAsExtraCargo
+-- @ContentPath FilePath
 
 ---
 -- ItemPrefab.Prefabs, Field of type PrefabCollection`1
@@ -639,7 +617,12 @@ function GetHashCode() end
 -- @PrefabCollection`1 ItemPrefab.Prefabs
 
 ---
--- sprite, Field of type Sprite
+-- Identifier, Field of type Identifier
 -- @realm shared
--- @Sprite sprite
+-- @Identifier Identifier
+
+---
+-- ContentFile, Field of type ContentFile
+-- @realm shared
+-- @ContentFile ContentFile
 

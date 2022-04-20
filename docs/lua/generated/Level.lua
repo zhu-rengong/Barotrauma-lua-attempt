@@ -154,12 +154,12 @@ function DebugSetEndLocation(newEndLocation) end
 -- @realm shared
 function Remove() end
 
---- ServerWrite
+--- ServerEventWrite
 -- @realm shared
 -- @tparam IWriteMessage msg
 -- @tparam Client c
--- @tparam Object[] extraData
-function ServerWrite(msg, c, extraData) end
+-- @tparam IData extraData
+function ServerEventWrite(msg, c, extraData) end
 
 --- Generate
 -- @realm shared
@@ -478,6 +478,11 @@ function GetHashCode() end
 -- @number SpawnTime
 
 ---
+-- ErrorLine, Field of type string
+-- @realm shared
+-- @string ErrorLine
+
+---
 -- AbyssIslands, Field of type table
 -- @realm shared
 -- @table AbyssIslands
@@ -541,4 +546,14 @@ function GetHashCode() end
 -- ID, Field of type number
 -- @realm shared
 -- @number ID
+
+---
+-- CreationStackTrace, Field of type string
+-- @realm shared
+-- @string CreationStackTrace
+
+---
+-- CreationIndex, Field of type number
+-- @realm shared
+-- @number CreationIndex
 

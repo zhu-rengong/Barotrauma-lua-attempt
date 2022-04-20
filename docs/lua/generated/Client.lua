@@ -1,7 +1,7 @@
 -- luacheck: ignore 111
 
 --[[--
-Barotrauma Character class with some additional functions and fields
+Barotrauma Client class with some additional functions and fields
 
 Barotrauma source code: [Client.cs](https://github.com/evilfactory/Barotrauma-lua-attempt/blob/master/Barotrauma/BarotraumaShared/SharedSource/Networking/Client.cs)
 ]]
@@ -216,6 +216,11 @@ function GetHashCode() end
 -- @bool Muted
 
 ---
+-- HasPermissions, Field of type bool
+-- @realm shared
+-- @bool HasPermissions
+
+---
 -- VoipQueue, Field of type VoipQueue
 -- @realm shared
 -- @VoipQueue VoipQueue
@@ -381,9 +386,9 @@ function GetHashCode() end
 -- @table JobPreferences
 
 ---
--- AssignedJob, Field of type Pair`2
+-- AssignedJob, Field of type JobVariant
 -- @realm shared
--- @Pair`2 AssignedJob
+-- @JobVariant AssignedJob
 
 ---
 -- DeleteDisconnectedTimer, Field of type number
@@ -431,9 +436,9 @@ function GetHashCode() end
 -- @number OwnerSteamID
 
 ---
--- Language, Field of type string
+-- Language, Field of type LanguageIdentifier
 -- @realm shared
--- @string Language
+-- @LanguageIdentifier Language
 
 ---
 -- Ping, Field of type number
@@ -441,9 +446,9 @@ function GetHashCode() end
 -- @number Ping
 
 ---
--- PreferredJob, Field of type string
+-- PreferredJob, Field of type Identifier
 -- @realm shared
--- @string PreferredJob
+-- @Identifier PreferredJob
 
 ---
 -- TeamID, Field of type CharacterTeamType
@@ -459,11 +464,6 @@ function GetHashCode() end
 -- CharacterID, Field of type number
 -- @realm shared
 -- @number CharacterID
-
----
--- HasPermissions, Field of type bool
--- @realm shared
--- @bool HasPermissions
 
 ---
 -- HasSpawned, Field of type bool
