@@ -13,7 +13,7 @@ using MoonSharp.Interpreter;
 
 namespace Barotrauma
 {
-	class CsScriptRunner : AssemblyLoadContext
+	class CsScriptRunner : CsScriptBase
 	{
 		public LuaCsSetup setup;
 		private List<MetadataReference> defaultReferences;
@@ -25,7 +25,7 @@ namespace Barotrauma
 			"System.Linq"
 		};
 
-		public CsScriptRunner(LuaCsSetup setup) : base(isCollectible: true)
+		public CsScriptRunner(LuaCsSetup setup)
 		{
 			this.setup = setup;
 
@@ -56,7 +56,7 @@ namespace Barotrauma
 			{
 				code = ToOneTimeScript(code);
 				var syntaxTree = SyntaxFactory.ParseSyntaxTree(code, CSharpParseOptions.Default);
-				var compilation = CSharpCompilation.Create("NetOneTimeScriptAssembly", new[] { syntaxTree }, defaultReferences, compileOptions);
+				var compilation = CSharpCompilation.Create(NET_ONE_TIME_SCRIPT_ASSEMBLY, new[] { AssemblyInfoSyntaxTree(NET_ONE_TIME_SCRIPT_ASSEMBLY), syntaxTree }, defaultReferences, compileOptions);
 
 				Assembly assembly = null;
 				using (var mem = new MemoryStream())
@@ -103,8 +103,7 @@ namespace Barotrauma
 									scriptResilt = method.Invoke(runner, null);
 									foreach (var type in assembly.GetTypes())
 									{
-										//UserData.UnregisterType(type, true);
-										UserData.UnregisterType(type);
+                                        UserData.UnregisterType(type, true);
 									}
 								}
 								else LuaCsSetup.PrintCsError("Script Error - no run method detected");
@@ -115,6 +114,8 @@ namespace Barotrauma
 					}
 				}
 				Unload();
+				GC.Collect();
+				GC.WaitForPendingFinalizers();
 			}
 			catch (Exception ex)
 			{

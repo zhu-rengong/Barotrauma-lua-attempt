@@ -12,8 +12,8 @@ using System.Runtime.CompilerServices;
 using System.Linq;
 using System.Reflection;
 
-[assembly: InternalsVisibleTo("NetScriptAssembly", AllInternalsVisible = true)]
-[assembly: InternalsVisibleTo("NetOneTimeScriptAssembly", AllInternalsVisible = true)]
+[assembly: InternalsVisibleTo(Barotrauma.CsScriptBase.NET_SCRIPT_ASSEMBLY, AllInternalsVisible = true)]
+[assembly: InternalsVisibleTo(Barotrauma.CsScriptBase.NET_ONE_TIME_SCRIPT_ASSEMBLY, AllInternalsVisible = true)]
 namespace Barotrauma
 {
 	class LuaCsSetupConfig
@@ -40,6 +40,17 @@ namespace Barotrauma
 
 		private Script lua;
 		public CsScriptRunner CsScript { get; private set; }
+
+		/// <summary>
+		/// due to there's a race on the process and the unloaded AssemblyLoadContexts,
+		/// should recreate runner after the script runs
+		/// </summary>
+		public void RecreateCsScript()
+        {
+			GameMain.LuaCs.CsScript = new CsScriptRunner(GameMain.LuaCs.CsScript.setup);
+			lua.Globals["CsScript"] = CsScript;
+		}
+
 		public LuaGame Game { get; private set; }
 		public LuaScriptLoader LuaScriptLoader { get; private set; }
 
@@ -314,9 +325,9 @@ namespace Barotrauma
 
 		public void Stop()
 		{
-			foreach (var type in AppDomain.CurrentDomain.GetAssemblies().Where(a => a.GetName().Name == "NetScriptAssembly").SelectMany(assembly => assembly.GetTypes()))
+			foreach (var type in AppDomain.CurrentDomain.GetAssemblies().Where(a => a.GetName().Name == CsScriptBase.NET_SCRIPT_ASSEMBLY).SelectMany(assembly => assembly.GetTypes()))
 			{
-				UserData.UnregisterType(type);
+				UserData.UnregisterType(type, true);
 			}
 			foreach (var mod in ACsMod.LoadedMods.ToArray()) mod.Dispose();
 			ACsMod.LoadedMods.Clear();
@@ -450,7 +461,8 @@ modding needs.
 						var modTypes = CsScriptLoader.Compile();
 						modTypes.ForEach(t =>
 						{
-							UserData.RegisterType(t);
+							//Please register `t` in lua-side
+							//UserData.RegisterType(t);
 							t.GetConstructor(new Type[] { })?.Invoke(null);
 						});
 					}
