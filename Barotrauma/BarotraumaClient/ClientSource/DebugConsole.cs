@@ -3234,6 +3234,7 @@ namespace Barotrauma
                 }
 
                 GameMain.LuaCs.CsScript.Run(string.Join(" ", args));
+                GameMain.LuaCs.RecreateCsScript();
             }));
 
             commands.Add(new Command("cl_reloadlua", "reloads lua on the client", (string[] args) =>
