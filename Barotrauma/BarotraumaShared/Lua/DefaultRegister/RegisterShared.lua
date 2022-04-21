@@ -194,6 +194,7 @@ RegisterBarotrauma("PrefabCollection`1[[Barotrauma.JobPrefab]]")
 RegisterBarotrauma("PrefabCollection`1[[Barotrauma.CharacterPrefab]]")
 RegisterBarotrauma("PrefabCollection`1[[Barotrauma.AfflictionPrefab]]")
 RegisterBarotrauma("PrefabCollection`1[[Barotrauma.TalentPrefab]]")
+RegisterBarotrauma("PrefabCollection`1[[Barotrauma.TalentTree]]")
 
 RegisterBarotrauma("Pair`2[[Barotrauma.JobPrefab],[System.Int32]]")
 
