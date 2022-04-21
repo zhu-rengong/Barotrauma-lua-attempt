@@ -14,7 +14,7 @@ end)
 
 ```
 Hook.Add("itemApplyTreatment", "testItemApplyTreatment", function (item, user, character, targetlimb)
-    if item.name == "Bandage" then
+    if item.Prefab.Identifier == "antibleeding1" then
         local pos = character.WorldPosition
         Game.Explode(pos, 1, 500, 5000, 5000, 5000)
 
@@ -29,7 +29,7 @@ end)
 ```
 -- for example: create an item in xml named RandomComponent and add the wiring inputs/outputs trigger_random and random_out
 Hook.Add("signalReceived", "signalReceivedTest", function (signal, connection)
-    if connection.Item.name == "RandomComponent" and connection.Name == "trigger_random" then
+    if connection.Item.Prefab.Identifier == "RandomComponent" and connection.Name == "trigger_random" then
         connection.Item.SendSignal(tostring(Random.Range(0, 100)), "random_out")
     end
 end)
@@ -72,13 +72,13 @@ Hook.Add("chatMessage","controlhuskcommand",function(msg, client)
         local suitablechars = {}
         for i = 1, #chars, 1 do
             local charat = chars[i]
-            if not charat.IsDead and string.match(string.lower(charat.SpeciesName), "husk") and not charat.IsRemotelyControlled then
+            if not charat.IsDead and string.match(string.lower(charat.SpeciesName.Value), "husk") and not charat.IsRemotelyControlled then
                 table.insert(suitablechars, charat)
             end
         end
 
         if #suitablechars >= 1 then
-            Player.SetClientCharacter(client, suitablechars[Random.Range(1, #suitablechars)])
+            client.SetClientCharacter(suitablechars[Random.Range(1, #suitablechars)])
         end
 
         return true -- hide message

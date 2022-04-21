@@ -206,17 +206,15 @@ namespace Barotrauma.Networking
 
         protected void UpdatePendingClient(PendingClient pendingClient)
         {
-            var result = new LuaResult(GameMain.Lua.hook.Call("handlePendingClient", pendingClient));
+            var skipRemove = false;
+            var result = GameMain.LuaCs.Hook.Call<bool?>("handlePendingClient", pendingClient);
 
-            if (result.Bool())
-                goto ignore;
+            if (result != null) skipRemove = result.Value;
 
-            if (connectedClients.Count >= serverSettings.MaxPlayers)
+            if (!skipRemove && connectedClients.Count >= serverSettings.MaxPlayers)
             {
                 RemovePendingClient(pendingClient, DisconnectReason.ServerFull, "");
             }
-
-            ignore:
 
             if (IsPendingClientBanned(pendingClient, out string banReason))
             {

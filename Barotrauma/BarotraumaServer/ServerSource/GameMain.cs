@@ -34,7 +34,7 @@ namespace Barotrauma
             set { world = value; }
         }
 
-        public static LuaSetup Lua;
+        public static LuaCsSetup LuaCs;
 
         public static GameServer Server;
         public static NetworkMember NetworkMember
@@ -120,7 +120,7 @@ namespace Barotrauma
 
             CheckContentPackage();
 
-            Lua = new LuaSetup();
+            LuaCs = new LuaCsSetup();
         }
 
 
@@ -347,10 +347,10 @@ namespace Barotrauma
                     TaskPool.Update();
                     CoroutineManager.Update((float)Timing.Step, (float)Timing.Step);
 
-                    GameMain.Lua.Update();
-                    GameMain.Lua.hook.Call("think", new object[] { });
+                    GameMain.LuaCs.Update();
+                    GameMain.LuaCs.Hook.Call("think", new object[] { });
                     performanceCounterTimer.Stop();
-                    LuaTimer.LastUpdateTime = performanceCounterTimer.ElapsedMilliseconds;
+                    LuaCsTimer.LastUpdateTime = performanceCounterTimer.ElapsedMilliseconds;
                     performanceCounterTimer.Reset();
 
                     Timing.Accumulator -= Timing.Step;
@@ -433,6 +433,7 @@ namespace Barotrauma
         public void Exit()
         {
             ShouldRun = false;
+            GameMain.LuaCs.Stop();
         }
     }
 }

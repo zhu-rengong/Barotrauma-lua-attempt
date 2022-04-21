@@ -182,20 +182,20 @@ namespace Barotrauma.Networking
         {
             if (netServer == null) { return; }
 
-            var result = new LuaResult(GameMain.Lua.hook.Call("lidgren.handleConnection", inc));
-            if (!result.IsNull())
-                if (result.Bool())
-                    goto ignore;
-                else
-                    return;
+            var skipDeny = false;
+            {
+                var result = GameMain.LuaCs.Hook.Call<bool?>("lidgren.handleConnection", inc);
+                if (result != null) {
+                    if (result.Value) skipDeny = true;
+                    else return;
+                }
+            }
 
-            if (connectedClients.Count >= serverSettings.MaxPlayers)
+            if (!skipDeny && connectedClients.Count >= serverSettings.MaxPlayers)
             {
                 inc.SenderConnection.Deny(DisconnectReason.ServerFull.ToString());
                 return;
             }
-
-            ignore:
 
             if (serverSettings.BanList.IsBanned(inc.SenderConnection.RemoteEndPoint.Address, 0, 0, out string banReason))
             {

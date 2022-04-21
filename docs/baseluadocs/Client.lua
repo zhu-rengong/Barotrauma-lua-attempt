@@ -1,7 +1,7 @@
 -- luacheck: ignore 111
 
 --[[--
-Barotrauma Character class with some additional functions and fields
+Barotrauma Client class with some additional functions and fields
 
 Barotrauma source code: [Client.cs](https://github.com/evilfactory/Barotrauma-lua-attempt/blob/master/Barotrauma/BarotraumaShared/SharedSource/Networking/Client.cs)
 ]]

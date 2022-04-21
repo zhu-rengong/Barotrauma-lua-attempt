@@ -74,7 +74,7 @@ namespace Barotrauma.Items.Components
 #if SERVER
             get
 			{
-                if(GameMain.Lua.game.allowWifiChat) return true;
+                if(GameMain.LuaCs.Game.allowWifiChat) return true;
                 return linkToChat;
             }
 
@@ -205,9 +205,9 @@ namespace Barotrauma.Items.Components
 
         public void TransmitSignal(Signal signal, bool sentFromChat)
         {
-            var should = new LuaResult(GameMain.Lua.hook.Call("wifiSignalTransmitted", new object[] { this, signal, sentFromChat }));
+            var should = GameMain.LuaCs.Hook.Call<bool?>("wifiSignalTransmitted", this, signal, sentFromChat);
 
-            if (should.Bool())
+            if (should != null && should.Value)
                 return;
 
             if (sentFromChat)

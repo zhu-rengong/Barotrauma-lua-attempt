@@ -540,9 +540,9 @@ namespace Barotrauma
                 return;
             }
 
-            var should = new LuaResult(GameMain.Lua.hook.Call("inventoryPutItem", new object[] { this, item, user, i, removeItem }));
+            var should = GameMain.LuaCs.Hook.Call<bool?>("inventoryPutItem", this, item, user, i, removeItem);
 
-            if (should.Bool())
+            if (should != null && should.Value)
                 return;
 
             if (Owner == null) { return; }
@@ -648,10 +648,10 @@ namespace Barotrauma
             if (slots[index].Items.Any(it => !it.IsInteractable(user))) { return false; }
             if (!AllowSwappingContainedItems) { return false; }
 
-            var should = new LuaResult(GameMain.Lua.hook.Call("inventoryItemSwap", new object[] { this, item, user, index, swapWholeStack }));
+            var should = GameMain.LuaCs.Hook.Call<bool?>("inventoryItemSwap", this, item, user, index, swapWholeStack);
 
-            if (!should.IsNull())
-                return should.Bool();
+            if (should != null)
+                return should.Value;
 
             //swap to InvSlotType.Any if possible
             Inventory otherInventory = item.ParentInventory;

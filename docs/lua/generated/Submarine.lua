@@ -80,12 +80,18 @@ function EnableObstructedWaypoints(otherSub) end
 -- @realm shared
 function RefreshOutdoorNodes() end
 
---- ServerWrite
+--- ServerWritePosition
 -- @realm shared
 -- @tparam IWriteMessage msg
 -- @tparam Client c
--- @tparam Object[] extraData
-function ServerWrite(msg, c, extraData) end
+function ServerWritePosition(msg, c) end
+
+--- ServerEventWrite
+-- @realm shared
+-- @tparam IWriteMessage msg
+-- @tparam Client c
+-- @tparam IData extraData
+function ServerEventWrite(msg, c, extraData) end
 
 --- ToString
 -- @realm shared
@@ -99,7 +105,7 @@ function CalculateBasePrice() end
 
 --- AttemptBallastFloraInfection
 -- @realm shared
--- @tparam string identifier
+-- @tparam Identifier identifier
 -- @tparam number deltaTime
 -- @tparam number probability
 function AttemptBallastFloraInfection(identifier, deltaTime, probability) end
@@ -556,6 +562,11 @@ function GetHashCode() end
 -- @number SpawnTime
 
 ---
+-- ErrorLine, Field of type string
+-- @realm shared
+-- @string ErrorLine
+
+---
 -- TeamID, Field of type CharacterTeamType
 -- @realm shared
 -- @CharacterTeamType TeamID
@@ -599,4 +610,14 @@ function GetHashCode() end
 -- ID, Field of type number
 -- @realm shared
 -- @number ID
+
+---
+-- CreationStackTrace, Field of type string
+-- @realm shared
+-- @string CreationStackTrace
+
+---
+-- CreationIndex, Field of type number
+-- @realm shared
+-- @number CreationIndex
 

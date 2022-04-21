@@ -98,9 +98,9 @@ function CalculateDamagePerSecond(currentVitalityDecrease) end
 
 --- GetResistance
 -- @realm shared
--- @tparam AfflictionPrefab affliction
+-- @tparam Identifier afflictionId
 -- @treturn number
-function GetResistance(affliction) end
+function GetResistance(afflictionId) end
 
 --- GetSpeedMultiplier
 -- @realm shared
@@ -201,9 +201,9 @@ function GetHashCode() end
 -- @number NonClampedStrength
 
 ---
--- Identifier, Field of type string
+-- Identifier, Field of type Identifier
 -- @realm shared
--- @string Identifier
+-- @Identifier Identifier
 
 ---
 -- Probability, Field of type number

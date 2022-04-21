@@ -19,13 +19,13 @@ function Job.Random(randSync) end
 
 --- GetSkillLevel
 -- @realm shared
--- @tparam string skillIdentifier
+-- @tparam Identifier skillIdentifier
 -- @treturn number
 function GetSkillLevel(skillIdentifier) end
 
 --- IncreaseSkillLevel
 -- @realm shared
--- @tparam string skillIdentifier
+-- @tparam Identifier skillIdentifier
 -- @tparam number increase
 -- @tparam bool increasePastMax
 function IncreaseSkillLevel(skillIdentifier, increase, increasePastMax) end
@@ -64,14 +64,14 @@ function Equals(obj) end
 function GetHashCode() end
 
 ---
--- Name, Field of type string
+-- Name, Field of type LocalizedString
 -- @realm shared
--- @string Name
+-- @LocalizedString Name
 
 ---
--- Description, Field of type string
+-- Description, Field of type LocalizedString
 -- @realm shared
--- @string Description
+-- @LocalizedString Description
 
 ---
 -- Prefab, Field of type JobPrefab

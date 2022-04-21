@@ -104,7 +104,7 @@ namespace Barotrauma.Networking
 
             bool isOwner = GameMain.Server.OwnerConnection != null && c.Connection == GameMain.Server.OwnerConnection;
 
-            if (similarity + c.ChatSpamSpeed > 5.0f && !isOwner && !GameMain.Lua.game.disableSpamFilter)
+            if (similarity + c.ChatSpamSpeed > 5.0f && !isOwner && !GameMain.LuaCs.Game.disableSpamFilter)
             {
                 GameMain.Server.KarmaManager.OnSpamFilterTriggered(c);
 
@@ -125,7 +125,7 @@ namespace Barotrauma.Networking
 
             c.ChatSpamSpeed += similarity + 0.5f;
 
-            if (c.ChatSpamTimer > 0.0f && !isOwner && !GameMain.Lua.game.disableSpamFilter)
+            if (c.ChatSpamTimer > 0.0f && !isOwner && !GameMain.LuaCs.Game.disableSpamFilter)
             {
                 ChatMessage denyMsg = Create("", TextManager.Get("SpamFilterBlocked").Value, ChatMessageType.Server, null);
                 c.ChatSpamTimer = 10.0f;
@@ -133,10 +133,9 @@ namespace Barotrauma.Networking
                 return;
             }
 
-            var should = new LuaResult(GameMain.Lua.hook.Call("chatMessage", new object[] { txt, c, type }));
+            var should = GameMain.LuaCs.Hook.Call<bool?>("chatMessage", txt, c, type);
 
-
-            if (should.Bool())
+            if (should != null && should.Value)
             {
                 return;
             }

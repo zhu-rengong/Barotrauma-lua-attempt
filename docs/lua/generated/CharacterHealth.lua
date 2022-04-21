@@ -25,9 +25,16 @@ function GetAllAfflictions(limbHealthFilter) end
 -- @treturn Affliction
 function GetAffliction(identifier, allowLimbAfflictions) end
 
+--- GetAffliction
+-- @realm shared
+-- @tparam Identifier identifier
+-- @tparam bool allowLimbAfflictions
+-- @treturn Affliction
+function GetAffliction(identifier, allowLimbAfflictions) end
+
 --- GetAfflictionOfType
 -- @realm shared
--- @tparam string afflictionType
+-- @tparam Identifier afflictionType
 -- @tparam bool allowLimbAfflictions
 -- @treturn Affliction
 function GetAfflictionOfType(afflictionType, allowLimbAfflictions) end
@@ -92,13 +99,33 @@ function GetStatValue(statType) end
 -- @treturn bool
 function HasFlag(flagType) end
 
---- ReduceAffliction
+--- ReduceAllAfflictionsOnAllLimbs
 -- @realm shared
--- @tparam Limb targetLimb
--- @tparam string afflictionIdentifier
 -- @tparam number amount
 -- @tparam Nullable`1 treatmentAction
-function ReduceAffliction(targetLimb, afflictionIdentifier, amount, treatmentAction) end
+function ReduceAllAfflictionsOnAllLimbs(amount, treatmentAction) end
+
+--- ReduceAfflictionOnAllLimbs
+-- @realm shared
+-- @tparam Identifier affliction
+-- @tparam number amount
+-- @tparam Nullable`1 treatmentAction
+function ReduceAfflictionOnAllLimbs(affliction, amount, treatmentAction) end
+
+--- ReduceAllAfflictionsOnLimb
+-- @realm shared
+-- @tparam Limb targetLimb
+-- @tparam number amount
+-- @tparam Nullable`1 treatmentAction
+function ReduceAllAfflictionsOnLimb(targetLimb, amount, treatmentAction) end
+
+--- ReduceAfflictionOnLimb
+-- @realm shared
+-- @tparam Limb targetLimb
+-- @tparam Identifier affliction
+-- @tparam number amount
+-- @tparam Nullable`1 treatmentAction
+function ReduceAfflictionOnLimb(targetLimb, affliction, amount, treatmentAction) end
 
 --- ApplyDamage
 -- @realm shared

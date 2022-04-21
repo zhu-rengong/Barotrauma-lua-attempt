@@ -74,6 +74,11 @@ namespace Barotrauma
                 Directory.SetCurrentDirectory(executableDir);
             }
 
+            if (File.Exists("usecurrentdirectoryforsaves"))
+            {
+                SaveUtil.SaveFolder = Environment.CurrentDirectory;
+            }
+
             Game = new GameMain(args);
 
             Game.Run();

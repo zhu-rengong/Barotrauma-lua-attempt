@@ -9,6 +9,7 @@ RegisterBarotrauma("LuaFloat")
 
 RegisterBarotrauma("Level+InterestingPosition")
 
+RegisterBarotrauma("RichString")
 RegisterBarotrauma("Identifier")
 
 RegisterBarotrauma("Job")
@@ -46,6 +47,7 @@ RegisterBarotrauma("MapEntity")
 RegisterBarotrauma("MapEntityPrefab")
 RegisterBarotrauma("CauseOfDeath")
 RegisterBarotrauma("Hull")
+RegisterBarotrauma("Structure")
 RegisterBarotrauma("Gap")
 RegisterBarotrauma("PhysicsBody")
 RegisterBarotrauma("AbilityFlags")

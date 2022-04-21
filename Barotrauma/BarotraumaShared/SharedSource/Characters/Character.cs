@@ -1043,7 +1043,7 @@ namespace Barotrauma
             }
 #endif
 
-            GameMain.Lua.hook.Call("characterCreated", new object[] { newCharacter });
+            GameMain.LuaCs.Hook.Call("characterCreated", new object[] { newCharacter });
 
             return newCharacter;
         }
@@ -2723,13 +2723,13 @@ namespace Barotrauma
             {
                 for (int i = 0; i < CharacterList.Count; i++)
                 {
-                    if (GameMain.Lua.game.updatePriorityCharacters.Contains(CharacterList[i])) continue;
+                    if (GameMain.LuaCs.Game.updatePriorityCharacters.Contains(CharacterList[i])) continue;
 
                     CharacterList[i].Update(deltaTime * CharacterUpdateInterval, cam);
                 }
             }
 
-            foreach (Character character in GameMain.Lua.game.updatePriorityCharacters)
+            foreach (Character character in GameMain.LuaCs.Game.updatePriorityCharacters)
             {
                 if (character.Removed) continue;
 

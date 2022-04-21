@@ -384,13 +384,14 @@ namespace Barotrauma
                 }
             };
 #endif
+            string additional = LuaCsSetup.GetPackage("CsForBarotrauma", false) == null ? "" : "Cs";
 
             new GUIButton(new RectTransform(new Point(300, 30), Frame.RectTransform, Anchor.TopLeft) { AbsoluteOffset = new Point(20, 50) },
-    "Remove Client-Side Lua", style: "MainMenuGUIButton", color: GUIStyle.Red)
+    $"Remove Client-Side Lua{additional}", style: "MainMenuGUIButton", color: GUIStyle.Red)
             {
                 IgnoreLayoutGroups = true,
                 UserData = Tab.Empty,
-                ToolTip = "Remove Client-Side Lua.",
+                ToolTip = "Remove Client-Side LuaCs.",
                 OnClicked = (tb, userdata) =>
                 {
 					if (!File.Exists("Barotrauma.dll.old"))
@@ -407,23 +408,29 @@ namespace Barotrauma
                         return false;
                     }
 
-                    var msg = new GUIMessageBox("Confirm", "Are you sure you want to remove Client-Side Lua?", new LocalizedString[2] { TextManager.Get("Yes"), TextManager.Get("Cancel") });
+                    var msg = new GUIMessageBox("Confirm", "Are you sure you want to remove Client-Side LuaCs?", new LocalizedString[2] { TextManager.Get("Yes"), TextManager.Get("Cancel") });
 
                     msg.Buttons[0].OnClicked = (GUIButton button, object obj) =>
                     {
                         msg.Close();
 
+                        string[] filesToRemove = new string[]
+                        {
+                            "Barotrauma.dll", "Barotrauma.deps.json",
+                            "System.Reflection.Metadata.dll", "System.Collections.Immutable.dll",
+                            "System.Runtime.CompilerServices.Unsafe.dll"
+                        };
                         try
                         {
-                            System.IO.File.Move("Barotrauma.dll", "Barotrauma.dll.todelete", true);
-                            System.IO.File.Move("Barotrauma.deps.json", "Barotrauma.deps.json.todelete", true);
-
-                            System.IO.File.Move("Barotrauma.dll.old", "Barotrauma.dll", true);
-                            System.IO.File.Move("Barotrauma.deps.json.old", "Barotrauma.deps.json", true);
-
-                        }catch(Exception e)
+                            foreach (string file in filesToRemove)
+                            {
+                                System.IO.File.Move(file, file + ".todelete", true);
+                                System.IO.File.Move(file + ".old", file, true);
+                            }
+                        }
+                        catch(Exception e)
 						{
-                            new GUIMessageBox("Error", "Error: " + e.ToString());
+                            new GUIMessageBox("Error", $"{e} {e.InnerException}");
                             return false;
                         }
 
@@ -442,9 +449,9 @@ namespace Barotrauma
                 }
             };
 
-            string version = File.Exists(LuaSetup.VERSION_FILE) ? File.ReadAllText(LuaSetup.VERSION_FILE) : "Github";
+            string version = File.Exists(LuaCsSetup.VERSION_FILE) ? File.ReadAllText(LuaCsSetup.VERSION_FILE) : "Github";
 
-            new GUITextBlock(new RectTransform(new Point(300, 30), Frame.RectTransform, Anchor.TopLeft) { AbsoluteOffset = new Point(10, 10) }, $"Using LuaCsForBarotrauma revision {AssemblyInfo.GitRevision} version {version}", Color.Red)
+            new GUITextBlock(new RectTransform(new Point(300, 30), Frame.RectTransform, Anchor.TopLeft) { AbsoluteOffset = new Point(10, 10) }, $"Using Lua{additional}ForBarotrauma revision {AssemblyInfo.GitRevision} version {version}", Color.Red)
             {
                 IgnoreLayoutGroups = false
             };
@@ -525,7 +532,7 @@ namespace Barotrauma
         #region Selection
         public override void Select()
         {
-            GameMain.Lua.Stop();
+            GameMain.LuaCs.Stop();
 
             if (WorkshopItemsToUpdate.Any())
             {
@@ -1118,7 +1125,7 @@ namespace Barotrauma
             }
             ((SinglePlayerCampaign)GameMain.GameSession.GameMode).LoadNewLevel();
 
-            GameMain.Lua.Initialize();
+            GameMain.LuaCs.Initialize();
         }
 
         private void LoadGame(string saveFile)
@@ -1138,7 +1145,7 @@ namespace Barotrauma
             //TODO
             //GameMain.LobbyScreen.Select();
 
-            GameMain.Lua.Initialize();
+            GameMain.LuaCs.Initialize();
         }
 
 #region UI Methods

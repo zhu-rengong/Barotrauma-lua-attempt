@@ -526,7 +526,7 @@ namespace Barotrauma
 
             HintManager.OnRoundStarted();
 
-            GameMain.Lua.hook.Call("roundStart");
+            GameMain.LuaCs.Hook.Call("roundStart");
 #endif
         }
 
@@ -750,6 +750,9 @@ namespace Barotrauma
         /// </remarks>
         public static ImmutableHashSet<Character> GetSessionCrewCharacters(CharacterType type)
         {
+            var result = GameMain.LuaCs.Hook.Call<Character[]?>("getSessionCrewCharacters", type);
+            if (result != null) return ImmutableHashSet.Create(result);
+
             if (!(GameMain.GameSession.CrewManager is { } crewManager)) { return ImmutableHashSet<Character>.Empty; }
 
             IEnumerable<Character> players;
@@ -781,7 +784,7 @@ namespace Barotrauma
             RoundEnding = true;
 
 #if CLIENT
-            GameMain.Lua.hook.Call("roundEnd");
+            GameMain.LuaCs.Hook.Call("roundEnd");
 #endif
             //Clear the grids to allow for garbage collection
             Powered.Grids.Clear();

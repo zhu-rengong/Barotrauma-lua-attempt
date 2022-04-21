@@ -13,7 +13,7 @@ namespace Barotrauma
 		{
 			var type = Type.GetType(typeName);
 			if (type != null) return type;
-			foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
+			foreach (var a in AppDomain.CurrentDomain.GetAssemblies().Reverse())
 			{
 				type = a.GetType(typeName);
 				if (type != null)
@@ -28,7 +28,7 @@ namespace Barotrauma
 
 			if (type == null)
 			{
-				GameMain.Lua.HandleLuaException(new Exception($"Tried to register a type that doesn't exist: {typeName}."));
+				GameMain.LuaCs.HandleException(new Exception($"Tried to register a type that doesn't exist: {typeName}."));
 				return null;
 			}
 
@@ -41,7 +41,7 @@ namespace Barotrauma
 
 			if (type == null)
 			{
-				GameMain.Lua.HandleLuaException(new Exception($"Tried to unregister a type that doesn't exist: {typeName}."));
+				GameMain.LuaCs.HandleException(new Exception($"Tried to unregister a type that doesn't exist: {typeName}."));
 				return;
 			}
 
@@ -79,7 +79,7 @@ namespace Barotrauma
 
 			if (type == null)
 			{
-				GameMain.Lua.HandleLuaException(new Exception($"Tried to create a static userdata of a type that doesn't exist: {typeName}."));
+				GameMain.LuaCs.HandleException(new Exception($"Tried to create a static userdata of a type that doesn't exist: {typeName}."));
 				return null;
 			}
 
@@ -94,7 +94,7 @@ namespace Barotrauma
 
 			if (type == null)
 			{
-				GameMain.Lua.HandleLuaException(new Exception($"Tried to create an enum table with a type that doesn't exist:: {typeName}."));
+				GameMain.LuaCs.HandleException(new Exception($"Tried to create an enum table with a type that doesn't exist:: {typeName}."));
 				return null;
 			}
 
@@ -126,7 +126,7 @@ namespace Barotrauma
 		{
 			if (IUUD == null)
 			{
-				GameMain.Lua.HandleLuaException(new Exception($"Tried to use a UserDataDescriptor that is null to make {fieldName} accessible."));
+				GameMain.LuaCs.HandleException(new Exception($"Tried to use a UserDataDescriptor that is null to make {fieldName} accessible."));
 				return;
 			}
 
@@ -140,7 +140,7 @@ namespace Barotrauma
 
 			if (field == null)
 			{
-				GameMain.Lua.HandleLuaException(new Exception($"Tried to make field '{fieldName}' accessible, but the field doesn't exist."));
+				GameMain.LuaCs.HandleException(new Exception($"Tried to make field '{fieldName}' accessible, but the field doesn't exist."));
 				return;
 			}
 
@@ -164,7 +164,7 @@ namespace Barotrauma
 		{
 			if (IUUD == null)
 			{
-				GameMain.Lua.HandleLuaException(new Exception($"Tried to use a UserDataDescriptor that is null to make {methodName} accessible."));
+				GameMain.LuaCs.HandleException(new Exception($"Tried to use a UserDataDescriptor that is null to make {methodName} accessible."));
 				return;
 			}
 
@@ -178,7 +178,7 @@ namespace Barotrauma
 
 			if (method == null)
 			{
-				GameMain.Lua.HandleLuaException(new Exception($"Tried to make method '{methodName}' accessible, but the method doesn't exist."));
+				GameMain.LuaCs.HandleException(new Exception($"Tried to make method '{methodName}' accessible, but the method doesn't exist."));
 				return;
 			}
 
@@ -190,7 +190,7 @@ namespace Barotrauma
 		{
 			if (IUUD == null)
 			{
-				GameMain.Lua.HandleLuaException(new Exception($"Tried to use a UserDataDescriptor that is null to add method {methodName}."));
+				GameMain.LuaCs.HandleException(new Exception($"Tried to use a UserDataDescriptor that is null to add method {methodName}."));
 				return;
 			}
 
@@ -198,8 +198,8 @@ namespace Barotrauma
 			descriptor.RemoveMember(methodName);
 			descriptor.AddMember(methodName, new ObjectCallbackMemberDescriptor(methodName, (object arg1, ScriptExecutionContext arg2, CallbackArguments arg3) =>
 			{
-				if (GameMain.Lua != null)
-					return GameMain.Lua.CallFunction(function, arg3.GetArray());
+				if (GameMain.LuaCs != null)
+					return GameMain.LuaCs.CallLuaFunction(function, arg3.GetArray());
 				return null;
 			}));
 		}
@@ -208,7 +208,7 @@ namespace Barotrauma
 		{
 			if (IUUD == null)
 			{
-				GameMain.Lua.HandleLuaException(new Exception($"Tried to use a UserDataDescriptor that is null to remove the member {memberName}."));
+				GameMain.LuaCs.HandleException(new Exception($"Tried to use a UserDataDescriptor that is null to remove the member {memberName}."));
 				return;
 			}
 

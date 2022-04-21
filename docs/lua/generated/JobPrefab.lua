@@ -26,21 +26,6 @@ function JobPrefab.Get(identifier) end
 -- @treturn JobPrefab
 function JobPrefab.Random(sync) end
 
---- LoadAll
--- @realm shared
--- @tparam Enumerable files
-function JobPrefab.LoadAll(files) end
-
---- LoadFromFile
--- @realm shared
--- @tparam ContentFile file
-function JobPrefab.LoadFromFile(file) end
-
---- RemoveByFile
--- @realm shared
--- @tparam string filePath
-function JobPrefab.RemoveByFile(filePath) end
-
 --- GetType
 -- @realm shared
 -- @treturn Type
@@ -73,34 +58,9 @@ function GetHashCode() end
 -- @Color UIColor
 
 ---
--- Identifier, Field of type string
--- @realm shared
--- @string Identifier
-
----
--- Name, Field of type string
--- @realm shared
--- @string Name
-
----
 -- IdleBehavior, Field of type BehaviorType
 -- @realm shared
 -- @BehaviorType IdleBehavior
-
----
--- OriginalName, Field of type string
--- @realm shared
--- @string OriginalName
-
----
--- ContentPackage, Field of type ContentPackage
--- @realm shared
--- @ContentPackage ContentPackage
-
----
--- Description, Field of type string
--- @realm shared
--- @string Description
 
 ---
 -- OnlyJobSpecificDialog, Field of type bool
@@ -158,19 +118,14 @@ function GetHashCode() end
 -- @SkillPrefab PrimarySkill
 
 ---
--- FilePath, Field of type string
+-- Element, Field of type ContentXElement
 -- @realm shared
--- @string FilePath
+-- @ContentXElement Element
 
 ---
--- Element, Field of type XElement
+-- ClothingElement, Field of type ContentXElement
 -- @realm shared
--- @XElement Element
-
----
--- ClothingElement, Field of type XElement
--- @realm shared
--- @XElement ClothingElement
+-- @ContentXElement ClothingElement
 
 ---
 -- Variants, Field of type number
@@ -178,14 +133,29 @@ function GetHashCode() end
 -- @number Variants
 
 ---
+-- UintIdentifier, Field of type number
+-- @realm shared
+-- @number UintIdentifier
+
+---
+-- ContentPackage, Field of type ContentPackage
+-- @realm shared
+-- @ContentPackage ContentPackage
+
+---
+-- FilePath, Field of type ContentPath
+-- @realm shared
+-- @ContentPath FilePath
+
+---
 -- ItemSets, Field of type table
 -- @realm shared
 -- @table ItemSets
 
 ---
--- PreviewItems, Field of type table
+-- PreviewItems, Field of type ImmutableDictionary`2
 -- @realm shared
--- @table PreviewItems
+-- @ImmutableDictionary`2 PreviewItems
 
 ---
 -- Skills, Field of type table
@@ -203,6 +173,16 @@ function GetHashCode() end
 -- @table AppropriateOrders
 
 ---
+-- Name, Field of type LocalizedString
+-- @realm shared
+-- @LocalizedString Name
+
+---
+-- Description, Field of type LocalizedString
+-- @realm shared
+-- @LocalizedString Description
+
+---
 -- Icon, Field of type Sprite
 -- @realm shared
 -- @Sprite Icon
@@ -218,7 +198,17 @@ function GetHashCode() end
 -- @PrefabCollection`1 JobPrefab.Prefabs
 
 ---
--- JobPrefab.NoJobElement, Field of type XElement
+-- JobPrefab.NoJobElement, Field of type ContentXElement
 -- @realm shared
--- @XElement JobPrefab.NoJobElement
+-- @ContentXElement JobPrefab.NoJobElement
+
+---
+-- Identifier, Field of type Identifier
+-- @realm shared
+-- @Identifier Identifier
+
+---
+-- ContentFile, Field of type ContentFile
+-- @realm shared
+-- @ContentFile ContentFile
 

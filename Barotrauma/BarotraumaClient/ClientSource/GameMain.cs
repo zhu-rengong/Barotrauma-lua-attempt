@@ -20,7 +20,7 @@ namespace Barotrauma
 {
     class GameMain : Game
     {
-        public static LuaSetup Lua;
+        public static LuaCsSetup LuaCs;
 
         public static bool ShowFPS = false;
         public static bool ShowPerf = false;
@@ -226,7 +226,7 @@ namespace Barotrauma
                 throw new Exception("Content folder not found. If you are trying to compile the game from the source code and own a legal copy of the game, you can copy the Content folder from the game's files to BarotraumaShared/Content.");
             }
 
-            Lua = new LuaSetup();
+            LuaCs = new LuaCsSetup();
 
             GameSettings.Init();
             
@@ -922,8 +922,8 @@ namespace Barotrauma
 
                 SoundManager?.Update();
 
-                GameMain.Lua.Update();
-                GameMain.Lua.hook.Call("think", new object[] { });
+                GameMain.LuaCs.Update();
+                GameMain.LuaCs.Hook.Call("think");
 
                 Timing.Accumulator -= Timing.Step;
 
@@ -1089,7 +1089,7 @@ namespace Barotrauma
             MainMenuScreen.Select();
             GameSession = null;
 
-            GameMain.Lua.Stop();
+            GameMain.LuaCs.Stop();
         }
 
         public void ShowCampaignDisclaimer(Action onContinue = null)

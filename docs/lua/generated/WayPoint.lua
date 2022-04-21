@@ -55,7 +55,7 @@ function InitializeLinks() end
 
 --- Load
 -- @realm shared
--- @tparam XElement element
+-- @tparam ContentXElement element
 -- @tparam Submarine submarine
 -- @tparam IdRemap idRemap
 -- @treturn WayPoint
@@ -75,6 +75,11 @@ function ShallowRemove() end
 -- @realm shared
 function Remove() end
 
+--- AddLinked
+-- @realm shared
+-- @tparam MapEntity entity
+function AddLinked(entity) end
+
 --- ResolveLinks
 -- @realm shared
 -- @tparam IdRemap childRemap
@@ -93,13 +98,13 @@ function IsMouseOn(position) end
 
 --- HasUpgrade
 -- @realm shared
--- @tparam string identifier
+-- @tparam Identifier identifier
 -- @treturn bool
 function HasUpgrade(identifier) end
 
 --- GetUpgrade
 -- @realm shared
--- @tparam string identifier
+-- @tparam Identifier identifier
 -- @treturn Upgrade
 function GetUpgrade(identifier) end
 
@@ -276,9 +281,9 @@ function GetHashCode() end
 -- @bool Linkable
 
 ---
--- AllowedLinks, Field of type table
+-- AllowedLinks, Field of type Enumerable
 -- @realm shared
--- @table AllowedLinks
+-- @Enumerable AllowedLinks
 
 ---
 -- ResizeHorizontal, Field of type bool
@@ -396,6 +401,11 @@ function GetHashCode() end
 -- @number SpawnTime
 
 ---
+-- ErrorLine, Field of type string
+-- @realm shared
+-- @string ErrorLine
+
+---
 -- Ladders, Field of type Ladder
 -- @realm shared
 -- @Ladder Ladders
@@ -441,9 +451,9 @@ function GetHashCode() end
 -- @number WayPoint.LadderWaypointInterval
 
 ---
--- prefab, Field of type MapEntityPrefab
+-- Prefab, Field of type MapEntityPrefab
 -- @realm shared
--- @MapEntityPrefab prefab
+-- @MapEntityPrefab Prefab
 
 ---
 -- unresolvedLinkedToID, Field of type table
@@ -451,9 +461,9 @@ function GetHashCode() end
 -- @table unresolvedLinkedToID
 
 ---
--- disallowedUpgrades, Field of type HashSet`1
+-- DisallowedUpgradeSet, Field of type HashSet`1
 -- @realm shared
--- @HashSet`1 disallowedUpgrades
+-- @HashSet`1 DisallowedUpgradeSet
 
 ---
 -- linkedTo, Field of type table
@@ -484,4 +494,14 @@ function GetHashCode() end
 -- ID, Field of type number
 -- @realm shared
 -- @number ID
+
+---
+-- CreationStackTrace, Field of type string
+-- @realm shared
+-- @string CreationStackTrace
+
+---
+-- CreationIndex, Field of type number
+-- @realm shared
+-- @number CreationIndex
 

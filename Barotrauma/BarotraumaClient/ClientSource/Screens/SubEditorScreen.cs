@@ -1049,7 +1049,7 @@ namespace Barotrauma
                 GameMain.SubEditorScreen.Select();
             };
 
-            GameMain.Lua.Initialize();
+            GameMain.LuaCs.Initialize();
 
             return true;
         }
@@ -1319,7 +1319,7 @@ namespace Barotrauma
 
         public void Select(bool enableAutoSave = true)
         {
-            GameMain.Lua.Stop();
+            GameMain.LuaCs.Stop();
 
             base.Select();
 

@@ -1243,21 +1243,27 @@ namespace Barotrauma
 
             commands.Add(new Command("lua", "lua: runs a string", (string[] args) =>
             {
-                GameMain.Lua.DoString(string.Join(" ", args));
+                GameMain.LuaCs.Lua.DoString(string.Join(" ", args));
+            }));
+            commands.Add(new Command("cs", "cs: runs a string", (string[] args) =>
+            {
+                if(LuaCsSetup.GetPackage("CsForBarotrauma", false) == null) { return; }
+
+                GameMain.LuaCs.CsScript.Run(string.Join(" ", args));
             }));
 
             commands.Add(new Command("reloadlua", "reloads lua", (string[] args) =>
             {
-                GameMain.Lua.Initialize();
+                GameMain.LuaCs.Initialize();
             }));
 
-            commands.Add(new Command("install_cl_lua", "Installs client-Side Lua into your client.", (string[] args) =>
+            commands.Add(new Command("install_cl_lua", "Installs Client-Side Lua into your client.", (string[] args) =>
             {
-                ContentPackage luaPackage = LuaSetup.GetPackage();
+                ContentPackage luaPackage = LuaCsSetup.GetPackage("Lua For Barotrauma");
 
                 if (luaPackage == null)
                 {
-                    GameMain.Server.SendChatMessage("Couldn't find the LuaForBarotrauma package.", ChatMessageType.ServerMessageBox);
+                    GameMain.Server.SendChatMessage("Couldn't find the Lua For Barotrauma package.", ChatMessageType.ServerMessageBox);
                     return;
                 }
 
@@ -1273,27 +1279,37 @@ namespace Barotrauma
                         "Mono.Cecil.Rocks.dll", "MonoMod.Common.dll",
                         "MoonSharp.Interpreter.dll",
                         "mscordaccore_amd64_amd64_4.700.22.11601.dll",
+
+                        "Microsoft.CodeAnalysis.dll", "Microsoft.CodeAnalysis.CSharp.dll",
+                        "Microsoft.CodeAnalysis.CSharp.Scripting.dll", "Microsoft.CodeAnalysis.Scripting.dll",
+
+                        "System.Reflection.Metadata.dll", "System.Collections.Immutable.dll", 
+                        "System.Runtime.CompilerServices.Unsafe.dll"
                     };
 
                     File.Move("Barotrauma.dll", "Barotrauma.dll.old", true);
                     File.Move("Barotrauma.deps.json", "Barotrauma.deps.json.old", true);
+
+                    File.Move("System.Reflection.Metadata.dll", "System.Reflection.Metadata.dll.old", true);
+                    File.Move("System.Collections.Immutable.dll", "System.Collections.Immutable.dll.old", true);
+                    File.Move("System.Runtime.CompilerServices.Unsafe.dll", "System.Runtime.CompilerServices.Unsafe.dll.old", true);
 
                     foreach (string file in filesToCopy)
                     {
                         File.Copy(Path.Combine(path, "Binary", file), file, true);
                     }
 
-                    File.WriteAllText(LuaSetup.VERSION_FILE, luaPackage.ModVersion);
+                    File.WriteAllText(LuaCsSetup.VERSION_FILE, luaPackage.ModVersion);
                 }
                 catch (UnauthorizedAccessException e)
                 {
-                    GameMain.Lua.PrintError("You seem to already have Client Side Lua installed, if you are trying to reinstall, make sure uninstall it first (mainmenu button located top left).");
+                    GameMain.LuaCs.PrintError("You seem to already have Client Side Lua installed, if you are trying to reinstall, make sure uninstall it first (mainmenu button located top left).");
 
                     return;
                 }
                 catch (Exception e)
                 {
-                    GameMain.Lua.HandleLuaException(e);
+                    GameMain.LuaCs.HandleException(e);
 
                     return;
                 }

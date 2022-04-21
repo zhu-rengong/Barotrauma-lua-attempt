@@ -541,9 +541,9 @@ namespace Barotrauma
                 return;
             }
 
-            var should = new LuaResult(GameMain.Lua.hook.Call("character.applyDamage", new object[] { this, attackResult, hitLimb, allowStacking }));
+            var should = GameMain.LuaCs.Hook.Call<bool?>("character.applyDamage", this, attackResult, hitLimb, allowStacking);
 
-            if (should.Bool())
+            if (should != null && should.Value)
                 return;
 
             foreach (Affliction newAffliction in attackResult.Afflictions)
@@ -674,9 +674,9 @@ namespace Barotrauma
                 }
             }
 
-            var should = new LuaResult(GameMain.Lua.hook.Call("character.applyAffliction", new object[] { this, limbHealth, newAffliction, allowStacking }));
+            var should = GameMain.LuaCs.Hook.Call<bool?>("character.applyAffliction", this, limbHealth, newAffliction, allowStacking);
 
-            if (should.Bool())
+            if (should != null && should.Value)
                 return;
 
             Affliction existingAffliction = null;

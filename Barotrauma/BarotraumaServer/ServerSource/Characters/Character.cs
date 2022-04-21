@@ -25,7 +25,7 @@ namespace Barotrauma
                     GameServer.Log(GameServer.CharacterLogName(this) + " has died (Cause of death: " + causeOfDeath + ")", ServerLog.MessageType.Attack);
                 }
             }
-            GameMain.Lua.hook.Call("characterDeath", new object[] { this,causeOfDeathAffliction });
+            GameMain.LuaCs.Hook.Call("characterDeath", this,causeOfDeathAffliction);
 
             if (HasAbilityFlag(AbilityFlags.RetainExperienceForNewCharacter))
             {
@@ -43,7 +43,7 @@ namespace Barotrauma
                 var owner = GameMain.Server.ConnectedClients.Find(c => c.Character == this);
                 if (owner != null)
                 {
-                    if (!GameMain.Lua.game.overrideTraitors)
+                    if (!GameMain.LuaCs.Game.overrideTraitors)
                     {
                         GameMain.Server.SendDirectChatMessage(TextManager.FormatServerMessage("KilledByTraitorNotification"), owner, ChatMessageType.ServerMessageBoxInGame);
                     }

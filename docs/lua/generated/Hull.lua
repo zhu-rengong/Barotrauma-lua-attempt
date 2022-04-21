@@ -7,11 +7,21 @@ Barotrauma.Hull
 -- @pragma nostrip
 local Hull = {}
 
---- DirtySections
+--- IncreaseSectionColorOrStrength
 -- @realm shared
--- @tparam table sections
--- @tparam number dirtyVal
-function DirtySections(sections, dirtyVal) end
+-- @tparam BackgroundSection section
+-- @tparam Nullable`1 color
+-- @tparam Nullable`1 strength
+-- @tparam bool requiresUpdate
+-- @tparam bool isCleaning
+function IncreaseSectionColorOrStrength(section, color, strength, requiresUpdate, isCleaning) end
+
+--- SetSectionColorOrStrength
+-- @realm shared
+-- @tparam BackgroundSection section
+-- @tparam Nullable`1 color
+-- @tparam Nullable`1 strength
+function SetSectionColorOrStrength(section, color, strength) end
 
 --- CleanSection
 -- @realm shared
@@ -22,7 +32,7 @@ function CleanSection(section, cleanVal, updateRequired) end
 
 --- Load
 -- @realm shared
--- @tparam XElement element
+-- @tparam ContentXElement element
 -- @tparam Submarine submarine
 -- @tparam IdRemap idRemap
 -- @treturn Hull
@@ -40,19 +50,18 @@ function Save(parentElement) end
 -- @treturn bool
 function IsMouseOn(position) end
 
---- ServerWrite
+--- ServerEventWrite
 -- @realm shared
--- @tparam IWriteMessage message
+-- @tparam IWriteMessage msg
 -- @tparam Client c
--- @tparam Object[] extraData
-function ServerWrite(message, c, extraData) end
+-- @tparam IData extraData
+function ServerEventWrite(msg, c, extraData) end
 
---- ServerRead
+--- ServerEventRead
 -- @realm shared
--- @tparam ClientNetObject type
 -- @tparam IReadMessage msg
 -- @tparam Client c
-function ServerRead(type, msg, c) end
+function ServerEventRead(msg, c) end
 
 --- GetBorders
 -- @realm shared
@@ -241,11 +250,6 @@ function GetBackgroundSection(worldPosition) end
 -- @treturn Enumerable
 function GetBackgroundSectionsViaContaining(rectArea) end
 
---- RefreshSubmergedSections
--- @realm shared
--- @tparam Rectangle waterArea
-function RefreshSubmergedSections(waterArea) end
-
 --- DoesSectionMatch
 -- @realm shared
 -- @tparam number index
@@ -253,21 +257,10 @@ function RefreshSubmergedSections(waterArea) end
 -- @treturn bool
 function DoesSectionMatch(index, row) end
 
---- IncreaseSectionColorOrStrength
+--- AddLinked
 -- @realm shared
--- @tparam BackgroundSection section
--- @tparam Nullable`1 color
--- @tparam Nullable`1 strength
--- @tparam bool requiresUpdate
--- @tparam bool isCleaning
-function IncreaseSectionColorOrStrength(section, color, strength, requiresUpdate, isCleaning) end
-
---- SetSectionColorOrStrength
--- @realm shared
--- @tparam BackgroundSection section
--- @tparam Nullable`1 color
--- @tparam Nullable`1 strength
-function SetSectionColorOrStrength(section, color, strength) end
+-- @tparam MapEntity entity
+function AddLinked(entity) end
 
 --- ResolveLinks
 -- @realm shared
@@ -276,13 +269,13 @@ function ResolveLinks(childRemap) end
 
 --- HasUpgrade
 -- @realm shared
--- @tparam string identifier
+-- @tparam Identifier identifier
 -- @treturn bool
 function HasUpgrade(identifier) end
 
 --- GetUpgrade
 -- @realm shared
--- @tparam string identifier
+-- @tparam Identifier identifier
 -- @treturn Upgrade
 function GetUpgrade(identifier) end
 
@@ -353,11 +346,6 @@ function Equals(obj) end
 function GetHashCode() end
 
 ---
--- Hull.EntityGrids, Field of type table
--- @realm shared
--- @table Hull.EntityGrids
-
----
 -- SerializableProperties, Field of type table
 -- @realm shared
 -- @table SerializableProperties
@@ -368,9 +356,9 @@ function GetHashCode() end
 -- @string Name
 
 ---
--- DisplayName, Field of type string
+-- DisplayName, Field of type LocalizedString
 -- @realm shared
--- @string DisplayName
+-- @LocalizedString DisplayName
 
 ---
 -- OutpostModuleTags, Field of type Enumerable
@@ -538,9 +526,9 @@ function GetHashCode() end
 -- @bool DrawOverWater
 
 ---
--- AllowedLinks, Field of type table
+-- AllowedLinks, Field of type Enumerable
 -- @realm shared
--- @table AllowedLinks
+-- @Enumerable AllowedLinks
 
 ---
 -- ResizeHorizontal, Field of type bool
@@ -658,6 +646,11 @@ function GetHashCode() end
 -- @number SpawnTime
 
 ---
+-- ErrorLine, Field of type string
+-- @realm shared
+-- @string ErrorLine
+
+---
 -- properties, Field of type table
 -- @realm shared
 -- @table properties
@@ -688,9 +681,14 @@ function GetHashCode() end
 -- @number yBackgroundMax
 
 ---
--- Hull.hullList, Field of type table
+-- Hull.HullList, Field of type table
 -- @realm shared
--- @table Hull.hullList
+-- @table Hull.HullList
+
+---
+-- Hull.EntityGrids, Field of type table
+-- @realm shared
+-- @table Hull.EntityGrids
 
 ---
 -- Hull.ShowHulls, Field of type bool
@@ -763,9 +761,9 @@ function GetHashCode() end
 -- @number Hull.MaxDecalsPerHull
 
 ---
--- prefab, Field of type MapEntityPrefab
+-- Prefab, Field of type MapEntityPrefab
 -- @realm shared
--- @MapEntityPrefab prefab
+-- @MapEntityPrefab Prefab
 
 ---
 -- unresolvedLinkedToID, Field of type table
@@ -773,9 +771,9 @@ function GetHashCode() end
 -- @table unresolvedLinkedToID
 
 ---
--- disallowedUpgrades, Field of type HashSet`1
+-- DisallowedUpgradeSet, Field of type HashSet`1
 -- @realm shared
--- @HashSet`1 disallowedUpgrades
+-- @HashSet`1 DisallowedUpgradeSet
 
 ---
 -- linkedTo, Field of type table
@@ -806,4 +804,14 @@ function GetHashCode() end
 -- ID, Field of type number
 -- @realm shared
 -- @number ID
+
+---
+-- CreationStackTrace, Field of type string
+-- @realm shared
+-- @string CreationStackTrace
+
+---
+-- CreationIndex, Field of type number
+-- @realm shared
+-- @number CreationIndex
 

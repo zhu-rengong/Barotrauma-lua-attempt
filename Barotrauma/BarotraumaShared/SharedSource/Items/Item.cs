@@ -999,7 +999,7 @@ namespace Barotrauma
             if (Components.Any(ic => ic is Wire) && Components.All(ic => ic is Wire || ic is Holdable)) { isWire = true; }
             if (HasTag("logic")) { isLogic = true; }
 
-            GameMain.Lua.hook.Call("item.created", this);
+            GameMain.LuaCs.Hook.Call("item.created", this);
 
             ApplyStatusEffects(ActionType.OnSpawn, 1.0f);
             Components.ForEach(c => c.ApplyStatusEffects(ActionType.OnSpawn, 1.0f));
@@ -2469,9 +2469,9 @@ namespace Barotrauma
 
             if (condition == 0.0f) { return; }
 
-            var should = new LuaResult(GameMain.Lua.hook.Call("item.use", new object[] { this, character, targetLimb }));
+            var should = GameMain.LuaCs.Hook.Call<bool?>("item.use", new object[] { this, character, targetLimb });
 
-            if (should.Bool())
+            if (should != null && should.Value)
                 return;
 
             bool remove = false;
@@ -2507,9 +2507,9 @@ namespace Barotrauma
         {
             if (condition == 0.0f) { return; }
 
-            var should = new LuaResult(GameMain.Lua.hook.Call("item.secondaryUse", new object[] { this, character}));
+            var should = GameMain.LuaCs.Hook.Call<bool?>("item.secondaryUse", this, character);
 
-            if (should.Bool())
+            if (should != null && should.Value)
                 return;
 
             bool remove = false;
@@ -2851,8 +2851,8 @@ namespace Barotrauma
                 }
             }
 
-            var result = new LuaResult(GameMain.Lua.hook.Call("item.readPropertyChange", this, property, parentObject, allowEditing));
-            if (result.Bool())
+            var result = GameMain.LuaCs.Hook.Call<bool?>("item.readPropertyChange", this, property, parentObject, allowEditing);
+            if (result != null && result.Value)
                 return;
 
             Type type = property.PropertyType;
@@ -3343,7 +3343,7 @@ namespace Barotrauma
                 body = null;
             }
 
-            GameMain.Lua.hook.Call("item.removed", this);
+            GameMain.LuaCs.Hook.Call("item.removed", this);
         }
 
         public override void Remove()
@@ -3427,7 +3427,7 @@ namespace Barotrauma
 
             RemoveProjSpecific();
 
-            GameMain.Lua.hook.Call("item.removed", this);
+            GameMain.LuaCs.Hook.Call("item.removed", this);
         }
 
         partial void RemoveProjSpecific();

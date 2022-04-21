@@ -10,95 +10,6 @@ Barotrauma source code: [CharacterInfo.cs](https://github.com/evilfactory/Barotr
 
 local CharacterInfo = {}
 
---- RecreateHead
--- @realm shared
--- @tparam HeadInfo headInfo
-function RecreateHead(headInfo) end
-
---- RecreateHead
--- @realm shared
--- @tparam number headID
--- @tparam Race race
--- @tparam Gender gender
--- @tparam number hairIndex
--- @tparam number beardIndex
--- @tparam number moustacheIndex
--- @tparam number faceAttachmentIndex
-function RecreateHead(headID, race, gender, hairIndex, beardIndex, moustacheIndex, faceAttachmentIndex) end
-
---- RefreshHead
--- @realm shared
-function RefreshHead() end
-
---- LoadHeadAttachments
--- @realm shared
-function LoadHeadAttachments() end
-
---- AddEmpty
--- @realm shared
--- @tparam Enumerable elements
--- @tparam WearableType type
--- @tparam number commonness
--- @treturn table
-function CharacterInfo.AddEmpty(elements, type, commonness) end
-
---- GetRandomElement
--- @realm shared
--- @tparam Enumerable elements
--- @treturn XElement
-function GetRandomElement(elements) end
-
---- IsValidIndex
--- @realm shared
--- @tparam number index
--- @tparam table list
--- @treturn bool
-function CharacterInfo.IsValidIndex(index, list) end
-
---- IncreaseSkillLevel
--- @realm shared
--- @tparam string skillIdentifier
--- @tparam number increase
--- @tparam bool gainedFromAbility
-function IncreaseSkillLevel(skillIdentifier, increase, gainedFromAbility) end
-
---- SetSkillLevel
--- @realm shared
--- @tparam string skillIdentifier
--- @tparam number level
-function SetSkillLevel(skillIdentifier, level) end
-
---- GiveExperience
--- @realm shared
--- @tparam number amount
--- @tparam bool isMissionExperience
-function GiveExperience(amount, isMissionExperience) end
-
---- SetExperience
--- @realm shared
--- @tparam number newExperience
-function SetExperience(newExperience) end
-
---- GetTotalTalentPoints
--- @realm shared
--- @treturn number
-function GetTotalTalentPoints() end
-
---- GetAvailableTalentPoints
--- @realm shared
--- @treturn number
-function GetAvailableTalentPoints() end
-
---- GetProgressTowardsNextLevel
--- @realm shared
--- @treturn number
-function GetProgressTowardsNextLevel() end
-
---- GetExperienceRequiredForCurrentLevel
--- @realm shared
--- @treturn number
-function GetExperienceRequiredForCurrentLevel() end
-
 --- GetExperienceRequiredToLevelUp
 -- @realm shared
 -- @treturn number
@@ -127,7 +38,7 @@ function Save(parentElement) end
 --- SaveOrders
 -- @realm shared
 -- @tparam XElement parentElement
--- @tparam OrderInfo[] orders
+-- @tparam Order[] orders
 function CharacterInfo.SaveOrders(parentElement, orders) end
 
 --- SaveOrderData
@@ -161,6 +72,10 @@ function CharacterInfo.LoadOrders(ordersElement) end
 -- @tparam Character character
 -- @tparam XElement healthData
 function CharacterInfo.ApplyHealthData(character, healthData) end
+
+--- ReloadHeadAttachments
+-- @realm shared
+function ReloadHeadAttachments() end
 
 --- ClearCurrentOrders
 -- @realm shared
@@ -197,7 +112,7 @@ function GetSavedStatValue(statType) end
 --- GetSavedStatValue
 -- @realm shared
 -- @tparam StatTypes statType
--- @tparam string statIdentifier
+-- @tparam Identifier statIdentifier
 -- @treturn number
 function GetSavedStatValue(statType, statIdentifier) end
 
@@ -210,18 +125,6 @@ function GetSavedStatValue(statType, statIdentifier) end
 -- @tparam number maxValue
 -- @tparam bool setValue
 function ChangeSavedStatValue(statType, value, statIdentifier, removeOnDeath, maxValue, setValue) end
-
---- Create
--- @realm shared
--- @tparam string speciesName
--- @tparam string name
--- @tparam JobPrefab jobPrefab
--- @tparam string ragdollFileName
--- @tparam number variant
--- @tparam RandSync randSync
--- @tparam string npcIdentifier
--- @treturn CharacterInfo
-function CharacterInfo.Create(speciesName, name, jobPrefab, ragdollFileName, variant, randSync, npcIdentifier) end
 
 --- ServerWrite
 -- @realm shared
@@ -250,6 +153,20 @@ function CheckDisguiseStatus(handleBuff, idCard) end
 -- @treturn number
 function GetManualOrderPriority(order) end
 
+--- GetValidAttachmentElements
+-- @realm shared
+-- @tparam Enumerable elements
+-- @tparam HeadPreset headPreset
+-- @tparam Nullable`1 wearableType
+-- @treturn Enumerable
+function GetValidAttachmentElements(elements, headPreset, wearableType) end
+
+--- CountValidAttachmentsOfType
+-- @realm shared
+-- @tparam WearableType wearableType
+-- @treturn number
+function CountValidAttachmentsOfType(wearableType) end
+
 --- GetRandomName
 -- @realm shared
 -- @tparam RandSync randSync
@@ -259,26 +176,9 @@ function GetRandomName(randSync) end
 --- SelectRandomColor
 -- @realm shared
 -- @tparam ImmutableArray`1& array
+-- @tparam RandSync randSync
 -- @treturn Color
-function CharacterInfo.SelectRandomColor(array) end
-
---- GetRandomGender
--- @realm shared
--- @tparam RandSync randSync
--- @treturn Gender
-function GetRandomGender(randSync) end
-
---- GetRandomRace
--- @realm shared
--- @tparam RandSync randSync
--- @treturn Race
-function GetRandomRace(randSync) end
-
---- GetRandomHeadID
--- @realm shared
--- @tparam RandSync randSync
--- @treturn number
-function GetRandomHeadID(randSync) end
+function CharacterInfo.SelectRandomColor(array, randSync) end
 
 --- GetIdentifier
 -- @realm shared
@@ -290,35 +190,106 @@ function GetIdentifier() end
 -- @treturn number
 function GetIdentifierUsingOriginalName() end
 
---- FilterByTypeAndHeadID
+--- FilterElements
 -- @realm shared
 -- @tparam Enumerable elements
--- @tparam WearableType targetType
--- @tparam number headSpriteId
+-- @tparam ImmutableHashSet`1 tags
+-- @tparam Nullable`1 targetType
 -- @treturn Enumerable
-function FilterByTypeAndHeadID(elements, targetType, headSpriteId) end
+function FilterElements(elements, tags, targetType) end
 
---- FilterElementsByGenderAndRace
+--- RecreateHead
+-- @realm shared
+-- @tparam ImmutableHashSet`1 tags
+-- @tparam number hairIndex
+-- @tparam number beardIndex
+-- @tparam number moustacheIndex
+-- @tparam number faceAttachmentIndex
+function RecreateHead(tags, hairIndex, beardIndex, moustacheIndex, faceAttachmentIndex) end
+
+--- ReplaceVars
+-- @realm shared
+-- @tparam string str
+-- @treturn string
+function ReplaceVars(str) end
+
+--- RecreateHead
+-- @realm shared
+-- @tparam HeadInfo headInfo
+function RecreateHead(headInfo) end
+
+--- RefreshHead
+-- @realm shared
+function RefreshHead() end
+
+--- LoadHeadAttachments
+-- @realm shared
+function LoadHeadAttachments() end
+
+--- AddEmpty
 -- @realm shared
 -- @tparam Enumerable elements
--- @tparam Gender gender
--- @tparam Race race
--- @treturn Enumerable
-function FilterElementsByGenderAndRace(elements, gender, race) end
+-- @tparam WearableType type
+-- @tparam number commonness
+-- @treturn table
+function CharacterInfo.AddEmpty(elements, type, commonness) end
 
---- IsMatchingGender
+--- GetRandomElement
 -- @realm shared
--- @tparam Gender gender
--- @tparam Gender myGender
--- @treturn bool
-function CharacterInfo.IsMatchingGender(gender, myGender) end
+-- @tparam Enumerable elements
+-- @treturn ContentXElement
+function GetRandomElement(elements) end
 
---- IsMatchingRace
+--- IsValidIndex
 -- @realm shared
--- @tparam Race race
--- @tparam Race myRace
+-- @tparam number index
+-- @tparam table list
 -- @treturn bool
-function CharacterInfo.IsMatchingRace(race, myRace) end
+function CharacterInfo.IsValidIndex(index, list) end
+
+--- IncreaseSkillLevel
+-- @realm shared
+-- @tparam Identifier skillIdentifier
+-- @tparam number increase
+-- @tparam bool gainedFromAbility
+function IncreaseSkillLevel(skillIdentifier, increase, gainedFromAbility) end
+
+--- SetSkillLevel
+-- @realm shared
+-- @tparam Identifier skillIdentifier
+-- @tparam number level
+function SetSkillLevel(skillIdentifier, level) end
+
+--- GiveExperience
+-- @realm shared
+-- @tparam number amount
+-- @tparam bool isMissionExperience
+function GiveExperience(amount, isMissionExperience) end
+
+--- SetExperience
+-- @realm shared
+-- @tparam number newExperience
+function SetExperience(newExperience) end
+
+--- GetTotalTalentPoints
+-- @realm shared
+-- @treturn number
+function GetTotalTalentPoints() end
+
+--- GetAvailableTalentPoints
+-- @realm shared
+-- @treturn number
+function GetAvailableTalentPoints() end
+
+--- GetProgressTowardsNextLevel
+-- @realm shared
+-- @treturn number
+function GetProgressTowardsNextLevel() end
+
+--- GetExperienceRequiredForCurrentLevel
+-- @realm shared
+-- @treturn number
+function GetExperienceRequiredForCurrentLevel() end
 
 --- GetType
 -- @realm shared
@@ -347,9 +318,19 @@ function GetHashCode() end
 -- @HeadInfo Head
 
 ---
--- Heads, Field of type table
+-- IsMale, Field of type bool
 -- @realm shared
--- @table Heads
+-- @bool IsMale
+
+---
+-- IsFemale, Field of type bool
+-- @realm shared
+-- @bool IsFemale
+
+---
+-- Prefab, Field of type CharacterInfoPrefab
+-- @realm shared
+-- @CharacterInfoPrefab Prefab
 
 ---
 -- HasNickname, Field of type bool
@@ -367,9 +348,9 @@ function GetHashCode() end
 -- @string DisplayName
 
 ---
--- SpeciesName, Field of type string
+-- SpeciesName, Field of type Identifier
 -- @realm shared
--- @string SpeciesName
+-- @Identifier SpeciesName
 
 ---
 -- ExperiencePoints, Field of type number
@@ -402,9 +383,14 @@ function GetHashCode() end
 -- @table AttachmentSprites
 
 ---
--- CharacterConfigElement, Field of type XElement
+-- CharacterConfigElement, Field of type ContentXElement
 -- @realm shared
--- @XElement CharacterConfigElement
+-- @ContentXElement CharacterConfigElement
+
+---
+-- PersonalityTrait, Field of type NPCPersonalityTrait
+-- @realm shared
+-- @NPCPersonalityTrait PersonalityTrait
 
 ---
 -- CharacterInfo.HighestManualOrderPriority, Field of type number
@@ -422,81 +408,6 @@ function GetHashCode() end
 -- @table SpriteTags
 
 ---
--- PersonalityTrait, Field of type NPCPersonalityTrait
--- @realm shared
--- @NPCPersonalityTrait PersonalityTrait
-
----
--- HeadSpriteId, Field of type number
--- @realm shared
--- @number HeadSpriteId
-
----
--- Gender, Field of type Gender
--- @realm shared
--- @Gender Gender
-
----
--- Race, Field of type Race
--- @realm shared
--- @Race Race
-
----
--- HairIndex, Field of type number
--- @realm shared
--- @number HairIndex
-
----
--- BeardIndex, Field of type number
--- @realm shared
--- @number BeardIndex
-
----
--- MoustacheIndex, Field of type number
--- @realm shared
--- @number MoustacheIndex
-
----
--- FaceAttachmentIndex, Field of type number
--- @realm shared
--- @number FaceAttachmentIndex
-
----
--- HairColor, Field of type Color
--- @realm shared
--- @Color HairColor
-
----
--- FacialHairColor, Field of type Color
--- @realm shared
--- @Color FacialHairColor
-
----
--- SkinColor, Field of type Color
--- @realm shared
--- @Color SkinColor
-
----
--- HairElement, Field of type XElement
--- @realm shared
--- @XElement HairElement
-
----
--- BeardElement, Field of type XElement
--- @realm shared
--- @XElement BeardElement
-
----
--- MoustacheElement, Field of type XElement
--- @realm shared
--- @XElement MoustacheElement
-
----
--- FaceAttachment, Field of type XElement
--- @realm shared
--- @XElement FaceAttachment
-
----
 -- Ragdoll, Field of type RagdollParams
 -- @realm shared
 -- @RagdollParams Ragdoll
@@ -505,6 +416,26 @@ function GetHashCode() end
 -- IsAttachmentsLoaded, Field of type bool
 -- @realm shared
 -- @bool IsAttachmentsLoaded
+
+---
+-- Hairs, Field of type IReadOnlyList`1
+-- @realm shared
+-- @IReadOnlyList`1 Hairs
+
+---
+-- Beards, Field of type IReadOnlyList`1
+-- @realm shared
+-- @IReadOnlyList`1 Beards
+
+---
+-- Moustaches, Field of type IReadOnlyList`1
+-- @realm shared
+-- @IReadOnlyList`1 Moustaches
+
+---
+-- FaceAttachments, Field of type IReadOnlyList`1
+-- @realm shared
+-- @IReadOnlyList`1 FaceAttachments
 
 ---
 -- Wearables, Field of type Enumerable
@@ -592,14 +523,9 @@ function GetHashCode() end
 -- @number ID
 
 ---
--- HasGenders, Field of type bool
+-- HasSpecifierTags, Field of type bool
 -- @realm shared
--- @bool HasGenders
-
----
--- HasRaces, Field of type bool
--- @realm shared
--- @bool HasRaces
+-- @bool HasSpecifierTags
 
 ---
 -- HairColors, Field of type ImmutableArray`1
@@ -625,6 +551,11 @@ function GetHashCode() end
 -- SavedStatValues, Field of type table
 -- @realm shared
 -- @table SavedStatValues
+
+---
+-- CharacterInfo.MaxAdditionalTalentPoints, Field of type number
+-- @realm shared
+-- @number CharacterInfo.MaxAdditionalTalentPoints
 
 ---
 -- CharacterInfo.MaxCurrentOrders, Field of type number
