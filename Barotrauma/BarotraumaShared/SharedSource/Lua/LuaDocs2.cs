@@ -182,13 +182,23 @@ namespace Barotrauma
                     var (state, mapName) = GetMapClassName(className);
                     if (state) { return (true, mapName); }
 
-                    var declarT = TargetType.DeclaringType;
-
-                    className = declarT != null
-                            ? @$"{TargetType.Namespace}.{declarT.Name}.{className}"
-                            : @$"{TargetType.Namespace}.{className}";
-
-                    className = className.Replace('.', split);
+                    var nameSpacePart = tgt.Namespace;
+                    var declarT = tgt.DeclaringType;
+                    var prefix = "";
+                    while (declarT != null)
+                    {
+                        prefix = $@"{declarT.Name}.{prefix}";
+                        declarT = declarT.DeclaringType;
+                    }
+                    className = (nameSpacePart != ""
+                        ? (prefix != ""
+                            ? $@"{nameSpacePart}.{prefix}{className}"
+                            : $@"{nameSpacePart}.{className}"
+                        )
+                        : (prefix != ""
+                            ? $@"{prefix}{className}"
+                            : $@"{className}"
+                        )).Replace('.', split);
 
                     return (true, className);
                 }
@@ -196,15 +206,32 @@ namespace Barotrauma
 
             public string GetDefaultTableName(char split = '_')
             {
-                var target = TargetType;
-                var declarT = target.DeclaringType;
-                return target.Namespace.StartsWith("Barotrauma")
-                    ? (declarT != null
-                        ? $@"{declarT.Name}.{target.Name}"
-                        : target.Name)
-                    : (declarT != null
-                        ? @$"{target.Namespace}.{declarT.Name}".Replace('.', split) + @$".{target.Name}"
-                        : @$"{target.Namespace}.{target.Name}".Replace('.', split));
+                var nameSpacePart = TargetType.Namespace.StartsWith("Barotrauma") ?
+                    "" : $@"{TargetType.Namespace}";
+                nameSpacePart = nameSpacePart.Replace('.', split);
+                // double dots to be replaced with split for expressing the root table name
+                if (nameSpacePart != "")
+                {
+                    nameSpacePart = nameSpacePart + "..";
+                }
+
+                var declarT = TargetType.DeclaringType;
+                var prefix = "";
+                while (declarT != null)
+                {
+                    prefix = $@"{declarT.Name}.{prefix}";
+                    declarT = declarT.DeclaringType;
+                }
+
+                return (nameSpacePart != ""
+                    ? (prefix != ""
+                        ? $@"{nameSpacePart}.{prefix}{TargetType.Name}"
+                        : $@"{nameSpacePart}.{TargetType.Name}"
+                    )
+                    : (prefix != ""
+                        ? $@"{prefix}{TargetType.Name}"
+                        : $@"{TargetType.Name}"
+                    )).Replace("...", $"{split}");
             }
 
             public static (bool, string) GetMapClassName(string className)
@@ -549,6 +576,8 @@ namespace Barotrauma
 
             Do(typeof(MapEntityCategory));
             Do(typeof(MapEntity));
+            Do(typeof(Prefab));
+            Do(typeof(PrefabWithUintIdentifier));
             Do(typeof(MapEntityPrefab));
             Do(typeof(CoreEntityPrefab));
             #endregion
@@ -1042,11 +1071,14 @@ namespace Barotrauma
 
             Do(typeof(LuaUserData), "LuaUserData");
             Do(typeof(LuaGame), "Game");
-            Do(typeof(LuaHook), "Hook");
-            Do(typeof(LuaHook.HookMethodType), "Hook.HookMethodType");
-            Do(typeof(LuaTimer), "Timer");
-            Do(typeof(LuaFile), "File");
-            Do(typeof(LuaNetworking), "Networking");
+            Do(typeof(LuaCsHook), "Hook");
+            Do(typeof(LuaCsHook.HookMethodType), "Hook.HookMethodType");
+            Do(typeof(LuaCsTimer), "Timer");
+            Do(typeof(LuaCsFile), "File");
+            Do(typeof(LuaCsNetworking), "Networking");
+            Do(typeof(LuaCsSetup.LuaCsModStore), "ModStore");
+            Do(typeof(LuaCsSetup.LuaCsModStore.CsModStore), "ModStore.CsModStore");
+            Do(typeof(LuaCsSetup.LuaCsModStore.LuaModStore), "ModStore.LuaModStore");
             Do(typeof(MoonSharp.Interpreter.Interop.IUserDataDescriptor));
 
             AliasAnnotation.Do();
@@ -1315,11 +1347,26 @@ namespace Barotrauma
 
             try
             {
+                var nameSpacePart = targetType.Name;
                 var declarT = targetType.DeclaringType;
-                File.WriteAllText(declarT != null
-                    ? @$"{BLuaDocPath}/{targetType.Namespace}.{declarT.Name}.{targetType.Name}.lua"
-                    : @$"{BLuaDocPath}/{targetType.Namespace}.{targetType.Name}.lua"
-                    ,luadocBuilder.ToString());
+                var prefix = "";
+                while (declarT != null)
+                {
+                    prefix = $@"{declarT.Name}.{prefix}";
+                    declarT = declarT.DeclaringType;
+                }
+
+                var fileName = nameSpacePart != ""
+                    ? (prefix != ""
+                        ? $@"{nameSpacePart}.{prefix}{targetType.Name}"
+                        : $@"{nameSpacePart}.{targetType.Name}"
+                    )
+                    : (prefix != ""
+                        ? $@"{prefix}{targetType.Name}"
+                        : $@"{targetType.Name}"
+                    );
+
+                File.WriteAllText($@"{BLuaDocPath}/{fileName}.lua", luadocBuilder.ToString());
             }
             catch (Exception ex)
             {
