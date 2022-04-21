@@ -562,6 +562,7 @@ namespace Barotrauma
 
 
             #region Location
+            Do(typeof(PriceInfo));
             Do(typeof(LocationType));
             Do(typeof(Location));
             Do(typeof(LocationConnection));
