@@ -1347,7 +1347,7 @@ namespace Barotrauma
 
             try
             {
-                var nameSpacePart = targetType.Name;
+                var nameSpacePart = targetType.Namespace;
                 var declarT = targetType.DeclaringType;
                 var prefix = "";
                 while (declarT != null)
