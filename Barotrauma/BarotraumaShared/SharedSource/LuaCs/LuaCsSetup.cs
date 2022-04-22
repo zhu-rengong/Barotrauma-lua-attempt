@@ -338,7 +338,12 @@ namespace Barotrauma
 			}
 			foreach (var mod in ACsMod.LoadedMods.ToArray()) mod.Dispose();
 			ACsMod.LoadedMods.Clear();
-			Hook?.Call("stop");
+
+
+			if (Thread.CurrentThread == GameMain.MainThread) 
+			{
+				Hook?.Call("stop");
+			}
 
 			Game?.Stop();
 
