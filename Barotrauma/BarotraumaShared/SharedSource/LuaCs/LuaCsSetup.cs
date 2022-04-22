@@ -11,6 +11,7 @@ using HarmonyLib;
 using System.Runtime.CompilerServices;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 
 [assembly: InternalsVisibleTo(Barotrauma.CsScriptBase.NET_SCRIPT_ASSEMBLY, AllInternalsVisible = true)]
 [assembly: InternalsVisibleTo(Barotrauma.CsScriptBase.NET_ONE_TIME_SCRIPT_ASSEMBLY, AllInternalsVisible = true)]
@@ -301,6 +302,12 @@ namespace Barotrauma
 		}
 		public object CallLuaFunction(object function, params object[] arguments)
 		{
+			if (Thread.CurrentThread != GameMain.MainThread)
+            {
+				PrintMessage($"Warning: Tried to call Lua function outside of the main thread. Arguments = {string.Join(' ', arguments)}, {Environment.StackTrace}");
+				return null;
+            }
+
 			try
 			{
 				return lua.Call(function, arguments);
