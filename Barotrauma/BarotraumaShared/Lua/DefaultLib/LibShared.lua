@@ -1,5 +1,6 @@
 local defaultLib = {}
 
+local AddCallMetaTable = LuaSetup.AddCallMetaTable
 local CreateStatic = LuaSetup.CreateStatic
 local CreateEnum = LuaUserData.CreateEnumTable
 
@@ -45,6 +46,7 @@ defaultLib["CharacterPrefab"] = CreateStatic("Barotrauma.CharacterPrefab")
 defaultLib["CharacterInfo"] = CreateStatic("Barotrauma.CharacterInfo", true)
 defaultLib["CharacterInfoPrefab"] = CreateStatic("Barotrauma.CharacterInfoPrefab")
 defaultLib["Item"] = CreateStatic("Barotrauma.Item", true)
+AddCallMetaTable(defaultLib["Item"].ChangePropertyEventData)
 defaultLib["ItemPrefab"] = CreateStatic("Barotrauma.ItemPrefab", true)
 defaultLib["TalentTree"] = CreateStatic("Barotrauma.TalentTree", true)
 defaultLib["TalentPrefab"] = CreateStatic("Barotrauma.TalentPrefab", true)
