@@ -13,8 +13,14 @@ namespace Barotrauma
 		{
 			var type = Type.GetType(typeName);
 			if (type != null) return type;
-			foreach (var a in AppDomain.CurrentDomain.GetAssemblies().Reverse())
+			foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
 			{
+				if (CsScriptFilter.LoadedAssemblyName.Contains(a.GetName().Name))
+                {
+					var attrs = a.GetCustomAttributes<AssemblyMetadataAttribute>();
+					var revision = attrs.FirstOrDefault(attr => attr.Key == "Revision")?.Value;
+					if (revision != null && int.Parse(revision) != (int)CsScriptBase.Revision[a.GetName().Name]) { continue; }
+                }
 				type = a.GetType(typeName);
 				if (type != null)
 					return type;

@@ -1250,6 +1250,7 @@ namespace Barotrauma
                 if(LuaCsSetup.GetPackage("CsForBarotrauma", false) == null) { return; }
 
                 GameMain.LuaCs.CsScript.Run(string.Join(" ", args));
+                GameMain.LuaCs.RecreateCsScript();
             }));
 
             commands.Add(new Command("reloadlua", "reloads lua", (string[] args) =>

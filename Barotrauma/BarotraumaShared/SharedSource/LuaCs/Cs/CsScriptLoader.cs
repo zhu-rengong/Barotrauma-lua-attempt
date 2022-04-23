@@ -12,7 +12,7 @@ using System.Reflection.Metadata;
 
 namespace Barotrauma
 {
-	class CsScriptLoader : AssemblyLoadContext
+	class CsScriptLoader : CsScriptBase
 	{
 		public LuaCsSetup setup;
 		private List<MetadataReference> defaultReferences;
@@ -20,7 +20,7 @@ namespace Barotrauma
 		private Dictionary<string, List<string>> sources;
 		public Assembly Assembly { get; private set; }
 
-		public CsScriptLoader(LuaCsSetup setup) : base(isCollectible: true)
+		public CsScriptLoader(LuaCsSetup setup)
 		{
 			this.setup = setup;
 
@@ -62,6 +62,7 @@ namespace Barotrauma
 			var syntaxTrees = new List<SyntaxTree>();
 
 			if (sources.Count <= 0) throw new Exception("No Cs sources detected");
+			syntaxTrees.Add(AssemblyInfoSyntaxTree(NET_SCRIPT_ASSEMBLY));
 			foreach ((var folder, var src) in sources)
             {
 				try
@@ -92,7 +93,7 @@ namespace Barotrauma
 				.WithMetadataImportOptions(MetadataImportOptions.All)
 				.WithOptimizationLevel(OptimizationLevel.Release)
 				.WithAllowUnsafe(false);
-			var compilation = CSharpCompilation.Create("NetScriptAssembly",syntaxTrees, defaultReferences, options);
+			var compilation = CSharpCompilation.Create(NET_SCRIPT_ASSEMBLY,syntaxTrees, defaultReferences, options);
 
 			using (var mem = new MemoryStream())
 			{
@@ -153,10 +154,5 @@ namespace Barotrauma
         {
 			Assembly = null;
         }
-
-		~CsScriptLoader()
-		{
-			
-		}
 	}
 }

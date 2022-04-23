@@ -1834,7 +1834,12 @@ namespace Barotrauma.Networking
                     IsDownloading = FileSender.ActiveTransfers.Any(t => t.Connection == client.Connection)
                 };
 
-                GameMain.LuaCs.Hook.Call("writeClientList.modifyTempClientData", c, client, tempClientData, outmsg);
+                var result = GameMain.LuaCs.Hook.Call<TempClient?>("writeClientList.modifyTempClientData", c, client, tempClientData, outmsg);
+
+                if (result != null)
+                {
+                    tempClientData = result.Value;
+                }
 
                 outmsg.Write(tempClientData);
                 outmsg.WritePadBits();
