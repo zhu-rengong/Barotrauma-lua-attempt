@@ -922,6 +922,11 @@ namespace Barotrauma
 #endregion
 
             #region Networking
+            Do(typeof(Item.ComponentStateEventData));
+            Do(typeof(Item.InventoryStateEventData));
+            Do(typeof(Item.ChangePropertyEventData));
+            Do(typeof(Item.ApplyStatusEffectEventData));
+
             Do(typeof(Networking.NetConfig));
             Do(typeof(Networking.ServerSettings));
 
