@@ -302,12 +302,6 @@ namespace Barotrauma
 		}
 		public object CallLuaFunction(object function, params object[] arguments)
 		{
-			if (Thread.CurrentThread != GameMain.MainThread)
-            {
-				PrintMessage($"Warning: Tried to call Lua function outside of the main thread. Arguments = {string.Join(' ', arguments)}, {Environment.StackTrace}");
-				return null;
-            }
-
 			try
 			{
 				return lua.Call(function, arguments);
@@ -390,6 +384,7 @@ namespace Barotrauma
 			lua = new Script(CoreModules.Preset_SoftSandbox | CoreModules.Debug);
 			lua.Options.DebugPrint = PrintMessage;
 			lua.Options.ScriptLoader = LuaScriptLoader;
+			lua.Options.CheckThreadAccess = false;
 			Lua = new CsLua(this);
 			CsScript = new CsScriptRunner(this);
 
