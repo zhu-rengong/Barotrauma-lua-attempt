@@ -17,6 +17,7 @@ namespace Barotrauma {
         private static readonly string[] typesPermitted = {
             // Basics
             "System",
+            "Microsoft",
             // Barotrauma
             "Barotrauma",
             // Lua
