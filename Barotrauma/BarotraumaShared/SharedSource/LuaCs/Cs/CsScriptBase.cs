@@ -16,6 +16,8 @@ namespace Barotrauma
 {
 	class CsScriptBase : AssemblyLoadContext
 	{
+		public static readonly List<string> PreprocessingSymbols = new List<string>();
+
 		public const string NET_ONE_TIME_SCRIPT_ASSEMBLY = "NetOneTimeScriptAssembly";
 		public const string NET_SCRIPT_ASSEMBLY = "NetScriptAssembly";
 
@@ -26,6 +28,15 @@ namespace Barotrauma
         };
 
 		public CsScriptBase() : base(isCollectible: true) { }
+
+		static CsScriptBase()
+		{
+#if SERVER
+            PreprocessingSymbols.Add("SERVER");
+#else
+			PreprocessingSymbols.Add("CLIENT");
+#endif
+		}
 
 		public static SyntaxTree AssemblyInfoSyntaxTree(string asmName = null)
         {
