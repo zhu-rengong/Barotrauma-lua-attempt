@@ -69,7 +69,7 @@ namespace Barotrauma
 				{
 					foreach (var file in src)
 					{
-						var tree = SyntaxFactory.ParseSyntaxTree(File.ReadAllText(file), CSharpParseOptions.Default.WithPreprocessorSymbols(PreprocessingSymbols), file);
+						var tree = SyntaxFactory.ParseSyntaxTree(File.ReadAllText(file), ParseOptions, file);
 						var error = CsScriptFilter.FilterSyntaxTree(tree as CSharpSyntaxTree); // Check file content for prohibited stuff
 						if (error != null) throw new Exception(error);
 
