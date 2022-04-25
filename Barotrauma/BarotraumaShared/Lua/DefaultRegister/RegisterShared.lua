@@ -147,7 +147,7 @@ RegisterBarotrauma("CampaignMode")
 RegisterBarotrauma("CoOpMode")
 
 RegisterBarotrauma("CampaignMetadata")
-
+RegisterBarotrauma("Wallet")
 
 RegisterBarotrauma("Faction")
 RegisterBarotrauma("FactionPrefab")
