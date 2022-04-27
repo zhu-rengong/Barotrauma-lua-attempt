@@ -14,7 +14,7 @@ namespace Barotrauma
 {
 	class CsScriptLoader : CsScriptBase
 	{
-		public LuaCsSetup setup;
+		private LuaCsSetup setup;
 		private List<MetadataReference> defaultReferences;
 
 		private Dictionary<string, List<string>> sources;
