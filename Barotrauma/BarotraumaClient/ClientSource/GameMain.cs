@@ -671,6 +671,8 @@ namespace Barotrauma
                     if (!TitleScreen.PlayingSplashScreen)
                     {
                         SoundPlayer.Update((float)Timing.Step);
+                        GUI.ClearUpdateList();
+                        GUI.UpdateGUIMessageBoxesOnly((float)Timing.Step);
                     }
 
                     if (TitleScreen.LoadState >= 100.0f && !TitleScreen.PlayingSplashScreen &&
@@ -1117,10 +1119,10 @@ namespace Barotrauma
             var msgBox = new GUIMessageBox(TextManager.Get("EditorDisclaimerTitle"), TextManager.Get("EditorDisclaimerText"));
             var linkHolder = new GUILayoutGroup(new RectTransform(new Vector2(1.0f, 0.25f), msgBox.Content.RectTransform)) { Stretch = true, RelativeSpacing = 0.025f };
             linkHolder.RectTransform.MaxSize = new Point(int.MaxValue, linkHolder.Rect.Height);
-            List<(LocalizedString Caption, LocalizedString Url)> links = new List<(LocalizedString, LocalizedString)>()
+            List<(LocalizedString Caption, string Url)> links = new List<(LocalizedString, string)>()
             {
-                (TextManager.Get("EditorDisclaimerWikiLink"), TextManager.Get("EditorDisclaimerWikiUrl")),
-                (TextManager.Get("EditorDisclaimerDiscordLink"), TextManager.Get("EditorDisclaimerDiscordUrl")),
+                (TextManager.Get("EditorDisclaimerWikiLink"), TextManager.Get("EditorDisclaimerWikiUrl").Fallback("https://barotraumagame.com/wiki").Value),
+                (TextManager.Get("EditorDisclaimerDiscordLink"), TextManager.Get("EditorDisclaimerDiscordUrl").Fallback("https://discordapp.com/invite/undertow").Value),
             };
             foreach (var link in links)
             {

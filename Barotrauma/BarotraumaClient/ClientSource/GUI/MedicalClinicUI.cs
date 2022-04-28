@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Barotrauma.Extensions;
 using Microsoft.Xna.Framework;
+using PlayerBalanceElement = Barotrauma.CampaignUI.PlayerBalanceElement;
 
 namespace Barotrauma
 {
@@ -180,6 +181,8 @@ namespace Barotrauma
         private const float refreshTimerMax = 3f;
         private float refreshTimer = 0;
 
+        private PlayerBalanceElement? playerBalanceElement;
+
         public MedicalClinicUI(MedicalClinic clinic, GUIComponent parent)
         {
             medicalClinic = clinic;
@@ -271,7 +274,7 @@ namespace Barotrauma
             healList.PriceBlock.Text = TextManager.FormatCurrency(totalCost);
             healList.PriceBlock.TextColor = GUIStyle.Red;
             healList.HealButton.Enabled = false;
-            if (medicalClinic.GetWallet().CanAfford(totalCost))
+            if (medicalClinic.GetBalance() >= totalCost)
             {
                 healList.PriceBlock.TextColor = GUIStyle.TextColorNormal;
                 if (medicalClinic.PendingHeals.Any())
@@ -428,6 +431,7 @@ namespace Barotrauma
         {
             container.ClearChildren();
             pendingHealList = null;
+            playerBalanceElement = null;
             int panelMaxWidth = (int)(GUI.xScale * (GUI.HorizontalAspectRatio < 1.4f ? 650 : 560));
 
             GUIFrame paddedParent = new GUIFrame(new RectTransform(new Vector2(0.95f), container.RectTransform, Anchor.Center), style: null);
@@ -458,19 +462,7 @@ namespace Barotrauma
                 RelativeSpacing = 0.01f
             };
 
-            GUILayoutGroup balanceLayout = new GUILayoutGroup(new RectTransform(new Vector2(1f, 0.1f), crewContent.RectTransform));
-            GUITextBlock balanceLabel = new GUITextBlock(new RectTransform(new Vector2(1f, 0.5f), balanceLayout.RectTransform), TextManager.Get("campaignstore.balance"), textAlignment: Alignment.BottomRight, font: GUIStyle.Font)
-            {
-                AutoScaleVertical = true,
-                ForceUpperCase = ForceUpperCase.Yes
-            };
-
-            GUITextBlock moneyLabel = new GUITextBlock(new RectTransform(new Vector2(1f, 0.5f), balanceLayout.RectTransform), string.Empty, textAlignment: Alignment.TopRight, font: GUIStyle.SubHeadingFont)
-            {
-                TextGetter = () => TextManager.FormatCurrency(medicalClinic.GetWallet().Balance),
-                AutoScaleVertical = true,
-                TextScale = 1.1f
-            };
+            playerBalanceElement = CampaignUI.AddBalanceElement(crewContent, new Vector2(1f, 0.1f));
 
             GUIFrame crewBackground = new GUIFrame(new RectTransform(Vector2.One, crewContent.RectTransform));
 
@@ -577,7 +569,7 @@ namespace Barotrauma
             GUILayoutGroup buttonLayout = new GUILayoutGroup(new RectTransform(new Vector2(1f, 0.5f), footerLayout.RectTransform), isHorizontal: true, childAnchor: Anchor.CenterRight);
             GUIButton healButton = new GUIButton(new RectTransform(new Vector2(0.33f, 1f), buttonLayout.RectTransform), TextManager.Get("medicalclinic.heal"))
             {
-                Enabled = medicalClinic.PendingHeals.Any() && medicalClinic.GetWallet().CanAfford(medicalClinic.GetTotalCost()),
+                Enabled = medicalClinic.PendingHeals.Any() && medicalClinic.GetBalance() >= medicalClinic.GetTotalCost(),
                 OnClicked = (button, _) =>
                 {
                     button.Enabled = false;
@@ -1049,6 +1041,10 @@ namespace Barotrauma
             if (prevResolution.X != GameMain.GraphicsWidth || prevResolution.Y != GameMain.GraphicsHeight)
             {
                 CreateUI();
+            }
+            else
+            {
+                playerBalanceElement = CampaignUI.UpdateBalanceElement(playerBalanceElement);
             }
 
             refreshTimer += deltaTime;

@@ -33,9 +33,6 @@ namespace Barotrauma.Items.Components
             set;
         }
 
-        private JobPrefab cachedJobPrefab;
-        private string cachedName;
-
         public ImmutableHashSet<Identifier> OwnerTagSet { get; set; }
 
         [Serialize("", IsPropertySaveable.Yes, alwaysUseInstanceValues: true)]
@@ -98,6 +95,7 @@ namespace Barotrauma.Items.Components
 
             OwnerName = info.Name;
             OwnerJobId = info.Job?.Prefab.Identifier ?? Identifier.Empty;
+            item.AddTag($"jobid:{OwnerJobId}");
             OwnerTagSet = info.Head.Preset.TagSet;
             OwnerHairIndex = head.HairIndex;
             OwnerBeardIndex = head.BeardIndex;

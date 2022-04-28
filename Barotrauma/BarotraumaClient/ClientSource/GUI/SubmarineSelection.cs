@@ -4,6 +4,8 @@ using Microsoft.Xna.Framework;
 using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Globalization;
+using PlayerBalanceElement = Barotrauma.CampaignUI.PlayerBalanceElement;
 
 namespace Barotrauma
 {
@@ -31,7 +33,7 @@ namespace Barotrauma
         private readonly List<SubmarineInfo> subsToShow;
         private readonly SubmarineDisplayContent[] submarineDisplays = new SubmarineDisplayContent[submarinesPerPage];
         private SubmarineInfo selectedSubmarine = null;
-        private LocalizedString purchaseAndSwitchText, purchaseOnlyText, deliveryText, currentSubText, deliveryFeeText, priceText, switchText, missingPreviewText, currencyName;
+        private LocalizedString purchaseAndSwitchText, purchaseOnlyText, deliveryText, currentSubText, switchText, missingPreviewText, currencyName;
         private readonly RectTransform parent;
         private readonly Action closeAction;
         private Sprite pageIndicator;
@@ -43,6 +45,8 @@ namespace Barotrauma
 
         private static readonly Color indicatorColor = new Color(112, 149, 129);
         private Point createdForResolution;
+
+        private PlayerBalanceElement? playerBalanceElement;
 
         private struct SubmarineDisplayContent
         {
@@ -85,12 +89,10 @@ namespace Barotrauma
         {
             initialized = true;
             currentSubText = TextManager.Get("currentsub");
-            deliveryFeeText = TextManager.Get("deliveryfee");
             deliveryText = TextManager.Get("requestdeliverybutton");
             switchText = TextManager.Get("switchtosubmarinebutton");
             purchaseAndSwitchText = TextManager.Get("purchaseandswitch");
             purchaseOnlyText = TextManager.Get("purchase");
-            priceText = TextManager.Get("price");
             if (transferService)
             {
                 deliveryFee = CalculateDeliveryFee();
@@ -126,10 +128,7 @@ namespace Barotrauma
             content = new GUILayoutGroup(new RectTransform(new Point(background.Rect.Width - HUDLayoutSettings.Padding * 4, background.Rect.Height - HUDLayoutSettings.Padding * 4), background.RectTransform, Anchor.Center)) { AbsoluteSpacing = (int)(HUDLayoutSettings.Padding * 1.5f) };
             GUITextBlock header = new GUITextBlock(new RectTransform(new Vector2(1f, 0.0f), content.RectTransform), transferService ? TextManager.Get("switchsubmarineheader") : TextManager.GetWithVariable("outpostshipyard", "[location]", GameMain.GameSession.Map.CurrentLocation.Name), font: GUIStyle.LargeFont);
             header.CalculateHeightFromText(0, true);
-            GUITextBlock credits = new GUITextBlock(new RectTransform(Vector2.One, header.RectTransform), "", font: GUIStyle.SubHeadingFont, textAlignment: Alignment.CenterRight)
-            {
-                TextGetter = CampaignUI.GetMoney
-            };
+            playerBalanceElement = CampaignUI.AddBalanceElement(header, new Vector2(1.0f, 1.5f));
 
             new GUIFrame(new RectTransform(new Vector2(1.0f, 0.01f), content.RectTransform), style: "HorizontalLine");
 
@@ -257,6 +256,10 @@ namespace Barotrauma
             {
                 RefreshSubmarineDisplay(true);
             }
+            else
+            {
+                playerBalanceElement = CampaignUI.UpdateBalanceElement(playerBalanceElement);
+            }
 
             // Input
             if (PlayerInput.KeyHit(Keys.Left))
@@ -271,9 +274,22 @@ namespace Barotrauma
 
         public void RefreshSubmarineDisplay(bool updateSubs)
         {
-            if (!initialized) Initialize();
-            if (GameMain.GraphicsWidth != createdForResolution.X || GameMain.GraphicsHeight != createdForResolution.Y) CreateGUI();
-            if (updateSubs) UpdateSubmarines();
+            if (!initialized)
+            {
+                Initialize();
+            }
+            if (GameMain.GraphicsWidth != createdForResolution.X || GameMain.GraphicsHeight != createdForResolution.Y)
+            {
+                CreateGUI();
+            }
+            else
+            {
+                playerBalanceElement = CampaignUI.UpdateBalanceElement(playerBalanceElement);
+            }
+            if (updateSubs)
+            {
+                UpdateSubmarines();
+            }
 
             if (pageIndicators != null)
             {
@@ -327,12 +343,12 @@ namespace Barotrauma
                     };
 
                     submarineDisplays[i].submarineName.Text = subToDisplay.DisplayName;
-                    submarineDisplays[i].submarineClass.Text = $"{TextManager.GetWithVariable("submarineclass.classsuffixformat", "[type]", TextManager.Get($"submarineclass.{subToDisplay.SubmarineClass}"))}";
+                    submarineDisplays[i].submarineClass.Text = TextManager.GetWithVariable("submarineclass.classsuffixformat", "[type]", TextManager.Get($"submarineclass.{subToDisplay.SubmarineClass}"));
 
                     if (!GameMain.GameSession.IsSubmarineOwned(subToDisplay))
                     {
                         LocalizedString amountString = TextManager.FormatCurrency(subToDisplay.Price);
-                        submarineDisplays[i].submarineFee.Text = priceText.Replace("[amount]", amountString).Replace("[currencyname]", string.Empty).TrimEnd();
+                        submarineDisplays[i].submarineFee.Text = TextManager.GetWithVariable("price", "[amount]", amountString);
                     }
                     else
                     {
@@ -341,7 +357,7 @@ namespace Barotrauma
                             if (deliveryFee > 0)
                             {
                                 LocalizedString amountString = TextManager.FormatCurrency(deliveryFee);
-                                submarineDisplays[i].submarineFee.Text = deliveryFeeText.Replace("[amount]", amountString).Replace("[currencyname]", string.Empty).TrimEnd();
+                                submarineDisplays[i].submarineFee.Text = TextManager.GetWithVariable("deliveryfee", "[amount]", amountString);
                             }
                             else
                             {
@@ -577,7 +593,7 @@ namespace Barotrauma
 
         private void ShowTransferPrompt()
         {
-            if (!GameMain.GameSession.Campaign.Wallet.CanAfford(deliveryFee) && deliveryFee > 0)
+            if (!GameMain.GameSession.Campaign.CanAfford(deliveryFee) && deliveryFee > 0)
             {
                 new GUIMessageBox(TextManager.Get("deliveryrequestheader"), TextManager.GetWithVariables("notenoughmoneyfordeliverytext",
                     ("[currencyname]", currencyName),
@@ -625,7 +641,7 @@ namespace Barotrauma
 
         private void ShowBuyPrompt(bool purchaseOnly)
         {
-            if (!GameMain.GameSession.Campaign.Wallet.CanAfford(selectedSubmarine.Price))
+            if (!GameMain.GameSession.Campaign.CanAfford(selectedSubmarine.Price))
             {
                 new GUIMessageBox(TextManager.Get("purchasesubmarineheader"), TextManager.GetWithVariables("notenoughmoneyforpurchasetext",
                     ("[currencyname]", currencyName),

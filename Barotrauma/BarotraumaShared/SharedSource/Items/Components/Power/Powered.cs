@@ -565,16 +565,20 @@ namespace Barotrauma.Items.Components
                     //Iterate through all connections in the group to get their minmax power and sum them
                     foreach (Connection c in scrGroup.Connections)
                     {
-                        Powered device = c.Item.GetComponent<Powered>();
-                        scrGroup.MinMaxPower += device.MinMaxPowerOut(c, grid.Load);
+                        foreach (var device in c.Item.GetComponents<Powered>())
+                        {
+                            scrGroup.MinMaxPower += device.MinMaxPowerOut(c, grid.Load);
+                        }
                     }
 
                     //Iterate through all connections to get their final power out provided the min max information
                     float addedPower = 0;
                     foreach (Connection c in scrGroup.Connections)
                     {
-                        Powered device = c.Item.GetComponent<Powered>();
-                        addedPower += device.GetConnectionPowerOut(c, grid.Power, scrGroup.MinMaxPower, grid.Load);
+                        foreach (var device in c.Item.GetComponents<Powered>())
+                        {
+                            addedPower += device.GetConnectionPowerOut(c, grid.Power, scrGroup.MinMaxPower, grid.Load);
+                        }
                     }
 
                     //Add the power to the grid
@@ -591,10 +595,12 @@ namespace Barotrauma.Items.Components
                 grid.Voltage = newVoltage;
 
                 //Iterate through all connections on that grid and run their gridResolved function
-                foreach (Connection con in grid.Connections)
+                foreach (Connection c in grid.Connections)
                 {
-                    Powered device = con.Item.GetComponent<Powered>();
-                    device?.GridResolved(con);
+                    foreach (var device in c.Item.GetComponents<Powered>())
+                    {
+                        device?.GridResolved(c);
+                    }
                 }
             }
 
@@ -671,21 +677,18 @@ namespace Barotrauma.Items.Components
         /// </summary>
         protected float GetAvailableInstantaneousBatteryPower()
         {
-            if (item.Connections == null) { return 0.0f; }
+            if (item.Connections == null || powerIn == null) { return 0.0f; }
             float availablePower = 0.0f;
-            foreach (Connection c in item.Connections)
+            var recipients = powerIn.Recipients;
+            foreach (Connection recipient in recipients)
             {
-                var recipients = c.Recipients;
-                foreach (Connection recipient in recipients)
-                {
-                    if (!recipient.IsPower || !recipient.IsOutput) { continue; }
-                    var battery = recipient.Item?.GetComponent<PowerContainer>();
-                    if (battery == null) { continue; }
-                    float maxOutputPerFrame = battery.MaxOutPut / 60.0f;
-                    float framesPerMinute = 3600.0f;
-                    availablePower += Math.Min(battery.Charge * framesPerMinute, maxOutputPerFrame);
-                }
-            }
+                if (!recipient.IsPower || !recipient.IsOutput) { continue; }
+                var battery = recipient.Item?.GetComponent<PowerContainer>();
+                if (battery == null || battery.Item.Condition <= 0.0f) { continue; }
+                float maxOutputPerFrame = battery.MaxOutPut / 60.0f;
+                float framesPerMinute = 3600.0f;
+                availablePower += Math.Min(battery.Charge * framesPerMinute, maxOutputPerFrame);
+            }            
             return availablePower;
         }
 
