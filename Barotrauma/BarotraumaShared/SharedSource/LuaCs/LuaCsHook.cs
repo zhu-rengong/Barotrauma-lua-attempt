@@ -148,7 +148,7 @@ namespace Barotrauma
 			}
 			catch (Exception ex)
 			{
-				GameMain.LuaCs.HandleException(ex, exceptionType: LuaCsSetup.ExceptionType.Both);
+				GameMain.LuaCs.HandleException(ex, $"Error in {__originalMethod.Name}:", exceptionType: LuaCsSetup.ExceptionType.Both);
 			}
 		}
 
