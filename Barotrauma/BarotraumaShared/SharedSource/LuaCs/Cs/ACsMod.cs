@@ -22,11 +22,11 @@ namespace Barotrauma
 
         public bool IsDisposed { get; private set; }
 
+        /// Mod initialization
         public ACsMod()
         {
             IsDisposed = false;
             LoadedMods.Add(this);
-            Start();
         }
 
         public void Dispose() {
@@ -35,10 +35,6 @@ namespace Barotrauma
             IsDisposed = true;
         }
 
-        // TODO: some hooks
-
-        /// Mod initialization
-        public abstract void Start();
         /// Error or client exit
         public abstract void Stop();
     }

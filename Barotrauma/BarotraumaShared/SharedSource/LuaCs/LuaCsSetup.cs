@@ -138,9 +138,12 @@ namespace Barotrauma
 			}
 			else
 			{
-				if (exceptionType == ExceptionType.Lua) PrintError(ex);
-				else if (exceptionType == ExceptionType.CSharp) PrintCsError(ex);
-				else PrintBothError(ex);
+				string msg = ex.StackTrace != null
+					? ex.ToString()
+					: $"{ex}\n{Environment.StackTrace}";
+				if (exceptionType == ExceptionType.Lua) PrintError(msg);
+				else if (exceptionType == ExceptionType.CSharp) PrintCsError(msg);
+				else PrintBothError(msg);
 			}
 		}
 
