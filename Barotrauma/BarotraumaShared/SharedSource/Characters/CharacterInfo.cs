@@ -130,15 +130,15 @@ namespace Barotrauma
                     head = value;
                     HeadSprite = null;
                     AttachmentSprites = null;
-                    IsMale = value.Preset?.TagSet?.Contains("Male".ToIdentifier()) ?? false;
-                    IsFemale = value.Preset?.TagSet?.Contains("Female".ToIdentifier()) ?? false;
                 }
             }
         }
 
-        public bool IsMale { get; private set; }
+        private readonly Identifier maleIdentifier = "Male".ToIdentifier();
+        private readonly Identifier femaleIdentifier = "Female".ToIdentifier();
 
-        public bool IsFemale { get; private set; }
+        public bool IsMale { get { return head?.Preset?.TagSet?.Contains(maleIdentifier) ?? false; } }
+        public bool IsFemale { get { return head?.Preset?.TagSet?.Contains(femaleIdentifier) ?? false; } }
 
         public CharacterInfoPrefab Prefab => CharacterPrefab.Prefabs[SpeciesName].CharacterInfoPrefab;
         public class HeadPreset : ISerializableEntity
@@ -1033,7 +1033,7 @@ namespace Barotrauma
             if (Name == null || Job == null) { return 0; }
 
             int salary = 0;
-            foreach (Skill skill in Job.Skills)
+            foreach (Skill skill in Job.GetSkills())
             {
                 salary += (int)(skill.Level * skill.PriceMultiplier);
             }
@@ -1076,10 +1076,10 @@ namespace Barotrauma
         {
             if (Job == null) { return; }
 
-            var skill = Job.Skills.Find(s => s.Identifier == skillIdentifier);
+            var skill = Job.GetSkill(skillIdentifier);
             if (skill == null)
             {
-                Job.Skills.Add(new Skill(skillIdentifier, level));
+                Job.IncreaseSkillLevel(skillIdentifier, level, increasePastMax: false);
                 OnSkillChanged(skillIdentifier, 0.0f, level);
             }
             else

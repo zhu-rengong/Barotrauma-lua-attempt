@@ -2470,7 +2470,7 @@ namespace Barotrauma
                         if (isMax) { level = 100; }
                         if (skillIdentifier == "all")
                         {
-                            foreach (Skill skill in character.Info.Job.Skills)
+                            foreach (Skill skill in character.Info.Job.GetSkills())
                             {
                                 character.Info.SetSkillLevel(skill.Identifier, level);
                             }
@@ -2531,30 +2531,10 @@ namespace Barotrauma
 #if DEBUG
             commands.Add(new Command("spamevents", "A debug command that creates a ton of entity events.", (string[] args) =>
             {
-                /*foreach (Item item in Item.ItemList)
+                foreach (Item item in Item.ItemList)
                 {
-                    foreach (ItemComponent component in item.Components)
-                    {
-                        if (component is IServerSerializable)
-                        {
-                            GameMain.Server.CreateEntityEvent(item, new object[] { NetEntityEvent.Type.ComponentState, item.GetComponentIndex(component) });
-                        }
-                        var itemContainer = item.GetComponent<ItemContainer>();
-                        if (itemContainer != null)
-                        {
-                            GameMain.Server.CreateEntityEvent(item, new object[] { NetEntityEvent.Type.InventoryState, 0 });
-                        }
-
-                        GameMain.Server.CreateEntityEvent(item, new object[] { NetEntityEvent.Type.Status });
-                    }
-                }
-                foreach (Character c in Character.CharacterList)
-                {
-                    GameMain.Server.CreateEntityEvent(c, new object[] { NetEntityEvent.Type.Status });
-                }*/
-                foreach (Hull hull in Hull.HullList)
-                {
-                    GameMain.Server.CreateEntityEvent(hull);
+                    item.TryCreateServerEventSpam();
+                    item.CreateStatusEvent();
                 }
                 foreach (Structure wall in Structure.WallList)
                 {

@@ -32,6 +32,7 @@ defaultLib["GUI"] = {
     ScrollBar = CreateStatic("Barotrauma.GUIScrollBar", true),
     DropDown = CreateStatic("Barotrauma.GUIDropDown", true),
     NumberInput = CreateStatic("Barotrauma.GUINumberInput", true),
+    MessageBox = CreateStatic("Barotrauma.GUIMessageBox", true),
 
     Screen = CreateStatic("Barotrauma.Screen"),
 

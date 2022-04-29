@@ -9,12 +9,13 @@ using Microsoft.CodeAnalysis;
 using System.Runtime.Loader;
 using System.Reflection.PortableExecutable;
 using System.Reflection.Metadata;
+using System.Text.RegularExpressions;
 
 namespace Barotrauma
 {
 	class CsScriptLoader : CsScriptBase
 	{
-		public LuaCsSetup setup;
+		private LuaCsSetup setup;
 		private List<MetadataReference> defaultReferences;
 
 		private Dictionary<string, List<string>> sources;
@@ -44,18 +45,53 @@ namespace Barotrauma
 
 		public bool HasSources { get => sources.Count > 0; }
 
+		private enum SourceCategory { Shared, Server, Client };
+		private Regex rMaskPathValid = new Regex(@"^[^/]+/[^/]+/csharp(/(shared|client|server))?(/[^/]+)+\.cs$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+		private Regex rMaskPathCategory1 = new Regex(@"/(shared|client|server)(/[^/]+)+\.cs$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+		private Regex rMaskPathCategory2 = new Regex(@"^/(shared|client|server)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 		private void RunFolder(string folder)
 		{
+			var offendingSources = new List<string>();
 			foreach (var str in DirSearch(folder))
 			{
 				var s = str.Replace("\\", "/");
 
 				if (s.EndsWith(".cs") && LuaCsFile.IsPathAllowedCsException(s))
 				{
-					if (sources.ContainsKey(folder)) sources[folder].Add(s);
-					else sources.Add(folder, new List<string> { s });
+					if (rMaskPathValid.IsMatch(s)) // valid path
+					{
+						var sourceCategory = SourceCategory.Shared;
+						{
+							var match = rMaskPathCategory1.Match(s);
+							if (match.Success) match = rMaskPathCategory2.Match(match.Value);
+							if (match.Success)
+							{
+								if (match.Value.EndsWith("shared", StringComparison.OrdinalIgnoreCase)) sourceCategory = SourceCategory.Shared;
+								else if (match.Value.EndsWith("server", StringComparison.OrdinalIgnoreCase)) sourceCategory = SourceCategory.Server;
+								else if (match.Value.EndsWith("client", StringComparison.OrdinalIgnoreCase)) sourceCategory = SourceCategory.Client;
+							}
+						}
+
+						var belongsInAssembly = false;
+						{
+							if (sourceCategory == SourceCategory.Shared) belongsInAssembly = true;
+							else if (sourceCategory == SourceCategory.Server && LuaCsSetup.IsServer) belongsInAssembly = true;
+							else if (sourceCategory == SourceCategory.Client && LuaCsSetup.IsClient) belongsInAssembly = true;
+						}
+
+						if (belongsInAssembly)
+						{
+							if (sources.ContainsKey(folder)) sources[folder].Add(s);
+							else sources.Add(folder, new List<string> { s });
+						}
+					}
+					else offendingSources.Add(s);
 				}
 			}
+			if (offendingSources.Count > 0)
+            {
+				LuaCsSetup.PrintCsError($"All C# sources must belong to <mod_folder>/CSharp/*\n  Offending sources:{offendingSources.Select(s => $"\n    {s}").Aggregate((s1, s2) => $"{s1}{s2}")}");
+            }
 		}
 
 		private IEnumerable<SyntaxTree> ParseSources() {
@@ -69,7 +105,7 @@ namespace Barotrauma
 				{
 					foreach (var file in src)
 					{
-						var tree = SyntaxFactory.ParseSyntaxTree(File.ReadAllText(file), CSharpParseOptions.Default, file);
+						var tree = SyntaxFactory.ParseSyntaxTree(File.ReadAllText(file), ParseOptions, file);
 						var error = CsScriptFilter.FilterSyntaxTree(tree as CSharpSyntaxTree); // Check file content for prohibited stuff
 						if (error != null) throw new Exception(error);
 

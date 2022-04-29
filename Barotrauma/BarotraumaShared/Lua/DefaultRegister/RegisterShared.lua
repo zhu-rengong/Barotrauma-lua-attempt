@@ -115,7 +115,6 @@ RegisterBarotrauma("AIObjectiveGetItem")
 RegisterBarotrauma("AIObjectiveGoTo")
 RegisterBarotrauma("AIObjectiveIdle")
 RegisterBarotrauma("AIObjectiveOperateItem")
-RegisterBarotrauma("AIObjectiveOperateItem")
 RegisterBarotrauma("AIObjectivePumpWater")
 RegisterBarotrauma("AIObjectiveRepairItem")
 RegisterBarotrauma("AIObjectiveRepairItems")
@@ -147,7 +146,7 @@ RegisterBarotrauma("CampaignMode")
 RegisterBarotrauma("CoOpMode")
 
 RegisterBarotrauma("CampaignMetadata")
-
+RegisterBarotrauma("Wallet")
 
 RegisterBarotrauma("Faction")
 RegisterBarotrauma("FactionPrefab")

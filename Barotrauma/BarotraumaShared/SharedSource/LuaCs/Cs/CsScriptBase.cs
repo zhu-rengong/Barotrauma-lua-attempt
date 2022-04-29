@@ -16,6 +16,7 @@ namespace Barotrauma
 {
 	class CsScriptBase : AssemblyLoadContext
 	{
+
 		public const string NET_ONE_TIME_SCRIPT_ASSEMBLY = "NetOneTimeScriptAssembly";
 		public const string NET_SCRIPT_ASSEMBLY = "NetScriptAssembly";
 
@@ -25,7 +26,12 @@ namespace Barotrauma
 			{ NET_ONE_TIME_SCRIPT_ASSEMBLY, 0}
         };
 
-		public CsScriptBase() : base(isCollectible: true) { }
+		public CSharpParseOptions ParseOptions { get; protected set; }
+
+		public CsScriptBase() : base(isCollectible: true) {
+			ParseOptions = CSharpParseOptions.Default
+				.WithPreprocessorSymbols(new[] { LuaCsSetup.IsServer ? "SERVER" : (LuaCsSetup.IsClient ? "CLIENT" : "UNDEFINED") });
+		}
 
 		public static SyntaxTree AssemblyInfoSyntaxTree(string asmName = null)
         {

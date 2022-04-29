@@ -41,5 +41,7 @@ RegisterBarotrauma("GUIListBox")
 RegisterBarotrauma("GUIScrollBar")
 RegisterBarotrauma("GUIDropDown")
 RegisterBarotrauma("GUINumberInput")
+RegisterBarotrauma("GUIMessage")
+RegisterBarotrauma("GUIMessageBox")
 
 RegisterBarotrauma("Inventory+SlotReference")

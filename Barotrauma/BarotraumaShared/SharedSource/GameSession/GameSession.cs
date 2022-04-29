@@ -14,6 +14,10 @@ namespace Barotrauma
 {
     partial class GameSession
     {
+#if DEBUG
+        public static float MinimumLoadingTime;
+#endif
+
         public enum InfoFrameTab { Crew, Mission, MyCharacter, Traitor };
 
         public readonly EventManager EventManager;
@@ -292,7 +296,7 @@ namespace Barotrauma
 
             if ((GameMain.NetworkMember is null || GameMain.NetworkMember is { IsServer: true }) && cost > 0)
             {
-                Campaign!.GetWallet(client).TryDeduct(cost);
+                Campaign!.TryPurchase(client, cost);
             }
             GameAnalyticsManager.AddMoneySpentEvent(cost, GameAnalyticsManager.MoneySink.SubmarineSwitch, newSubmarine.Name);
             Campaign!.PendingSubmarineSwitch = newSubmarine;
@@ -303,7 +307,7 @@ namespace Barotrauma
         public void PurchaseSubmarine(SubmarineInfo newSubmarine, Client? client = null)
         {
             if (Campaign is null) { return; }
-            if ((GameMain.NetworkMember is null || GameMain.NetworkMember is { IsServer: true }) && !Campaign.GetWallet(client).TryDeduct(newSubmarine.Price)) { return; }
+            if ((GameMain.NetworkMember is null || GameMain.NetworkMember is { IsServer: true }) && !Campaign.TryPurchase(client, newSubmarine.Price)) { return; }
             if (!OwnedSubmarines.Any(s => s.Name == newSubmarine.Name))
             {
                 GameAnalyticsManager.AddMoneySpentEvent(newSubmarine.Price, GameAnalyticsManager.MoneySink.SubmarinePurchase, newSubmarine.Name);
@@ -355,6 +359,9 @@ namespace Barotrauma
 
         public void StartRound(LevelData? levelData, bool mirrorLevel = false, SubmarineInfo? startOutpost = null, SubmarineInfo? endOutpost = null)
         {
+#if DEBUG
+            DateTime startTime = DateTime.Now;
+#endif
             AfflictionPrefab.LoadAllEffects();
 
             MirrorLevel = mirrorLevel;
@@ -485,6 +492,15 @@ namespace Barotrauma
                 }
             }
 
+#if DEBUG
+            double startDuration = (DateTime.Now - startTime).TotalSeconds;
+            if (startDuration < MinimumLoadingTime)
+            {
+                int sleepTime = (int)((MinimumLoadingTime - startDuration) * 1000);
+                DebugConsole.NewMessage($"Stalling round start by {sleepTime / 1000.0f} s (minimum loading time set to {MinimumLoadingTime})...", Color.Magenta);
+                System.Threading.Thread.Sleep(sleepTime);
+            }
+#endif
 #if CLIENT
             if (GameMode is CampaignMode && levelData != null) { SteamAchievementManager.OnBiomeDiscovered(levelData.Biome); }
 

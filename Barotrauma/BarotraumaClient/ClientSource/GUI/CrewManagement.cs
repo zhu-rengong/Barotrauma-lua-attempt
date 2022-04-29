@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using PlayerBalanceElement = Barotrauma.CampaignUI.PlayerBalanceElement;
 
 namespace Barotrauma
 {
@@ -20,6 +21,8 @@ namespace Barotrauma
         private GUITextBlock totalBlock;
         private GUIButton validateHiresButton;
         private GUIButton clearAllButton;
+
+        private PlayerBalanceElement? playerBalanceElement;
 
         private List<CharacterInfo> PendingHires => campaign.Map?.CurrentLocation?.HireManager?.PendingHires;
         private bool HasPermission => campaignUI.Campaign.AllowedToManageCampaign(ClientPermissions.ManageHires);
@@ -157,23 +160,7 @@ namespace Barotrauma
                 RelativeSpacing = 0.02f
             };
 
-            var playerBalanceContainer = new GUILayoutGroup(new RectTransform(new Vector2(1.0f, 0.75f / 14.0f), pendingAndCrewMainGroup.RectTransform), childAnchor: Anchor.TopRight)
-            {
-                RelativeSpacing = 0.005f
-            };
-            new GUITextBlock(new RectTransform(new Vector2(1.0f, 0.5f), playerBalanceContainer.RectTransform),
-                TextManager.Get("campaignstore.balance"), font: GUIStyle.Font, textAlignment: Alignment.BottomRight)
-            {
-                AutoScaleVertical = true,
-                ForceUpperCase = ForceUpperCase.Yes
-            };
-            new GUITextBlock(new RectTransform(new Vector2(1.0f, 0.5f), playerBalanceContainer.RectTransform),
-                "", font: GUIStyle.SubHeadingFont, textAlignment: Alignment.TopRight)
-            {
-                AutoScaleVertical = true,
-                TextScale = 1.1f,
-                TextGetter = () => TextManager.FormatCurrency(campaign.Wallet.Balance)
-            };
+            playerBalanceElement = CampaignUI.AddBalanceElement(pendingAndCrewMainGroup, new Vector2(1.0f, 0.75f / 14.0f));
 
             var pendingAndCrewGroup = new GUILayoutGroup(new RectTransform(new Vector2(0.9f, 0.95f), anchor: Anchor.Center,
                 parent: new GUIFrame(new RectTransform(new Vector2(1.0f, 13.25f / 14.0f), pendingAndCrewMainGroup.RectTransform)
@@ -344,7 +331,7 @@ namespace Barotrauma
             Color? jobColor = null;
             if (characterInfo.Job != null)
             {
-                skill = characterInfo.Job?.PrimarySkill ?? characterInfo.Job.Skills.OrderByDescending(s => s.Level).FirstOrDefault();
+                skill = characterInfo.Job?.PrimarySkill ?? characterInfo.Job.GetSkills().OrderByDescending(s => s.Level).FirstOrDefault();
                 jobColor = characterInfo.Job.Prefab.UIColor;
             }
 
@@ -547,8 +534,8 @@ namespace Barotrauma
             GUILayoutGroup skillGroup = new GUILayoutGroup(new RectTransform(new Vector2(1.0f, 0.475f), mainGroup.RectTransform), isHorizontal: true);
             GUILayoutGroup skillNameGroup = new GUILayoutGroup(new RectTransform(new Vector2(0.8f, 1.0f), skillGroup.RectTransform));
             GUILayoutGroup skillLevelGroup = new GUILayoutGroup(new RectTransform(new Vector2(0.2f, 1.0f), skillGroup.RectTransform));
-            List<Skill> characterSkills = characterInfo.Job.Skills;
-            blockHeight = 1.0f / characterSkills.Count;
+            var characterSkills = characterInfo.Job.GetSkills();
+            blockHeight = 1.0f / characterSkills.Count();
             foreach (Skill skill in characterSkills)
             {
                 new GUITextBlock(new RectTransform(new Vector2(1.0f, blockHeight), skillNameGroup.RectTransform), TextManager.Get("SkillName." + skill.Identifier));
@@ -630,7 +617,7 @@ namespace Barotrauma
                 total += ((InfoSkill)c.UserData).CharacterInfo.Salary;
             });
             totalBlock.Text = TextManager.FormatCurrency(total);
-            bool enoughMoney = campaign == null || campaign.Wallet.CanAfford(total);
+            bool enoughMoney = campaign == null || campaign.CanAfford(total);
             totalBlock.TextColor = enoughMoney ? Color.White : Color.Red;
             validateHiresButton.Enabled = enoughMoney && HasPermission && pendingList.Content.RectTransform.Children.Any();
         }
@@ -652,7 +639,7 @@ namespace Barotrauma
 
             int total = nonDuplicateHires.Aggregate(0, (total, info) => total + info.Salary);
 
-            if (!campaign.Wallet.CanAfford(total)) { return false; }
+            if (!campaign.CanAfford(total)) { return false; }
 
             bool atLeastOneHired = false;
             foreach (CharacterInfo ci in nonDuplicateHires)
@@ -791,6 +778,10 @@ namespace Barotrauma
             {
                 CreateUI();
                 UpdateLocationView(campaign.Map.CurrentLocation, false);
+            }
+            else
+            {
+                playerBalanceElement = CampaignUI.UpdateBalanceElement(playerBalanceElement);
             }
 
             (GUIComponent highlightedFrame, CharacterInfo highlightedInfo) = FindHighlightedCharacter(GUI.MouseOn);

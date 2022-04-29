@@ -138,9 +138,12 @@ namespace Barotrauma
 			}
 			else
 			{
-				if (exceptionType == ExceptionType.Lua) PrintError(ex);
-				else if (exceptionType == ExceptionType.CSharp) PrintCsError(ex);
-				else PrintBothError(ex);
+				string msg = ex.StackTrace != null
+					? ex.ToString()
+					: $"{ex}\n{Environment.StackTrace}";
+				if (exceptionType == ExceptionType.Lua) PrintError(msg);
+				else if (exceptionType == ExceptionType.CSharp) PrintCsError(msg);
+				else PrintBothError(msg);
 			}
 		}
 
@@ -302,12 +305,6 @@ namespace Barotrauma
 		}
 		public object CallLuaFunction(object function, params object[] arguments)
 		{
-			if (Thread.CurrentThread != GameMain.MainThread)
-            {
-				PrintMessage($"Warning: Tried to call Lua function outside of the main thread. Arguments = {string.Join(' ', arguments)}, {Environment.StackTrace}");
-				return null;
-            }
-
 			try
 			{
 				return lua.Call(function, arguments);
@@ -390,6 +387,7 @@ namespace Barotrauma
 			lua = new Script(CoreModules.Preset_SoftSandbox | CoreModules.Debug);
 			lua.Options.DebugPrint = PrintMessage;
 			lua.Options.ScriptLoader = LuaScriptLoader;
+			lua.Options.CheckThreadAccess = false;
 			Lua = new CsLua(this);
 			CsScript = new CsScriptRunner(this);
 

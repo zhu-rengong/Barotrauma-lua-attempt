@@ -17,8 +17,6 @@ namespace Barotrauma
 
         public JobPrefab Prefab => prefab;
 
-        public List<Skill> Skills => skills.Values.ToList();
-
         public int Variant;
 
         public Skill PrimarySkill { get; }
@@ -80,7 +78,12 @@ namespace Barotrauma
             var prefab = JobPrefab.Random(randSync);
             var variant = Rand.Range(0, prefab.Variants, randSync);
             return new Job(prefab, randSync, variant);
-        } 
+        }
+
+        public IEnumerable<Skill> GetSkills()
+        {
+            return skills.Values;
+        }
 
         public float GetSkillLevel([LuaAlias.SkillIdentifier] Identifier skillIdentifier)
         {
@@ -89,7 +92,23 @@ namespace Barotrauma
             return skill?.Level ?? 0.0f;
         }
 
-        public void IncreaseSkillLevel([LuaAlias.SkillIdentifier] Identifier skillIdentifier, float increase, bool increasePastMax)
+        public Skill GetSkill([LuaAlias.SkillIdentifier] Identifier skillIdentifier)
+        {
+            if (skillIdentifier.IsEmpty) { return null; }
+            skills.TryGetValue(skillIdentifier, out Skill skill);
+            return skill;
+        }
+
+        public void OverrideSkills(Dictionary<Identifier, float> newSkills)
+        {
+            skills.Clear();            
+            foreach (var newSkill in newSkills)
+            {
+                skills.Add(newSkill.Key, new Skill(newSkill.Key, newSkill.Value));
+            }
+        }
+
+        public void IncreaseSkillLevel(Identifier skillIdentifier, float increase, bool increasePastMax)
         {
             if (skills.TryGetValue(skillIdentifier, out Skill skill))
             {
@@ -171,7 +190,7 @@ namespace Barotrauma
                 character.Inventory.TryPutItem(item, null, item.AllowedSlots);
             }
 
-            Wearable wearable = ((List<ItemComponent>)item.Components)?.Find(c => c is Wearable) as Wearable;
+            Wearable wearable = item.GetComponent<Wearable>();
             if (wearable != null)
             {
                 if (Variant > 0 && Variant <= wearable.Variants)

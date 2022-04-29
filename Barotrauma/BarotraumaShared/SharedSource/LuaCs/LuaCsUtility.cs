@@ -395,6 +395,12 @@ namespace Barotrauma
 		{
 			GameMain.Server.ServerPeer.RemovePendingClient(pendingClient, reason, msg);
 		}
+
+		public int FileSenderMaxPacketsPerUpdate
+		{
+			get { return FileSender.FileTransferOut.MaxPacketsPerUpdate; }
+			set { FileSender.FileTransferOut.MaxPacketsPerUpdate = value; }
+		}
 #endif
 
 

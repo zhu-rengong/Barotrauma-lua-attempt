@@ -966,7 +966,15 @@ namespace Barotrauma
             {
                 OnClicked = (_, __) =>
                 {
-                    GameMain.Client?.RequestSelectMode(ModeList.Content.GetChildIndex(ModeList.Content.GetChildByUserData(GameModePreset.Sandbox)));
+                    if (GameMain.Client == null) { return false; }
+                    if (GameMain.Client.GameStarted)
+                    {
+                        GameMain.Client.RequestRoundEnd(save: false);
+                    }
+                    else
+                    {
+                        GameMain.Client.RequestSelectMode(ModeList.Content.GetChildIndex(ModeList.Content.GetChildByUserData(GameModePreset.Sandbox)));
+                    }
                     return true;
                 }
             };
@@ -1344,9 +1352,9 @@ namespace Barotrauma
             shuttleTickBox.Enabled = GameMain.Client.HasPermission(ClientPermissions.ManageSettings) && !GameMain.Client.GameStarted;
             SubList.Enabled = !CampaignFrame.Visible && (GameMain.Client.ServerSettings.AllowSubVoting || GameMain.Client.HasPermission(ClientPermissions.SelectSub));
             ShuttleList.Enabled = ShuttleList.ButtonEnabled = GameMain.Client.HasPermission(ClientPermissions.SelectSub) && !GameMain.Client.GameStarted;
-            ModeList.Enabled = GameMain.Client.ServerSettings.AllowModeVoting || GameMain.Client.HasPermission(ClientPermissions.SelectMode);
+            ModeList.Enabled = !GameMain.Client.GameStarted && (GameMain.Client.ServerSettings.AllowModeVoting || GameMain.Client.HasPermission(ClientPermissions.SelectMode));
             LogButtons.Visible = GameMain.Client.HasPermission(ClientPermissions.ServerLog);
-            GameMain.Client.ShowLogButton.Visible = GameMain.Client.HasPermission(ClientPermissions.ServerLog);
+            GameMain.Client.UpdateLogButtonPermissions();
             roundControlsHolder.Children.ForEach(c => c.IgnoreLayoutGroups = !c.Visible);
             roundControlsHolder.Children.ForEach(c => c.RectTransform.RelativeSize = Vector2.One);
             roundControlsHolder.Recalculate();
@@ -1559,7 +1567,7 @@ namespace Barotrauma
                 };
 
                 new GUITextBlock(new RectTransform(new Vector2(1.0f, 0.0f), infoContainer.RectTransform), TextManager.Get("Skills"), font: GUIStyle.SubHeadingFont);
-                foreach (Skill skill in characterInfo.Job.Skills)
+                foreach (Skill skill in characterInfo.Job.GetSkills())
                 {
                     Color textColor = Color.White * (0.5f + skill.Level / 200.0f);
                     var skillText = new GUITextBlock(new RectTransform(new Vector2(1.0f, 0.0f), infoContainer.RectTransform),
@@ -2190,17 +2198,17 @@ namespace Barotrauma
                 canKick = canBan = canPromo = false;
             }
 
-            List<ContextMenuOption> options = new List<ContextMenuOption>();
-            
-            options.Add(new ContextMenuOption("ViewSteamProfile", isEnabled: hasSteam, onSelected: delegate
-            { 
-                Steamworks.SteamFriends.OpenWebOverlay($"https://steamcommunity.com/profiles/{client.SteamID}");
-            }));
-
-            options.Add(new ContextMenuOption("ModerationMenu.ManagePlayer", isEnabled: true, onSelected: delegate
+            List<ContextMenuOption> options = new List<ContextMenuOption>
             {
-                GameMain.NetLobbyScreen?.SelectPlayer(client);
-            }));
+                new ContextMenuOption("ViewSteamProfile", isEnabled: hasSteam, onSelected: delegate
+                {
+                    Steamworks.SteamFriends.OpenWebOverlay($"https://steamcommunity.com/profiles/{client.SteamID}");
+                }),
+                new ContextMenuOption("ModerationMenu.ManagePlayer", isEnabled: true, onSelected: delegate
+                {
+                    GameMain.NetLobbyScreen?.SelectPlayer(client);
+                })
+            };
 
             // Creates sub context menu options for all the ranks
             List<ContextMenuOption> rankOptions = new List<ContextMenuOption>();

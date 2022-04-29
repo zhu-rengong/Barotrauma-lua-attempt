@@ -65,7 +65,10 @@ local function ExecutionQueue()
         while queue[1] ~= nil do
             RunFolder(
                 table.unpack(
-                    table.remove(queue)
+                    table.remove(
+                        queue,
+                        1
+                    )
                 )
             )
         end
@@ -83,7 +86,7 @@ local function ExecutionQueue()
     return queueExecutionFIFO, processQueueFIFO
 end
 
-local queueAutorun, processAutorun = ExecutionQueue()
+local queueAutorun,       processAutorun       = ExecutionQueue()
 local queueForcedAutorun, processForcedAutorun = ExecutionQueue()
 
 local function processPackages(packages, fn)
