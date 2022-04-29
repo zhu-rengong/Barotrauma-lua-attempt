@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 
 namespace Barotrauma
 {
@@ -33,7 +34,6 @@ namespace Barotrauma
                     "Mono.Cecil.Mdb.dll", "Mono.Cecil.Pdb.dll",
                     "Mono.Cecil.Rocks.dll", "MonoMod.Common.dll",
                     "MoonSharp.Interpreter.dll",
-                    "mscordaccore_amd64_amd64_4.700.22.11601.dll",
 
                     "Microsoft.CodeAnalysis.dll", "Microsoft.CodeAnalysis.CSharp.dll",
                     "Microsoft.CodeAnalysis.CSharp.Scripting.dll", "Microsoft.CodeAnalysis.Scripting.dll",
@@ -42,6 +42,8 @@ namespace Barotrauma
                     "System.Runtime.CompilerServices.Unsafe.dll"
                 };
 
+                filesToUpdate = filesToUpdate.Concat(Directory.EnumerateFiles(luaCsPath, "*.dll", SearchOption.AllDirectories)
+                        .Where(s => s.Contains("mscordaccore_amd64_amd64_4.")).Select(s => Path.GetFileName(s))).ToArray();
 
                 try
                 {
