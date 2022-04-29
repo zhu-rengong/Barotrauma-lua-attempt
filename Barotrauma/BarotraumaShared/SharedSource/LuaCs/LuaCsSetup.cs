@@ -113,9 +113,9 @@ namespace Barotrauma
 				}
 			}
 
-			if (useBackup)
+			if (useBackup && ContentPackageManager.EnabledPackages.BackupPackages.Regular != null)
             {
-				foreach (ContentPackage package in ContentPackageManager.EnabledPackages.BackupPackages.Regular)
+				foreach (ContentPackage package in ContentPackageManager.EnabledPackages.BackupPackages.Regular.Value)
 				{
 					if (package.NameMatches(name))
 					{
