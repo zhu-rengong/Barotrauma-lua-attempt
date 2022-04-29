@@ -384,7 +384,7 @@ namespace Barotrauma
                 }
             };
 #endif
-            string additional = LuaCsSetup.GetPackage("CsForBarotrauma", false) == null ? "" : "Cs";
+            string additional = LuaCsSetup.GetPackage("CsForBarotrauma", false, true) == null ? "" : "Cs";
 
             new GUIButton(new RectTransform(new Point(300, 30), Frame.RectTransform, Anchor.TopLeft) { AbsoluteOffset = new Point(20, 50) },
     $"Remove Client-Side Lua{additional}", style: "MainMenuGUIButton", color: GUIStyle.Red)

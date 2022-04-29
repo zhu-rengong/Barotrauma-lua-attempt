@@ -20,7 +20,7 @@ namespace Barotrauma
 
             if (clientVersion == workshopVersion) { return; }
 
-            string additional = LuaCsSetup.GetPackage("CsForBarotrauma", false) == null ? "" : "Cs";
+            string additional = LuaCsSetup.GetPackage("CsForBarotrauma", false, true) == null ? "" : "Cs";
 
             var msg = new GUIMessageBox($"Lua{additional} Update", $"Your Lua{additional} client version is different from the version found in the Lua{additional}ForBarotrauma workshop files. Do you want to update?\n\n Client Version: {clientVersion}\n Workshop Version: {workshopVersion}", 
                 new LocalizedString[2] { TextManager.Get("Yes"), TextManager.Get("Cancel") });

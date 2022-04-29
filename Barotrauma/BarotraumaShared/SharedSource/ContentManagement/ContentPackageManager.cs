@@ -36,7 +36,7 @@ namespace Barotrauma
                     ? (Core as ContentPackage).ToEnumerable().CollectionConcat(Regular)
                     : Enumerable.Empty<ContentPackage>();
 
-            private static class BackupPackages
+            public static class BackupPackages
             {
                 public static CorePackage? Core;
                 public static ImmutableArray<RegularPackage>? Regular;

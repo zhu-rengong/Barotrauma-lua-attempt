@@ -84,7 +84,7 @@ namespace Barotrauma
 		}
 
 
-		public static ContentPackage GetPackage(Identifier name, bool fallbackToAll = true)
+		public static ContentPackage GetPackage(Identifier name, bool fallbackToAll = true, bool useBackup = false)
 		{
 			foreach (ContentPackage package in ContentPackageManager.EnabledPackages.All)
 			{
@@ -105,6 +105,17 @@ namespace Barotrauma
 				}
 
 				foreach (ContentPackage package in ContentPackageManager.AllPackages)
+				{
+					if (package.NameMatches(name))
+					{
+						return package;
+					}
+				}
+			}
+
+			if (useBackup)
+            {
+				foreach (ContentPackage package in ContentPackageManager.EnabledPackages.BackupPackages.Regular)
 				{
 					if (package.NameMatches(name))
 					{
@@ -435,7 +446,7 @@ namespace Barotrauma
 			lua.Globals["CLIENT"] = IsClient;
 
 
-			if (GetPackage("CsForBarotrauma", false) != null)
+			if (GetPackage("CsForBarotrauma", false, true) != null)
 			{
 				PrintMessage("Cs! Version " + AssemblyInfo.GitRevision);
 

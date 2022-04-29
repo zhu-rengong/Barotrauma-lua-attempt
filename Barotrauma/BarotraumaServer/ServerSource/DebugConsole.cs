@@ -1247,7 +1247,7 @@ namespace Barotrauma
             }));
             commands.Add(new Command("cs", "cs: runs a string", (string[] args) =>
             {
-                if(LuaCsSetup.GetPackage("CsForBarotrauma", false) == null) { return; }
+                if(LuaCsSetup.GetPackage("CsForBarotrauma", false, true) == null) { return; }
 
                 GameMain.LuaCs.CsScript.Run(string.Join(" ", args));
                 GameMain.LuaCs.RecreateCsScript();
