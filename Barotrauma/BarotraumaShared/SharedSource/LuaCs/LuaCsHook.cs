@@ -125,7 +125,9 @@ namespace Barotrauma
 					foreach (var tuple in methodSet)
 					{
 						if (tuple.Item3 != null && tuple.Item3.IsDisposed)
+						{
 							outOfSocpe.Add(tuple);
+						}
 						else
 						{
 							var _result = tuple.Item2(__instance, args);
@@ -135,15 +137,24 @@ namespace Barotrauma
 								{
 									if (!res.IsNull())
 									{
-										if (__originalMethod is MethodInfo mi) result = res.DynValue().ToObject(mi.ReturnType);
-										else result = res.DynValue().ToObject();
+										if (__originalMethod is MethodInfo mi && mi.ReturnType != typeof(void))
+										{
+											result = res.DynValue().ToObject(mi.ReturnType);
+										}
+										else
+										{
+											result = res.DynValue().ToObject();
+										}
 									}
 								}
-								else result = _result;
+								else
+								{
+									result = _result;
+								}
 							}
 						}
 					}
-					foreach (var tuple in outOfSocpe) methodSet.Remove(tuple);
+					foreach (var tuple in outOfSocpe) { methodSet.Remove(tuple); }
 				}
 			}
 			catch (Exception ex)
