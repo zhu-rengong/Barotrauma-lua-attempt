@@ -43,5 +43,7 @@ RegisterBarotrauma("GUIDropDown")
 RegisterBarotrauma("GUINumberInput")
 RegisterBarotrauma("GUIMessage")
 RegisterBarotrauma("GUIMessageBox")
+RegisterBarotrauma("GUIFont")
+RegisterBarotrauma("GUIFontPrefab")
 
 RegisterBarotrauma("Inventory+SlotReference")
