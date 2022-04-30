@@ -122,6 +122,9 @@ RegisterBarotrauma("AIObjectiveRescue")
 RegisterBarotrauma("AIObjectiveRescueAll")
 RegisterBarotrauma("AIObjectiveReturn")
 
+RegisterBarotrauma("Order")
+RegisterBarotrauma("OrderPrefab")
+
 RegisterBarotrauma("TalentPrefab")
 RegisterBarotrauma("TalentOption")
 RegisterBarotrauma("TalentSubTree")
