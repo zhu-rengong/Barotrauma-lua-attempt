@@ -105,5 +105,5 @@ print(char.CharacterHealth.GetAffliction("burn", char.AnimController.Limbs[1]))
 ```
 local chatMessage = ChatMessage.Create("Sender name", "text here", ChatMessageType.MessageBox, nil, nil)
 chatMessage.Color = Color(255, 255, 0, 255)
-Game.SendDirectChatMessage(chatMessage, ChatMessageType.MessageBox)
+Game.SendDirectChatMessage(chatMessage, Client.ClientList[1])
 ```
