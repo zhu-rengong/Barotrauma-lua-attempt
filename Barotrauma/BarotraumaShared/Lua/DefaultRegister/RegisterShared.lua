@@ -124,6 +124,7 @@ RegisterBarotrauma("AIObjectiveReturn")
 
 RegisterBarotrauma("Order")
 RegisterBarotrauma("OrderPrefab")
+RegisterBarotrauma("OrderTarget")
 
 RegisterBarotrauma("TalentPrefab")
 RegisterBarotrauma("TalentOption")
