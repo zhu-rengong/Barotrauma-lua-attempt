@@ -140,21 +140,37 @@ namespace Barotrauma
 				else if (exceptionType == ExceptionType.CSharp) PrintCsError(extra);
 				else PrintBothError(extra);
 
-			if (ex is InterpreterException)
+			if (ex is NetRuntimeException netRuntimeException)
 			{
-				if (((InterpreterException)ex).DecoratedMessage == null)
-					PrintError(((InterpreterException)ex).Message);
+				if (netRuntimeException.DecoratedMessage == null)
+				{
+					PrintError(netRuntimeException);
+				}
 				else
-					PrintError(((InterpreterException)ex).DecoratedMessage);
+				{
+					PrintError(netRuntimeException.DecoratedMessage + ": " + netRuntimeException.ToString());
+				}
+			}
+			else if (ex is InterpreterException interpreterException)
+			{
+				if (interpreterException.DecoratedMessage == null)
+				{
+					PrintError(interpreterException);
+				}
+				else
+				{
+					PrintError(interpreterException.DecoratedMessage);
+				}
 			}
 			else
 			{
 				string msg = ex.StackTrace != null
 					? ex.ToString()
 					: $"{ex}\n{Environment.StackTrace}";
-				if (exceptionType == ExceptionType.Lua) PrintError(msg);
-				else if (exceptionType == ExceptionType.CSharp) PrintCsError(msg);
-				else PrintBothError(msg);
+
+				if (exceptionType == ExceptionType.Lua) { PrintError(msg); }
+				else if (exceptionType == ExceptionType.CSharp) { PrintCsError(msg); }
+				else { PrintBothError(msg); }
 			}
 		}
 
@@ -421,6 +437,8 @@ namespace Barotrauma
 			UserData.RegisterType<LuaCsNetworking>();
 			UserData.RegisterType<LuaUserData>();
 			UserData.RegisterType<IUserDataDescriptor>();
+
+			LuaDocs.GenerateDocsAll();
 
 			lua.Globals["printerror"] = (Action<object>)PrintError;
 
