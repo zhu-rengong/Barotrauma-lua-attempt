@@ -46,7 +46,7 @@ namespace Barotrauma
 		public bool HasSources { get => sources.Count > 0; }
 
 		private enum SourceCategory { Shared, Server, Client };
-		private Regex rMaskPathValid = new Regex(@"^[^/]+/[^/]+/csharp(/(shared|client|server))?(/[^/]+)+\.cs$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+		private Regex rMaskPathValid = new Regex(@"^(((?!csharp)[^/])+/)+csharp(/(shared|client|server))?(/[^/]+)+\.cs$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 		private Regex rMaskPathCategory1 = new Regex(@"/(shared|client|server)(/[^/]+)+\.cs$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 		private Regex rMaskPathCategory2 = new Regex(@"^/(shared|client|server)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 		private void RunFolder(string folder)
