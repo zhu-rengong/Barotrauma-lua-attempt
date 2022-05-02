@@ -249,3 +249,8 @@ function GetHashCode() end
 -- @realm shared
 -- @table OwnedSubmarines
 
+---
+-- GameSession.MinimumLoadingTime, Field of type number
+-- @realm shared
+-- @number GameSession.MinimumLoadingTime
+

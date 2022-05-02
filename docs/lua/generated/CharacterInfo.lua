@@ -10,16 +10,6 @@ Barotrauma source code: [CharacterInfo.cs](https://github.com/evilfactory/Barotr
 
 local CharacterInfo = {}
 
---- GetExperienceRequiredToLevelUp
--- @realm shared
--- @treturn number
-function GetExperienceRequiredToLevelUp() end
-
---- GetCurrentLevel
--- @realm shared
--- @treturn number
-function GetCurrentLevel() end
-
 --- Rename
 -- @realm shared
 -- @tparam string newName
@@ -290,6 +280,16 @@ function GetProgressTowardsNextLevel() end
 -- @realm shared
 -- @treturn number
 function GetExperienceRequiredForCurrentLevel() end
+
+--- GetExperienceRequiredToLevelUp
+-- @realm shared
+-- @treturn number
+function GetExperienceRequiredToLevelUp() end
+
+--- GetCurrentLevel
+-- @realm shared
+-- @treturn number
+function GetCurrentLevel() end
 
 --- GetType
 -- @realm shared

@@ -17,11 +17,27 @@ local Job = {}
 -- @treturn Job
 function Job.Random(randSync) end
 
+--- GetSkills
+-- @realm shared
+-- @treturn Enumerable
+function GetSkills() end
+
 --- GetSkillLevel
 -- @realm shared
 -- @tparam Identifier skillIdentifier
 -- @treturn number
 function GetSkillLevel(skillIdentifier) end
+
+--- GetSkill
+-- @realm shared
+-- @tparam Identifier skillIdentifier
+-- @treturn Skill
+function GetSkill(skillIdentifier) end
+
+--- OverrideSkills
+-- @realm shared
+-- @tparam table newSkills
+function OverrideSkills(newSkills) end
 
 --- IncreaseSkillLevel
 -- @realm shared
@@ -77,11 +93,6 @@ function GetHashCode() end
 -- Prefab, Field of type JobPrefab
 -- @realm shared
 -- @JobPrefab Prefab
-
----
--- Skills, Field of type table
--- @realm shared
--- @table Skills
 
 ---
 -- PrimarySkill, Field of type Skill
