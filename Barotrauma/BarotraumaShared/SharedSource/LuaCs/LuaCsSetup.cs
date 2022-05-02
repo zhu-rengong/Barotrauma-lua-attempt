@@ -438,8 +438,6 @@ namespace Barotrauma
 			UserData.RegisterType<LuaUserData>();
 			UserData.RegisterType<IUserDataDescriptor>();
 
-			LuaDocs.GenerateDocsAll();
-
 			lua.Globals["printerror"] = (Action<object>)PrintError;
 
 			lua.Globals["setmodulepaths"] = (Action<string[]>)SetModulePaths;
