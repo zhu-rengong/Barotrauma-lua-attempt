@@ -432,6 +432,7 @@ namespace Barotrauma
 			foreach (var elem in typesElem.Elements())
             {
 				var type = Type.GetType(elem.Value);
+				if (type == null && GameMain.LuaCs?.CsScriptLoader?.Assembly != null) type = GameMain.LuaCs.CsScriptLoader.Assembly.GetType(elem.Value);
 				if (type == null) throw new Exception($"Type {elem.Value} not found.");
 				result.Add(type);
 
