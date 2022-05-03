@@ -70,6 +70,7 @@ defaultLib["NetEntityEvent"] = CreateStatic("Barotrauma.Networking.NetEntityEven
 defaultLib["Screen"] = CreateStatic("Barotrauma.Screen")
 defaultLib["AttackResult"] = CreateStatic("Barotrauma.AttackResult", true)
 defaultLib["TempClient"] = CreateStatic("Barotrauma.Networking.TempClient", true)
+defaultLib["TraitorMissionResult"] = CreateStatic("Barotrauma.TraitorMissionResult", true)
 
 defaultLib["Explosion"] = CreateStatic("Barotrauma.Explosion", true)
 
