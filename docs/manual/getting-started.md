@@ -18,10 +18,57 @@ If you wish to separate your Lua scripts into multiple files, you can do it by e
 -- this variable will be accessible to any other script, so you can use it to get the mod's path.
 MyModGlobal = {}
 
-MyModGlobal.Path = table.pack(...)[1]
+MyModGlobal.Path = ...
 
 dofile(MyModGlobal.Path .. "/Lua/yourscript.lua")
 ```
+
+Alternatively, you may use the `require` function to load Lua scripts by their module name (file name without `.lua` inside your mod's `Lua/` folder, subfolders are dot-separated). This is slightly different from `dofile`; `require` will return whatever the Lua script you are calling returns. Also, `require` will execute the Lua script only the first time, and will just return its original return value on subsequent calls.
+
+```
+local MyMod = {
+    Path = ... -- Get path to this mod/content package, exact same as MyModGlobal.Path = ... above.
+}
+
+-- Equivalent to: dofile(MyMod.Path .. "/Lua/MyScript.lua")
+require "MyScript"
+
+-- Equivalent to: dofile(MyMod.Path .. "/Lua/Subfolder1/Subfolder2/Subfoler3/MyScript.lua")
+require "Subfolder1.Subfolder2.Subfolder3.MyScript"
+```
+
+Note that `require` does not necessitate the use of `MyMod.Path = ...`, instead it looks for the first match in the `Lua/` folder of every enabled (including forced ran) Barotrauma mod. This means that you can execute the scripts of other Barotrauma mods. To ensure that you do not inadvertently execute a script from a different Barotrauma mod, you should use a unique subfolder name for your scripts.
+
+```
+-- Generic: Bad, likely to execute MyScript.lua from a different mod from ours.
+-- AnyModPath/Lua/MyScript.lua
+require "MyScript"
+
+-- More unique: Good, less likely to execute MyScript from a different mod from ours.
+-- AnyModPath/Lua/MyName/MyMod/MyScript.lua
+require "MyName.MyMod.MyScript"
+```
+
+`require` will return whatever the script it loads returns.
+
+```
+-- Inside MyScript.lua:
+local MyString = "Hello World!"
+
+return MyString
+
+-------------------------------
+
+-- Inside another script:
+local MyString = require "MyScript"
+
+-- Will print "Hello World!"
+print(MyString)
+```
+
+The main advantages of `require` over `dofile` are: 1. multiple scripts can try to load the same file without executing its contents multiple times but instead only once; and 2. scripts can load scripts from third-party mods without having to know their paths. It is an alternative over using global variables for sharing data between scripts; while a script needs to wait for a global variable to be initialised first, you can instead bundle the variable initalisation logic (which must only run once) with a script that also returns the variable (in a table) for other mods to `require` and use.
+
+Find more information about `require` in the Programming in Lua book: http://www.lua.org/pil/8.1.html.
 
 ## Learning the libraries
 In the sidebar of the documentation, you can see a tab named Code, in there you can check out all the functions and fields that each class has, each one of them has a box with a color on it, where <span class="realm server"></span> means Server-Side, <span class="realm client"></span> means Client-Side and <span class="realm shared"></span> means both Server-Side and Client-Side, by clicking on them you can learn more about them. Not everything is documented here, theres stuff missing that still needs to be added, if you want to find more in-depth functions and fields in the Barotrauma classes, you should check the Barotrauma source code.
