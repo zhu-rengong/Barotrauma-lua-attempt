@@ -8,14 +8,14 @@ namespace Barotrauma
     {
         public static void Check()
         {
-            if (!File.Exists(LuaCsSetup.VERSION_FILE)) { return; }
+            if (!File.Exists(LuaCsSetup.VersionFile)) { return; }
 
             ContentPackage luaPackage = LuaCsSetup.GetPackage("Lua For Barotrauma");
             string luaCsPath = Path.GetDirectoryName(luaPackage.Path);
 
             if (luaPackage == null) { return; }
 
-            string clientVersion = File.ReadAllText(LuaCsSetup.VERSION_FILE);
+            string clientVersion = File.ReadAllText(LuaCsSetup.VersionFile);
             string workshopVersion = luaPackage.ModVersion;
 
             if (clientVersion == workshopVersion) { return; }
@@ -53,7 +53,7 @@ namespace Barotrauma
                         File.Copy(Path.Combine(luaCsPath, "Binary", file), file, true);
                     }
 
-                    File.WriteAllText(LuaCsSetup.VERSION_FILE, workshopVersion);
+                    File.WriteAllText(LuaCsSetup.VersionFile, workshopVersion);
                 }
                 catch (Exception e)
                 {
