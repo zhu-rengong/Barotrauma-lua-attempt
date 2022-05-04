@@ -116,16 +116,24 @@ namespace Barotrauma
 			if (write)
 			{
 				if (CanWriteToPath(path))
+				{
 					return true;
+				}
 				else
+				{
 					GameMain.LuaCs.HandleException(new Exception("File access to \"" + path + "\" not allowed."));
+				}
 			}
 			else
 			{
 				if (CanReadFromPath(path))
+				{
 					return true;
+				}
 				else
+				{
 					GameMain.LuaCs.HandleException(new Exception("File access to \"" + path + "\" not allowed."));
+				}
 			}
 
 			return false;

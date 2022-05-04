@@ -245,80 +245,36 @@ namespace Barotrauma
 		public static void PrintCsMessage(object message) => PrintMessageBase("[CS] ", message, "Null");
 		public static void PrintLogMessage(object message) => PrintMessageBase("[LuaCs LOG] ", message, "Null");
 
-		private DynValue DoString(string code, Table globalContext = null, string codeStringFriendly = null)
-		{
-			try
-			{
-				return lua.DoString(code, globalContext, codeStringFriendly);
-			}
-			catch (Exception e)
-			{
-				HandleException(e);
-			}
-
-			return null;
-		}
-
 		private DynValue DoFile(string file, Table globalContext = null, string codeStringFriendly = null)
 		{
-			if (!LuaCsFile.IsPathAllowedLuaException(file, false)) return null;
+			if (!LuaCsFile.CanReadFromPath(file))
+			{
+				throw new ScriptRuntimeException($"dofile: File access to {file} not allowed.");
+			}
+
 			if (!LuaCsFile.Exists(file))
 			{
-				HandleException(new Exception($"dofile: File {file} not found."));
-				return null;
+				throw new ScriptRuntimeException($"dofile: File {file} not found.");
 			}
 
-			try
-			{
-				return lua.DoFile(file, globalContext, codeStringFriendly);
-
-			}
-			catch (Exception e)
-			{
-				HandleException(e);
-			}
-
-			return null;
-		}
-
-
-		private DynValue LoadString(string file, Table globalContext = null, string codeStringFriendly = null)
-		{
-			try
-			{
-				return lua.LoadString(file, globalContext, codeStringFriendly);
-
-			}
-			catch (Exception e)
-			{
-				HandleException(e);
-			}
-
-			return null;
+			return lua.DoFile(file, globalContext, codeStringFriendly);
 		}
 
 		private DynValue LoadFile(string file, Table globalContext = null, string codeStringFriendly = null)
 		{
-			if (!LuaCsFile.IsPathAllowedLuaException(file, false)) return null;
+			if (!LuaCsFile.CanReadFromPath(file))
+            {
+				throw new ScriptRuntimeException($"loadfile: File access to {file} not allowed.");
+			}
+
 			if (!LuaCsFile.Exists(file))
 			{
-				HandleException(new Exception($"loadfile: File {file} not found."));
-				return null;
+				throw new ScriptRuntimeException($"loadfile: File {file} not found.");
 			}
 
-			try
-			{
-				return lua.LoadFile(file, globalContext, codeStringFriendly);
-
-			}
-			catch (Exception e)
-			{
-				HandleException(e);
-			}
-
-			return null;
+			return lua.LoadFile(file, globalContext, codeStringFriendly);
 		}
-		
+
 		public object CallLuaFunction(object function, params object[] arguments)
 		{
 			try
@@ -435,8 +391,8 @@ namespace Barotrauma
 			lua.Globals["loadfile"] = (Func<string, Table, string, DynValue>)LoadFile;
 			lua.Globals["require"] = (Func<string, Table, DynValue>)require.Require;
 
-			lua.Globals["dostring"] = (Func<string, Table, string, DynValue>)DoString;
-			lua.Globals["load"] = (Func<string, Table, string, DynValue>)LoadString;
+			lua.Globals["dostring"] = (Func<string, Table, string, DynValue>)lua.DoString;
+			lua.Globals["load"] = (Func<string, Table, string, DynValue>)lua.LoadFile;
 
 			lua.Globals["CsScript"] = CsScript;
 			lua.Globals["LuaUserData"] = UserData.CreateStatic<LuaUserData>();

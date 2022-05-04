@@ -1243,7 +1243,14 @@ namespace Barotrauma
 
             commands.Add(new Command("lua", "lua: runs a string", (string[] args) =>
             {
-                GameMain.LuaCs.Lua.DoString(string.Join(" ", args));
+                try
+                {
+                    GameMain.LuaCs.Lua.DoString(string.Join(" ", args));
+                }
+                catch (Exception ex)
+                {
+                    GameMain.LuaCs.HandleException(ex);
+                }
             }));
             commands.Add(new Command("cs", "cs: runs a string", (string[] args) =>
             {

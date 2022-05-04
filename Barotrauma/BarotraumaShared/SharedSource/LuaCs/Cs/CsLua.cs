@@ -16,7 +16,7 @@ namespace Barotrauma
                 Globals = setup.lua.Globals;
             }
 
-            public DynValue DoString(string code) => setup.DoString(code);
+            public DynValue DoString(string code) => setup.lua.DoString(code);
         }
     }
 }
