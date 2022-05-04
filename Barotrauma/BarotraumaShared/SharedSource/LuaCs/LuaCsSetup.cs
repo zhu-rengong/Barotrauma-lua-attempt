@@ -318,18 +318,7 @@ namespace Barotrauma
 
 			return null;
 		}
-		public DynValue Require(string moduleName, Table globalContexts)
-		{
-			try
-			{
-				return require.Require(moduleName, globalContexts);
-			}
-			catch (Exception e)
-			{
-				HandleException(e);
-			}
-			return null;
-		}
+		
 		public object CallLuaFunction(object function, params object[] arguments)
 		{
 			try
@@ -444,7 +433,7 @@ namespace Barotrauma
 
 			lua.Globals["dofile"] = (Func<string, Table, string, DynValue>)DoFile;
 			lua.Globals["loadfile"] = (Func<string, Table, string, DynValue>)LoadFile;
-			lua.Globals["require"] = (Func<string, Table, DynValue>)Require;
+			lua.Globals["require"] = (Func<string, Table, DynValue>)require.Require;
 
 			lua.Globals["dostring"] = (Func<string, Table, string, DynValue>)DoString;
 			lua.Globals["load"] = (Func<string, Table, string, DynValue>)LoadString;
