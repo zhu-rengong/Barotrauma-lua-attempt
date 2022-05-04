@@ -83,7 +83,7 @@ local result = require "ThirdPartyAuthor.ThirdPartyMod.ThirdPartyScript"
 print(result)
 
 -- Same as above, except any error is handled.
-local ok, result = require "ThirdPartyAuthor.ThirdPartyMod.ThirdPartyScript"
+local ok, result = pcall(require, "ThirdPartyAuthor.ThirdPartyMod.ThirdPartyScript")
 -- `ok` is true if no error, false if there is an error.
 if ok then
     -- No error, print our result!
