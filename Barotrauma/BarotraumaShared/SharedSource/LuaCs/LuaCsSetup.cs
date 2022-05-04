@@ -26,8 +26,8 @@ namespace Barotrauma
 
 	partial class LuaCsSetup
 	{
-		public const string LUASETUP_FILE = "Lua/LuaSetup.lua";
-		public const string VERSION_FILE = "luacsversion.txt";
+		public const string LuaSetupFile = "Lua/LuaSetup.lua";
+		public const string VersionFile = "luacsversion.txt";
 
 		private const string configFileName = "LuaCsSetupConfig.xml";
 
@@ -503,11 +503,11 @@ modding needs.
 
 			ContentPackage luaPackage = GetPackage("Lua For Barotrauma");
 
-			if (File.Exists(LUASETUP_FILE))
+			if (File.Exists(LuaSetupFile))
 			{
 				try
 				{
-					lua.Call(lua.LoadFile(LUASETUP_FILE), Path.GetDirectoryName(Path.GetFullPath(LUASETUP_FILE)));
+					lua.Call(lua.LoadFile(LuaSetupFile), Path.GetDirectoryName(Path.GetFullPath(LuaSetupFile)));
 				}
 				catch (Exception e)
 				{

@@ -1301,7 +1301,7 @@ namespace Barotrauma
                         File.Copy(Path.Combine(path, "Binary", file), file, true);
                     }
 
-                    File.WriteAllText(LuaCsSetup.VERSION_FILE, luaPackage.ModVersion);
+                    File.WriteAllText(LuaCsSetup.VersionFile, luaPackage.ModVersion);
                 }
                 catch (UnauthorizedAccessException e)
                 {
