@@ -392,7 +392,7 @@ namespace Barotrauma
 			lua.Globals["require"] = (Func<string, Table, DynValue>)require.Require;
 
 			lua.Globals["dostring"] = (Func<string, Table, string, DynValue>)lua.DoString;
-			lua.Globals["load"] = (Func<string, Table, string, DynValue>)lua.LoadFile;
+			lua.Globals["load"] = (Func<string, Table, string, DynValue>)lua.LoadString;
 
 			lua.Globals["CsScript"] = CsScript;
 			lua.Globals["LuaUserData"] = UserData.CreateStatic<LuaUserData>();
