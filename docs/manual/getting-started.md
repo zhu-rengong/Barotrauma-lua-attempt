@@ -70,6 +70,32 @@ The main advantages of `require` over `dofile` are: 1. multiple scripts can try 
 
 Find more information about `require` in the Programming in Lua book: http://www.lua.org/pil/8.1.html.
 
+## Error handling
+
+Sometimes you may expect an error to happen when you call specific functions in your script. Errors will stop the execution of your script unless they are handled correctly.
+
+`pcall` (protected call) is a function that allows you to call another function in *protected mode*, which means that any errors that occur will be caught and a status code will be returned that your script can use to understand whether the function failed or succeeded, and the type of error that occured.
+
+```
+-- Require a third-party script, risky as it raises an error if the user does not have it installed.
+local result = require "ThirdPartyAuthor.ThirdPartyMod.ThirdPartyScript"
+-- Only prints if the above does not raise an error.
+print(result)
+
+-- Same as above, except any error is handled.
+local ok, result = pcall(require, "ThirdPartyAuthor.ThirdPartyMod.ThirdPartyScript")
+-- `ok` is true if no error, false if there is an error.
+if ok then
+    -- No error, print our result!
+    print(result)
+else
+    -- There was an error, in this case `result` is a string containing the error code.
+    print("Error when loading third-party script: ", result)
+end
+```
+
+Read more about error handling in the Programming in Lua book: http://www.lua.org/pil/8.4.html. Confer also the Lua 5.2 reference manual: http://www.lua.org/manual/5.2/manual.html.
+
 ## Learning the libraries
 In the sidebar of the documentation, you can see a tab named Code, in there you can check out all the functions and fields that each class has, each one of them has a box with a color on it, where <span class="realm server"></span> means Server-Side, <span class="realm client"></span> means Client-Side and <span class="realm shared"></span> means both Server-Side and Client-Side, by clicking on them you can learn more about them. Not everything is documented here, theres stuff missing that still needs to be added, if you want to find more in-depth functions and fields in the Barotrauma classes, you should check the Barotrauma source code.
 
