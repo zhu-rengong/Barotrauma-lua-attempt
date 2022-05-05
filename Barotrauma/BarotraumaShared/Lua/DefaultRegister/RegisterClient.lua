@@ -45,5 +45,6 @@ RegisterBarotrauma("GUIMessage")
 RegisterBarotrauma("GUIMessageBox")
 RegisterBarotrauma("GUIFont")
 RegisterBarotrauma("GUIFontPrefab")
+RegisterBarotrauma("GUIColorPicker")
 
 RegisterBarotrauma("Inventory+SlotReference")
