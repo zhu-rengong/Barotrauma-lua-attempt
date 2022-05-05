@@ -67,11 +67,18 @@ namespace Barotrauma
 			set { MapEntity.GapUpdateInterval = value; }
 		}
 
+		public int poweredUpdateInterval
+		{
+			get { return MapEntity.PoweredUpdateInterval; }
+			set { MapEntity.PoweredUpdateInterval = value; }
+		}
+
 		public int characterUpdateInterval
 		{
 			get { return Character.CharacterUpdateInterval; }
 			set { Character.CharacterUpdateInterval = value; }
 		}
+
 
 		public HashSet<Item> updatePriorityItems = new HashSet<Item>();
 		public HashSet<Character> updatePriorityCharacters = new HashSet<Character>();
