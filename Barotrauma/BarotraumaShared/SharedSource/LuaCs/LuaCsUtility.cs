@@ -13,38 +13,6 @@ using System.Xml.Linq;
 
 namespace Barotrauma
 {
-    public partial class LuaCsTimer
-	{
-		public static long LastUpdateTime = 0;
-
-		public static double Time
-		{
-			get
-			{
-				return GetTime();
-			}
-		}
-
-		public static void Wait(LuaCsAction action, int millisecondDelay)
-		{
-			GameMain.LuaCs.Hook.EnqueueTimed((float)Timing.TotalTime + (millisecondDelay / 1000f), action);
-		}
-
-		public static double GetTime()
-		{
-			return Timing.TotalTime;
-		}
-
-		public static float GetUsageMemory()
-		{
-			Process proc = Process.GetCurrentProcess();
-			float memory = MathF.Round(proc.PrivateMemorySize64 / (1024 * 1024), 2);
-			proc.Dispose();
-
-			return memory;
-		}
-	}
-
 	partial class LuaCsFile
 	{
 		public static bool CanReadFromPath(string path)

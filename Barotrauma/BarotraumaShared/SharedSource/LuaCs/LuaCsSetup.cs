@@ -297,6 +297,7 @@ namespace Barotrauma
 		public void Update()
 		{
 			Hook?.Update();
+			LuaCsTimer.Update();
 		}
 
 		public void Stop()
@@ -312,6 +313,7 @@ namespace Barotrauma
 			if (Thread.CurrentThread == GameMain.MainThread) 
 			{
 				Hook?.Call("stop");
+				LuaCsTimer.Clear();
 			}
 
 			Game?.Stop();
