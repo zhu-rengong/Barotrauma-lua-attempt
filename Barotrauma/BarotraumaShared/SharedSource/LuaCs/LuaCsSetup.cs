@@ -56,6 +56,9 @@ namespace Barotrauma
 		public LuaScriptLoader LuaScriptLoader { get; private set; }
 
 		public LuaCsHook Hook { get; private set; }
+
+		public LuaCsTimer Timer { get; private set; }
+
 		public LuaCsNetworking Networking { get; private set; }
 		public LuaCsModStore ModStore { get; private set; }
 		private LuaRequire require { get; set; }
@@ -297,7 +300,7 @@ namespace Barotrauma
 		public void Update()
 		{
 			Hook?.Update();
-			LuaCsTimer.Update();
+			Timer?.Update();
 		}
 
 		public void Stop()
@@ -313,7 +316,6 @@ namespace Barotrauma
 			if (Thread.CurrentThread == GameMain.MainThread) 
 			{
 				Hook?.Call("stop");
-				LuaCsTimer.Clear();
 			}
 
 			Game?.Stop();
@@ -322,6 +324,7 @@ namespace Barotrauma
 			ModStore.Clear();
 			Game = new LuaGame();
 			Networking = new LuaCsNetworking();
+			Timer = new LuaCsTimer();
 			LuaScriptLoader = null;
 			lua = null;
 			Lua = null;
@@ -369,6 +372,7 @@ namespace Barotrauma
 
 			Game = new LuaGame();
 			Networking = new LuaCsNetworking();
+			Timer = new LuaCsTimer();
 			Hook.Initialize();
 			ModStore.Initialize();
 
@@ -401,7 +405,7 @@ namespace Barotrauma
 			lua.Globals["Game"] = Game;
 			lua.Globals["Hook"] = Hook;
 			lua.Globals["ModStore"] = ModStore;
-			lua.Globals["Timer"] = new LuaCsTimer();
+			lua.Globals["Timer"] = Timer;
 			lua.Globals["File"] = UserData.CreateStatic<LuaCsFile>();
 			lua.Globals["Networking"] = Networking;
 
@@ -418,7 +422,7 @@ namespace Barotrauma
 					Config.FirstTimeCsWarning = false;
 					UpdateConfig();
 
-					LuaCsTimer.Wait((args) => PrintCsError(@"
+					Timer.Wait((args) => PrintCsError(@"
   ----====    ====----
 
         WARNING!

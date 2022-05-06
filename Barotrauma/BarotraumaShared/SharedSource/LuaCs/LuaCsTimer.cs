@@ -9,6 +9,8 @@ namespace Barotrauma
         public static long LastUpdateTime = 0;
 
         public static double Time => Timing.TotalTime;
+
+        public static double GetTime() => Time;
         
         public static float GetUsageMemory()
         {
@@ -53,9 +55,9 @@ namespace Barotrauma
             }
         }
         
-        private static List<TimedAction> timedActions = new List<TimedAction>();
+        private List<TimedAction> timedActions = new List<TimedAction>();
 
-        private static void AddTimer(TimedAction timedAction)
+        private void AddTimer(TimedAction timedAction)
         {
             int insertionPoint = timedActions.BinarySearch(timedAction, new TimerComparer());
             
@@ -67,7 +69,7 @@ namespace Barotrauma
             timedActions.Insert(insertionPoint, timedAction);
         }
 
-        public static void Update()
+        public void Update()
         {
             while (timedActions.Count > 0)
             {
@@ -84,12 +86,12 @@ namespace Barotrauma
             }
         }
 
-        public static void Clear()
+        public void Clear()
         {
             timedActions = new List<TimedAction>();
         }
 
-        public static void Wait(LuaCsAction action, int millisecondDelay)
+        public void Wait(LuaCsAction action, int millisecondDelay)
         {
             TimedAction timedAction = new TimedAction(action, millisecondDelay);
             AddTimer(timedAction);
