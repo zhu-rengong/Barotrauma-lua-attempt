@@ -1302,9 +1302,13 @@ namespace Barotrauma
                     File.Move("System.Reflection.Metadata.dll", "System.Reflection.Metadata.dll.old", true);
                     File.Move("System.Collections.Immutable.dll", "System.Collections.Immutable.dll.old", true);
                     File.Move("System.Runtime.CompilerServices.Unsafe.dll", "System.Runtime.CompilerServices.Unsafe.dll.old", true);
-
+                    
                     foreach (string file in filesToCopy)
                     {
+                        if (File.Exists(file))
+                        {
+                            File.Move(file, file + ".todelete", true);
+                        }
                         File.Copy(Path.Combine(path, "Binary", file), file, true);
                     }
 
