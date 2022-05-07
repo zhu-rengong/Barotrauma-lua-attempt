@@ -336,8 +336,6 @@ namespace Barotrauma
 				CsScriptLoader.Clear();
 				CsScriptLoader.Unload();
 				CsScriptLoader = null;
-				GC.Collect();
-				GC.WaitForPendingFinalizers();
 			}
 		}
 
