@@ -1,13 +1,13 @@
 ---
-name: Bug report
-about: Found a bug? Help us squash it by making a bug report!
+name: Bug report (old)
+about: Please use the other report form to report issues. This old template is only here until we've replaced the bug report links in the game.
 title: ''
 labels: ''
 assignees: ''
 
 ---
 
-- [ ] I have searched the issue tracker to check if the issue has already been reported.
+Please use the other report form to report issues. This old template is only here until we've replaced the bug report links in the game.
 
 **Description**
 A clear and concise description of what the bug is.
