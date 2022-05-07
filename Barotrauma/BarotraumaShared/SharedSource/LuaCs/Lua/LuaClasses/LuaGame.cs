@@ -119,9 +119,9 @@ namespace Barotrauma
 			get
 			{
 #if SERVER
-				return GameMain.Server.GameStarted;
+				return GameMain.Server?.GameStarted == true;
 #else
-				return GameMain.Client.GameStarted;
+				return GameMain.Client?.GameStarted == true;
 #endif
 			}
 		}

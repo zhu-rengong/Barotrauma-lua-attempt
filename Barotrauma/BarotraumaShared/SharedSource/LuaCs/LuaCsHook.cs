@@ -216,7 +216,7 @@ namespace Barotrauma
 
 			if (methodInfo == null)
 			{
-				string parameterNamesStr = parameterNames == null ? "" : string.Join(", ", parameterNames == null);
+				string parameterNamesStr = parameterNames == null ? "" : string.Join(", ", parameterNames);
 				GameMain.LuaCs.HandleException(new Exception($"Method '{methodName}' with parameters '{parameterNamesStr}' not found in class '{className}'"));
 			}
 

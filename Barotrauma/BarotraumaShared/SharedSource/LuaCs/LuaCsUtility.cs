@@ -89,7 +89,7 @@ namespace Barotrauma
 				}
 				else
 				{
-					GameMain.LuaCs.HandleException(new Exception("File access to \"" + path + "\" not allowed."));
+					throw new Exception("File access to \"" + path + "\" not allowed.");
 				}
 			}
 			else
@@ -100,12 +100,11 @@ namespace Barotrauma
 				}
 				else
 				{
-					GameMain.LuaCs.HandleException(new Exception("File access to \"" + path + "\" not allowed."));
+					throw new Exception("File access to \"" + path + "\" not allowed.");
 				}
 			}
-
-			return false;
 		}
+
 		public static bool IsPathAllowedLuaException(string path, bool write = true) =>
 			IsPathAllowedException(path, write, LuaCsSetup.ExceptionType.Lua);
 		public static bool IsPathAllowedCsException(string path, bool write = true) =>
