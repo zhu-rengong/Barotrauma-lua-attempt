@@ -54,11 +54,11 @@ ChatMessageType enum.
 -- @number ChatMessageType.ServerLog
 
 ---
--- ChatMessageType.ServerMessageBox = 9
+-- ChatMessageType.ServerMessageBox = 10
 -- @realm shared
 -- @number ChatMessageType.ServerMessageBox
 
 ---
--- ChatMessageType.ServerMessageBoxInGame = 9
+-- ChatMessageType.ServerMessageBoxInGame = 11
 -- @realm shared
 -- @number ChatMessageType.ServerMessageBoxInGame
