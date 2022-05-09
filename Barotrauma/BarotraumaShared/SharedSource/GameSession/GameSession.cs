@@ -839,6 +839,8 @@ namespace Barotrauma
                     }
                 }
 
+                GameMain.LuaCs.Hook.Call("missionsEnded", missions);
+
 #if CLIENT
                 if (GUI.PauseMenuOpen)
                 {
