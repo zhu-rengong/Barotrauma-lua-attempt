@@ -38,6 +38,7 @@ defaultLib["ContentPackageManager"] = CreateStatic("Barotrauma.ContentPackageMan
 defaultLib["GameSettings"] = CreateStatic("Barotrauma.GameSettings")
 defaultLib["RichString"] = CreateStatic("Barotrauma.RichString", true)
 defaultLib["Identifier"] = CreateStatic("Barotrauma.Identifier", true)
+defaultLib["LanguageIdentifier"] = CreateStatic("Barotrauma.LanguageIdentifier", true)
 defaultLib["ContentPackage"] = CreateStatic("Barotrauma.ContentPackage", true)
 defaultLib["WayPoint"] = CreateStatic("Barotrauma.WayPoint", true)
 defaultLib["Submarine"] = CreateStatic("Barotrauma.Submarine", true)

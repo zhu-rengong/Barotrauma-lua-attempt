@@ -301,6 +301,9 @@ namespace Barotrauma.Items.Components
 
             GameAnalyticsManager.AddDesignEvent("ItemDeconstructed:" + (GameMain.GameSession?.GameMode?.Preset.Identifier.Value ?? "none") + ":" + targetItem.Prefab.Identifier);
 
+            bool? result = GameMain.LuaCs.Hook.Call<bool?>("item.deconstructed", targetItem, this, user, allowRemove);
+            if (result == true) { return; }
+
             if (targetItem.AllowDeconstruct && allowRemove)
             {
                 //drop all items that are inside the deconstructed item

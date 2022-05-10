@@ -1115,6 +1115,8 @@ namespace Barotrauma
                 return;
             }
 
+            GameMain.LuaCs.Initialize();
+
             selectedSub = new SubmarineInfo(Path.Combine(SaveUtil.TempPath, selectedSub.Name + ".sub"));
             
             GameMain.GameSession = new GameSession(selectedSub, savePath, GameModePreset.SinglePlayerCampaign, settings, mapSeed);
@@ -1124,13 +1126,13 @@ namespace Barotrauma
                 GameMain.GameSession.CrewManager.AddCharacterInfo(characterInfo);
             }
             ((SinglePlayerCampaign)GameMain.GameSession.GameMode).LoadNewLevel();
-
-            GameMain.LuaCs.Initialize();
         }
 
         private void LoadGame(string saveFile)
         {
             if (string.IsNullOrWhiteSpace(saveFile)) return;
+
+            GameMain.LuaCs.Initialize();
 
             try
             {
@@ -1144,8 +1146,6 @@ namespace Barotrauma
 
             //TODO
             //GameMain.LobbyScreen.Select();
-
-            GameMain.LuaCs.Initialize();
         }
 
 #region UI Methods

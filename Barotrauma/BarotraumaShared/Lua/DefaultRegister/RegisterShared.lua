@@ -11,6 +11,7 @@ RegisterBarotrauma("Level+InterestingPosition")
 
 RegisterBarotrauma("RichString")
 RegisterBarotrauma("Identifier")
+RegisterBarotrauma("LanguageIdentifier")
 
 RegisterBarotrauma("Job")
 RegisterBarotrauma("JobPrefab")
@@ -34,6 +35,7 @@ RegisterBarotrauma("CharacterParams+SoundParams")
 
 
 RegisterBarotrauma("Item")
+RegisterBarotrauma("DeconstructItem")
 RegisterBarotrauma("Submarine")
 RegisterBarotrauma("INetSerializableStruct")
 RegisterBarotrauma("Networking.Client")

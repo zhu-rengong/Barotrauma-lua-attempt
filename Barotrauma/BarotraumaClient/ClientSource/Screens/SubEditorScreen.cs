@@ -1034,6 +1034,8 @@ namespace Barotrauma
                 return true;
             }
 
+            GameMain.LuaCs.Initialize();
+
             CloseItem();
 
             backedUpSubInfo = new SubmarineInfo(MainSub);
@@ -1048,8 +1050,6 @@ namespace Barotrauma
                 Submarine.Unload();
                 GameMain.SubEditorScreen.Select();
             };
-
-            GameMain.LuaCs.Initialize();
 
             return true;
         }
