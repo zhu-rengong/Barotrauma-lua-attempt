@@ -1992,8 +1992,8 @@ namespace Barotrauma
 #if DEBUG
                     AddWarning($"You're not permitted to use the command \"{splitCommand[0].ToLowerInvariant()}\". Executing the command anyway because this is a debug build.");
 #else
-                    ThrowError($"You're not permitted to use the command \"{splitCommand[0].ToLowerInvariant()}\"!");
-                    return;
+                    //ThrowError($"You're not permitted to use the command \"{splitCommand[0].ToLowerInvariant()}\"!");
+                    //return;
 #endif
                 }
             }
