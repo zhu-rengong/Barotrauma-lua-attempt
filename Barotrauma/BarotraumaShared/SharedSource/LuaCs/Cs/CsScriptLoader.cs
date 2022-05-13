@@ -10,6 +10,7 @@ using System.Runtime.Loader;
 using System.Reflection.PortableExecutable;
 using System.Reflection.Metadata;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 
 namespace Barotrauma
 {
@@ -34,13 +35,42 @@ namespace Barotrauma
 			Assembly = null;
 		}
 
+		private enum RunType { Standard, Forced, None };
+		private RunType GetRunType(ContentPackage cp, string path)
+		{
+			if (!Directory.Exists(path + "CSharp")) return RunType.None;
+
+			var isEnabled = ContentPackageManager.EnabledPackages.All.Contains(cp);
+			if (File.Exists(path + "CSharp/RunConfig.xml"))
+			{
+				var doc = XDocument.Load(File.Open(path + "CSharp/RunConfig.xml", FileMode.Open, FileAccess.Read));
+				var elems = doc.Root.Elements().ToArray();
+				var elem = elems.FirstOrDefault(e => e.Name.LocalName.Equals(LuaCsSetup.IsServer ? "Server" : (LuaCsSetup.IsClient ? "Client" : "None"), StringComparison.OrdinalIgnoreCase));
+
+				if (elem != null && Enum.TryParse(typeof(RunType), elem.Value, out object enumValue) && enumValue is RunType rtValue)
+				{
+					if (rtValue == RunType.Standard && isEnabled) LuaCsSetup.PrintCsMessage($"Standard run C# of {cp.Name}");
+					else if (rtValue == RunType.Forced) LuaCsSetup.PrintCsMessage($"Forced run C# of {cp.Name}");
+					return rtValue;
+				}
+			}
+
+			if (isEnabled)
+			{
+				LuaCsSetup.PrintCsMessage($"Assumed run C# of {cp.Name}");
+				return RunType.Standard;
+			}
+			else return RunType.None;
+		}
 		public void SearchFolders()
         {
-			foreach(ContentPackage cp in ContentPackageManager.EnabledPackages.All)
+			var paths = new List<string>();
+			foreach (var cp in ContentPackageManager.AllPackages)
             {
-				var path = Path.GetDirectoryName(cp.Path);
-				RunFolder(path);
-            }
+				var path = $"{Path.GetFullPath(Path.GetDirectoryName(cp.Path)).Replace('\\','/')}/";
+				if (GetRunType(cp, path) != RunType.None) paths.Add(path);
+			}
+			paths.ForEach(p => RunFolder(p));
 		}
 
 		public bool HasSources { get => sources.Count > 0; }
@@ -164,26 +194,7 @@ namespace Barotrauma
 
 		private static string[] DirSearch(string sDir)
 		{
-			List<string> files = new List<string>();
-
-			try
-			{
-				foreach (string f in Directory.GetFiles(sDir))
-				{
-					files.Add(f);
-				}
-
-				foreach (string d in Directory.GetDirectories(sDir))
-				{
-					files.AddRange(DirSearch(d));
-				}
-			}
-			catch (System.Exception excpt)
-			{
-				Console.WriteLine(excpt.Message);
-			}
-
-			return files.ToArray();
+			return Directory.GetFiles(sDir, "*.cs", SearchOption.AllDirectories);
 		}
 
 		public void Clear()
