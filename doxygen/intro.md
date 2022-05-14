@@ -15,6 +15,7 @@ The main star of the show is Barotrauma::ACsMod class. It is what **all** your m
 
 - All utility classes can be accessed either by their type (i.e that have name that starts with `LuaCs...`) or through `GameMain.LuaCs` property (refer to [class documentation](#ltcd)).
 - All C# code files must be located in `<mod_root>/CSharp/*` otherwise they won't be compiled
+- To configure **server / client** execution behaviour create `RunConfig.xml` in `CSharp` directory, like is shown below (run types are `Standard`, `Forced` and `None`)
 - Additionally you can specify what code runs where by either ***filepath*** or ***pre-processor statements***
 - In case of filepath, your files must be located in either `CSharp/Shared/*`, `CSharp/Server/*` or `CSharp/Client/*`, for *shared* code, *server-side* code or *client-side* code respectively (in any other case, the code is assumed to be shared)
 - I case of pre-processor, you can use `SERVER` or `CLIENT` definitions to separate code into *server-side* code and *client-side* code respectively
@@ -27,13 +28,26 @@ The main star of the show is Barotrauma::ACsMod class. It is what **all** your m
 A generic C# mod boilerplate:
 
 File-tree:
+
 ```
  <mod_root>/
  ├─ CSharp/
+ │  ├─ RunConfig.xml
  │  ├─ Shared/ExampleMod.cs
  │  ├─ Server/ExampleMod.cs
  │  └─ Client/ExampleMod.cs
  └─ dummyitem.xml
+```
+
+____
+`<mod_root>/CSharp/RunConfig.xml`
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<RunConfig>
+  <Server>Standard</Server>
+  <Client>Forced</Client>
+</RunConfig>
 ```
 
 ____
