@@ -10,6 +10,7 @@ for key, value in pairs(localizedStrings) do
 end
 
 RegisterBarotrauma("Networking.ClientPeer")
+RegisterBarotrauma("Networking.GameClient")
 
 RegisterBarotrauma("ChatBox")
 RegisterBarotrauma("GUICanvas")

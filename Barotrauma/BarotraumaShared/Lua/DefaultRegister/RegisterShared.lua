@@ -2,6 +2,7 @@ local Register = LuaSetup.Register
 local RegisterBarotrauma = LuaSetup.RegisterBarotrauma
 
 Register("System.TimeSpan")
+Register("System.Exception")
 
 RegisterBarotrauma("LuaByte")
 RegisterBarotrauma("LuaUShort")
@@ -171,6 +172,7 @@ RegisterBarotrauma("LocationConnection")
 RegisterBarotrauma("LocationType")
 RegisterBarotrauma("LocationTypeChange")
 
+RegisterBarotrauma("DebugConsole")
 RegisterBarotrauma("DebugConsole+Command")
 
 RegisterBarotrauma("TextManager")
