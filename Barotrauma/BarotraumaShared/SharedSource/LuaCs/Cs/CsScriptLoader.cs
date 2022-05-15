@@ -36,9 +36,9 @@ namespace Barotrauma
 		}
 
 		private enum RunType { Standard, Forced, None };
-		private RunType GetRunType(ContentPackage cp, string path)
+		private bool ShouldRun(ContentPackage cp, string path)
 		{
-			if (!Directory.Exists(path + "CSharp")) return RunType.None;
+			if (!Directory.Exists(path + "CSharp")) return false;
 
 			var isEnabled = ContentPackageManager.EnabledPackages.All.Contains(cp);
 			if (File.Exists(path + "CSharp/RunConfig.xml"))
@@ -47,30 +47,45 @@ namespace Barotrauma
 				var elems = doc.Root.Elements().ToArray();
 				var elem = elems.FirstOrDefault(e => e.Name.LocalName.Equals(LuaCsSetup.IsServer ? "Server" : (LuaCsSetup.IsClient ? "Client" : "None"), StringComparison.OrdinalIgnoreCase));
 
-				if (elem != null && Enum.TryParse(typeof(RunType), elem.Value, out object enumValue) && enumValue is RunType rtValue)
+				if (elem != null && Enum.TryParse(elem.Value, true, out RunType rtValue))
 				{
-					if (rtValue == RunType.Standard && isEnabled) LuaCsSetup.PrintCsMessage($"Standard run C# of {cp.Name}");
-					else if (rtValue == RunType.Forced) LuaCsSetup.PrintCsMessage($"Forced run C# of {cp.Name}");
-					return rtValue;
+					if (rtValue == RunType.Standard && isEnabled)
+					{
+						LuaCsSetup.PrintCsMessage($"Standard run C# of {cp.Name}");
+						return true;
+					}
+					else if (rtValue == RunType.Forced)
+					{
+						LuaCsSetup.PrintCsMessage($"Forced run C# of {cp.Name}");
+						return true;
+					}
+					else if (rtValue == RunType.None) return false;
 				}
 			}
 
 			if (isEnabled)
 			{
 				LuaCsSetup.PrintCsMessage($"Assumed run C# of {cp.Name}");
-				return RunType.Standard;
+				return true;
 			}
-			else return RunType.None;
+			else return false;
 		}
 		public void SearchFolders()
         {
-			var paths = new List<string>();
+			var paths = new Dictionary<string, string>();
 			foreach (var cp in ContentPackageManager.AllPackages)
             {
 				var path = $"{Path.GetFullPath(Path.GetDirectoryName(cp.Path)).Replace('\\','/')}/";
-				if (GetRunType(cp, path) != RunType.None) paths.Add(path);
+				if (ShouldRun(cp, path))
+				{
+					if (paths.ContainsKey(cp.Name))
+                    {
+						if (ContentPackageManager.EnabledPackages.All.Contains(cp)) paths[cp.Name] = path;
+					}
+					else paths.Add(cp.Name, path);
+				}
 			}
-			paths.ForEach(p => RunFolder(p));
+			foreach ((var _, var path) in paths) RunFolder(path);
 		}
 
 		public bool HasSources { get => sources.Count > 0; }
