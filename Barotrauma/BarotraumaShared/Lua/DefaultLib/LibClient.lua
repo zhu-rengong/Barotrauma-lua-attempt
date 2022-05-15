@@ -34,6 +34,7 @@ defaultLib["GUI"] = {
     NumberInput = CreateStatic("Barotrauma.GUINumberInput", true),
     MessageBox = CreateStatic("Barotrauma.GUIMessageBox", true),
     ColorPicker = CreateStatic("Barotrauma.GUIColorPicker", true),
+    ProgressBar = CreateStatic("Barotrauma.GUIProgressBar", true),
 
     Screen = CreateStatic("Barotrauma.Screen"),
 

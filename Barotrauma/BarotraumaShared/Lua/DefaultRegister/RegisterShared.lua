@@ -34,7 +34,6 @@ RegisterBarotrauma("CharacterParams+HealthParams")
 RegisterBarotrauma("CharacterParams+ParticleParams")
 RegisterBarotrauma("CharacterParams+SoundParams")
 
-
 RegisterBarotrauma("Item")
 RegisterBarotrauma("DeconstructItem")
 RegisterBarotrauma("Submarine")
@@ -194,6 +193,8 @@ Register("System.Net.IPAddress")
 
 RegisterBarotrauma("Skill")
 RegisterBarotrauma("SkillPrefab")
+RegisterBarotrauma("SkillSettings")
+
 RegisterBarotrauma("TraitorMissionPrefab")
 RegisterBarotrauma("TraitorMissionResult")
 
@@ -212,6 +213,8 @@ RegisterBarotrauma("PrefabCollection`1[[Barotrauma.AfflictionPrefab]]")
 RegisterBarotrauma("PrefabCollection`1[[Barotrauma.TalentPrefab]]")
 RegisterBarotrauma("PrefabCollection`1[[Barotrauma.TalentTree]]")
 RegisterBarotrauma("PrefabCollection`1[[Barotrauma.OrderPrefab]]")
+
+RegisterBarotrauma("PrefabSelector`1[[Barotrauma.SkillSettings]]")
 
 RegisterBarotrauma("Pair`2[[Barotrauma.JobPrefab],[System.Int32]]")
 
