@@ -29,6 +29,7 @@ defaultLib["CombatMode"] = CreateEnum("Barotrauma.AIObjectiveCombat+CombatMode")
 defaultLib["CauseOfDeathType"] = CreateEnum("Barotrauma.CauseOfDeathType")
 defaultLib["CharacterTeamType"] = CreateEnum("Barotrauma.CharacterTeamType")
 defaultLib["ClientPermissions"] = CreateEnum("Barotrauma.Networking.ClientPermissions")
+defaultLib["OrderCategory"] = CreateEnum("Barotrauma.OrderCategory")
 defaultLib["InputType"] = CreateStatic("Barotrauma.InputType")
 
 
@@ -37,6 +38,7 @@ defaultLib["ContentPackageManager"] = CreateStatic("Barotrauma.ContentPackageMan
 defaultLib["GameSettings"] = CreateStatic("Barotrauma.GameSettings")
 defaultLib["RichString"] = CreateStatic("Barotrauma.RichString", true)
 defaultLib["Identifier"] = CreateStatic("Barotrauma.Identifier", true)
+defaultLib["LanguageIdentifier"] = CreateStatic("Barotrauma.LanguageIdentifier", true)
 defaultLib["ContentPackage"] = CreateStatic("Barotrauma.ContentPackage", true)
 defaultLib["WayPoint"] = CreateStatic("Barotrauma.WayPoint", true)
 defaultLib["Submarine"] = CreateStatic("Barotrauma.Submarine", true)
@@ -55,6 +57,7 @@ defaultLib["Level"] = CreateStatic("Barotrauma.Level")
 defaultLib["Job"] = CreateStatic("Barotrauma.Job", true)
 defaultLib["JobPrefab"] = CreateStatic("Barotrauma.JobPrefab", true)
 defaultLib["AfflictionPrefab"] = CreateStatic("Barotrauma.AfflictionPrefab", true)
+defaultLib["SkillSettings"] = CreateStatic("Barotrauma.SkillSettings", true)
 defaultLib["ChatMessage"] = CreateStatic("Barotrauma.Networking.ChatMessage")
 defaultLib["Structure"] = CreateStatic("Barotrauma.Structure", true)
 defaultLib["Hull"] = CreateStatic("Barotrauma.Hull", true)
@@ -69,6 +72,9 @@ defaultLib["NetEntityEvent"] = CreateStatic("Barotrauma.Networking.NetEntityEven
 defaultLib["Screen"] = CreateStatic("Barotrauma.Screen")
 defaultLib["AttackResult"] = CreateStatic("Barotrauma.AttackResult", true)
 defaultLib["TempClient"] = CreateStatic("Barotrauma.Networking.TempClient", true)
+defaultLib["TraitorMissionResult"] = CreateStatic("Barotrauma.TraitorMissionResult", true)
+
+defaultLib["Explosion"] = CreateStatic("Barotrauma.Explosion", true)
 
 defaultLib["AIObjective"] = CreateStatic("Barotrauma.AIObjective", true)
 defaultLib["AIObjectiveChargeBatteries"] = CreateStatic("Barotrauma.AIObjectiveChargeBatteries", true)
@@ -96,6 +102,10 @@ defaultLib["AIObjectiveRepairItems"] = CreateStatic("Barotrauma.AIObjectiveRepai
 defaultLib["AIObjectiveRescue"] = CreateStatic("Barotrauma.AIObjectiveRescue", true)
 defaultLib["AIObjectiveRescueAll"] = CreateStatic("Barotrauma.AIObjectiveRescueAll", true)
 defaultLib["AIObjectiveReturn"] = CreateStatic("Barotrauma.AIObjectiveReturn", true)
+
+defaultLib["Order"] = CreateStatic("Barotrauma.Order", true)
+defaultLib["OrderPrefab"] = CreateStatic("Barotrauma.OrderPrefab", true)
+defaultLib["OrderTarget"] = CreateStatic("Barotrauma.OrderTarget", true)
 
 local componentsToReference = { "DockingPort", "Door", "GeneticMaterial", "Growable", "Holdable", "LevelResource", "ItemComponent", "ItemLabel", "LightComponent", "Controller", "Deconstructor", "Engine", "Fabricator", "OutpostTerminal", "Pump", "Reactor", "Steering", "PowerContainer", "Projectile", "Repairable", "Rope", "Scanner", "ButtonTerminal", "ConnectionPanel", "CustomInterface", "MemoryComponent", "Terminal", "WifiComponent", "Wire", "TriggerComponent", "ElectricalDischarger", "EntitySpawnerComponent", "ProducedItem", "VineTile", "GrowthSideExtension", "IdCard", "MeleeWeapon", "Pickable", "Propulsion", "RangedWeapon", "RepairTool", "Sprayer", "Throwable", "ItemContainer", "Ladder", "LimbPos", "MiniMap", "OxygenGenerator", "Sonar", "SonarTransducer", "Vent", "NameTag", "Planter", "Powered", "PowerTransfer", "Quality", "RemoteController", "AdderComponent", "AndComponent", "ArithmeticComponent", "ColorComponent", "ConcatComponent", "Connection", "DelayComponent", "DivideComponent", "EqualsComponent", "ExponentiationComponent", "FunctionComponent", "GreaterComponent", "ModuloComponent", "MotionSensor", "MultiplyComponent", "NotComponent", "OrComponent", "OscillatorComponent", "OxygenDetector", "RegExFindComponent", "RelayComponent", "SignalCheckComponent", "SmokeDetector", "StringComponent", "SubtractComponent", "TrigonometricFunctionComponent", "WaterDetector", "XorComponent", "StatusHUD", "Turret", "Wearable", "CustomInterface"
 }

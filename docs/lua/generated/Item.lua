@@ -520,6 +520,10 @@ function CreateServerEvent(ic) end
 -- @tparam IEventData extraData
 function CreateServerEvent(ic, extraData) end
 
+--- TryCreateServerEventSpam
+-- @realm shared
+function TryCreateServerEventSpam() end
+
 --- CreateServerEventString
 -- @realm shared
 -- @tparam string component

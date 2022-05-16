@@ -140,6 +140,7 @@ processPackages(
 )
 
 setmodulepaths(package.path)
+setmodulepaths = nil
 processAutorun()
 processForcedAutorun()
 

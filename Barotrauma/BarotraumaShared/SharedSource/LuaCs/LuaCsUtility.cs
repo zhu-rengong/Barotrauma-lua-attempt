@@ -13,38 +13,6 @@ using System.Xml.Linq;
 
 namespace Barotrauma
 {
-    public partial class LuaCsTimer
-	{
-		public static long LastUpdateTime = 0;
-
-		public static double Time
-		{
-			get
-			{
-				return GetTime();
-			}
-		}
-
-		public static void Wait(LuaCsAction action, int millisecondDelay)
-		{
-			GameMain.LuaCs.Hook.EnqueueTimed((float)Timing.TotalTime + (millisecondDelay / 1000f), action);
-		}
-
-		public static double GetTime()
-		{
-			return Timing.TotalTime;
-		}
-
-		public static float GetUsageMemory()
-		{
-			Process proc = Process.GetCurrentProcess();
-			float memory = MathF.Round(proc.PrivateMemorySize64 / (1024 * 1024), 2);
-			proc.Dispose();
-
-			return memory;
-		}
-	}
-
 	partial class LuaCsFile
 	{
 		public static bool CanReadFromPath(string path)
@@ -116,20 +84,27 @@ namespace Barotrauma
 			if (write)
 			{
 				if (CanWriteToPath(path))
+				{
 					return true;
+				}
 				else
-					GameMain.LuaCs.HandleException(new Exception("File access to \"" + path + "\" not allowed."));
+				{
+					throw new Exception("File access to \"" + path + "\" not allowed.");
+				}
 			}
 			else
 			{
 				if (CanReadFromPath(path))
+				{
 					return true;
+				}
 				else
-					GameMain.LuaCs.HandleException(new Exception("File access to \"" + path + "\" not allowed."));
+				{
+					throw new Exception("File access to \"" + path + "\" not allowed.");
+				}
 			}
-
-			return false;
 		}
+
 		public static bool IsPathAllowedLuaException(string path, bool write = true) =>
 			IsPathAllowedException(path, write, LuaCsSetup.ExceptionType.Lua);
 		public static bool IsPathAllowedCsException(string path, bool write = true) =>
@@ -339,18 +314,21 @@ namespace Barotrauma
 					{
 						var httpResponse = httpWebRequest.EndGetResponse(result);
 						using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
-							GameMain.LuaCs.Hook.Enqueue(callback, streamReader.ReadToEnd());
+						{
+							string responseResult = streamReader.ReadToEnd();
+							GameMain.LuaCs.Timer.Wait((object[] par) => { callback(responseResult); }, 0);
+						}
 					}
 					catch (Exception e)
 					{
-						GameMain.LuaCs.Hook.Enqueue(callback, e.ToString());
+						GameMain.LuaCs.Timer.Wait((object[] par) => { callback(e.Message); }, 0);
 					}
 				}), null);
 
 			}
 			catch (Exception e)
 			{
-				GameMain.LuaCs.Hook.Enqueue(callback, e.ToString());
+				GameMain.LuaCs.Timer.Wait((object[] par) => { callback(e.Message); }, 0);
 			}
 		}
 
@@ -366,17 +344,20 @@ namespace Barotrauma
 					{
 						var httpResponse = httpWebRequest.EndGetResponse(result);
 						using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
-							GameMain.LuaCs.Hook.Enqueue(callback, streamReader.ReadToEnd());
+						{
+							string responseResult = streamReader.ReadToEnd();
+							GameMain.LuaCs.Timer.Wait((object[] par) => { callback(responseResult); }, 0);
+						}
 					}
 					catch (Exception e)
 					{
-						GameMain.LuaCs.Hook.Enqueue(callback, e.ToString());
+						GameMain.LuaCs.Timer.Wait((object[] par) => { callback(e.Message); }, 0);
 					}
 				}), null);
 			}
 			catch (Exception e)
 			{
-				GameMain.LuaCs.Hook.Enqueue(callback, e.ToString());
+				GameMain.LuaCs.Timer.Wait((object[] par) => { callback(e.Message); }, 0);
 			}
 		}
 
@@ -432,6 +413,7 @@ namespace Barotrauma
 			foreach (var elem in typesElem.Elements())
             {
 				var type = Type.GetType(elem.Value);
+				if (type == null && GameMain.LuaCs?.CsScriptLoader?.Assembly != null) type = GameMain.LuaCs.CsScriptLoader.Assembly.GetType(elem.Value);
 				if (type == null) throw new Exception($"Type {elem.Value} not found.");
 				result.Add(type);
 

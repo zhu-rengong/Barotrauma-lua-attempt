@@ -15,6 +15,17 @@ namespace Barotrauma
             }
         }
 
+        public TraitorMissionResult(Identifier identifier, string globalEndMessage, bool isCompleted, Character[] characters = null)
+        {
+            MissionIdentifier = identifier;
+            EndMessage = globalEndMessage;
+            Success = isCompleted;
+            if (Characters != null)
+            {
+                Characters.AddRange(characters);
+            }
+        }
+
         public void ServerWrite(IWriteMessage msg)
         {
             msg.Write(MissionIdentifier);

@@ -384,7 +384,7 @@ namespace Barotrauma
                 }
             };
 #endif
-            string additional = LuaCsSetup.GetPackage("CsForBarotrauma", false) == null ? "" : "Cs";
+            string additional = LuaCsSetup.GetPackage("CsForBarotrauma", false, true) == null ? "" : "Cs";
 
             new GUIButton(new RectTransform(new Point(300, 30), Frame.RectTransform, Anchor.TopLeft) { AbsoluteOffset = new Point(20, 50) },
     $"Remove Client-Side Lua{additional}", style: "MainMenuGUIButton", color: GUIStyle.Red)
@@ -449,7 +449,7 @@ namespace Barotrauma
                 }
             };
 
-            string version = File.Exists(LuaCsSetup.VERSION_FILE) ? File.ReadAllText(LuaCsSetup.VERSION_FILE) : "Github";
+            string version = File.Exists(LuaCsSetup.VersionFile) ? File.ReadAllText(LuaCsSetup.VersionFile) : "Github";
 
             new GUITextBlock(new RectTransform(new Point(300, 30), Frame.RectTransform, Anchor.TopLeft) { AbsoluteOffset = new Point(10, 10) }, $"Using Lua{additional}ForBarotrauma revision {AssemblyInfo.GitRevision} version {version}", Color.Red)
             {
@@ -1115,6 +1115,8 @@ namespace Barotrauma
                 return;
             }
 
+            GameMain.LuaCs.Initialize();
+
             selectedSub = new SubmarineInfo(Path.Combine(SaveUtil.TempPath, selectedSub.Name + ".sub"));
             
             GameMain.GameSession = new GameSession(selectedSub, savePath, GameModePreset.SinglePlayerCampaign, settings, mapSeed);
@@ -1124,13 +1126,13 @@ namespace Barotrauma
                 GameMain.GameSession.CrewManager.AddCharacterInfo(characterInfo);
             }
             ((SinglePlayerCampaign)GameMain.GameSession.GameMode).LoadNewLevel();
-
-            GameMain.LuaCs.Initialize();
         }
 
         private void LoadGame(string saveFile)
         {
             if (string.IsNullOrWhiteSpace(saveFile)) return;
+
+            GameMain.LuaCs.Initialize();
 
             try
             {
@@ -1144,8 +1146,6 @@ namespace Barotrauma
 
             //TODO
             //GameMain.LobbyScreen.Select();
-
-            GameMain.LuaCs.Initialize();
         }
 
 #region UI Methods

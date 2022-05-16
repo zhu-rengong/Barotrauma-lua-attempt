@@ -924,8 +924,16 @@ namespace Barotrauma
 
                 SoundManager?.Update();
 
+                Stopwatch luaSw = new Stopwatch();
+
+                luaSw.Start();
+
                 GameMain.LuaCs.Update();
                 GameMain.LuaCs.Hook.Call("think");
+
+                luaSw.Stop();
+                PerformanceCounter.AddElapsedTicks("Think Hook", luaSw.ElapsedTicks);
+
 
                 Timing.Accumulator -= Timing.Step;
 

@@ -3224,11 +3224,18 @@ namespace Barotrauma
                     return;
                 }
 
-                GameMain.LuaCs.Lua.DoString(string.Join(" ", args));
+                try
+                {
+                    GameMain.LuaCs.Lua.DoString(string.Join(" ", args));
+                }
+                catch(Exception ex)
+                {
+                    GameMain.LuaCs.HandleException(ex);
+                }
             }));
             commands.Add(new Command("cl_cs", "cs_cl: runs a string on the client", (string[] args) =>
             {
-                if (LuaCsSetup.GetPackage("CsForBarotrauma", false) == null) { return; }
+                if (LuaCsSetup.GetPackage("CsForBarotrauma", false, true) == null) { return; }
 
                 if (GameMain.Client != null && !GameMain.Client.HasPermission(ClientPermissions.ConsoleCommands))
                 {

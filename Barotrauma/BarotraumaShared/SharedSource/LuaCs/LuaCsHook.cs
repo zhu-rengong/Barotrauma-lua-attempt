@@ -55,8 +55,6 @@ namespace Barotrauma
 		private Dictionary<long, HashSet<(string, LuaCsPatch, ACsMod)>> hookPrefixMethods;
 		private Dictionary<long, HashSet<(string, LuaCsPatch, ACsMod)>> hookPostfixMethods;
 
-		private Queue<(float, LuaCsAction, object[])> queuedFunctionCalls;
-
 		private static LuaCsHook instance;
 
 		public LuaCsHook() {
@@ -66,8 +64,6 @@ namespace Barotrauma
 
 			hookPrefixMethods = new Dictionary<long, HashSet<(string, LuaCsPatch, ACsMod)>>();
 			hookPostfixMethods = new Dictionary<long, HashSet<(string, LuaCsPatch, ACsMod)>>();
-
-			queuedFunctionCalls = new Queue<(float, LuaCsAction, object[])>();
 		}
 
 		public void Initialize()
@@ -125,7 +121,9 @@ namespace Barotrauma
 					foreach (var tuple in methodSet)
 					{
 						if (tuple.Item3 != null && tuple.Item3.IsDisposed)
+						{
 							outOfSocpe.Add(tuple);
+						}
 						else
 						{
 							var _result = tuple.Item2(__instance, args);
@@ -135,15 +133,24 @@ namespace Barotrauma
 								{
 									if (!res.IsNull())
 									{
-										if (__originalMethod is MethodInfo mi) result = res.DynValue().ToObject(mi.ReturnType);
-										else result = res.DynValue().ToObject();
+										if (__originalMethod is MethodInfo mi && mi.ReturnType != typeof(void))
+										{
+											result = res.DynValue().ToObject(mi.ReturnType);
+										}
+										else
+										{
+											result = res.DynValue().ToObject();
+										}
 									}
 								}
-								else result = _result;
+								else
+								{
+									result = _result;
+								}
 							}
 						}
 					}
-					foreach (var tuple in outOfSocpe) methodSet.Remove(tuple);
+					foreach (var tuple in outOfSocpe) { methodSet.Remove(tuple); }
 				}
 			}
 			catch (Exception ex)
@@ -209,7 +216,7 @@ namespace Barotrauma
 
 			if (methodInfo == null)
 			{
-				string parameterNamesStr = parameterNames == null ? "" : string.Join(", ", parameterNames == null);
+				string parameterNamesStr = parameterNames == null ? "" : string.Join(", ", parameterNames);
 				GameMain.LuaCs.HandleException(new Exception($"Method '{methodName}' with parameters '{parameterNamesStr}' not found in class '{className}'"));
 			}
 
@@ -328,20 +335,6 @@ namespace Barotrauma
 			UnhookMethod(identifier, methodInfo, hookType);
 		}
 
-
-		public void Enqueue(LuaCsAction action, params object[] args)
-		{
-			queuedFunctionCalls.Enqueue((0, action, args));
-		}
-		public void EnqueueTimed(float time, LuaCsAction action, params object[] args)
-		{
-			queuedFunctionCalls.Enqueue((time, action, args));
-		}
-
-		protected void EnqueueFunction(LuaCsAction function, params object[] args) => Enqueue(function, args);
-		protected void EnqueueTimedFunction(float time, LuaCsAction function, params object[] args) => EnqueueTimed(time, function, args);
-
-
 		public void Add(string name, string hookName, LuaCsFunc hook, ACsMod owner = null)
 		{
 			name = name.ToLower();
@@ -371,29 +364,13 @@ namespace Barotrauma
 			hookPrefixMethods.Clear();
 			hookPostfixMethods.Clear();
 
-			queuedFunctionCalls.Clear();
-
 			harmony?.UnpatchAll();
 		}
 
 
 		public void Update()
 		{
-			try
-			{
-				if (queuedFunctionCalls.TryPeek(out (float, LuaCsAction, object[]) result))
-				{
-					if (Timing.TotalTime >= result.Item1)
-					{
-						result.Item2(result.Item3);
-						queuedFunctionCalls.Dequeue();
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				GameMain.LuaCs.HandleException(ex, $"queuedFunctionCalls was {queuedFunctionCalls}", LuaCsSetup.ExceptionType.Both);
-			}
+
 		}
 
 		[MoonSharpHidden]

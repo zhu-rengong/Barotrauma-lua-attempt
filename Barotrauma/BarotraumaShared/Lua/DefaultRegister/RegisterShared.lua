@@ -2,6 +2,7 @@ local Register = LuaSetup.Register
 local RegisterBarotrauma = LuaSetup.RegisterBarotrauma
 
 Register("System.TimeSpan")
+Register("System.Exception")
 
 RegisterBarotrauma("LuaByte")
 RegisterBarotrauma("LuaUShort")
@@ -11,6 +12,7 @@ RegisterBarotrauma("Level+InterestingPosition")
 
 RegisterBarotrauma("RichString")
 RegisterBarotrauma("Identifier")
+RegisterBarotrauma("LanguageIdentifier")
 
 RegisterBarotrauma("Job")
 RegisterBarotrauma("JobPrefab")
@@ -24,8 +26,16 @@ RegisterBarotrauma("CharacterInfoPrefab")
 RegisterBarotrauma("CharacterHealth")
 RegisterBarotrauma("CharacterHealth+LimbHealth")
 RegisterBarotrauma("CharacterInventory")
+RegisterBarotrauma("CharacterParams")
+RegisterBarotrauma("CharacterParams+AIParams")
+RegisterBarotrauma("CharacterParams+TargetParams")
+RegisterBarotrauma("CharacterParams+InventoryParams")
+RegisterBarotrauma("CharacterParams+HealthParams")
+RegisterBarotrauma("CharacterParams+ParticleParams")
+RegisterBarotrauma("CharacterParams+SoundParams")
 
 RegisterBarotrauma("Item")
+RegisterBarotrauma("DeconstructItem")
 RegisterBarotrauma("Submarine")
 RegisterBarotrauma("INetSerializableStruct")
 RegisterBarotrauma("Networking.Client")
@@ -38,6 +48,7 @@ RegisterBarotrauma("Affliction")
 RegisterBarotrauma("AnimController")
 RegisterBarotrauma("Limb")
 RegisterBarotrauma("Ragdoll")
+RegisterBarotrauma("RagdollParams")
 RegisterBarotrauma("Networking.ChatMessage")
 RegisterBarotrauma("AttackResult")
 RegisterBarotrauma("Attack")
@@ -122,6 +133,10 @@ RegisterBarotrauma("AIObjectiveRescue")
 RegisterBarotrauma("AIObjectiveRescueAll")
 RegisterBarotrauma("AIObjectiveReturn")
 
+RegisterBarotrauma("Order")
+RegisterBarotrauma("OrderPrefab")
+RegisterBarotrauma("OrderTarget")
+
 RegisterBarotrauma("TalentPrefab")
 RegisterBarotrauma("TalentOption")
 RegisterBarotrauma("TalentSubTree")
@@ -156,6 +171,7 @@ RegisterBarotrauma("LocationConnection")
 RegisterBarotrauma("LocationType")
 RegisterBarotrauma("LocationTypeChange")
 
+RegisterBarotrauma("DebugConsole")
 RegisterBarotrauma("DebugConsole+Command")
 
 RegisterBarotrauma("TextManager")
@@ -177,6 +193,8 @@ Register("System.Net.IPAddress")
 
 RegisterBarotrauma("Skill")
 RegisterBarotrauma("SkillPrefab")
+RegisterBarotrauma("SkillSettings")
+
 RegisterBarotrauma("TraitorMissionPrefab")
 RegisterBarotrauma("TraitorMissionResult")
 
@@ -194,6 +212,9 @@ RegisterBarotrauma("PrefabCollection`1[[Barotrauma.CharacterPrefab]]")
 RegisterBarotrauma("PrefabCollection`1[[Barotrauma.AfflictionPrefab]]")
 RegisterBarotrauma("PrefabCollection`1[[Barotrauma.TalentPrefab]]")
 RegisterBarotrauma("PrefabCollection`1[[Barotrauma.TalentTree]]")
+RegisterBarotrauma("PrefabCollection`1[[Barotrauma.OrderPrefab]]")
+
+RegisterBarotrauma("PrefabSelector`1[[Barotrauma.SkillSettings]]")
 
 RegisterBarotrauma("Pair`2[[Barotrauma.JobPrefab],[System.Int32]]")
 

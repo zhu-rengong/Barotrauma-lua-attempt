@@ -114,8 +114,6 @@ namespace Barotrauma
 					}
 				}
 				Unload();
-				GC.Collect();
-				GC.WaitForPendingFinalizers();
 			}
 			catch (Exception ex)
 			{

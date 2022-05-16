@@ -1243,11 +1243,18 @@ namespace Barotrauma
 
             commands.Add(new Command("lua", "lua: runs a string", (string[] args) =>
             {
-                GameMain.LuaCs.Lua.DoString(string.Join(" ", args));
+                try
+                {
+                    GameMain.LuaCs.Lua.DoString(string.Join(" ", args));
+                }
+                catch (Exception ex)
+                {
+                    GameMain.LuaCs.HandleException(ex);
+                }
             }));
             commands.Add(new Command("cs", "cs: runs a string", (string[] args) =>
             {
-                if(LuaCsSetup.GetPackage("CsForBarotrauma", false) == null) { return; }
+                if(LuaCsSetup.GetPackage("CsForBarotrauma", false, true) == null) { return; }
 
                 GameMain.LuaCs.CsScript.Run(string.Join(" ", args));
                 GameMain.LuaCs.RecreateCsScript();
@@ -1279,7 +1286,6 @@ namespace Barotrauma
                         "Mono.Cecil.Mdb.dll", "Mono.Cecil.Pdb.dll",
                         "Mono.Cecil.Rocks.dll", "MonoMod.Common.dll",
                         "MoonSharp.Interpreter.dll",
-                        "mscordaccore_amd64_amd64_4.700.22.11601.dll",
 
                         "Microsoft.CodeAnalysis.dll", "Microsoft.CodeAnalysis.CSharp.dll",
                         "Microsoft.CodeAnalysis.CSharp.Scripting.dll", "Microsoft.CodeAnalysis.Scripting.dll",
@@ -1287,6 +1293,8 @@ namespace Barotrauma
                         "System.Reflection.Metadata.dll", "System.Collections.Immutable.dll", 
                         "System.Runtime.CompilerServices.Unsafe.dll"
                     };
+                    filesToCopy = filesToCopy.Concat(Directory.EnumerateFiles(path, "*.dll", SearchOption.AllDirectories)
+                        .Where(s => s.Contains("mscordaccore_amd64_amd64_4.")).Select(s => Path.GetFileName(s))).ToArray();
 
                     File.Move("Barotrauma.dll", "Barotrauma.dll.old", true);
                     File.Move("Barotrauma.deps.json", "Barotrauma.deps.json.old", true);
@@ -1294,13 +1302,17 @@ namespace Barotrauma
                     File.Move("System.Reflection.Metadata.dll", "System.Reflection.Metadata.dll.old", true);
                     File.Move("System.Collections.Immutable.dll", "System.Collections.Immutable.dll.old", true);
                     File.Move("System.Runtime.CompilerServices.Unsafe.dll", "System.Runtime.CompilerServices.Unsafe.dll.old", true);
-
+                    
                     foreach (string file in filesToCopy)
                     {
+                        if (File.Exists(file))
+                        {
+                            File.Move(file, file + ".todelete", true);
+                        }
                         File.Copy(Path.Combine(path, "Binary", file), file, true);
                     }
 
-                    File.WriteAllText(LuaCsSetup.VERSION_FILE, luaPackage.ModVersion);
+                    File.WriteAllText(LuaCsSetup.VersionFile, luaPackage.ModVersion);
                 }
                 catch (UnauthorizedAccessException e)
                 {

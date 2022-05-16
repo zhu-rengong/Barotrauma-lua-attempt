@@ -65,7 +65,7 @@ function EndpointMatches(endPoint) end
 --- SetPermissions
 -- @realm shared
 -- @tparam ClientPermissions permissions
--- @tparam table permittedConsoleCommands
+-- @tparam Enumerable permittedConsoleCommands
 function SetPermissions(permissions, permittedConsoleCommands) end
 
 --- GivePermission
@@ -229,11 +229,6 @@ function GetHashCode() end
 -- InGame, Field of type bool
 -- @realm shared
 -- @bool InGame
-
----
--- PermittedConsoleCommands, Field of type table
--- @realm shared
--- @table PermittedConsoleCommands
 
 ---
 -- KickVoteCount, Field of type number
@@ -479,6 +474,11 @@ function GetHashCode() end
 -- Permissions, Field of type ClientPermissions
 -- @realm shared
 -- @ClientPermissions Permissions
+
+---
+-- PermittedConsoleCommands, Field of type HashSet`1
+-- @realm shared
+-- @HashSet`1 PermittedConsoleCommands
 
 ---
 -- Client.MaxNameLength, Field of type number

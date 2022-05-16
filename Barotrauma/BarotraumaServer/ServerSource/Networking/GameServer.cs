@@ -2592,11 +2592,14 @@ namespace Barotrauma.Networking
                 Log("Ending the round...", ServerLog.MessageType.ServerMessage);
             }
 
-            GameMain.LuaCs.Hook.Call("roundEnd");
-
-
             string endMessage = TextManager.FormatServerMessage("RoundSummaryRoundHasEnded");
             var traitorResults = TraitorManager?.GetEndResults() ?? new List<TraitorMissionResult>();
+
+            List<TraitorMissionResult> customTraitorResults = GameMain.LuaCs.Hook.Call<List<TraitorMissionResult>>("roundEnd");
+            if (customTraitorResults != null)
+            {
+                traitorResults = customTraitorResults;
+            }
 
             List<Mission> missions = GameMain.GameSession.Missions.ToList();
             if (GameMain.GameSession.IsRunning)

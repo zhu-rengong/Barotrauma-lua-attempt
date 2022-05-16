@@ -21,6 +21,7 @@ namespace Barotrauma
 
         public static int MapEntityUpdateInterval = 1;
         public static int GapUpdateInterval = 4;
+        public static int PoweredUpdateInterval = 1;
         private static int mapEntityUpdateTick;
 
         /// <summary>
@@ -591,9 +592,13 @@ namespace Barotrauma
                 }
             }
 
+            if (mapEntityUpdateTick % PoweredUpdateInterval == 0)
+            {
+                Powered.UpdatePower(deltaTime * PoweredUpdateInterval);
+            }
+
             if (mapEntityUpdateTick % MapEntityUpdateInterval == 0)
             {
-                Powered.UpdatePower(deltaTime * MapEntityUpdateInterval);
                 foreach (Item item in Item.ItemList)
                 {
                     if (GameMain.LuaCs.Game.updatePriorityItems.Contains(item)) continue;

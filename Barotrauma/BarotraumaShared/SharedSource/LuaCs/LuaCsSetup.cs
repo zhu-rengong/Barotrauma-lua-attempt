@@ -26,8 +26,8 @@ namespace Barotrauma
 
 	partial class LuaCsSetup
 	{
-		public const string LUASETUP_FILE = "Lua/LuaSetup.lua";
-		public const string VERSION_FILE = "luacsversion.txt";
+		public const string LuaSetupFile = "Lua/LuaSetup.lua";
+		public const string VersionFile = "luacsversion.txt";
 
 		private const string configFileName = "LuaCsSetupConfig.xml";
 
@@ -56,6 +56,9 @@ namespace Barotrauma
 		public LuaScriptLoader LuaScriptLoader { get; private set; }
 
 		public LuaCsHook Hook { get; private set; }
+
+		public LuaCsTimer Timer { get; private set; }
+
 		public LuaCsNetworking Networking { get; private set; }
 		public LuaCsModStore ModStore { get; private set; }
 		private LuaRequire require { get; set; }
@@ -84,7 +87,7 @@ namespace Barotrauma
 		}
 
 
-		public static ContentPackage GetPackage(Identifier name, bool fallbackToAll = true)
+		public static ContentPackage GetPackage(Identifier name, bool fallbackToAll = true, bool useBackup = false)
 		{
 			foreach (ContentPackage package in ContentPackageManager.EnabledPackages.All)
 			{
@@ -113,6 +116,17 @@ namespace Barotrauma
 				}
 			}
 
+			if (useBackup && ContentPackageManager.EnabledPackages.BackupPackages.Regular != null)
+            {
+				foreach (ContentPackage package in ContentPackageManager.EnabledPackages.BackupPackages.Regular.Value)
+				{
+					if (package.NameMatches(name))
+					{
+						return package;
+					}
+				}
+			}
+
 			return null;
 		}
 
@@ -129,21 +143,37 @@ namespace Barotrauma
 				else if (exceptionType == ExceptionType.CSharp) PrintCsError(extra);
 				else PrintBothError(extra);
 
-			if (ex is InterpreterException)
+			if (ex is NetRuntimeException netRuntimeException)
 			{
-				if (((InterpreterException)ex).DecoratedMessage == null)
-					PrintError(((InterpreterException)ex).Message);
+				if (netRuntimeException.DecoratedMessage == null)
+				{
+					PrintError(netRuntimeException);
+				}
 				else
-					PrintError(((InterpreterException)ex).DecoratedMessage);
+				{
+					PrintError(netRuntimeException.DecoratedMessage + ": " + netRuntimeException.ToString());
+				}
+			}
+			else if (ex is InterpreterException interpreterException)
+			{
+				if (interpreterException.DecoratedMessage == null)
+				{
+					PrintError(interpreterException);
+				}
+				else
+				{
+					PrintError(interpreterException.DecoratedMessage);
+				}
 			}
 			else
 			{
 				string msg = ex.StackTrace != null
 					? ex.ToString()
 					: $"{ex}\n{Environment.StackTrace}";
-				if (exceptionType == ExceptionType.Lua) PrintError(msg);
-				else if (exceptionType == ExceptionType.CSharp) PrintCsError(msg);
-				else PrintBothError(msg);
+
+				if (exceptionType == ExceptionType.Lua) { PrintError(msg); }
+				else if (exceptionType == ExceptionType.CSharp) { PrintCsError(msg); }
+				else { PrintBothError(msg); }
 			}
 		}
 
@@ -218,91 +248,36 @@ namespace Barotrauma
 		public static void PrintCsMessage(object message) => PrintMessageBase("[CS] ", message, "Null");
 		public static void PrintLogMessage(object message) => PrintMessageBase("[LuaCs LOG] ", message, "Null");
 
-		private DynValue DoString(string code, Table globalContext = null, string codeStringFriendly = null)
-		{
-			try
-			{
-				return lua.DoString(code, globalContext, codeStringFriendly);
-			}
-			catch (Exception e)
-			{
-				HandleException(e);
-			}
-
-			return null;
-		}
-
 		private DynValue DoFile(string file, Table globalContext = null, string codeStringFriendly = null)
 		{
-			if (!LuaCsFile.IsPathAllowedLuaException(file, false)) return null;
+			if (!LuaCsFile.CanReadFromPath(file))
+			{
+				throw new ScriptRuntimeException($"dofile: File access to {file} not allowed.");
+			}
+
 			if (!LuaCsFile.Exists(file))
 			{
-				HandleException(new Exception($"dofile: File {file} not found."));
-				return null;
+				throw new ScriptRuntimeException($"dofile: File {file} not found.");
 			}
 
-			try
-			{
-				return lua.DoFile(file, globalContext, codeStringFriendly);
-
-			}
-			catch (Exception e)
-			{
-				HandleException(e);
-			}
-
-			return null;
-		}
-
-
-		private DynValue LoadString(string file, Table globalContext = null, string codeStringFriendly = null)
-		{
-			try
-			{
-				return lua.LoadString(file, globalContext, codeStringFriendly);
-
-			}
-			catch (Exception e)
-			{
-				HandleException(e);
-			}
-
-			return null;
+			return lua.DoFile(file, globalContext, codeStringFriendly);
 		}
 
 		private DynValue LoadFile(string file, Table globalContext = null, string codeStringFriendly = null)
 		{
-			if (!LuaCsFile.IsPathAllowedLuaException(file, false)) return null;
+			if (!LuaCsFile.CanReadFromPath(file))
+            {
+				throw new ScriptRuntimeException($"loadfile: File access to {file} not allowed.");
+			}
+
 			if (!LuaCsFile.Exists(file))
 			{
-				HandleException(new Exception($"loadfile: File {file} not found."));
-				return null;
+				throw new ScriptRuntimeException($"loadfile: File {file} not found.");
 			}
 
-			try
-			{
-				return lua.LoadFile(file, globalContext, codeStringFriendly);
-
-			}
-			catch (Exception e)
-			{
-				HandleException(e);
-			}
-
-			return null;
+			return lua.LoadFile(file, globalContext, codeStringFriendly);
 		}
-		public DynValue Require(string moduleName, Table globalContexts)
-		{
-			try
-			{
-				return require.Require(moduleName, globalContexts);
-			}
-			catch (Exception e)
-			{
-				HandleException(e);
-			}
-			return null;
-		}
+
 		public object CallLuaFunction(object function, params object[] arguments)
 		{
 			try
@@ -325,6 +300,7 @@ namespace Barotrauma
 		public void Update()
 		{
 			Hook?.Update();
+			Timer?.Update();
 		}
 
 		public void Stop()
@@ -348,6 +324,7 @@ namespace Barotrauma
 			ModStore.Clear();
 			Game = new LuaGame();
 			Networking = new LuaCsNetworking();
+			Timer = new LuaCsTimer();
 			LuaScriptLoader = null;
 			lua = null;
 			Lua = null;
@@ -359,8 +336,6 @@ namespace Barotrauma
 				CsScriptLoader.Clear();
 				CsScriptLoader.Unload();
 				CsScriptLoader = null;
-				GC.Collect();
-				GC.WaitForPendingFinalizers();
 			}
 		}
 
@@ -395,6 +370,7 @@ namespace Barotrauma
 
 			Game = new LuaGame();
 			Networking = new LuaCsNetworking();
+			Timer = new LuaCsTimer();
 			Hook.Initialize();
 			ModStore.Initialize();
 
@@ -417,17 +393,17 @@ namespace Barotrauma
 
 			lua.Globals["dofile"] = (Func<string, Table, string, DynValue>)DoFile;
 			lua.Globals["loadfile"] = (Func<string, Table, string, DynValue>)LoadFile;
-			lua.Globals["require"] = (Func<string, Table, DynValue>)Require;
+			lua.Globals["require"] = (Func<string, Table, DynValue>)require.Require;
 
-			lua.Globals["dostring"] = (Func<string, Table, string, DynValue>)DoString;
-			lua.Globals["load"] = (Func<string, Table, string, DynValue>)LoadString;
+			lua.Globals["dostring"] = (Func<string, Table, string, DynValue>)lua.DoString;
+			lua.Globals["load"] = (Func<string, Table, string, DynValue>)lua.LoadString;
 
 			lua.Globals["CsScript"] = CsScript;
 			lua.Globals["LuaUserData"] = UserData.CreateStatic<LuaUserData>();
 			lua.Globals["Game"] = Game;
 			lua.Globals["Hook"] = Hook;
 			lua.Globals["ModStore"] = ModStore;
-			lua.Globals["Timer"] = new LuaCsTimer();
+			lua.Globals["Timer"] = Timer;
 			lua.Globals["File"] = UserData.CreateStatic<LuaCsFile>();
 			lua.Globals["Networking"] = Networking;
 
@@ -435,7 +411,7 @@ namespace Barotrauma
 			lua.Globals["CLIENT"] = IsClient;
 
 
-			if (GetPackage("CsForBarotrauma", false) != null)
+			if (GetPackage("CsForBarotrauma", false, true) != null)
 			{
 				PrintMessage("Cs! Version " + AssemblyInfo.GitRevision);
 
@@ -444,7 +420,7 @@ namespace Barotrauma
 					Config.FirstTimeCsWarning = false;
 					UpdateConfig();
 
-					LuaCsTimer.Wait((args) => PrintCsError(@"
+					Timer.Wait((args) => PrintCsError(@"
   ----====    ====----
 
         WARNING!
@@ -487,11 +463,11 @@ modding needs.
 
 			ContentPackage luaPackage = GetPackage("Lua For Barotrauma");
 
-			if (File.Exists(LUASETUP_FILE))
+			if (File.Exists(LuaSetupFile))
 			{
 				try
 				{
-					lua.Call(lua.LoadFile(LUASETUP_FILE), Path.GetDirectoryName(Path.GetFullPath(LUASETUP_FILE)));
+					lua.Call(lua.LoadFile(LuaSetupFile), Path.GetDirectoryName(Path.GetFullPath(LuaSetupFile)));
 				}
 				catch (Exception e)
 				{

@@ -10,6 +10,7 @@ for key, value in pairs(localizedStrings) do
 end
 
 RegisterBarotrauma("Networking.ClientPeer")
+RegisterBarotrauma("Networking.GameClient")
 
 RegisterBarotrauma("ChatBox")
 RegisterBarotrauma("GUICanvas")
@@ -21,6 +22,7 @@ RegisterBarotrauma("PlayerInput")
 RegisterBarotrauma("ScalableFont")
 
 Register("Microsoft.Xna.Framework.Graphics.Texture2D")
+Register("EventInput.KeyboardDispatcher")
 Register("EventInput.KeyEventArgs")
 Register("Microsoft.Xna.Framework.Input.Keys")
 Register("Microsoft.Xna.Framework.Input.KeyboardState")
@@ -43,5 +45,9 @@ RegisterBarotrauma("GUIDropDown")
 RegisterBarotrauma("GUINumberInput")
 RegisterBarotrauma("GUIMessage")
 RegisterBarotrauma("GUIMessageBox")
+RegisterBarotrauma("GUIFont")
+RegisterBarotrauma("GUIFontPrefab")
+RegisterBarotrauma("GUIColorPicker")
+RegisterBarotrauma("GUIProgressBar")
 
 RegisterBarotrauma("Inventory+SlotReference")

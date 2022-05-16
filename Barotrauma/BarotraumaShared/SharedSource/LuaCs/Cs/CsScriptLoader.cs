@@ -10,6 +10,7 @@ using System.Runtime.Loader;
 using System.Reflection.PortableExecutable;
 using System.Reflection.Metadata;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 
 namespace Barotrauma
 {
@@ -34,19 +35,63 @@ namespace Barotrauma
 			Assembly = null;
 		}
 
+		private enum RunType { Standard, Forced, None };
+		private bool ShouldRun(ContentPackage cp, string path)
+		{
+			if (!Directory.Exists(path + "CSharp")) return false;
+
+			var isEnabled = ContentPackageManager.EnabledPackages.All.Contains(cp);
+			if (File.Exists(path + "CSharp/RunConfig.xml"))
+			{
+				var doc = XDocument.Load(File.Open(path + "CSharp/RunConfig.xml", FileMode.Open, FileAccess.Read));
+				var elems = doc.Root.Elements().ToArray();
+				var elem = elems.FirstOrDefault(e => e.Name.LocalName.Equals(LuaCsSetup.IsServer ? "Server" : (LuaCsSetup.IsClient ? "Client" : "None"), StringComparison.OrdinalIgnoreCase));
+
+				if (elem != null && Enum.TryParse(elem.Value, true, out RunType rtValue))
+				{
+					if (rtValue == RunType.Standard && isEnabled)
+					{
+						LuaCsSetup.PrintCsMessage($"Standard run C# of {cp.Name}");
+						return true;
+					}
+					else if (rtValue == RunType.Forced)
+					{
+						LuaCsSetup.PrintCsMessage($"Forced run C# of {cp.Name}");
+						return true;
+					}
+					else if (rtValue == RunType.None) return false;
+				}
+			}
+
+			if (isEnabled)
+			{
+				LuaCsSetup.PrintCsMessage($"Assumed run C# of {cp.Name}");
+				return true;
+			}
+			else return false;
+		}
 		public void SearchFolders()
         {
-			foreach(ContentPackage cp in ContentPackageManager.EnabledPackages.All)
+			var paths = new Dictionary<string, string>();
+			foreach (var cp in ContentPackageManager.AllPackages)
             {
-				var path = Path.GetDirectoryName(cp.Path);
-				RunFolder(path);
-            }
+				var path = $"{Path.GetFullPath(Path.GetDirectoryName(cp.Path)).Replace('\\','/')}/";
+				if (ShouldRun(cp, path))
+				{
+					if (paths.ContainsKey(cp.Name))
+                    {
+						if (ContentPackageManager.EnabledPackages.All.Contains(cp)) paths[cp.Name] = path;
+					}
+					else paths.Add(cp.Name, path);
+				}
+			}
+			foreach ((var _, var path) in paths) RunFolder(path);
 		}
 
 		public bool HasSources { get => sources.Count > 0; }
 
 		private enum SourceCategory { Shared, Server, Client };
-		private Regex rMaskPathValid = new Regex(@"^[^/]+/[^/]+/csharp(/(shared|client|server))?(/[^/]+)+\.cs$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+		private Regex rMaskPathValid = new Regex(@"^(((?!csharp)[^/])+/)+csharp(/(shared|client|server))?(/[^/]+)+\.cs$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 		private Regex rMaskPathCategory1 = new Regex(@"/(shared|client|server)(/[^/]+)+\.cs$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 		private Regex rMaskPathCategory2 = new Regex(@"^/(shared|client|server)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 		private void RunFolder(string folder)
@@ -164,26 +209,7 @@ namespace Barotrauma
 
 		private static string[] DirSearch(string sDir)
 		{
-			List<string> files = new List<string>();
-
-			try
-			{
-				foreach (string f in Directory.GetFiles(sDir))
-				{
-					files.Add(f);
-				}
-
-				foreach (string d in Directory.GetDirectories(sDir))
-				{
-					files.AddRange(DirSearch(d));
-				}
-			}
-			catch (System.Exception excpt)
-			{
-				Console.WriteLine(excpt.Message);
-			}
-
-			return files.ToArray();
+			return Directory.GetFiles(sDir, "*.cs", SearchOption.AllDirectories);
 		}
 
 		public void Clear()
