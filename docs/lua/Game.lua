@@ -9,48 +9,48 @@ Class providing game related things, Access fields and functions like that: Game
 local Game = {}
 
 --- Is the round started?
--- @realm shared 
+-- @realm shared
 Game.RoundStarted = true
 
 --- Is dedicated server?
--- @realm server 
+-- @realm server
 Game.IsDedicated = true
 
 --- Server settings.
--- @realm server 
+-- @realm server
 Game.ServerSettings = true
 
 --- Send chat message to every client.
--- @realm server 
+-- @realm server
 function Game.SendMessage(msg, messageType, sender, character) end
 
 --- Send traitor message.
--- @realm server 
+-- @realm server
 function Game.SendTraitorMessage(client, msg, missionid, type) end
 
 
 --- Send direct message.
--- @realm server 
+-- @realm server
 function Game.SendDirectChatMessage(sendername, text, senderCharacter, chatMessageType, client, iconStyle) end
 
 --- Send direct message.
--- @realm server 
+-- @realm server
 function Game.SendDirectChatMessage(chatMessage, client) end
 
 --- True to override traitors.
--- @realm server 
+-- @realm server
 function Game.OverrideTraitors(override) end
 
 --- True to override respawn sub, stops players from being respawned.
--- @realm server 
+-- @realm server
 function Game.OverrideRespawnSub(override) end
 
 --- True to make wifi chat always work.
--- @realm server 
+-- @realm server
 function Game.AllowWifiChat(override) end
 
 --- True to prevent headsets from transmitting wifi signals.
--- @realm server 
+-- @realm server
 function Game.OverrideSignalRadio(override) end
 
 --- True to disable spam filter.
@@ -66,11 +66,11 @@ function Game.DisableDisconnectCharacter(override) end
 function Game.EnableControlHusk(override) end
 
 --- Log message to server logs.
--- @realm server 
+-- @realm server
 function Game.Log(message, ServerLogMessageType) end
 
 --- Spawn explosion.
--- @realm server 
+-- @realm shared
 function Game.Explode(pos, range, force, damage, structureDamage, itemDamage, empStrength, ballastFloraStrength) end
 
 --- Get respawn sub submarine.
@@ -83,12 +83,16 @@ function Game.GetRespawnSub() end
 function Game.DispatchRespawnSub() end
 
 --- Execute console command.
--- @realm server 
+-- @realm shared 
 function Game.ExecuteCommand(command) end
 
 --- Starts the game.
 -- @realm server 
 function Game.StartGame() end
+
+--- Ends the game.
+-- @realm server
+function Game.EndGame() end
 
 --- Gets all enabled content packages.
 --@treturn table Table containing ContentPackages
