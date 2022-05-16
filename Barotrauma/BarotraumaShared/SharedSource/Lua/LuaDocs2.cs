@@ -595,7 +595,21 @@ namespace Barotrauma
             Do(typeof(CharacterHealth.LimbHealth));
             Do(typeof(CharacterInventory));
             Do(typeof(CharacterTalent));
+
+            Do(typeof(CharacterParams));
+            Do(typeof(CharacterParams.AIParams));
+            Do(typeof(CharacterParams.HealthParams));
+            Do(typeof(CharacterParams.InventoryParams));
+            Do(typeof(CharacterParams.ParticleParams));
+            Do(typeof(CharacterParams.SoundParams));
+            Do(typeof(CharacterParams.SubParam));
+            Do(typeof(CharacterParams.TargetParams));
             #endregion
+
+            Do(typeof(OrderCategory));
+            Do(typeof(OrderPrefab));
+            Do(typeof(Order));
+            Do(typeof(OrderTarget));
 
             #region AI
             Do(typeof(AIState));
@@ -977,6 +991,7 @@ namespace Barotrauma
             Do(typeof(InputType));
             Do(typeof(Key));
 #if CLIENT
+            Do(typeof(EventInput.KeyboardDispatcher));
             Do(typeof(EventInput.KeyEventArgs));
             Do(typeof(Microsoft.Xna.Framework.Input.Keys), "Keys");
 #endif
@@ -1014,10 +1029,14 @@ namespace Barotrauma
 
             Do(typeof(PlayerInput));
 
+            Do(typeof(GUIFont));
+            Do(typeof(GUIFontPrefab));
+
             Do(typeof(GUIButton));
             Do(typeof(GUICanvas));
             Do(typeof(GUIColorPicker));
             Do(typeof(GUIComponent));
+            Do(typeof(GUIComponent.ComponentState));
             Do(typeof(GUIContextMenu));
             Do(typeof(GUICustomComponent));
             Do(typeof(GUIDropDown));
@@ -1028,6 +1047,7 @@ namespace Barotrauma
             Do(typeof(GUIMessage));
             Do(typeof(GUIMessageBox));
             Do(typeof(GUINumberInput));
+            Do(typeof(GUINumberInput.NumberType));
             Do(typeof(GUIProgressBar));
             Do(typeof(GUIRadioButtonGroup));
             Do(typeof(GUIScissorComponent));
@@ -1074,6 +1094,7 @@ namespace Barotrauma
             Do(typeof(RespawnManager));
             
             Do(typeof(DebugConsole));
+            Do(typeof(DebugConsole.Command));
 
             Do(typeof(LuaUserData), "LuaUserData");
             Do(typeof(LuaGame), "Game");
