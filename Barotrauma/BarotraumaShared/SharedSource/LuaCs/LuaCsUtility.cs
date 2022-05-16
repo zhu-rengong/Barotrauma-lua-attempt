@@ -218,7 +218,7 @@ namespace Barotrauma
 
 	partial class LuaCsNetworking
 	{
-		public bool restrictMessageSize = true;
+		public bool RestrictMessageSize = true;
 		public Dictionary<string, LuaCsAction> LuaCsNetReceives = new Dictionary<string, LuaCsAction>();
 
 #if SERVER

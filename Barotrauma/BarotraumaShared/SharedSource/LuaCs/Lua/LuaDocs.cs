@@ -96,6 +96,7 @@ namespace Barotrauma
 			GenerateDocs(typeof(AfflictionPrefab), "AfflictionPrefab.lua", "AfflictionPrefab");
 			GenerateDocs(typeof(WayPoint), "WayPoint.lua", "WayPoint");
 			GenerateDocs(typeof(ServerSettings), "ServerSettings.lua", "Game.ServerSettings");
+			GenerateDocs(typeof(GameSettings), "GameSettings.lua", "Game.Settings");
 		}
 
 		public static void GenerateDocs(Type type, string name, string categoryName = null)

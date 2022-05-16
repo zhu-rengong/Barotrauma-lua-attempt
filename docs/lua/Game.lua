@@ -20,6 +20,14 @@ Game.IsDedicated = true
 -- @realm server
 Game.ServerSettings = true
 
+--- Server settings.
+-- @realm server
+Game.Settings = true
+
+--- ChatBox.
+-- @realm ChatBox
+Game.ChatBox = true
+
 --- Send chat message to every client.
 -- @realm server
 function Game.SendMessage(msg, messageType, sender, character) end
@@ -93,16 +101,6 @@ function Game.StartGame() end
 --- Ends the game.
 -- @realm server
 function Game.EndGame() end
-
---- Gets all enabled content packages.
---@treturn table Table containing ContentPackages
--- @realm shared 
-function Game.GetEnabledContentPackages() end
-
---- Gets all enabled content packages by reading directly the player xml, useful when your mod doesn't have any xml.
---@treturn table Table containing ContentPackages
--- @realm shared 
-function Game.GetEnabledPackagesDirectlyFromFile() end
 
 --- Adds a new command, onExecute is called with a table of strings.
 -- @realm shared 

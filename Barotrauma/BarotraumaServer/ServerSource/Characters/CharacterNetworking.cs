@@ -701,7 +701,7 @@ namespace Barotrauma
 
                 var tempBuffer = new ReadWriteMessage();
                 WriteStatus(tempBuffer);
-                if (msgLengthBeforeStatus + tempBuffer.LengthBytes >= 255 && restrictMessageSize && GameMain.LuaCs.Networking.restrictMessageSize)
+                if (msgLengthBeforeStatus + tempBuffer.LengthBytes >= 255 && restrictMessageSize && GameMain.LuaCs.Networking.RestrictMessageSize)
                 { 
                     msg.Write(false);
                     if (msgLengthBeforeStatus < 255)
