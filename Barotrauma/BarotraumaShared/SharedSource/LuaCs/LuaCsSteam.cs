@@ -19,6 +19,7 @@ namespace Barotrauma
             public LuaCsAction Callback;
         }
 
+        double lastTimeChecked = 0;
         List<WorkshopItemDownload> itemsBeingDownloaded = new List<WorkshopItemDownload>();
 
         public LuaCsSteam()
@@ -26,7 +27,7 @@ namespace Barotrauma
             
         }
 
-        private async void DownloadWorkshopItemAsync(WorkshopItemDownload download)
+        private async void DownloadWorkshopItemAsync(WorkshopItemDownload download, bool startDownload = false)
         {
             Steamworks.Ugc.Item? item = await SteamManager.Workshop.GetItem(download.ID);
             
@@ -36,15 +37,18 @@ namespace Barotrauma
             {
                 if (download.Callback != null)
                 {
-                    Directory.Move(item.Value.Directory, download.Destination);
                     download.Callback(item);
                 }
                 
                 itemsBeingDownloaded.Remove(download);
+                SaveUtil.CopyFolder(item.Value.Directory, download.Destination, true, true);
                 return;
             }
 
-            SteamUGC.Download(item.Value.Id, true);
+            if (startDownload)
+            {
+                SteamUGC.Download(item.Value.Id, true);
+            }
 
             if (!itemsBeingDownloaded.Contains(download))
             {
@@ -62,7 +66,7 @@ namespace Barotrauma
                 ID = id,
                 Destination = destination,
                 Callback = callback
-            });
+            }, true);
         }
 
         public void DownloadWorkshopItem(Steamworks.Ugc.Item item, string destination, LuaCsAction callback)
@@ -78,12 +82,14 @@ namespace Barotrauma
 
         public void Update()
         {
-            if (itemsBeingDownloaded.Count > 0) // SteamUGC.OnDownloadItemResult for some reason doesn't work, so i need to do this stupid thing.
+            if (itemsBeingDownloaded.Count > 0 && Timing.TotalTime > lastTimeChecked) // SteamUGC.OnDownloadItemResult for some reason doesn't work, so i need to do this stupid thing.
             {
                 foreach (var item in itemsBeingDownloaded)
                 {
                     DownloadWorkshopItemAsync(item);
                 }
+
+                lastTimeChecked = Timing.TotalTime + 15;
             }
         }
     }
