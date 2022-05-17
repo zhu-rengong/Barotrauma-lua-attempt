@@ -103,6 +103,11 @@ namespace Barotrauma
                 return DynValue.NewString(v.ToString());
             });
 
+            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.String, typeof(UInt64), v =>
+            {
+                return UInt64.Parse(v.String);
+            });
+
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.UserData, typeof(object), v =>
             {
                 if (v.UserData.Object is LuaByte lbyte)

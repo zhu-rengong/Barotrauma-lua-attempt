@@ -60,6 +60,8 @@ namespace Barotrauma
 		public LuaCsTimer Timer { get; private set; }
 
 		public LuaCsNetworking Networking { get; private set; }
+		public LuaCsSteam Steam { get; private set; }
+
 		public LuaCsModStore ModStore { get; private set; }
 		private LuaRequire require { get; set; }
 
@@ -301,6 +303,7 @@ namespace Barotrauma
 		{
 			Hook?.Update();
 			Timer?.Update();
+			Steam?.Update();
 		}
 
 		public void Stop()
@@ -325,6 +328,7 @@ namespace Barotrauma
 			Game = new LuaGame();
 			Networking = new LuaCsNetworking();
 			Timer = new LuaCsTimer();
+			Steam = new LuaCsSteam();
 			LuaScriptLoader = null;
 			lua = null;
 			Lua = null;
@@ -371,6 +375,7 @@ namespace Barotrauma
 			Game = new LuaGame();
 			Networking = new LuaCsNetworking();
 			Timer = new LuaCsTimer();
+			Steam = new LuaCsSteam();
 			Hook.Initialize();
 			ModStore.Initialize();
 
@@ -384,6 +389,7 @@ namespace Barotrauma
 			UserData.RegisterType<LuaCsTimer>();
 			UserData.RegisterType<LuaCsFile>();
 			UserData.RegisterType<LuaCsNetworking>();
+			UserData.RegisterType<LuaCsSteam>();
 			UserData.RegisterType<LuaUserData>();
 			UserData.RegisterType<IUserDataDescriptor>();
 
@@ -406,6 +412,7 @@ namespace Barotrauma
 			lua.Globals["Timer"] = Timer;
 			lua.Globals["File"] = UserData.CreateStatic<LuaCsFile>();
 			lua.Globals["Networking"] = Networking;
+			lua.Globals["Steam"] = Steam;
 
 			lua.Globals["SERVER"] = IsServer;
 			lua.Globals["CLIENT"] = IsClient;

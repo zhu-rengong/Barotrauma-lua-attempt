@@ -233,3 +233,19 @@ Register("Microsoft.Xna.Framework.Color")
 Register("Microsoft.Xna.Framework.Point")
 Register("Microsoft.Xna.Framework.Rectangle")
 Register("Microsoft.Xna.Framework.Matrix")
+
+local friend = Register("Steamworks.Friend")
+
+LuaUserData.RemoveMember(friend, "InviteToGame")
+LuaUserData.RemoveMember(friend, "SendMessage")
+
+local workshopItem = Register("Steamworks.Ugc.Item")
+
+LuaUserData.RemoveMember(workshopItem, "Subscribe")
+LuaUserData.RemoveMember(workshopItem, "DownloadAsync")
+LuaUserData.RemoveMember(workshopItem, "Unsubscribe")
+LuaUserData.RemoveMember(workshopItem, "AddFavorite")
+LuaUserData.RemoveMember(workshopItem, "RemoveFavorite")
+LuaUserData.RemoveMember(workshopItem, "Vote")
+LuaUserData.RemoveMember(workshopItem, "GetUserVote")
+LuaUserData.RemoveMember(workshopItem, "Edit")
