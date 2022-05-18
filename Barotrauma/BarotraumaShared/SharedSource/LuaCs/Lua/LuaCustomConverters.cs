@@ -18,11 +18,9 @@ namespace Barotrauma
             RegisterAction();
 
 
-            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(Func<Fixture, Vector2, Vector2, float, float>), v =>
-            {
-                var function = v.Function;
-                return (Func<Fixture, Vector2, Vector2, float, float>)((Fixture a, Vector2 b, Vector2 c, float d) => new LuaResult(function.Call(a, b, c, d)).Float());
-            });
+            RegisterFunc<Fixture, Vector2, Vector2, float, float>();
+            RegisterFunc<AIObjective, bool>();
+
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(LuaCsAction), v => (LuaCsAction)( args => GameMain.LuaCs.CallLuaFunction(v.Function, args) ));
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(LuaCsFunc), v => (LuaCsFunc)( args => new LuaResult(GameMain.LuaCs.CallLuaFunction(v.Function, args)) ));
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(LuaCsPatch), v => (LuaCsPatch)( (self, args) => new LuaResult(GameMain.LuaCs.CallLuaFunction(v.Function, self, args)) ));
@@ -133,11 +131,23 @@ namespace Barotrauma
                 var function = v.Function;
                 return (Action<T>)(p => GameMain.LuaCs.CallLuaFunction(function, p));
             });
+
+            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.ClrFunction, typeof(Action<T>), v =>
+            {
+                var function = v.Function;
+                return (Action<T>)(p => GameMain.LuaCs.CallLuaFunction(function, p));
+            });
         }
 
         public static void RegisterAction<T1, T2>()
         {
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(Action<T1, T2>), v =>
+            {
+                var function = v.Function;
+                return (Action<T1, T2>)((a1, a2) => GameMain.LuaCs.CallLuaFunction(function, a1, a2));
+            });
+
+            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.ClrFunction, typeof(Action<T1, T2>), v =>
             {
                 var function = v.Function;
                 return (Action<T1, T2>)((a1, a2) => GameMain.LuaCs.CallLuaFunction(function, a1, a2));
@@ -150,6 +160,57 @@ namespace Barotrauma
             {
                 var function = v.Function;
                 return (Action)(() => GameMain.LuaCs.CallLuaFunction(function));
+            });
+
+            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.ClrFunction, typeof(Action), v =>
+            {
+                var function = v.Function;
+                return (Action)(() => GameMain.LuaCs.CallLuaFunction(function));
+            });
+        }
+
+        public static void RegisterFunc<T1>()
+        {
+            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(Func<T1>), v =>
+            {
+                var function = v.Function;
+                return (Func<T1>)(() => function.Call().ToObject<T1>());
+            });
+
+            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.ClrFunction, typeof(Func<T1>), v =>
+            {
+                var function = v.Function;
+                return (Func<T1>)(() => function.Call().ToObject<T1>());
+            });
+        }
+
+        public static void RegisterFunc<T1, T2>()
+        {
+            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(Func<T1, T2>), v =>
+            {
+                var function = v.Function;
+                return (Func<T1, T2>)((T1 a) => function.Call(a).ToObject<T2>());
+            });
+
+            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.ClrFunction, typeof(Func<T1, T2>), v =>
+            {
+                var function = v.Function;
+                return (Func<T1, T2>)((T1 a) => function.Call(a).ToObject<T2>());
+            });
+        }
+
+        public static void RegisterFunc<T1, T2, T3, T4, T5>()
+        {
+            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(Func<T1, T2, T3, T4, T5>), v =>
+            {
+                var function = v.Function;
+                return (Func<T1, T2, T3, T4, T5>)((T1 a, T2 b, T3 c, T4 d) => function.Call(a, b, c, d).ToObject<T5>());
+            });
+
+            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(Func<T1, T2, T3, T4, T5>), v =>
+            {
+                var function = v.Function;
+                return (Func<T1, T2, T3, T4, T5>)((T1 a, T2 b, T3 c, T4 d) => function.Call(a, b, c, d).ToObject<T5>());
             });
         }
 
