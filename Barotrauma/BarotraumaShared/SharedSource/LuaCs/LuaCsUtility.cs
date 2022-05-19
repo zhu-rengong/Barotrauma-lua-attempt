@@ -126,6 +126,22 @@ namespace Barotrauma
 			File.WriteAllText(path, text);
 		}
 
+		public static void Delete(string path)
+		{
+			if (!IsPathAllowedException(path))
+				return;
+
+			File.Delete(path);
+		}
+
+		public static void DeleteDirectory(string path)
+		{
+			if (!IsPathAllowedException(path))
+				return;
+
+			Directory.Delete(path, true);
+		}
+
 		public static FileStream OpenRead(string path)
 		{
 			if (!IsPathAllowedException(path))
