@@ -39,6 +39,8 @@ namespace Barotrauma
 		public const bool IsClient = true;
 #endif
 
+		private static int ExecutionNumber = 0;
+
 		private Script lua;
 		public CsScriptRunner CsScript { get; private set; }
 
@@ -414,6 +416,8 @@ namespace Barotrauma
 			lua.Globals["Networking"] = Networking;
 			lua.Globals["Steam"] = Steam;
 
+			lua.Globals["ExecutionNumber"] = ExecutionNumber;
+
 			lua.Globals["SERVER"] = IsServer;
 			lua.Globals["CLIENT"] = IsClient;
 
@@ -499,6 +503,8 @@ modding needs.
 			{
 				PrintError("LuaSetup.lua not found! Lua/LuaSetup.lua, no Lua scripts will be executed or work.");
 			}
+
+			ExecutionNumber++;
 		}
 
 	}
