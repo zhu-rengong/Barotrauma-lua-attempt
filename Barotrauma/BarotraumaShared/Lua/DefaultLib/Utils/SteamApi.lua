@@ -6,7 +6,7 @@ LuaUserData.AddMethod(descriptor, "GetWorkshopCollection", function (id, callbac
     Networking.RequestPostHTTP("https://api.steampowered.com/ISteamRemoteStorage/GetCollectionDetails/v1/", function (result)
         local data = json.parse(result)
 
-        if data.response.collectiondetails.children == nil then
+        if data.response.collectiondetails[1].children == nil then
             callback()
             return
         end
