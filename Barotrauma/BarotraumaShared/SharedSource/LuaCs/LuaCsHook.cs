@@ -225,7 +225,8 @@ namespace Barotrauma
 
 		private static readonly string[] prohibitedHooks = {
 			"Barotrauma.Lua",
-			"Barotrauma.Cs"
+			"Barotrauma.Cs",
+			"ContentPackageManager",
 		};
 		public void HookMethod(string identifier, MethodInfo method, LuaCsPatch patch, HookMethodType hookType = HookMethodType.Before, ACsMod owner = null)
 		{
