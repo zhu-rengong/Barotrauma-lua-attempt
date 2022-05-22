@@ -232,6 +232,8 @@ RegisterBarotrauma("SubmarineInfo")
 RegisterBarotrauma("MapCreatures.Behavior.BallastFloraBehavior")
 RegisterBarotrauma("MapCreatures.Behavior.BallastFloraBranch")
 
+RegisterBarotrauma("PetBehavior")
+
 Register("Microsoft.Xna.Framework.Vector2")
 Register("Microsoft.Xna.Framework.Vector3")
 Register("Microsoft.Xna.Framework.Vector4")

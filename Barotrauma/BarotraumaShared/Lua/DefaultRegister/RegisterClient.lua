@@ -12,6 +12,24 @@ end
 RegisterBarotrauma("Networking.ClientPeer")
 RegisterBarotrauma("Networking.GameClient")
 
+RegisterBarotrauma("Sounds.SoundManager")
+RegisterBarotrauma("Sounds.OggSound")
+RegisterBarotrauma("Sounds.VideoSound")
+RegisterBarotrauma("Sounds.VoipSound")
+RegisterBarotrauma("Sounds.SoundChannel")
+
+RegisterBarotrauma("Sounds.LowpassFilter")
+RegisterBarotrauma("Sounds.HighpassFilter")
+RegisterBarotrauma("Sounds.BandpassFilter")
+RegisterBarotrauma("Sounds.NotchFilter")
+RegisterBarotrauma("Sounds.LowShelfFilter")
+RegisterBarotrauma("Sounds.HighShelfFilter")
+RegisterBarotrauma("Sounds.PeakFilter")
+
+RegisterBarotrauma("Lights.LightManager")
+RegisterBarotrauma("Lights.LightSource")
+RegisterBarotrauma("Lights.LightSourceParams")
+
 RegisterBarotrauma("ChatBox")
 RegisterBarotrauma("GUICanvas")
 RegisterBarotrauma("Anchor")

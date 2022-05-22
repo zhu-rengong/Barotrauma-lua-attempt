@@ -31,6 +31,22 @@ namespace Barotrauma
 					return GameMain.Client.ChatBox;
 			}
 		}
+
+		public Sounds.SoundManager SoundManager
+        {
+            get
+            {
+				return GameMain.SoundManager;
+            }
+        }
+
+		public Lights.LightManager LightManager
+		{
+			get
+			{
+				return GameMain.LightManager;
+			}
+		}
 #else
 
 		public bool IsDedicated

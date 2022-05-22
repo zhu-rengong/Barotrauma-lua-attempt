@@ -11,6 +11,14 @@ for key, value in pairs(localizedStrings) do
 	defaultLib[value] = CreateStatic("Barotrauma." .. value, true)
 end
 
+defaultLib["Sounds.LowpassFilter"] = CreateStatic("Barotrauma.Sounds.LowpassFilter")
+defaultLib["Sounds.HighpassFilter"] = CreateStatic("Barotrauma.Sounds.HighpassFilter")
+defaultLib["Sounds.BandpassFilter"] = CreateStatic("Barotrauma.Sounds.BandpassFilter")
+defaultLib["Sounds.NotchFilter"] = CreateStatic("Barotrauma.Sounds.NotchFilter")
+defaultLib["Sounds.LowShelfFilter"] = CreateStatic("Barotrauma.Sounds.LowShelfFilter")
+defaultLib["Sounds.HighShelfFilter"] = CreateStatic("Barotrauma.Sounds.HighShelfFilter")
+defaultLib["Sounds.PeakFilter"] = CreateStatic("Barotrauma.Sounds.PeakFilter")
+
 defaultLib["Sprite"] = CreateStatic("Barotrauma.Sprite", true)
 defaultLib["PlayerInput"] = CreateStatic("Barotrauma.PlayerInput", true)
 
