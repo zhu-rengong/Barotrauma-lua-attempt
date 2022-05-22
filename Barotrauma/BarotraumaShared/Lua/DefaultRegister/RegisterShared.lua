@@ -36,6 +36,12 @@ RegisterBarotrauma("CharacterParams+SoundParams")
 
 RegisterBarotrauma("Item")
 RegisterBarotrauma("DeconstructItem")
+RegisterBarotrauma("FabricationRecipe")
+RegisterBarotrauma("PreferredContainer")
+RegisterBarotrauma("SwappableItem")
+RegisterBarotrauma("FabricationRecipe+RequiredItemByIdentifier")
+RegisterBarotrauma("FabricationRecipe+RequiredItemByTag")
+
 RegisterBarotrauma("Submarine")
 RegisterBarotrauma("INetSerializableStruct")
 RegisterBarotrauma("Networking.Client")
