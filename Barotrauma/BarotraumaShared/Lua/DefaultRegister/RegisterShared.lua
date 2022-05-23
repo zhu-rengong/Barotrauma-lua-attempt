@@ -72,14 +72,18 @@ RegisterBarotrauma("ItemPrefab")
 RegisterBarotrauma("SerializableProperty")
 RegisterBarotrauma("InputType")
 
-RegisterBarotrauma("StatusEffect")
 RegisterBarotrauma("FireSource")
+
+RegisterBarotrauma("StatusEffect")
+
 RegisterBarotrauma("ContentPackageManager")
 RegisterBarotrauma("ContentPackageManager+PackageSource")
 RegisterBarotrauma("ContentPackageManager+EnabledPackages")
 RegisterBarotrauma("ContentPackage")
 RegisterBarotrauma("RegularPackage")
 RegisterBarotrauma("CorePackage")
+RegisterBarotrauma("ContentXElement")
+
 RegisterBarotrauma("SubmarineBody")
 RegisterBarotrauma("Explosion")
 RegisterBarotrauma("Networking.ServerSettings")
