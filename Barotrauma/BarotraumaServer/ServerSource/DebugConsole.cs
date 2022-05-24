@@ -1243,6 +1243,12 @@ namespace Barotrauma
 
             commands.Add(new Command("lua", "lua: runs a string", (string[] args) =>
             {
+                if (GameMain.Server.ServerSettings.IsPublic)
+                {
+                    DebugConsole.ThrowError("The lua command has been disabled in public servers.");
+                    return;
+                }
+
                 try
                 {
                     GameMain.LuaCs.Lua.DoString(string.Join(" ", args));
@@ -1254,7 +1260,13 @@ namespace Barotrauma
             }));
             commands.Add(new Command("cs", "cs: runs a string", (string[] args) =>
             {
-                if(LuaCsSetup.GetPackage("CsForBarotrauma", false, true) == null) { return; }
+                if (GameMain.Server.ServerSettings.IsPublic)
+                {
+                    DebugConsole.ThrowError("The cs command has been disabled in public servers.");
+                    return;
+                }
+
+                if (LuaCsSetup.GetPackage("CsForBarotrauma", false, true) == null) { return; }
 
                 GameMain.LuaCs.CsScript.Run(string.Join(" ", args));
                 GameMain.LuaCs.RecreateCsScript();
