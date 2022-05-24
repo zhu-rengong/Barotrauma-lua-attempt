@@ -17,6 +17,8 @@ RegisterBarotrauma("Sounds.OggSound")
 RegisterBarotrauma("Sounds.VideoSound")
 RegisterBarotrauma("Sounds.VoipSound")
 RegisterBarotrauma("Sounds.SoundChannel")
+RegisterBarotrauma("RoundSound")
+RegisterBarotrauma("Items.Components.ItemSound")
 
 RegisterBarotrauma("Sounds.LowpassFilter")
 RegisterBarotrauma("Sounds.HighpassFilter")
