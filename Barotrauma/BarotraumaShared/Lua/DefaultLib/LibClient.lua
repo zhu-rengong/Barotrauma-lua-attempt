@@ -43,6 +43,8 @@ defaultLib["GUI"] = {
     MessageBox = CreateStatic("Barotrauma.GUIMessageBox", true),
     ColorPicker = CreateStatic("Barotrauma.GUIColorPicker", true),
     ProgressBar = CreateStatic("Barotrauma.GUIProgressBar", true),
+    CustomComponent = CreateStatic("Barotrauma.GUICustomComponent", true),
+    ScissorComponent = CreateStatic("Barotrauma.GUIScissorComponent", true),
 
     Screen = CreateStatic("Barotrauma.Screen"),
 
