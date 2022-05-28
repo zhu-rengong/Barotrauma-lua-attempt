@@ -349,14 +349,13 @@ namespace Barotrauma
 
 		public void AddCommand(string name, string help, LuaCsAction onExecute, LuaCsFunc getValidArgs = null, bool isCheat = false)
 		{
-			var cmd = new DebugConsole.Command(name, help, (string[] arg1) => { onExecute(arg1); },
+			var cmd = new DebugConsole.Command(name, help, (string[] arg1) => { onExecute(new object[] { arg1 }); },
 				() =>
 				{
-					if (getValidArgs == null) return null;
+					if (getValidArgs == null) { return null; }
 					var obj = getValidArgs();
-					if (obj is LuaResult res) obj = res.Object();
-					if (obj is string[][]) return (string[][])obj;
-					return null;
+					if (obj is LuaResult lr) { return lr.DynValue().ToObject<string[][]>(); }
+					return (string[][])obj;
 				}, isCheat);
 
 			luaAddedCommand.Add(cmd);
