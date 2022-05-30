@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Text;
 using MoonSharp.Interpreter.Interop;
 using static Barotrauma.LuaCsSetup;
+using System.Threading;
 
 namespace Barotrauma
 {
@@ -89,7 +90,7 @@ namespace Barotrauma
 		{
 			result = null;
 #if CLIENT
-		if (GameMain.GameSession?.IsRunning == false && GameMain.IsSingleplayer)
+		if (GameMain.GameSession?.IsRunning == false && GameMain.IsSingleplayer && GameMain.MainThread != Thread.CurrentThread)
 			return;
 #endif
 			try
@@ -225,7 +226,8 @@ namespace Barotrauma
 
 		private static readonly string[] prohibitedHooks = {
 			"Barotrauma.Lua",
-			"Barotrauma.Cs"
+			"Barotrauma.Cs",
+			"ContentPackageManager",
 		};
 		public void HookMethod(string identifier, MethodInfo method, LuaCsPatch patch, HookMethodType hookType = HookMethodType.Before, ACsMod owner = null)
 		{
@@ -377,7 +379,7 @@ namespace Barotrauma
 		public T Call<T>(string name, params object[] args)
 		{
 #if CLIENT
-			if (GameMain.GameSession?.IsRunning == false && GameMain.IsSingleplayer)
+			if (GameMain.GameSession?.IsRunning == false && GameMain.IsSingleplayer && GameMain.MainThread != Thread.CurrentThread)
 				return default(T);
 #endif
 			if (GameMain.LuaCs == null) return default(T);

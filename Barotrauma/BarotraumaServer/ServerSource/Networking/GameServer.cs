@@ -295,7 +295,7 @@ namespace Barotrauma.Networking
                 SendConsoleMessage("Granted all permissions to " + newClient.Name + ".", newClient);
             }
 
-            GameMain.LuaCs.Hook.Call("clientConnected", newClient);
+            GameMain.LuaCs.Hook.Call("client.connected", newClient);
 
 
             SendChatMessage($"ServerMessage.JoinedServer~[client]={clName}", ChatMessageType.Server, null, changeType: PlayerConnectionChangeType.Joined);
@@ -2901,7 +2901,7 @@ namespace Barotrauma.Networking
         {
             if (client == null) return;
 
-            GameMain.LuaCs.Hook.Call("clientDisconnected", client);
+            GameMain.LuaCs.Hook.Call("client.disconnected", client);
 
             if (gameStarted && client.Character != null)
             {

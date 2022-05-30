@@ -1043,7 +1043,7 @@ namespace Barotrauma
             }
 #endif
 
-            GameMain.LuaCs.Hook.Call("characterCreated", new object[] { newCharacter });
+            GameMain.LuaCs.Hook.Call("character.created", new object[] { newCharacter });
 
             return newCharacter;
         }
@@ -1441,6 +1441,8 @@ namespace Barotrauma
         {
             if (info?.Job == null) { return; }
             info.Job.GiveJobItems(this, spawnPoint);
+
+            GameMain.LuaCs.Hook.Call("character.giveJobItems", this, spawnPoint);
         }
 
         public void GiveIdCardTags(WayPoint spawnPoint, bool createNetworkEvent = false)

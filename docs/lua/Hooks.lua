@@ -25,7 +25,7 @@ function Hook.Add(eventName, hookName, func) end
 -- @tparam string hookname hook name
 -- @realm shared
 -- @usage 
--- Hook.Remove("characterDeath", "characterDeathExample")
+-- Hook.Remove("character.death", "characterDeathExample")
 function Hook.Remove(eventName, hookName) end
 
 --- Calls a hook.
@@ -34,7 +34,7 @@ function Hook.Remove(eventName, hookName) end
 -- @realm shared
 -- @usage 
 -- Hook.Add("think", "happyDebuggingSuckers", function()
---      Hook.Call("characterDead", {}) -- ruin someone's day
+--      Hook.Call("character.death", {}) -- ruin someone's day
 -- end)
 function Hook.Call(eventName, parameters) end
 
@@ -62,12 +62,13 @@ function chatMessage(message, sender) end
 --- Called when a client connects
 -- @tparam client connectedClient
 -- @realm shared
-function clientConnected(connectedClient) end
+function client.connected(connectedClient) end
 
 --- Called when a client disconnects
 -- @tparam client disconnectedClient
 -- @realm shared
-function clientDisconnected(disconnectedClient) end
+function client.disconnected(disconnectedClient) end
+
 
 --- Called on round start
 -- @realm shared
@@ -77,23 +78,35 @@ function roundStart() end
 -- @realm shared
 function roundEnd() end
 
---- Gets callled everytime a character is created.
+--- Gets called everytime a character is created.
 -- @tparam character createdCharacter
 -- @realm shared
-function characterCreated(createdCharacter) end
+function character.created(createdCharacter) end
+
+--- Gets called after the character is given the job items, useful if your script only wants to check for newly created characters in campaign gamemode.
+-- @tparam character character
+-- @tparam WayPoint waypoint
+-- @realm shared
+function character.giveJobItems(character, waypoint) end
 
 --- Gets called everytime a Character dies.
 -- @tparam Character character A dead Character.
 -- @realm shared
 -- @usage 
--- Hook.Add("characterDeath", "characterDeathExample", function(character)
+-- Hook.Add("character.death", "characterDeathExample", function(character)
 --    print(character)
 -- end)
-function characterDeath(character) end
+function character.death(character) end
 
---- Gets called every time an affliction is applied.
+--- Gets called every time an affliction is applied to a character.
 -- @realm shared
-function afflictionApplied(affliction, characterHealth, limb) end
+function character.applyAffliction(character, limbHealth, newAffliction, allowStacking) end
+
+--- Gets gets called every time an attack damage.
+-- @realm shared
+function character.applyDamage(character, attackResult, hitLimb, allowStacking) end
+
+
 --- Gets called every time an affliction updates.
 -- @realm shared
 function afflictionUpdate(affliction, characterHealth, limb) end
@@ -125,7 +138,15 @@ function item.interact(item, characterPicker, ignoreRequiredItemsBool, forceSele
 
 --- Gets called every time two items are combined, eg: drag an half empty magazine to another half empty magazine to combine
 -- @realm shared
-function item.combine(item, otherItem, userCharacter) end
+function item.combine(item, deconstructor, characterUser, allowRemove) end
+
+--- Gets called every time an item is deconstructed. Return true to prevent item from being removed.
+-- @realm shared
+function item.deconstructed(item, otherItem, userCharacter) end
+
+--- Gets called every time an item is created.
+-- @realm shared
+function item.created(item) end
 
 --- Gets called every time an item is moved from one inventory slot to another, return true to cancel
 -- @realm shared

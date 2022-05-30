@@ -36,6 +36,12 @@ RegisterBarotrauma("CharacterParams+SoundParams")
 
 RegisterBarotrauma("Item")
 RegisterBarotrauma("DeconstructItem")
+RegisterBarotrauma("FabricationRecipe")
+RegisterBarotrauma("PreferredContainer")
+RegisterBarotrauma("SwappableItem")
+RegisterBarotrauma("FabricationRecipe+RequiredItemByIdentifier")
+RegisterBarotrauma("FabricationRecipe+RequiredItemByTag")
+
 RegisterBarotrauma("Submarine")
 RegisterBarotrauma("INetSerializableStruct")
 RegisterBarotrauma("Networking.Client")
@@ -66,14 +72,18 @@ RegisterBarotrauma("ItemPrefab")
 RegisterBarotrauma("SerializableProperty")
 RegisterBarotrauma("InputType")
 
-RegisterBarotrauma("StatusEffect")
 RegisterBarotrauma("FireSource")
+
+RegisterBarotrauma("StatusEffect")
+
 RegisterBarotrauma("ContentPackageManager")
 RegisterBarotrauma("ContentPackageManager+PackageSource")
 RegisterBarotrauma("ContentPackageManager+EnabledPackages")
 RegisterBarotrauma("ContentPackage")
 RegisterBarotrauma("RegularPackage")
 RegisterBarotrauma("CorePackage")
+RegisterBarotrauma("ContentXElement")
+
 RegisterBarotrauma("SubmarineBody")
 RegisterBarotrauma("Explosion")
 RegisterBarotrauma("Networking.ServerSettings")
@@ -226,6 +236,8 @@ RegisterBarotrauma("SubmarineInfo")
 RegisterBarotrauma("MapCreatures.Behavior.BallastFloraBehavior")
 RegisterBarotrauma("MapCreatures.Behavior.BallastFloraBranch")
 
+RegisterBarotrauma("PetBehavior")
+
 Register("Microsoft.Xna.Framework.Vector2")
 Register("Microsoft.Xna.Framework.Vector3")
 Register("Microsoft.Xna.Framework.Vector4")
@@ -233,3 +245,19 @@ Register("Microsoft.Xna.Framework.Color")
 Register("Microsoft.Xna.Framework.Point")
 Register("Microsoft.Xna.Framework.Rectangle")
 Register("Microsoft.Xna.Framework.Matrix")
+
+local friend = Register("Steamworks.Friend")
+
+LuaUserData.RemoveMember(friend, "InviteToGame")
+LuaUserData.RemoveMember(friend, "SendMessage")
+
+local workshopItem = Register("Steamworks.Ugc.Item")
+
+LuaUserData.RemoveMember(workshopItem, "Subscribe")
+LuaUserData.RemoveMember(workshopItem, "DownloadAsync")
+LuaUserData.RemoveMember(workshopItem, "Unsubscribe")
+LuaUserData.RemoveMember(workshopItem, "AddFavorite")
+LuaUserData.RemoveMember(workshopItem, "RemoveFavorite")
+LuaUserData.RemoveMember(workshopItem, "Vote")
+LuaUserData.RemoveMember(workshopItem, "GetUserVote")
+LuaUserData.RemoveMember(workshopItem, "Edit")

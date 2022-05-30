@@ -58,6 +58,8 @@ Same as above, but instead you need to copy/replace the following files:
 
 ## Using Lua For Barotrauma from scratch
 
+<iframe width="560" height="315" src="https://www.youtube.com/embed/ov0MUOUVB7A" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 1 - Download [latest version of LuaForBarotrauma](https://github.com/evilfactory/Barotrauma-lua-attempt/releases/tag/latest), choose the correct platform in the assets drop down.<br>
 
 2 - Extract the zip file<br>

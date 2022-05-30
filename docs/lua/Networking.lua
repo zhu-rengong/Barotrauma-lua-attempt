@@ -8,6 +8,14 @@ Class providing networking related tasks.
 
 local Networking = {}
 
+---
+-- @realm server
+Networking.FileSenderMaxPacketsPerUpdate = 4
+
+---
+-- @realm server
+Networking.LastClientListUpdateID = 0
+
 --- Send a post HTTP Request, callback is called with an argument result string.
 -- @realm server 
 function Networking.RequestPostHTTP(url, callback, textData, contentType) end
@@ -36,4 +44,12 @@ function Networking.Receive(netMessageName, callback) end
 --- Writes again the lobby data of a client, useful for syncing submarine lists or other lobby options.
 -- @realm server 
 function Networking.ClientWriteLobby(client) end
+
+--- Creates an entity event.
+-- @realm shared
+function Networking.CreateEntityEvent(entity, extraData) end
+
+--- Updates the client permissions, call this after you i've changed the permissions of a client, so they are notified about it.
+-- @realm server
+function Networking.UpdateClientPermissions(client) end
 

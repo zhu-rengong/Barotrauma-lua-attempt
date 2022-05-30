@@ -17,19 +17,19 @@ jobs:
         run: mkdir -p doxygen/build ; mkdir -p doxygen/build/baro-server ; mkdir -p doxygen/build/baro-client
 
       - name: Build server documentation
-        uses: mattnotmitt/doxygen-action@v1
+        uses: mattnotmitt/doxygen-action@v1.9.1
         with:
           working-directory: 'doxygen/baro-server'
           doxyfile-path: './Doxyfile'
 
       - name: Build client documentation
-        uses: mattnotmitt/doxygen-action@v1
+        uses: mattnotmitt/doxygen-action@v1.9.1
         with:
           working-directory: 'doxygen/baro-client'
           doxyfile-path: './Doxyfile'
 
       - name: Build containing documentation
-        uses: mattnotmitt/doxygen-action@v1
+        uses: mattnotmitt/doxygen-action@v1.9.1
         with:
           working-directory: 'doxygen/'
           doxyfile-path: './Doxyfile'
