@@ -424,6 +424,12 @@ namespace Barotrauma
 
             Do(typeof(System.Object));
 
+            #region Steam
+            Do(typeof(Steamworks.Friend));
+            Do(typeof(Steamworks.Ugc.Item));
+
+            #endregion
+
             Do(typeof(LuaByte), "Byte");
             Do(typeof(LuaUShort), "UShort");
             Do(typeof(LuaFloat), "Float");
@@ -439,6 +445,7 @@ namespace Barotrauma
 
             Do(typeof(SerializableProperty));
 
+            #region String
             Do(typeof(AddedPunctuationLString));
             Do(typeof(CapitalizeLString));
             Do(typeof(ConcatLString));
@@ -465,6 +472,7 @@ namespace Barotrauma
 
             Do(typeof(Identifier));
             Do(typeof(LanguageIdentifier));
+            #endregion
 
             Do(typeof(ContentFile));
             Do(typeof(ContentPackage));
@@ -473,6 +481,7 @@ namespace Barotrauma
             Do(typeof(ContentPackageManager.EnabledPackages));
             Do(typeof(RegularPackage));
             Do(typeof(CorePackage));
+            Do(typeof(ContentXElement));
 
 
             Do(typeof(Camera));
@@ -604,6 +613,10 @@ namespace Barotrauma
             Do(typeof(CharacterParams.SoundParams));
             Do(typeof(CharacterParams.SubParam));
             Do(typeof(CharacterParams.TargetParams));
+
+            Do(typeof(MapCreatures.Behavior.BallastFloraBehavior));
+            Do(typeof(MapCreatures.Behavior.BallastFloraBranch));
+            Do(typeof(PetBehavior));
             #endregion
 
             Do(typeof(OrderCategory));
@@ -894,6 +907,10 @@ namespace Barotrauma
             #endregion
 
             #region Geometry
+#if CLIENT
+            Do(typeof(Microsoft.Xna.Framework.Graphics.SpriteBatch));
+            Do(typeof(Microsoft.Xna.Framework.Graphics.Texture2D));
+#endif
             Do(typeof(Microsoft.Xna.Framework.Matrix), "Matrix");
             Do(typeof(Microsoft.Xna.Framework.Vector2), "Vector2");
             Do(typeof(Microsoft.Xna.Framework.Vector3), "Vector3");
@@ -901,7 +918,7 @@ namespace Barotrauma
             Do(typeof(Microsoft.Xna.Framework.Color), "Color");
             Do(typeof(Microsoft.Xna.Framework.Point), "Point");
             Do(typeof(Microsoft.Xna.Framework.Rectangle), "Rectangle");
-#endregion
+            #endregion
 
             #region Sprite
             Do(typeof(Sprite));
@@ -922,7 +939,11 @@ namespace Barotrauma
 
             #region Craft
             Do(typeof(DeconstructItem));
+            Do(typeof(PreferredContainer));
+            Do(typeof(SwappableItem));
             Do(typeof(FabricationRecipe));
+            Do(typeof(FabricationRecipe.RequiredItemByIdentifier));
+            Do(typeof(FabricationRecipe.RequiredItemByTag));
             Do(typeof(FabricationRecipe.RequiredItem));
             #endregion
 
@@ -1072,7 +1093,32 @@ namespace Barotrauma
             Do(typeof(Widget));
 #endif
             Do(typeof(Alignment));
-#endregion
+            #endregion
+
+            #region Lights & Sounds
+#if CLIENT
+            Do(typeof(Lights.LightManager));
+            Do(typeof(Lights.LightSource));
+            Do(typeof(Lights.LightSourceParams));
+
+
+            Do(typeof(Sounds.SoundManager));
+            Do(typeof(Sounds.OggSound));
+            Do(typeof(Sounds.VideoSound));
+            Do(typeof(Sounds.VoipSound));
+            Do(typeof(Sounds.SoundChannel));
+            Do(typeof(RoundSound));
+            Do(typeof(Items.Components.ItemSound));
+
+            Do(typeof(Sounds.LowpassFilter));
+            Do(typeof(Sounds.HighpassFilter));
+            Do(typeof(Sounds.BandpassFilter));
+            Do(typeof(Sounds.NotchFilter));
+            Do(typeof(Sounds.HighShelfFilter));
+            Do(typeof(Sounds.LowShelfFilter));
+            Do(typeof(Sounds.PeakFilter));
+#endif
+            #endregion
 
             #region Screen
 #if CLIENT
@@ -1103,6 +1149,7 @@ namespace Barotrauma
             Do(typeof(LuaCsTimer), "Timer");
             Do(typeof(LuaCsFile), "File");
             Do(typeof(LuaCsNetworking), "Networking");
+            Do(typeof(LuaCsSteam), "Steam");
             Do(typeof(LuaCsSetup.LuaCsModStore), "ModStore");
             Do(typeof(LuaCsSetup.LuaCsModStore.CsModStore), "ModStore.CsModStore");
             Do(typeof(LuaCsSetup.LuaCsModStore.LuaModStore), "ModStore.LuaModStore");
