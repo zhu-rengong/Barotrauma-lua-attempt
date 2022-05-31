@@ -223,5 +223,19 @@ namespace Barotrauma
 			var descriptor = (StandardUserDataDescriptor)IUUD;
 			descriptor.RemoveMember(memberName);
 		}
+
+		/// <summary>
+		/// Converts a Lua value to a desired CLR type and wraps it in a userdata to avoid automatic conversions.
+		/// Example: a Lua script needs to pass a List`1 to a CLR method expecting System.Object, MoonSharp gets
+		/// in the way by converting the List`1 to a MoonSharp.Interpreter.Table and breaking everything.
+		/// Wrapping the value in a userdata preserves the original type during conversions.
+		/// </summary>
+		/// <param name="scriptObject">Lua value to conert and wrap in a userdata.</param>
+		/// <param name="desiredType">The CLR type of the object to convert the Lua value to. Uses MoonSharp ScriptToClr converters. Lua scripts can obtain Types from descriptors.</param>
+		/// <returns>A userdata that wraps the Lua value converted to an object of the desired type.</returns>
+		public static DynValue CreateUserDataOfType(DynValue scriptObject, Type desiredType)
+		{
+			return UserData.Create(scriptObject.ToObject(desiredType));
+		}
 	}
 }
