@@ -225,7 +225,7 @@ namespace Barotrauma
 		}
 
 		/// <summary>
-		/// Converts a Lua value to a desired CLR type and wraps it in a userdata to avoid automatic conversions.
+		/// Converts a Lua value to a CLR object of a desired type and wraps it in a userdata.
 		/// Example: a Lua script needs to pass a List`1 to a CLR method expecting System.Object, MoonSharp gets
 		/// in the way by converting the List`1 to a MoonSharp.Interpreter.Table and breaking everything.
 		/// Wrapping the value in a userdata preserves the original type during conversions.
