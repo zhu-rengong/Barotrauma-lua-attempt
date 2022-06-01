@@ -6,6 +6,16 @@ LuaUserData.AddMethod(LuaUserData.RegisterType("Barotrauma.LuaUserData"), "AddCa
     print("AddCallMetaMember is deprecated, use debug.setmetatable instead.")
 end)
 
+local networking = LuaUserData.RegisterType("Barotrauma.LuaCsNetworking")
+
+LuaUserData.AddMethod(networking, "RequestGetHTTP", function (url, callback, data, contentType)
+    Networking.HttpGet(url, callback, data, contentType)
+end)
+
+LuaUserData.AddMethod(networking, "RequestPostHTTP", function (url, callback, data, contentType)
+    Networking.HttpPost(url, callback, data, contentType)
+end)
+
 compatibilityLib.CreateVector2 = Vector2.__new
 compatibilityLib.CreateVector3 = Vector3.__new
 compatibilityLib.CreateVector4 = Vector4.__new
