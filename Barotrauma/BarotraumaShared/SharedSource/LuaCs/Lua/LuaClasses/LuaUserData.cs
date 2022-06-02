@@ -225,17 +225,35 @@ namespace Barotrauma
 		}
 
 		/// <summary>
-		/// Converts a Lua value to a CLR object of a desired type and wraps it in a userdata.
-		/// Example: a Lua script needs to pass a List`1 to a CLR method expecting System.Object, MoonSharp gets
-		/// in the way by converting the List`1 to a MoonSharp.Interpreter.Table and breaking everything.
-		/// Wrapping the value in a userdata preserves the original type during conversions.
+		/// See <see cref="CreateUserDataFromType"/>.
 		/// </summary>
 		/// <param name="scriptObject">Lua value to convert and wrap in a userdata.</param>
-		/// <param name="desiredType">The CLR type of the object to convert the Lua value to. Uses MoonSharp ScriptToClr converters. Lua scripts can obtain Types from descriptors.</param>
-		/// <returns>A userdata that wraps the Lua value converted to an object of the desired type.</returns>
-		public static DynValue CreateUserDataOfType(DynValue scriptObject, Type desiredType)
+		/// <param name="desiredTypeDescriptor">Descriptor of the type of the object to convert the Lua value to. Uses MoonSharp ScriptToClr converters.</param>
+		/// <returns>A userdata that wraps the Lua value converted to an object of the desired type as described by <paramref name="desiredTypeDescriptor"/>.</returns>
+		public static DynValue CreateUserDataFromDescriptor(DynValue scriptObject, IUserDataDescriptor desiredTypeDescriptor)
 		{
-			return UserData.Create(scriptObject.ToObject(desiredType));
+			return UserData.Create(scriptObject.ToObject(desiredTypeDescriptor.Type), desiredTypeDescriptor);
+		}
+
+		/// <summary>
+		/// Converts a Lua value to a CLR object of a desired type and wraps it in a userdata.
+		/// If the type is not registered, then a new <see cref="MoonSharp.Interpreter.Interop.StandardUserDataDescriptor"/> will be created and used.
+		/// The goal of this method is to allow Lua scripts to create userdata to wrap certain data without having to register types.
+		/// <remarks>Wrapping the value in a userdata preserves the original type during script-to-CLR conversions.</remarks>
+		/// <example>A Lua script needs to pass a List`1 to a CLR method expecting System.Object, MoonSharp gets
+		/// in the way by converting the List`1 to a MoonSharp.Interpreter.Table and breaking everything.
+		/// Registering the List`1 type can break other scripts relying on default converters, so instead
+		/// it is better to manually wrap the List`1 object into a userdata.
+		/// </example>
+		/// </summary>
+		/// <param name="scriptObject">Lua value to convert and wrap in a userdata.</param>
+		/// <param name="desiredType">Type describing the CLR type of the object to convert the Lua value to.</param>
+		/// <returns>A userdata that wraps the Lua value converted to an object of the desired type.</returns>
+		public static DynValue CreateUserDataFromType(DynValue scriptObject, Type desiredType)
+		{
+			IUserDataDescriptor descriptor = UserData.GetDescriptorForType(desiredType, true);
+			descriptor ??= new StandardUserDataDescriptor(desiredType, InteropAccessMode.Default);
+			return CreateUserDataFromDescriptor(scriptObject, descriptor);
 		}
 	}
 }
