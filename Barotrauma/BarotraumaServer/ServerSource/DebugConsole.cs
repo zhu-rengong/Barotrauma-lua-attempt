@@ -1265,6 +1265,7 @@ namespace Barotrauma
                 GameMain.LuaCs.Initialize();
             }));
 
+#if WINDOWS
             commands.Add(new Command("install_cl_lua", "Installs Client-Side Lua into your client.", (string[] args) =>
             {
                 ContentPackage luaPackage = LuaCsSetup.GetPackage("Lua For Barotrauma");
@@ -1302,7 +1303,7 @@ namespace Barotrauma
                     File.Move("System.Reflection.Metadata.dll", "System.Reflection.Metadata.dll.old", true);
                     File.Move("System.Collections.Immutable.dll", "System.Collections.Immutable.dll.old", true);
                     File.Move("System.Runtime.CompilerServices.Unsafe.dll", "System.Runtime.CompilerServices.Unsafe.dll.old", true);
-                    
+
                     foreach (string file in filesToCopy)
                     {
                         if (File.Exists(file))
@@ -1313,6 +1314,7 @@ namespace Barotrauma
                     }
 
                     File.WriteAllText(LuaCsSetup.VersionFile, luaPackage.ModVersion);
+                    File.WriteAllText("LuaDedicatedServer.bat", "\"%LocalAppData%/Daedalic Entertainment GmbH/Barotrauma/WorkshopMods/Installed/2559634234/Binary/DedicatedServer.exe\"");
                 }
                 catch (UnauthorizedAccessException e)
                 {
@@ -1329,6 +1331,8 @@ namespace Barotrauma
 
                 GameMain.Server.SendChatMessage("Client-Side Lua installed, restart your game to apply changes.", ChatMessageType.ServerMessageBox);
             }));
+
+#endif
 
             commands.Add(new Command("randomizeseed", "randomizeseed: Toggles level seed randomization on/off.", (string[] args) =>
             {
