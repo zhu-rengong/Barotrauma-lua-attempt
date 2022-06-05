@@ -169,6 +169,7 @@ RegisterBarotrauma("PvPMode")
 RegisterBarotrauma("Mission")
 RegisterBarotrauma("CampaignMode")
 RegisterBarotrauma("CoOpMode")
+RegisterBarotrauma("MultiPlayerCampaign")
 
 RegisterBarotrauma("CampaignMetadata")
 RegisterBarotrauma("Wallet")
