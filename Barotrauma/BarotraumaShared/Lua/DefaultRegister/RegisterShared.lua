@@ -16,6 +16,7 @@ RegisterBarotrauma("LanguageIdentifier")
 
 RegisterBarotrauma("Job")
 RegisterBarotrauma("JobPrefab")
+RegisterBarotrauma("JobVariant")
 RegisterBarotrauma("Level")
 RegisterBarotrauma("WayPoint")
 
