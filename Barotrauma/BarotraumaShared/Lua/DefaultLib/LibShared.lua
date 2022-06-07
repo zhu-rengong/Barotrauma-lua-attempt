@@ -32,6 +32,7 @@ defaultLib["CauseOfDeathType"] = CreateEnum("Barotrauma.CauseOfDeathType")
 defaultLib["CharacterTeamType"] = CreateEnum("Barotrauma.CharacterTeamType")
 defaultLib["ClientPermissions"] = CreateEnum("Barotrauma.Networking.ClientPermissions")
 defaultLib["OrderCategory"] = CreateEnum("Barotrauma.OrderCategory")
+defaultLib["WearableType"] = CreateEnum("Barotrauma.WearableType")
 defaultLib["InputType"] = CreateStatic("Barotrauma.InputType")
 
 

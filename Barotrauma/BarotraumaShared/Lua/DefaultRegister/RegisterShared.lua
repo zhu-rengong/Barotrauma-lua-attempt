@@ -105,6 +105,7 @@ end
 LuaUserData.MakeFieldAccessible(RegisterBarotrauma("Items.Components.CustomInterface"), "customInterfaceElementList")
 RegisterBarotrauma("Items.Components.CustomInterface+CustomInterfaceElement")
 
+RegisterBarotrauma("WearableSprite")
 
 RegisterBarotrauma("AIController")
 RegisterBarotrauma("EnemyAIController")
