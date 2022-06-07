@@ -18,11 +18,11 @@ Networking.LastClientListUpdateID = 0
 
 --- Send a post HTTP Request, callback is called with an argument result string.
 -- @realm server 
-function Networking.RequestPostHTTP(url, callback, textData, contentType) end
+function Networking.HttpGet(url, callback, textData, contentType) end
 
 --- Send a get HTTP Request, callback is called with an argument result string.
 -- @realm server 
-function Networking.RequestGetHTTP(url, callback) end
+function Networking.HttpPost(url, callback) end
 
 --- Creates a new net message, returns an IWriteMessage
 -- @treturn IWriteMessage netMessage
