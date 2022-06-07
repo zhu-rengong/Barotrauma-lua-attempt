@@ -1049,6 +1049,7 @@ namespace Barotrauma
 
             (gameSession.GameMode as TestGameMode).OnRoundEnd = () =>
             {
+                GameMain.LuaCs.Hook.Call("roundEnd");
                 Submarine.Unload();
                 GameMain.SubEditorScreen.Select();
             };
