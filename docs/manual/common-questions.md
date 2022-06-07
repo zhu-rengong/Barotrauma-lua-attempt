@@ -107,3 +107,16 @@ local chatMessage = ChatMessage.Create("Sender name", "text here", ChatMessageTy
 chatMessage.Color = Color(255, 255, 0, 255)
 Game.SendDirectChatMessage(chatMessage, Client.ClientList[1])
 ```
+
+## How do i teleport a character or an item?
+
+```
+
+-- teleports an item to 0, 0
+local item = Item.ItemList[1]
+item.SetTransform(Vector2(0, 0), item.Rotation)
+
+-- teleports a character to 0, 0
+local character = Client.ClientList[1].Character
+character.TeleportTo(Vector2(0, 0))
+```
