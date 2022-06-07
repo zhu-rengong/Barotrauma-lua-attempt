@@ -1045,6 +1045,8 @@ namespace Barotrauma
             GameSession gameSession = new GameSession(backedUpSubInfo, "", GameModePreset.TestMode, CampaignSettings.Empty, null);
             gameSession.StartRound(null, false);
 
+            GameMain.LuaCs.Hook.Call("roundStart");
+
             (gameSession.GameMode as TestGameMode).OnRoundEnd = () =>
             {
                 Submarine.Unload();
