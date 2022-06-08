@@ -8,13 +8,9 @@ end)
 
 local networking = LuaUserData.RegisterType("Barotrauma.LuaCsNetworking")
 
-LuaUserData.AddMethod(networking, "RequestGetHTTP", function (url, callback, data, contentType)
-    Networking.HttpGet(url, callback, data, contentType)
-end)
+LuaUserData.AddMethod(networking, "RequestGetHTTP", Networking.HttpGet)
 
-LuaUserData.AddMethod(networking, "RequestPostHTTP", function (url, callback, data, contentType)
-    Networking.HttpPost(url, callback, data, contentType)
-end)
+LuaUserData.AddMethod(networking, "RequestPostHTTP", Networking.HttpPost)
 
 compatibilityLib.CreateVector2 = Vector2.__new
 compatibilityLib.CreateVector3 = Vector3.__new
