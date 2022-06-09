@@ -284,16 +284,18 @@ namespace Barotrauma
 
 		public object CallLuaFunction(object function, params object[] arguments)
 		{
-			try
+			lock (lua)
 			{
-				return lua.Call(function, arguments);
+				try
+				{
+					return lua.Call(function, arguments);
+				}
+				catch (Exception e)
+				{
+					HandleException(e);
+				}
+				return null;
 			}
-			catch (Exception e)
-			{
-				HandleException(e);
-			}
-
-			return null;
 		}
 
 		private void SetModulePaths(string[] str)
@@ -359,6 +361,7 @@ namespace Barotrauma
 			}
 			else Config = new LuaCsSetupConfig();
 
+			bool csActive = GetPackage("CsForBarotrauma", false, true) != null;
 
 			LuaScriptLoader = new LuaScriptLoader();
 			LuaScriptLoader.ModulePaths = new string[] { };
@@ -417,12 +420,12 @@ namespace Barotrauma
 			lua.Globals["Steam"] = Steam;
 
 			lua.Globals["ExecutionNumber"] = executionNumber;
+			lua.Globals["CSActive"] = csActive;
 
 			lua.Globals["SERVER"] = IsServer;
 			lua.Globals["CLIENT"] = IsClient;
 
-
-			if (GetPackage("CsForBarotrauma", false, true) != null)
+			if (csActive)
 			{
 				PrintMessage("Cs! Version " + AssemblyInfo.GitRevision);
 
