@@ -1,5 +1,5 @@
-local Register = LuaSetup.Register
-local RegisterBarotrauma = LuaSetup.RegisterBarotrauma
+local Register = LuaSetup.LuaUserData.RegisterType
+local RegisterBarotrauma = LuaSetup.LuaUserData.RegisterTypeBarotrauma
 
 
 local localizedStrings = {
@@ -9,6 +9,8 @@ local localizedStrings = {
 for key, value in pairs(localizedStrings) do
     RegisterBarotrauma(value)
 end
+
+RegisterBarotrauma("Character+TeamChangeEventData")
 
 RegisterBarotrauma("Networking.GameServer")
 

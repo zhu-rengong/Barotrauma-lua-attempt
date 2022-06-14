@@ -1,8 +1,8 @@
 local defaultLib = {}
 
-local AddCallMetaTable = LuaSetup.AddCallMetaTable
-local CreateStatic = LuaSetup.CreateStatic
-local CreateEnum = LuaUserData.CreateEnumTable
+local AddCallMetaTable = LuaSetup.LuaUserData.AddCallMetaTable
+local CreateStatic = LuaSetup.LuaUserData.CreateStatic
+local CreateEnum = LuaSetup.LuaUserData.CreateEnumTable
 
 require("DefaultLib/Utils/SteamApi")
 

@@ -40,7 +40,7 @@ namespace Barotrauma
 			return UserData.RegisterType(type);
 		}
 
-		public static void UnregisterType(string typeName)
+		public static void UnregisterType(string typeName, bool deleteHistory = false)
 		{
 			Type type = GetType(typeName);
 
@@ -49,7 +49,7 @@ namespace Barotrauma
 				throw new ScriptRuntimeException($"Tried to unregister a type that doesn't exist: {typeName}.");
 			}
 
-			UserData.UnregisterType(type);
+			UserData.UnregisterType(type, deleteHistory);
 		}
 		public static IUserDataDescriptor RegisterGenericType(string typeName, params string[] typeNameArguements)
 		{
@@ -192,6 +192,7 @@ namespace Barotrauma
 			}
 
 			var descriptor = (StandardUserDataDescriptor)IUUD;
+
 			descriptor.RemoveMember(methodName);
 			descriptor.AddMember(methodName, new ObjectCallbackMemberDescriptor(methodName, (object arg1, ScriptExecutionContext arg2, CallbackArguments arg3) =>
 			{

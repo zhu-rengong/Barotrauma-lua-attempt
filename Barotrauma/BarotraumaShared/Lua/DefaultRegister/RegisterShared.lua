@@ -1,5 +1,5 @@
-local Register = LuaSetup.Register
-local RegisterBarotrauma = LuaSetup.RegisterBarotrauma
+local Register = LuaSetup.LuaUserData.RegisterType
+local RegisterBarotrauma = LuaSetup.LuaUserData.RegisterTypeBarotrauma
 
 Register("System.TimeSpan")
 Register("System.Exception")
@@ -7,6 +7,9 @@ Register("System.Exception")
 RegisterBarotrauma("LuaByte")
 RegisterBarotrauma("LuaUShort")
 RegisterBarotrauma("LuaFloat")
+
+RegisterBarotrauma("Range`1[System.Single]")
+RegisterBarotrauma("Range`1[System.Int32]")
 
 RegisterBarotrauma("Level+InterestingPosition")
 
@@ -244,6 +247,8 @@ RegisterBarotrauma("PetBehavior")
 RegisterBarotrauma("Decal")
 RegisterBarotrauma("DecalPrefab")
 RegisterBarotrauma("DecalManager")
+
+RegisterBarotrauma("PriceInfo")
 
 Register("Microsoft.Xna.Framework.Vector2")
 Register("Microsoft.Xna.Framework.Vector3")

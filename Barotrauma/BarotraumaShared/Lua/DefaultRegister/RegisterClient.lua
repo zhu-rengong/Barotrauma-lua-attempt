@@ -1,5 +1,5 @@
-local Register = LuaSetup.Register
-local RegisterBarotrauma = LuaSetup.RegisterBarotrauma
+local Register = LuaSetup.LuaUserData.RegisterType
+local RegisterBarotrauma = LuaSetup.LuaUserData.RegisterTypeBarotrauma
 
 local localizedStrings = {
     "LocalizedString", "LimitLString", "WrappedLString", "AddedPunctuationLString", "CapitalizeLString", "ConcatLString", "FallbackLString", "FormattedLString", "InputTypeLString", "JoinLString", "LowerLString", "RawLString", "ReplaceLString", "ServerMsgLString", "SplitLString", "TagLString", "TrimLString", "UpperLString", "StripRichTagsLString",
@@ -65,11 +65,18 @@ RegisterBarotrauma("GUIDropDown")
 RegisterBarotrauma("GUINumberInput")
 RegisterBarotrauma("GUIMessage")
 RegisterBarotrauma("GUIMessageBox")
-RegisterBarotrauma("GUIFont")
-RegisterBarotrauma("GUIFontPrefab")
 RegisterBarotrauma("GUIColorPicker")
 RegisterBarotrauma("GUIProgressBar")
 RegisterBarotrauma("GUICustomComponent")
 RegisterBarotrauma("GUIScissorComponent")
+RegisterBarotrauma("GUIComponentStyle")
+RegisterBarotrauma("GUIFontPrefab")
+RegisterBarotrauma("GUIFont")
+RegisterBarotrauma("GUISpritePrefab")
+RegisterBarotrauma("GUISprite")
+RegisterBarotrauma("GUISpriteSheetPrefab")
+RegisterBarotrauma("GUISpriteSheet")
+RegisterBarotrauma("GUICursorPrefab")
+RegisterBarotrauma("GUICursor")
 
 RegisterBarotrauma("Inventory+SlotReference")
