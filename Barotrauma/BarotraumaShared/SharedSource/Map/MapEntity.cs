@@ -293,7 +293,7 @@ namespace Barotrauma
             }
         }
 
-        public virtual void Move(Vector2 amount)
+        public virtual void Move(Vector2 amount, bool ignoreContacts = false)
         {
             rect.X += (int)amount.X;
             rect.Y += (int)amount.Y;
@@ -493,25 +493,33 @@ namespace Barotrauma
 
         protected void InsertToList()
         {
-            int i = 0;
-
             if (Sprite == null)
             {
                 mapEntityList.Add(this);
                 return;
             }
 
+            int i = 0;
             while (i < mapEntityList.Count)
             {
                 i++;
-
-                Sprite existingSprite = mapEntityList[i - 1].Sprite;
-                if (existingSprite == null) continue;
-#if CLIENT
-                if (existingSprite.Texture == this.Sprite.Texture) break;
-#endif
+                if (mapEntityList[i - 1]?.Prefab == Prefab)
+                {
+                    mapEntityList.Insert(i, this);
+                    return;
+                }
             }
 
+#if CLIENT
+            i = 0;
+            while (i < mapEntityList.Count)
+            {
+                i++;
+                Sprite existingSprite = mapEntityList[i - 1].Sprite;
+                if (existingSprite == null) { continue; }
+                if (existingSprite.Texture == this.Sprite.Texture) { break; }
+            }
+#endif
             mapEntityList.Insert(i, this);
         }
 
@@ -563,6 +571,10 @@ namespace Barotrauma
         {
             mapEntityUpdateTick++;
 
+#if CLIENT
+            var sw = new System.Diagnostics.Stopwatch();
+            sw.Start();
+#endif
             if (mapEntityUpdateTick % MapEntityUpdateInterval == 0)
             {
 
@@ -597,6 +609,12 @@ namespace Barotrauma
                 Powered.UpdatePower(deltaTime * PoweredUpdateInterval);
             }
 
+#if CLIENT
+            sw.Stop();
+            GameMain.PerformanceCounter.AddElapsedTicks("Update:MapEntity:Misc", sw.ElapsedTicks);
+            sw.Restart();
+#endif
+
             if (mapEntityUpdateTick % MapEntityUpdateInterval == 0)
             {
                 foreach (Item item in Item.ItemList)
@@ -613,9 +631,14 @@ namespace Barotrauma
                 item.Update(deltaTime, cam);
             }
 
+#if CLIENT
+            sw.Stop();
+            GameMain.PerformanceCounter.AddElapsedTicks("Update:MapEntity:Items", sw.ElapsedTicks);
+            sw.Restart();
+#endif
+
             if (mapEntityUpdateTick % MapEntityUpdateInterval == 0)
             {
-
                 UpdateAllProjSpecific(deltaTime * MapEntityUpdateInterval);
 
                 Spawner?.Update();

@@ -204,6 +204,8 @@ namespace Barotrauma
         public static bool CancelQuickStart;
 #endif
 
+        public static ChatMode ActiveChatMode { get; set; } = ChatMode.Radio;
+
         public GameMain(string[] args)
         {
             Content.RootDirectory = "Content";
@@ -284,9 +286,9 @@ namespace Barotrauma
             screen.OnFileDropped(filePath, extension);
         }
 
-        public void ApplyGraphicsSettings()
+        public void ApplyGraphicsSettings(bool recalculateFontsAndStyles = false)
         {
-            void updateConfig()
+            static void updateConfig()
             {
                 var config = GameSettings.CurrentConfig;
                 config.Graphics.Width = GraphicsWidth;
@@ -324,6 +326,12 @@ namespace Barotrauma
             SetWindowMode(GameSettings.CurrentConfig.Graphics.DisplayMode);
 
             defaultViewport = GraphicsDevice.Viewport;
+
+            if (recalculateFontsAndStyles)
+            {
+                GUIStyle.RecalculateFonts();
+                GUIStyle.RecalculateSizeRestrictions();
+            }
 
             ResolutionChanged?.Invoke();
         }
@@ -549,6 +557,10 @@ namespace Barotrauma
             CampaignEndScreen       = new CampaignEndScreen();
 
         yield return CoroutineStatus.Running;
+
+#if DEBUG
+            LevelGenerationParams.CheckValidity();
+#endif
 
             MainMenuScreen.Select();
 
@@ -940,7 +952,7 @@ namespace Barotrauma
                 updateCount++;
 
                 sw.Stop();
-                PerformanceCounter.AddElapsedTicks("Update total", sw.ElapsedTicks);
+                PerformanceCounter.AddElapsedTicks("Update", sw.ElapsedTicks);
                 PerformanceCounter.UpdateTimeGraph.Update(sw.ElapsedTicks * 1000.0f / (float)Stopwatch.Frequency);
             }
 
@@ -959,6 +971,23 @@ namespace Barotrauma
             Timing.Accumulator = 0.0f;
         }
 
+        private void FixRazerCortex()
+        {
+#if WINDOWS
+            //Razer Cortex's overlay is broken.
+            //For whatever reason, it messes up the blendstate and,
+            //because MonoGame reasonably assumes that you don't need
+            //to touch it if you're setting it to the exact same one
+            //you were already using, it doesn't fix Razer's mess.
+            //Therefore, we need to change the blendstate TWICE:
+            //once to force MonoGame to change it, and then again to
+            //use the blendstate we actually want.
+            var oldBlendState = GraphicsDevice.BlendState;
+            GraphicsDevice.BlendState = oldBlendState == BlendState.Opaque ? BlendState.NonPremultiplied : BlendState.Opaque;
+            GraphicsDevice.BlendState = oldBlendState;
+#endif
+        }
+        
         /// <summary>
         /// This is called when the game should draw itself.
         /// </summary>
@@ -966,7 +995,9 @@ namespace Barotrauma
         {
             Stopwatch sw = new Stopwatch();
             sw.Start();
-
+            
+            FixRazerCortex();
+            
             double deltaTime = gameTime.ElapsedGameTime.TotalSeconds;
 
             if (Timing.FrameLimit > 0)
@@ -1023,7 +1054,7 @@ namespace Barotrauma
             }
 
             sw.Stop();
-            PerformanceCounter.AddElapsedTicks("Draw total", sw.ElapsedTicks);
+            PerformanceCounter.AddElapsedTicks("Draw", sw.ElapsedTicks);
             PerformanceCounter.DrawTimeGraph.Update(sw.ElapsedTicks * 1000.0f / (float)Stopwatch.Frequency);
         }
 
@@ -1059,7 +1090,7 @@ namespace Barotrauma
                 }
 
                 // Update store stock when saving and quitting in an outpost (normally updated when CampaignMode.End() is called)
-                if (GameSession?.Campaign is SinglePlayerCampaign spCampaign && Level.IsLoadedOutpost && spCampaign.Map?.CurrentLocation != null && spCampaign.CargoManager != null)
+                if (GameSession?.Campaign is SinglePlayerCampaign spCampaign && Level.IsLoadedFriendlyOutpost && spCampaign.Map?.CurrentLocation != null && spCampaign.CargoManager != null)
                 {
                     spCampaign.Map.CurrentLocation.AddStock(spCampaign.CargoManager.SoldItems);
                     spCampaign.CargoManager.ClearSoldItemsProjSpecific();
@@ -1185,7 +1216,7 @@ namespace Barotrauma
 
             new GUIButton(new RectTransform(new Vector2(1.0f, 1.0f), linkHolder.RectTransform), TextManager.Get("bugreportgithubform"), style: "MainMenuGUIButton", textAlignment: Alignment.Left)
             {
-                UserData = "https://github.com/Regalis11/Barotrauma/issues/new?template=bug_report.md",
+                UserData = "https://github.com/Regalis11/Barotrauma/issues/new/choose",
                 OnClicked = (btn, userdata) =>
                 {
                     ShowOpenUrlInWebBrowserPrompt(userdata as string);

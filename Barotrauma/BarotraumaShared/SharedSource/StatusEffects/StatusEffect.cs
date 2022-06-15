@@ -132,7 +132,11 @@ namespace Barotrauma
             public enum SpawnPositionType
             {
                 This,
+                //the inventory of the StatusEffect's target entity
                 ThisInventory,
+                //the same inventory the StatusEffect's target entity is in (only valid if the target is an Item)
+                SameInventory,
+                //the inventory of an item in the inventory of the StatusEffect's target entity (e.g. a container in the character's inventory)
                 ContainedInventory
             }
 
@@ -153,7 +157,7 @@ namespace Barotrauma
             /// Should the item spawn even if the container can't contain items of this type
             /// </summary>
             public readonly bool SpawnIfCantBeContained;
-            public readonly float Speed;
+            public readonly float Impulse;
             public readonly float Rotation;
             public readonly int Count;
             public readonly float Spread;
@@ -194,7 +198,7 @@ namespace Barotrauma
 
                 SpawnIfInventoryFull = element.GetAttributeBool("spawnifinventoryfull", false);
                 SpawnIfCantBeContained = element.GetAttributeBool("spawnifcantbecontained", true);
-                Speed = element.GetAttributeFloat("speed", 0.0f);
+                Impulse = element.GetAttributeFloat("impulse", element.GetAttributeFloat("speed", 0.0f));
 
                 Condition = MathHelper.Clamp(element.GetAttributeFloat("condition", 1.0f), 0.0f, 1.0f);
 
@@ -308,11 +312,26 @@ namespace Barotrauma
         private readonly float lifeTime;
         private float lifeTimer;
 
+        public float intervalTimer;
+
         public static readonly List<DurationListElement> DurationList = new List<DurationListElement>();
 
-        public readonly bool CheckConditionalAlways; //Always do the conditional checks for the duration/delay. If false, only check conditional on apply.
+        /// <summary>
+        /// Always do the conditional checks for the duration/delay. If false, only check conditional on apply.
+        /// </summary>
+        public readonly bool CheckConditionalAlways;
 
-        public readonly bool Stackable = true; //Can the same status effect be applied several times to the same targets?
+        /// <summary>
+        /// Only valid if the effect has a duration or delay. Can the effect be applied on the same target(s)s if the effect is already being applied?
+        /// </summary>
+        public readonly bool Stackable = true;
+
+        /// <summary>
+        /// The interval at which the effect is executed. The difference between delay and interval is that effects with a delay find the targets, check the conditions, etc
+        /// immediately when Apply is called, but don't apply the effects until the delay has passed. Effects with an interval check if the interval has passed when Apply is
+        /// called and apply the effects if it has, otherwise they do nothing.
+        /// </summary>
+        public readonly float Interval;
 
 #if CLIENT
         private readonly bool playSoundOnRequiredItemFailure = false;
@@ -320,7 +339,7 @@ namespace Barotrauma
 
         private readonly int useItemCount;
 
-        private readonly bool removeItem, removeCharacter, breakLimb, hideLimb;
+        private readonly bool removeItem, dropContainedItems, removeCharacter, breakLimb, hideLimb;
         private readonly float hideLimbTimer;
 
         public readonly ActionType type = ActionType.OnActive;
@@ -452,6 +471,8 @@ namespace Barotrauma
 
             TargetSlot = element.GetAttributeInt("targetslot", -1);
 
+            Interval = element.GetAttributeFloat("interval", 0.0f);
+
             Range = element.GetAttributeFloat("range", 0.0f);
             Offset = element.GetAttributeVector2("offset", Vector2.Zero);
             string[] targetLimbNames = element.GetAttributeStringArray("targetlimb", null) ?? element.GetAttributeStringArray("targetlimbs", null);
@@ -558,6 +579,7 @@ namespace Barotrauma
                             " - sounds should be defined as child elements of the StatusEffect, not as attributes.");
                         break;
                     case "delay":
+                    case "interval":
                         break;
                     case "range":
                         if (!HasTargetType(TargetType.NearbyCharacters) && !HasTargetType(TargetType.NearbyItems))
@@ -609,6 +631,9 @@ namespace Barotrauma
                     case "remove":
                     case "removeitem":
                         removeItem = true;
+                        break;
+                    case "dropcontaineditems":
+                        dropContainedItems = true;
                         break;
                     case "removecharacter":
                         removeCharacter = true;
@@ -1096,6 +1121,12 @@ namespace Barotrauma
         {
             if (this.type != type) { return; }
 
+            if (intervalTimer > 0.0f)
+            {
+                intervalTimer -= deltaTime;
+                return;
+            }
+
             currentTargets.Clear();
             foreach (ISerializableEntity target in targets)
             {
@@ -1198,6 +1229,12 @@ namespace Barotrauma
                 if (lifeTimer <= 0) { return; }
             }
 
+            if (intervalTimer > 0.0f)
+            {
+                intervalTimer -= deltaTime;
+                return;
+            }
+
             {
                 if (entity is Item item)
                 {
@@ -1255,6 +1292,22 @@ namespace Barotrauma
                 }
             }
 
+            if (dropContainedItems)
+            {
+                for (int i = 0; i < targets.Count; i++)
+                {
+                    if (targets[i] is Item item) 
+                    { 
+                        foreach (var itemContainer in item.GetComponents<ItemContainer>())
+                        {
+                            foreach (var containedItem in itemContainer.Inventory.AllItemsMod)
+                            {
+                                containedItem.Drop(dropper: null);
+                            }
+                        }
+                    }
+                }
+            }
             if (removeItem)
             {
                 for (int i = 0; i < targets.Count; i++)
@@ -1688,7 +1741,7 @@ namespace Barotrauma
                                                 throw new NotImplementedException("Spawn rotation type not implemented: " + chosenItemSpawnInfo.RotationType);
                                         }
                                         body.SetTransform(newItem.SimPosition, rotation);
-                                        body.ApplyLinearImpulse(Rand.Vector(1) * chosenItemSpawnInfo.Speed);
+                                        body.ApplyLinearImpulse(Rand.Vector(1) * chosenItemSpawnInfo.Impulse);
                                     }
                                 }
                                 newItem.Condition = newItem.MaxCondition * chosenItemSpawnInfo.Condition;
@@ -1725,6 +1778,26 @@ namespace Barotrauma
                                             character.Inventory.TryPutItem(item, null, allowedSlots);
                                         }
                                         item.Condition = item.MaxCondition * chosenItemSpawnInfo.Condition;
+                                    });
+                                }
+                            }
+                            break;
+                        case ItemSpawnInfo.SpawnPositionType.SameInventory:
+                            {
+                                Inventory inventory = null;
+                                if (entity is Character character)
+                                {
+                                    inventory = character.Inventory;
+                                }
+                                else if (entity is Item item)
+                                {
+                                    inventory = item.ParentInventory;
+                                }
+                                if (inventory != null)
+                                {
+                                    Entity.Spawner.AddItemToSpawnQueue(chosenItemSpawnInfo.ItemPrefab, inventory, spawnIfInventoryFull: chosenItemSpawnInfo.SpawnIfInventoryFull, onSpawned: (Item newItem) =>
+                                    {
+                                        newItem.Condition = newItem.MaxCondition * chosenItemSpawnInfo.Condition;
                                     });
                                 }
                             }
@@ -1767,6 +1840,8 @@ namespace Barotrauma
             }
 
             ApplyProjSpecific(deltaTime, entity, targets, hull, position, playSound: true);
+
+            intervalTimer = Interval;
 
             static Character CharacterFromTarget(ISerializableEntity target)
             {
