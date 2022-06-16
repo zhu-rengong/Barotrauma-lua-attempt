@@ -11,6 +11,7 @@ end
 
 RegisterBarotrauma("Networking.ClientPeer")
 RegisterBarotrauma("Networking.GameClient")
+RegisterBarotrauma("Networking.VoipCapture")
 
 RegisterBarotrauma("Sounds.SoundManager")
 RegisterBarotrauma("Sounds.OggSound")

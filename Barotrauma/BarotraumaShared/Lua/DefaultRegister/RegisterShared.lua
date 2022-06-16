@@ -45,14 +45,16 @@ RegisterBarotrauma("PreferredContainer")
 RegisterBarotrauma("SwappableItem")
 RegisterBarotrauma("FabricationRecipe+RequiredItemByIdentifier")
 RegisterBarotrauma("FabricationRecipe+RequiredItemByTag")
-
 RegisterBarotrauma("Submarine")
+
 RegisterBarotrauma("INetSerializableStruct")
 RegisterBarotrauma("Networking.Client")
 RegisterBarotrauma("Networking.TempClient")
 RegisterBarotrauma("Networking.NetworkConnection")
 RegisterBarotrauma("Networking.LidgrenConnection")
 RegisterBarotrauma("Networking.SteamP2PConnection")
+RegisterBarotrauma("Networking.VoipQueue")
+
 RegisterBarotrauma("AfflictionPrefab")
 RegisterBarotrauma("Affliction")
 RegisterBarotrauma("AnimController")

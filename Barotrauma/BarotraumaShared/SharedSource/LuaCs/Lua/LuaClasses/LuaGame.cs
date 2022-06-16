@@ -20,6 +20,7 @@ namespace Barotrauma
 
 		public byte MyID => GameMain.Client.ID;
 
+		public ChatMode ActiveChatMode => GameMain.ActiveChatMode;
 
 		public ChatBox ChatBox
 		{
