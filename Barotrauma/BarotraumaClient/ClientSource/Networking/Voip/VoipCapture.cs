@@ -228,9 +228,11 @@ namespace Barotrauma.Networking
                     if (GameMain.WindowActive && SettingsMenu.Instance is null)
                     {
                         bool pttDown = PlayerInput.KeyDown(InputType.Voice) && GUI.KeyboardDispatcher.Subscriber == null;
+                        if (GameMain.LuaCs.Game.ForceVoice != null) { pttDown = GameMain.LuaCs.Game.ForceVoice.Value; }
                         if (pttDown || captureTimer <= 0)
                         {
                             ForceLocal = GameMain.ActiveChatMode == ChatMode.Local;
+                            if (GameMain.LuaCs.Game.ForceLocalVoice != null) { ForceLocal = GameMain.LuaCs.Game.ForceLocalVoice.Value; }
                         }
                         if (GameSettings.CurrentConfig.Audio.VoiceSetting == VoiceMode.Activity)
                         {

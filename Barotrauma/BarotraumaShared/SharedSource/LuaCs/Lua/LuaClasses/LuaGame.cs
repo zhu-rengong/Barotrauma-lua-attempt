@@ -48,6 +48,9 @@ namespace Barotrauma
 				return GameMain.LightManager;
 			}
 		}
+
+		public bool? ForceVoice = null;
+		public bool? ForceLocalVoice = null;
 #else
 
 		public bool IsDedicated
