@@ -479,7 +479,8 @@ modding needs.
 			{
 				try
 				{
-					lua.Call(lua.LoadFile(LuaSetupFile), Path.GetDirectoryName(Path.GetFullPath(LuaSetupFile)));
+					DynValue function = lua.LoadFile(LuaSetupFile);
+					CallLuaFunction(function, Path.GetDirectoryName(Path.GetFullPath(LuaSetupFile)));
 				}
 				catch (Exception e)
 				{
@@ -493,7 +494,7 @@ modding needs.
 				try
 				{
 					string luaPath = Path.Combine(path, "Binary/Lua/LuaSetup.lua");
-					lua.Call(lua.LoadFile(luaPath), Path.GetDirectoryName(luaPath));
+					CallLuaFunction(lua.LoadFile(luaPath), Path.GetDirectoryName(Path.GetFullPath(luaPath)));
 				}
 				catch (Exception e)
 				{
