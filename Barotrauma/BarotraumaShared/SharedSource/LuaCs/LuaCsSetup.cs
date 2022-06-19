@@ -54,15 +54,14 @@ namespace Barotrauma
 			lua.Globals["CsScript"] = CsScript;
 		}
 
-		public LuaGame Game { get; private set; }
 		public LuaScriptLoader LuaScriptLoader { get; private set; }
 
+		public LuaGame Game { get; private set; }
 		public LuaCsHook Hook { get; private set; }
-
 		public LuaCsTimer Timer { get; private set; }
-
 		public LuaCsNetworking Networking { get; private set; }
 		public LuaCsSteam Steam { get; private set; }
+		public LuaCsPerformanceCounter PerformanceCounter { get; private set; }
 
 		public LuaCsModStore ModStore { get; private set; }
 		private LuaRequire require { get; set; }
@@ -333,6 +332,7 @@ namespace Barotrauma
 			Networking = new LuaCsNetworking();
 			Timer = new LuaCsTimer();
 			Steam = new LuaCsSteam();
+			PerformanceCounter = new LuaCsPerformanceCounter();
 			LuaScriptLoader = null;
 			lua = null;
 			Lua = null;
@@ -381,6 +381,7 @@ namespace Barotrauma
 			Networking = new LuaCsNetworking();
 			Timer = new LuaCsTimer();
 			Steam = new LuaCsSteam();
+			PerformanceCounter = new LuaCsPerformanceCounter();
 			Hook.Initialize();
 			ModStore.Initialize();
 
@@ -396,6 +397,7 @@ namespace Barotrauma
 			UserData.RegisterType<LuaCsNetworking>();
 			UserData.RegisterType<LuaCsSteam>();
 			UserData.RegisterType<LuaUserData>();
+			UserData.RegisterType<LuaCsPerformanceCounter>();
 			UserData.RegisterType<IUserDataDescriptor>();
 
 			lua.Globals["printerror"] = (Action<object>)PrintError;
@@ -418,6 +420,7 @@ namespace Barotrauma
 			lua.Globals["File"] = UserData.CreateStatic<LuaCsFile>();
 			lua.Globals["Networking"] = Networking;
 			lua.Globals["Steam"] = Steam;
+			lua.Globals["PerformanceCounter"] = PerformanceCounter;
 
 			lua.Globals["ExecutionNumber"] = executionNumber;
 			lua.Globals["CSActive"] = csActive;

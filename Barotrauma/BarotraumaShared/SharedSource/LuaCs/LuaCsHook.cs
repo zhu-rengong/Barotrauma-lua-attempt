@@ -8,6 +8,7 @@ using System.Text;
 using MoonSharp.Interpreter.Interop;
 using static Barotrauma.LuaCsSetup;
 using System.Threading;
+using System.Diagnostics;
 
 namespace Barotrauma
 {
@@ -372,6 +373,8 @@ namespace Barotrauma
 
 		}
 
+		private Stopwatch performanceMeasurement = new Stopwatch();
+
 		[MoonSharpHidden]
 		public T Call<T>(string name, params object[] args)
 		{
@@ -397,6 +400,11 @@ namespace Barotrauma
 					{
 						try
 						{
+							if (GameMain.LuaCs.PerformanceCounter.EnablePerformanceCounter)
+							{
+								performanceMeasurement.Start();
+							}
+
 							var result = tuple.Item1.func(args);
 							if (result != null)
                             {
@@ -416,6 +424,13 @@ namespace Barotrauma
 									}
 									else lastResult = (T)result;
 								}
+							}
+
+							if (GameMain.LuaCs.PerformanceCounter.EnablePerformanceCounter)
+							{
+								performanceMeasurement.Stop();
+								GameMain.LuaCs.PerformanceCounter.SetHookElapsedTicks(name, key, performanceMeasurement.ElapsedTicks);
+								performanceMeasurement.Reset();
 							}
 						}
 						catch (Exception e)
