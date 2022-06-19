@@ -156,13 +156,13 @@ namespace Barotrauma
 		}
 #endif
 
-		public void HttpPost(string url, LuaCsAction callback, string data, string contentType = "application/json")
+		public void HttpRequest(string url, LuaCsAction callback, string data, string method = "POST", string contentType = "application/json")
 		{
 			try
 			{
 				var httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
 				httpWebRequest.ContentType = contentType;
-				httpWebRequest.Method = "POST";
+				httpWebRequest.Method = method;
 
 				using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
 					streamWriter.Write(data);
@@ -191,33 +191,15 @@ namespace Barotrauma
 			}
 		}
 
-		public void HttpGet(string url, LuaCsAction callback)
-		{
-			try
-			{
-				var httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
+		public void HttpPost(string url, LuaCsAction callback, string data, string contentType = "application/json")
+        {
+			HttpRequest(url, callback, data, "POST", contentType);
+		}
 
-				httpWebRequest.BeginGetResponse(new AsyncCallback((IAsyncResult result) =>
-				{
-					try
-					{
-						var httpResponse = httpWebRequest.EndGetResponse(result);
-						using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
-						{
-							string responseResult = streamReader.ReadToEnd();
-							GameMain.LuaCs.Timer.Wait((object[] par) => { callback(responseResult); }, 0);
-						}
-					}
-					catch (Exception e)
-					{
-						GameMain.LuaCs.Timer.Wait((object[] par) => { callback(e.Message); }, 0);
-					}
-				}), null);
-			}
-			catch (Exception e)
-			{
-				GameMain.LuaCs.Timer.Wait((object[] par) => { callback(e.Message); }, 0);
-			}
+
+		public void HttpGet(string url, LuaCsAction callback, string data, string contentType = "application/json")
+		{
+			HttpRequest(url, callback, data, "GET", contentType);
 		}
 
 		public static async void HandleIncomingConnections(System.Net.HttpListener listener, LuaCsAction onRequestReceived)
