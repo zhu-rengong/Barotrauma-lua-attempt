@@ -3289,12 +3289,6 @@ namespace Barotrauma
 
             commands.Add(new Command("cl_reloadlua", "reloads lua on the client", (string[] args) =>
             {
-                if (GameMain.Client != null && !GameMain.Client.HasPermission(ClientPermissions.ConsoleCommands))
-                {
-                    ThrowError("Command not permitted.");
-                    return;
-                }
-
                 GameMain.LuaCs.Initialize();
             }));
         }
