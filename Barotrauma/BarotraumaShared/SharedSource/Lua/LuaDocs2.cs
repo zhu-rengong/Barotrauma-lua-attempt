@@ -1055,6 +1055,8 @@ namespace Barotrauma
             #endregion
 
             #region GUI
+            Do(typeof(NumberType));
+
 #if CLIENT
             Do(typeof(ScalableFont));
 
@@ -1102,7 +1104,7 @@ namespace Barotrauma
             Do(typeof(GUIMessage));
             Do(typeof(GUIMessageBox));
             Do(typeof(GUINumberInput));
-            Do(typeof(GUINumberInput.NumberType), null, new string[] { "NumberType" });
+            
             Do(typeof(GUIProgressBar));
             Do(typeof(GUIRadioButtonGroup));
             Do(typeof(GUIScissorComponent));
