@@ -26,7 +26,7 @@
 - **System.Collections.Immutable.dll**
 - **System.Reflection.Metadata.dll**
 - **System.Runtime.CompilerServices.Unsafe.dll**
-- file that starts with **mscordaccoreamd64amd64_**
+- file that starts with **mscordaccore\_amd64\_amd64\_**
 - and the **Lua/** folder
 
 4 - Paste them to your existing server, and let it replace the files<br>
@@ -52,7 +52,7 @@ Same as above, but instead you need to copy/replace the following files:
 - **System.Collections.Immutable.dll**
 - **System.Reflection.Metadata.dll**
 - **System.Runtime.CompilerServices.Unsafe.dll**
-- file that starts with **mscordaccoreamd64amd64_**
+- file that starts with **mscordaccore\_amd64\_amd64\_**
 - and the **Lua/** folder
 
 

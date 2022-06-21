@@ -25,13 +25,32 @@ namespace Barotrauma
     partial class Item : MapEntity, IDamageable, IIgnorable, ISerializableEntity, IServerPositionSync, IClientSerializable
     {
         public static List<Item> ItemList = new List<Item>();
+
+        private static readonly HashSet<Item> dangerousItems = new HashSet<Item>();
+
+        public static IReadOnlyCollection<Item> DangerousItems { get { return dangerousItems; } }
+
+        private static readonly List<Item> repairableItems = new List<Item>();
+
+        /// <summary>
+        /// Items that have one more more Repairable component
+        /// </summary>
+        public static IReadOnlyCollection<Item> RepairableItems => repairableItems;
+
+        private static readonly List<Item> cleanableItems = new List<Item>();
+
+        /// <summary>
+        /// Items that may potentially need to be cleaned up (pickable, not attached to a wall, and not inside a valid container)
+        /// </summary>
+        public static IReadOnlyCollection<Item> CleanableItems => cleanableItems;
+
         public new ItemPrefab Prefab => base.Prefab as ItemPrefab;
 
         public static bool ShowLinks = true;
 
         private readonly HashSet<Identifier> tags;
 
-        private bool isWire, isLogic;
+        private readonly bool isWire, isLogic;
 
         private Hull currentHull;
         public Hull CurrentHull
@@ -116,7 +135,7 @@ namespace Barotrauma
 
         private readonly Quality qualityComponent;
 
-        private readonly ConcurrentQueue<float> impactQueue = new ConcurrentQueue<float>();
+        private ConcurrentQueue<float> impactQueue;
 
         //a dictionary containing lists of the status effects in all the components of the item
         private readonly bool[] hasStatusEffectsOfType;
@@ -182,6 +201,7 @@ namespace Barotrauma
                 if (value != container)
                 {
                     container = value;
+                    CheckCleanable();
                     SetActiveSprite();
                 }
             }
@@ -263,24 +283,27 @@ namespace Barotrauma
             }
         }
 
-        private float rotationRad;
+        public float RotationRad { get; private set; } 
 
         [ConditionallyEditable(ConditionallyEditable.ConditionType.AllowRotating, MinValueFloat = 0.0f, MaxValueFloat = 360.0f, DecimalCount = 1, ValueStep = 1f), Serialize(0.0f, IsPropertySaveable.Yes)]
         public float Rotation
         {
             get
             {
-                return MathHelper.ToDegrees(rotationRad);
+                return MathHelper.ToDegrees(RotationRad);
             }
             set
             {
                 if (!Prefab.AllowRotatingInEditor) { return; }
-                rotationRad = MathHelper.ToRadians(value);
+                RotationRad = MathHelper.ToRadians(value);
 #if CLIENT
                 if (Screen.Selected == GameMain.SubEditorScreen)
                 {
                     SetContainedItemPositions();
-                    GetComponent<LightComponent>()?.SetLightSourceTransform();
+                    foreach (var light in GetComponents<LightComponent>())
+                    {
+                        light.SetLightSourceTransform();
+                    }
                 }
 #endif
             }
@@ -473,9 +496,9 @@ namespace Barotrauma
             get { return spriteColor; }
         }
 
-        public bool IsFullCondition => MathUtils.NearlyEqual(Condition, MaxCondition);
-        public float MaxCondition => Prefab.Health * healthMultiplier * maxRepairConditionMultiplier * (1.0f + GetQualityModifier(Items.Components.Quality.StatType.Condition));
-        public float ConditionPercentage => MathUtils.Percentage(Condition, MaxCondition);
+        public bool IsFullCondition { get; private set; }
+        public float MaxCondition { get; private set; }
+        public float ConditionPercentage { get; private set; }
 
         private float offsetOnSelectedMultiplier = 1.0f;
 
@@ -496,7 +519,8 @@ namespace Barotrauma
             {
                 float prevConditionPercentage = ConditionPercentage;
                 healthMultiplier = MathHelper.Clamp(value, 0.0f, float.PositiveInfinity);
-                Condition = MaxCondition * prevConditionPercentage / 100.0f;
+                condition = MaxCondition * prevConditionPercentage / 100.0f;
+                RecalculateConditionValues();
             }
         }
 
@@ -506,7 +530,11 @@ namespace Barotrauma
         public float MaxRepairConditionMultiplier
         {
             get => maxRepairConditionMultiplier;
-            set { maxRepairConditionMultiplier = MathHelper.Clamp(value, 0.0f, float.PositiveInfinity); }
+            set 
+            { 
+                maxRepairConditionMultiplier = MathHelper.Clamp(value, 0.0f, float.PositiveInfinity);
+                RecalculateConditionValues();
+            }
         }
         
         //the default value should be Prefab.Health, but because we can't use it in the attribute, 
@@ -807,7 +835,9 @@ namespace Barotrauma
             defaultRect = newRect;
             rect = newRect;
 
-            condition = MaxCondition;
+            condition = MaxCondition =  Prefab.Health;
+            ConditionPercentage = 100.0f;
+           
             lastSentCondition = condition;
 
             AllowDeconstruct = itemPrefab.AllowDeconstruct;
@@ -836,33 +866,35 @@ namespace Barotrauma
                             var rand = new Random(ID);
                             density = MathHelper.Lerp(minDensity, maxDensity, (float)rand.NextDouble());
                         }
-                        body = new PhysicsBody(subElement, ConvertUnits.ToSimUnits(Position), Scale, density);
 
-                        string collisionCategory = subElement.GetAttributeString("collisioncategory", null);
+                        string collisionCategoryStr = subElement.GetAttributeString("collisioncategory", null);
+
+                        Category collisionCategory = Physics.CollisionItem;
+                        Category collidesWith = Physics.CollisionWall | Physics.CollisionLevel | Physics.CollisionPlatform;
                         if ((Prefab.DamagedByProjectiles || Prefab.DamagedByMeleeWeapons) && Condition > 0)
                         {
                             //force collision category to Character to allow projectiles and weapons to hit
                             //(we could also do this by making the projectiles and weapons hit CollisionItem
                             //and check if the collision should be ignored in the OnCollision callback, but
                             //that'd make the hit detection more expensive because every item would be included)
-                            body.CollisionCategories = Physics.CollisionCharacter;
-                            body.CollidesWith = Physics.CollisionWall | Physics.CollisionLevel | Physics.CollisionPlatform | Physics.CollisionProjectile;
+                            collisionCategory = Physics.CollisionCharacter;
                         }
-                        if (collisionCategory != null)
+                        if (collisionCategoryStr != null)
                         {                            
-                            if (!Physics.TryParseCollisionCategory(collisionCategory, out Category cat))
+                            if (!Physics.TryParseCollisionCategory(collisionCategoryStr, out Category cat))
                             {
-                                DebugConsole.ThrowError("Invalid collision category in item \"" + Name+"\" (" + collisionCategory + ")");
+                                DebugConsole.ThrowError("Invalid collision category in item \"" + Name+"\" (" + collisionCategoryStr + ")");
                             }
                             else
                             {
-                                body.CollisionCategories = cat;
+                                collisionCategory = cat;
                                 if (cat.HasFlag(Physics.CollisionCharacter))
                                 {
-                                    body.CollidesWith = Physics.CollisionWall | Physics.CollisionLevel | Physics.CollisionPlatform | Physics.CollisionProjectile;
+                                    collisionCategory |= Physics.CollisionProjectile;
                                 }
                             }
                         }
+                        body = new PhysicsBody(subElement, ConvertUnits.ToSimUnits(Position), Scale, density, collisionCategory, collidesWith, findNewContacts: false);
                         body.FarseerBody.AngularDamping = subElement.GetAttributeFloat("angulardamping", 0.2f);
                         body.FarseerBody.LinearDamping = subElement.GetAttributeFloat("lineardamping", 0.1f);
                         body.UserData = this;
@@ -993,6 +1025,9 @@ namespace Barotrauma
 
             InsertToList();
             ItemList.Add(this);
+            if (Prefab.IsDangerous) { dangerousItems.Add(this); }
+            if (Repairables.Any()) { repairableItems.Add(this); }
+            CheckCleanable();
 
             DebugConsole.Log("Created " + Name + " (" + ID + ")");
 
@@ -1003,6 +1038,10 @@ namespace Barotrauma
 
             ApplyStatusEffects(ActionType.OnSpawn, 1.0f);
             Components.ForEach(c => c.ApplyStatusEffects(ActionType.OnSpawn, 1.0f));
+            RecalculateConditionValues();
+#if CLIENT
+            Submarine.ForceVisibilityRecheck();
+#endif
         }
 
         partial void InitProjSpecific();
@@ -1085,17 +1124,16 @@ namespace Barotrauma
 
             component.OnActiveStateChanged += (bool isActive) => 
             {
-                bool hasSounds = false;
+                bool needsSoundUpdate = false;
 #if CLIENT
-                hasSounds = component.HasSounds;
+                needsSoundUpdate = component.NeedsSoundUpdate();
 #endif
                 //component doesn't need to be updated if it isn't active, doesn't have a parent that could activate it, 
-                //nor status effects, sounds or conditionals that would need to run
+                //nor sounds or conditionals that would need to run
                 if (!isActive && !component.UpdateWhenInactive && 
-                    !hasSounds &&
+                    !needsSoundUpdate &&
                     component.Parent == null &&
-                    (component.IsActiveConditionals == null || !component.IsActiveConditionals.Any()) &&
-                    (component.statusEffectLists == null || !component.statusEffectLists.Any()))
+                    (component.IsActiveConditionals == null || !component.IsActiveConditionals.Any()))
                 {
                     if (updateableComponents.Contains(component)) { updateableComponents.Remove(component); }
                 }
@@ -1132,6 +1170,7 @@ namespace Barotrauma
                 drawableComponents.Add(drawable);
                 hasComponentsToDraw = true;
 #if CLIENT
+                Submarine.ForceVisibilityRecheck();
                 cachedVisibleExtents = null;
 #endif
             }
@@ -1185,7 +1224,6 @@ namespace Barotrauma
         public void RemoveContained(Item contained)
         {
             ownInventory?.RemoveItem(contained);
-
             contained.Container = null;            
         }
 
@@ -1264,12 +1302,28 @@ namespace Barotrauma
 
         partial void SetActiveSpriteProjSpecific();
 
-        public override void Move(Vector2 amount)
+        /// <summary>
+        /// Recheck if the item needs to be included in the list of cleanable items
+        /// </summary>
+        public void CheckCleanable()
         {
-            Move(amount, ignoreContacts: false);
+            var pickable = GetComponent<Pickable>();
+            if (pickable != null && !pickable.IsAttached &&
+                Prefab.PreferredContainers.Any() &&
+                (container == null || container.HasTag("allowcleanup")))
+            {
+                if (!cleanableItems.Contains(this))
+                {
+                    cleanableItems.Add(this);
+                }
+            }
+            else
+            {
+                cleanableItems.Remove(this);
+            }
         }
 
-        public void Move(Vector2 amount, bool ignoreContacts)
+        public override void Move(Vector2 amount, bool ignoreContacts = false)
         {
             if (!MathUtils.IsValid(amount))
             {
@@ -1292,7 +1346,7 @@ namespace Barotrauma
             }
             foreach (ItemComponent ic in components)
             {
-                ic.Move(amount);
+                ic.Move(amount, ignoreContacts);
             }
 
             if (body != null && (Submarine == null || !Submarine.Loading)) { FindHull(); }
@@ -1498,6 +1552,11 @@ namespace Barotrauma
 
         public void ApplyStatusEffect(StatusEffect effect, ActionType type, float deltaTime, Character character = null, Limb limb = null, Entity useTarget = null, bool isNetworkEvent = false, bool checkCondition = true, Vector2? worldPosition = null)
         {
+            if (effect.intervalTimer > 0.0f)
+            {
+                effect.intervalTimer -= deltaTime;
+                return;
+            }
             if (!isNetworkEvent && checkCondition)
             {
                 if (condition == 0.0f && !effect.AllowWhenBroken && effect.type != ActionType.OnBroken) { return; }
@@ -1617,6 +1676,10 @@ namespace Barotrauma
             bool wasInFullCondition = IsFullCondition;
 
             condition = MathHelper.Clamp(value, 0.0f, MaxCondition);
+            if (MathUtils.NearlyEqual(prev, condition, epsilon: 0.000001f)) { return; }
+
+            RecalculateConditionValues();
+
             if (condition == 0.0f && prev > 0.0f)
             {
                 //Flag connections to be updated as device is broken
@@ -1625,6 +1688,7 @@ namespace Barotrauma
                 foreach (ItemComponent ic in components)
                 {
                     ic.PlaySound(ActionType.OnBroken);
+                    ic.StopSounds(ActionType.OnActive);
                 }
                 if (Screen.Selected == GameMain.SubEditorScreen) { return; }
 #endif
@@ -1678,6 +1742,17 @@ namespace Barotrauma
             }
         }
 
+        /// <summary>
+        /// Recalculates the item's maximum condition, condition percentage and whether it's in full condition. 
+        /// You generally never need to call this manually - done automatically when any of the factors that affect the values change.
+        /// </summary>
+        public void RecalculateConditionValues()
+        {
+            MaxCondition = Prefab.Health * healthMultiplier * maxRepairConditionMultiplier * (1.0f + GetQualityModifier(Items.Components.Quality.StatType.Condition));
+            IsFullCondition = MathUtils.NearlyEqual(Condition, MaxCondition);
+            ConditionPercentage = MathUtils.Percentage(Condition, MaxCondition);
+        }
+
         private bool IsInWater()
         {
             if (CurrentHull == null) { return true; }
@@ -1706,12 +1781,8 @@ namespace Barotrauma
 
         public override void Update(float deltaTime, Camera cam)
         {
-            while (impactQueue.TryDequeue(out float impact))
-            {
-                HandleCollision(impact);
-            }
-
-            if (GameMain.NetworkMember != null && GameMain.NetworkMember.IsServer && (!Submarine?.Loading ?? true))
+#if SERVER
+            if (!(Submarine is { Loading: true }))
             {
                 sendConditionUpdateTimer -= deltaTime;
                 if (conditionUpdatePending && sendConditionUpdateTimer <= 0.0f)
@@ -1719,13 +1790,22 @@ namespace Barotrauma
                     SendPendingNetworkUpdates();
                 }
             }
+#endif
 
-            if (aiTarget != null)
+            if (!isActive) { return; }
+
+            if (impactQueue != null)
+            {
+                while (impactQueue.TryDequeue(out float impact))
+                {
+                    HandleCollision(impact);
+                }
+            }
+
+            if (aiTarget != null && aiTarget.NeedsUpdate)
             {
                 aiTarget.Update(deltaTime);
             }
-
-            if (!isActive) { return; }
 
             ApplyStatusEffects(ActionType.Always, deltaTime, character: (parentInventory as CharacterInventory)?.Owner as Character);
             ApplyStatusEffects(parentInventory == null ? ActionType.OnNotContained : ActionType.OnContained, deltaTime, character: (parentInventory as CharacterInventory)?.Owner as Character);
@@ -1827,7 +1907,10 @@ namespace Barotrauma
             }
             else
             {
-                if (updateableComponents.Count == 0 && !hasStatusEffectsOfType[(int)ActionType.Always] && (body == null || !body.Enabled))
+                if (updateableComponents.Count == 0 && 
+                    (aiTarget == null || !aiTarget.NeedsUpdate) && 
+                    !hasStatusEffectsOfType[(int)ActionType.Always] && 
+                    (body == null || !body.Enabled))
                 {
 #if CLIENT
                     positionBuffer.Clear();
@@ -1962,7 +2045,9 @@ namespace Barotrauma
             if (contact.FixtureA.Body == f1.Body) { normal = -normal; }
             float impact = Vector2.Dot(f1.Body.LinearVelocity, -normal);
 
+            impactQueue ??= new ConcurrentQueue<float>();
             impactQueue.Enqueue(impact);
+            isActive = true;
 
             return true;
         }
@@ -2001,7 +2086,7 @@ namespace Barotrauma
 
             if (Prefab.AllowRotatingInEditor)
             {
-                rotationRad = MathUtils.WrapAngleTwoPi(-rotationRad);
+                RotationRad = MathUtils.WrapAngleTwoPi(-RotationRad);
             }
 #if CLIENT
             if (Prefab.CanSpriteFlipX)
@@ -2486,11 +2571,9 @@ namespace Barotrauma
                 if (ic.Use(deltaTime, character))
                 {
                     ic.WasUsed = true;
-
 #if CLIENT
-                    ic.PlaySound(ActionType.OnUse, character);
+                    ic.PlaySound(ActionType.OnUse, character); 
 #endif
-    
                     ic.ApplyStatusEffects(ActionType.OnUse, deltaTime, character, targetLimb);
 
                     if (ic.DeleteOnUse) { remove = true; }
@@ -2524,11 +2607,9 @@ namespace Barotrauma
                 if (ic.SecondaryUse(deltaTime, character))
                 {
                     ic.WasSecondaryUsed = true;
-
 #if CLIENT
                     ic.PlaySound(ActionType.OnSecondaryUse, character);
 #endif
-
                     ic.ApplyStatusEffects(ActionType.OnSecondaryUse, deltaTime, character);
 
                     if (ic.DeleteOnUse) { remove = true; }
@@ -2675,6 +2756,9 @@ namespace Barotrauma
             }
 
             SetContainedItemPositions();
+#if CLIENT
+            Submarine.ForceVisibilityRecheck();
+#endif
         }
 
         public void Equip(Character character)
@@ -2693,21 +2777,21 @@ namespace Barotrauma
             foreach (ItemComponent ic in components) { ic.Unequip(character); }
         }
 
-        public List<Pair<object, SerializableProperty>> GetProperties<T>()
+        public List<(object obj, SerializableProperty property)> GetProperties<T>()
         {
-            List<Pair<object, SerializableProperty>> allProperties = new List<Pair<object, SerializableProperty>>();
+            List<(object obj, SerializableProperty property)> allProperties = new List<(object obj, SerializableProperty property)>();
 
             List<SerializableProperty> itemProperties = SerializableProperty.GetProperties<T>(this);
             foreach (var itemProperty in itemProperties)
             {
-                allProperties.Add(new Pair<object, SerializableProperty>(this, itemProperty));
+                allProperties.Add((this, itemProperty));
             }            
             foreach (ItemComponent ic in components)
             {
                 List<SerializableProperty> componentProperties = SerializableProperty.GetProperties<T>(ic);
                 foreach (var componentProperty in componentProperties)
                 {
-                    allProperties.Add(new Pair<object, SerializableProperty>(ic, componentProperty));
+                    allProperties.Add((ic, componentProperty));
                 }
             }
             return allProperties;
@@ -2721,13 +2805,13 @@ namespace Barotrauma
             SerializableProperty property = extraData.SerializableProperty;
             if (property != null)
             {
-                var propertyOwner = allProperties.Find(p => p.Second == property);
+                var propertyOwner = allProperties.Find(p => p.property == property);
                 if (allProperties.Count > 1)
                 {
-                    msg.Write((byte)allProperties.FindIndex(p => p.Second == property));
+                    msg.Write((byte)allProperties.FindIndex(p => p.property == property));
                 }
 
-                object value = property.GetValue(propertyOwner.First);
+                object value = property.GetValue(propertyOwner.obj);
                 if (value is string stringVal)
                 {
                     msg.Write(stringVal);
@@ -2808,7 +2892,7 @@ namespace Barotrauma
             }
         }
 
-        private List<Pair<object, SerializableProperty>> GetInGameEditableProperties(bool ignoreConditions = false)
+        private List<(object obj, SerializableProperty property)> GetInGameEditableProperties(bool ignoreConditions = false)
         {
             if (ignoreConditions)
             {
@@ -2817,7 +2901,7 @@ namespace Barotrauma
             else
             {
                 return GetProperties<ConditionallyEditable>()
-                    .Where(ce => ce.Second.GetAttribute<ConditionallyEditable>().IsEditable(this))
+                    .Where(ce => ce.property.GetAttribute<ConditionallyEditable>().IsEditable(this))
                     .Union(GetProperties<InGameEditable>()).ToList();
             }
         }
@@ -2836,8 +2920,8 @@ namespace Barotrauma
             }
 
             bool allowEditing = true;
-            object parentObject = allProperties[propertyIndex].First;
-            SerializableProperty property = allProperties[propertyIndex].Second;
+            object parentObject = allProperties[propertyIndex].obj;
+            SerializableProperty property = allProperties[propertyIndex].property;
             if (inGameEditableOnly && parentObject is ItemComponent ic)
             {
                 if (!ic.AllowInGameEditing) { allowEditing = false; }
@@ -3170,12 +3254,12 @@ namespace Barotrauma
                 {
                     Vector2 oldRelativeOrigin = (oldPrefab.SwappableItem.SwapOrigin - oldPrefab.Size / 2) * element.GetAttributeFloat(item.scale, "scale", "Scale");
                     oldRelativeOrigin.Y = -oldRelativeOrigin.Y;
-                    oldRelativeOrigin = MathUtils.RotatePoint(oldRelativeOrigin, -item.rotationRad);
+                    oldRelativeOrigin = MathUtils.RotatePoint(oldRelativeOrigin, -item.RotationRad);
                     Vector2 oldOrigin = centerPos + oldRelativeOrigin;
 
                     Vector2 relativeOrigin = (prefab.SwappableItem.SwapOrigin - prefab.Size / 2) * item.Scale;
                     relativeOrigin.Y = -relativeOrigin.Y;
-                    relativeOrigin = MathUtils.RotatePoint(relativeOrigin, -item.rotationRad);
+                    relativeOrigin = MathUtils.RotatePoint(relativeOrigin, -item.RotationRad);
                     Vector2 origin = new Vector2(rect.X + rect.Width / 2, rect.Y - rect.Height / 2) + relativeOrigin;
 
                     item.rect.Location -= (origin - oldOrigin).ToPoint();
@@ -3211,11 +3295,20 @@ namespace Barotrauma
             item.condition = MathHelper.Clamp(condition, 0, item.MaxCondition);
             item.lastSentCondition = item.condition;
 
+            item.RecalculateConditionValues();
             item.SetActiveSprite();
 
-            if (submarine?.Info.GameVersion != null)
+            Version savedVersion = submarine?.Info.GameVersion;
+            if (element.Document?.Root != null && element.Document.Root.Name.ToString().Equals("gamesession", StringComparison.OrdinalIgnoreCase))
             {
-                SerializableProperty.UpgradeGameVersion(item, item.Prefab.ConfigElement, submarine.Info.GameVersion);
+                //character inventories are loaded from the game session file - use the version number of the saved game session instead of the sub
+                //(the sub may have already been saved and up-to-date, even though the character inventories aren't)
+                savedVersion = new Version(element.Document.Root.GetAttributeString("version", "0.0.0.0"));
+            }
+            
+            if (savedVersion != null)
+            {
+                SerializableProperty.UpgradeGameVersion(item, item.Prefab.ConfigElement, savedVersion);
             }
 
             foreach (ItemComponent component in item.components)
@@ -3335,7 +3428,7 @@ namespace Barotrauma
             {
                 ic.ShallowRemove();
             }
-            ItemList.Remove(this);
+            RemoveFromLists();
 
             if (body != null)
             {
@@ -3395,7 +3488,8 @@ namespace Barotrauma
                 ic.GuiFrame = null;
 #endif
             }
-            ItemList.Remove(this);
+
+            RemoveFromLists();
 
             if (body != null)
             {
@@ -3428,6 +3522,14 @@ namespace Barotrauma
             RemoveProjSpecific();
 
             GameMain.LuaCs.Hook.Call("item.removed", this);
+        }
+
+        private void RemoveFromLists()
+        {
+            ItemList.Remove(this);
+            dangerousItems.Remove(this);
+            repairableItems.Remove(this);
+            cleanableItems.Remove(this);
         }
 
         partial void RemoveProjSpecific();

@@ -105,21 +105,12 @@ namespace Barotrauma.Tutorials
             radioSpeakerName = TextManager.Get("Tutorial.Radio.Speaker");
             doctor = Character.Controlled;
 
-            var bandages = FindOrGiveItem(doctor, "antibleeding1".ToIdentifier());
-            bandages.Unequip(doctor);
-            doctor.Inventory.RemoveItem(bandages);
-
-            var syringegun = FindOrGiveItem(doctor, "syringegun".ToIdentifier());
-            syringegun.Unequip(doctor);
-            doctor.Inventory.RemoveItem(syringegun);
-
-            var antibiotics = FindOrGiveItem(doctor, "antibiotics".ToIdentifier());
-            antibiotics.Unequip(doctor);
-            doctor.Inventory.RemoveItem(antibiotics);
-
-            var morphine = FindOrGiveItem(doctor, "antidama1".ToIdentifier());
-            morphine.Unequip(doctor);
-            doctor.Inventory.RemoveItem(morphine);
+            foreach (Item item in doctor.Inventory.AllItemsMod)
+            {
+                if (item.HasTag("clothing") || item.HasTag("identitycard") || item.HasTag("mobileradio")) { continue; }
+                item.Unequip(doctor);
+                doctor.Inventory.RemoveItem(item);
+            }
 
             doctor_suppliesCabinet = Item.ItemList.Find(i => i.HasTag("doctor_suppliescabinet"))?.GetComponent<ItemContainer>();
             doctor_medBayCabinet = Item.ItemList.Find(i => i.HasTag("doctor_medbaycabinet"))?.GetComponent<ItemContainer>();
@@ -198,6 +189,9 @@ namespace Barotrauma.Tutorials
 
             Item reactorItem = Item.ItemList.Find(i => i.Submarine == Submarine.MainSub && i.GetComponent<Reactor>() != null);
             reactorItem.GetComponent<Reactor>().AutoTemp = true;
+
+            GameAnalyticsManager.AddDesignEvent("Tutorial:DoctorTutorial:Started");
+            GameAnalyticsManager.AddDesignEvent("Tutorial:Started");
         }
 
         public override IEnumerable<CoroutineStatus> UpdateState()
@@ -257,7 +251,7 @@ namespace Barotrauma.Tutorials
                 yield return new WaitForSeconds(2.0f);
             }*/
 
-            TriggerTutorialSegment(0, GameSettings.CurrentConfig.KeyMap.KeyBindText(InputType.Select), GameSettings.CurrentConfig.KeyMap.KeyBindText(InputType.Deselect), GameSettings.CurrentConfig.KeyMap.KeyBindText(InputType.ToggleInventory)); // Medical supplies objective
+            TriggerTutorialSegment(0, GameSettings.CurrentConfig.KeyMap.KeyBindText(InputType.Select), GameSettings.CurrentConfig.KeyMap.KeyBindText(InputType.Deselect), "None"); // Medical supplies objective
 
             do
             {
@@ -281,6 +275,7 @@ namespace Barotrauma.Tutorials
 
             SetHighlight(doctor_suppliesCabinet.Item, false);
             RemoveCompletedObjective(0);
+            GameAnalyticsManager.AddDesignEvent("Tutorial:DoctorTutorial:Objective0");
 
             yield return new WaitForSeconds(1.0f, false);
 
@@ -294,6 +289,7 @@ namespace Barotrauma.Tutorials
             }
             yield return null;
             RemoveCompletedObjective(1);
+            GameAnalyticsManager.AddDesignEvent("Tutorial:DoctorTutorial:Objective1");
             yield return new WaitForSeconds(1.0f, false);
             TriggerTutorialSegment(2); //Treat self
             while (doctor.CharacterHealth.GetAfflictionStrength("damage") > 0.01f)
@@ -311,6 +307,7 @@ namespace Barotrauma.Tutorials
             }
 
             RemoveCompletedObjective(2);
+            GameAnalyticsManager.AddDesignEvent("Tutorial:DoctorTutorial:Objective2");
             SetDoorAccess(doctor_firstDoor, doctor_firstDoorLight, true);
 
             while (CharacterHealth.OpenHealthWindow != null)
@@ -358,6 +355,7 @@ namespace Barotrauma.Tutorials
                 yield return new WaitForSeconds(1.0f, false);
             }
             RemoveCompletedObjective(3);
+            GameAnalyticsManager.AddDesignEvent("Tutorial:DoctorTutorial:Objective3");
             SetHighlight(doctor_medBayCabinet.Item, true);
             SetDoorAccess(doctor_thirdDoor, doctor_thirdDoorLight, true);
             patient1.CharacterHealth.UseHealthWindow = true;
@@ -401,6 +399,7 @@ namespace Barotrauma.Tutorials
 
             }
             RemoveCompletedObjective(4);
+            GameAnalyticsManager.AddDesignEvent("Tutorial:DoctorTutorial:Objective4");
             SetHighlight(patient1, false);
             yield return new WaitForSeconds(1.0f, false);
 
@@ -442,6 +441,7 @@ namespace Barotrauma.Tutorials
                 yield return null;
             }
             RemoveCompletedObjective(5);
+            GameAnalyticsManager.AddDesignEvent("Tutorial:DoctorTutorial:Objective5");
             SetHighlight(patient2, false);
             doctor.RemoveActiveObjectiveEntity(patient2);
             CoroutineManager.StopCoroutines("KeepPatient2Alive");
@@ -497,6 +497,7 @@ namespace Barotrauma.Tutorials
                 yield return new WaitForSeconds(1.0f, false);
             }
             RemoveCompletedObjective(6);
+            GameAnalyticsManager.AddDesignEvent("Tutorial:DoctorTutorial:Objective6");
             foreach (var patient in subPatients)
             {
                 SetHighlight(patient, false);
@@ -504,6 +505,7 @@ namespace Barotrauma.Tutorials
             }
 
             // END TUTORIAL
+            GameAnalyticsManager.AddDesignEvent("Tutorial:DoctorTutorial:Completed");
             CoroutineManager.StartCoroutine(TutorialCompleted());
         }
 

@@ -350,7 +350,10 @@ namespace Barotrauma
                     GameMain.LuaCs.Update();
                     GameMain.LuaCs.Hook.Call("think", new object[] { });
                     performanceCounterTimer.Stop();
-                    LuaCsTimer.LastUpdateTime = performanceCounterTimer.ElapsedMilliseconds;
+                    if (GameMain.LuaCs.PerformanceCounter.EnablePerformanceCounter)
+                    {
+                        GameMain.LuaCs.PerformanceCounter.UpdateElapsedTime = (double)performanceCounterTimer.ElapsedTicks / Stopwatch.Frequency;
+                    }
                     performanceCounterTimer.Reset();
 
                     Timing.Accumulator -= Timing.Step;

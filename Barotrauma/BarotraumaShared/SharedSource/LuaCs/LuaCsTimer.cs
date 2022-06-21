@@ -6,20 +6,8 @@ namespace Barotrauma
 {
     public class LuaCsTimer
     {
-        public static long LastUpdateTime = 0;
-
         public static double Time => Timing.TotalTime;
-
         public static double GetTime() => Time;
-        
-        public static float GetUsageMemory()
-        {
-            Process proc = Process.GetCurrentProcess();
-            float memory = MathF.Round(proc.PrivateMemorySize64 / (1024 * 1024), 2);
-            proc.Dispose();
-
-            return memory;
-        }
 
         private class TimerComparer : IComparer<TimedAction>
         {

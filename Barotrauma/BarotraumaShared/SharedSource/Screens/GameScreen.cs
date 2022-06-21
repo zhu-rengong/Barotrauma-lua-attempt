@@ -79,7 +79,6 @@ namespace Barotrauma
         public override void Deselect()
         {
             base.Deselect();
-
 #if CLIENT
             var config = GameSettings.CurrentConfig;
             config.CrewMenuOpen = CrewManager.PreferCrewMenuOpen;
@@ -88,6 +87,10 @@ namespace Barotrauma
             GameSettings.SaveCurrentConfig();
             GameMain.SoundManager.SetCategoryMuffle("default", false);
             GUI.ClearMessages();
+            if (GameMain.GameSession?.GameMode is TestGameMode)
+            {
+                DebugConsole.DeactivateCheats();
+            }
 #endif
         }
         /// <summary>
@@ -148,19 +151,19 @@ namespace Barotrauma
 
 #if CLIENT
             sw.Stop();
-            GameMain.PerformanceCounter.AddElapsedTicks("GameSessionUpdate", sw.ElapsedTicks);
+            GameMain.PerformanceCounter.AddElapsedTicks("Update:GameSession", sw.ElapsedTicks);
             sw.Restart();
 
             GameMain.ParticleManager.Update((float)deltaTime); 
             
             sw.Stop();
-            GameMain.PerformanceCounter.AddElapsedTicks("ParticleUpdate", sw.ElapsedTicks);
+            GameMain.PerformanceCounter.AddElapsedTicks("Update:Particles", sw.ElapsedTicks);
             sw.Restart();  
 
             if (Level.Loaded != null) Level.Loaded.Update((float)deltaTime, cam);
 
             sw.Stop();
-            GameMain.PerformanceCounter.AddElapsedTicks("LevelUpdate", sw.ElapsedTicks);
+            GameMain.PerformanceCounter.AddElapsedTicks("Update:Level", sw.ElapsedTicks);
 
             if (Character.Controlled != null)
             {
@@ -192,7 +195,7 @@ namespace Barotrauma
 
 #if CLIENT
             sw.Stop();
-            GameMain.PerformanceCounter.AddElapsedTicks("CharacterUpdate", sw.ElapsedTicks);
+            GameMain.PerformanceCounter.AddElapsedTicks("Update:Character", sw.ElapsedTicks);
             sw.Restart(); 
 #endif
 
@@ -200,7 +203,7 @@ namespace Barotrauma
 
 #if CLIENT
             sw.Stop();
-            GameMain.PerformanceCounter.AddElapsedTicks("StatusEffectUpdate", sw.ElapsedTicks);
+            GameMain.PerformanceCounter.AddElapsedTicks("Update:StatusEffects", sw.ElapsedTicks);
             sw.Restart(); 
 
             if (Character.Controlled != null && 
@@ -252,7 +255,7 @@ namespace Barotrauma
 
 #if CLIENT
             sw.Stop();
-            GameMain.PerformanceCounter.AddElapsedTicks("MapEntityUpdate", sw.ElapsedTicks);
+            GameMain.PerformanceCounter.AddElapsedTicks("Update:MapEntity", sw.ElapsedTicks);
             sw.Restart(); 
 #endif
             Character.UpdateAnimAll((float)deltaTime);
@@ -265,7 +268,7 @@ namespace Barotrauma
 
 #if CLIENT
             sw.Stop();
-            GameMain.PerformanceCounter.AddElapsedTicks("AnimUpdate", sw.ElapsedTicks);
+            GameMain.PerformanceCounter.AddElapsedTicks("Update:Ragdolls", sw.ElapsedTicks);
             sw.Restart(); 
 #endif
 
@@ -276,7 +279,7 @@ namespace Barotrauma
 
 #if CLIENT
             sw.Stop();
-            GameMain.PerformanceCounter.AddElapsedTicks("SubmarineUpdate", sw.ElapsedTicks);
+            GameMain.PerformanceCounter.AddElapsedTicks("Update:Submarine", sw.ElapsedTicks);
             sw.Restart();
 #endif
 
@@ -296,7 +299,7 @@ namespace Barotrauma
 
 #if CLIENT
             sw.Stop();
-            GameMain.PerformanceCounter.AddElapsedTicks("Physics", sw.ElapsedTicks);
+            GameMain.PerformanceCounter.AddElapsedTicks("Update:Physics", sw.ElapsedTicks);
 #endif
             UpdateProjSpecific(deltaTime);
 

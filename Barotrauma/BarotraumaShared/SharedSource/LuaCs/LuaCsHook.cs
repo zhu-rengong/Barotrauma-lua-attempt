@@ -8,6 +8,7 @@ using System.Text;
 using MoonSharp.Interpreter.Interop;
 using static Barotrauma.LuaCsSetup;
 using System.Threading;
+using System.Diagnostics;
 
 namespace Barotrauma
 {
@@ -89,10 +90,7 @@ namespace Barotrauma
 		private static void _hookLuaCsPatch(MethodBase __originalMethod, object[] __args, object __instance, out object result, HookMethodType hookMethodType)
 		{
 			result = null;
-#if CLIENT
-		if (GameMain.GameSession?.IsRunning == false && GameMain.IsSingleplayer && GameMain.MainThread != Thread.CurrentThread)
-			return;
-#endif
+
 			try
 			{
 				var funcAddr = ((long)__originalMethod.MethodHandle.GetFunctionPointer());
@@ -375,13 +373,11 @@ namespace Barotrauma
 
 		}
 
+		private Stopwatch performanceMeasurement = new Stopwatch();
+
 		[MoonSharpHidden]
 		public T Call<T>(string name, params object[] args)
 		{
-#if CLIENT
-			if (GameMain.GameSession?.IsRunning == false && GameMain.IsSingleplayer && GameMain.MainThread != Thread.CurrentThread)
-				return default(T);
-#endif
 			if (GameMain.LuaCs == null) return default(T);
 			if (name == null) return default(T);
 			if (args == null) { args = new object[] { }; }
@@ -404,6 +400,11 @@ namespace Barotrauma
 					{
 						try
 						{
+							if (GameMain.LuaCs.PerformanceCounter.EnablePerformanceCounter)
+							{
+								performanceMeasurement.Start();
+							}
+
 							var result = tuple.Item1.func(args);
 							if (result != null)
                             {
@@ -423,6 +424,13 @@ namespace Barotrauma
 									}
 									else lastResult = (T)result;
 								}
+							}
+
+							if (GameMain.LuaCs.PerformanceCounter.EnablePerformanceCounter)
+							{
+								performanceMeasurement.Stop();
+								GameMain.LuaCs.PerformanceCounter.SetHookElapsedTicks(name, key, performanceMeasurement.ElapsedTicks);
+								performanceMeasurement.Reset();
 							}
 						}
 						catch (Exception e)

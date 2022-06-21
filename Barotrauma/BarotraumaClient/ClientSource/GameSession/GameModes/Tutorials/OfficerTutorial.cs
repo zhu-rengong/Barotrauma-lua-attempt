@@ -141,36 +141,12 @@ namespace Barotrauma.Tutorials
             radioSpeakerName = TextManager.Get("Tutorial.Radio.Speaker");
             officer = Character.Controlled;
 
-            var handcuffs = FindOrGiveItem(officer, "handcuffs".ToIdentifier());
-            handcuffs.Unequip(officer);
-            officer.Inventory.RemoveItem(handcuffs);
-
-            var stunbaton = FindOrGiveItem(officer, "stunbaton".ToIdentifier());
-            stunbaton.Unequip(officer);
-            officer.Inventory.RemoveItem(stunbaton);
-
-            var smg = FindOrGiveItem(officer, "smg".ToIdentifier());
-            smg.Unequip(officer);
-            officer.Inventory.RemoveItem(smg);
-
-            var divingknife = FindOrGiveItem(officer, "divingknife".ToIdentifier());
-            divingknife.Unequip(officer);
-            officer.Inventory.RemoveItem(divingknife);
-
-            var steroids = FindOrGiveItem(officer, "steroids".ToIdentifier());
-            steroids.Unequip(officer);
-            officer.Inventory.RemoveItem(steroids);
-
-            var ballistichelmet =
-                officer.Inventory.FindItemByIdentifier("ballistichelmet1".ToIdentifier()) ??
-                officer.Inventory.FindItemByIdentifier("ballistichelmet2".ToIdentifier()) ??
-                FindOrGiveItem(officer, "ballistichelmet3".ToIdentifier());
-            ballistichelmet.Unequip(officer);
-            officer.Inventory.RemoveItem(ballistichelmet);
-
-            var bodyarmor = FindOrGiveItem(officer, "bodyarmor".ToIdentifier());
-            bodyarmor.Unequip(officer);
-            officer.Inventory.RemoveItem(bodyarmor);
+            foreach (Item item in officer.Inventory.AllItemsMod)
+            {
+                if (item.HasTag("clothing") || item.HasTag("identitycard") || item.HasTag("mobileradio")) { continue; }
+                item.Unequip(officer);
+                officer.Inventory.RemoveItem(item);
+            }
 
             var gunOrder = OrderPrefab.Prefabs["operateweapons"];
             officer_gunIcon = gunOrder.SymbolSprite;
@@ -251,6 +227,9 @@ namespace Barotrauma.Tutorials
             officer_subSuperCapacitor_2 = Item.ItemList.Find(i => i.HasTag("officer_subsupercapacitor_2")).GetComponent<PowerContainer>();
             officer_subAmmoShelf = Item.ItemList.Find(i => i.HasTag("officer_subammoshelf")).GetComponent<ItemContainer>();
             SetDoorAccess(tutorial_submarineDoor, tutorial_submarineDoorLight, true);
+
+            GameAnalyticsManager.AddDesignEvent("Tutorial:OfficerTutorial:Started");
+            GameAnalyticsManager.AddDesignEvent("Tutorial:Started");
         }
 
         public override IEnumerable<CoroutineStatus> UpdateState()
@@ -310,6 +289,7 @@ namespace Barotrauma.Tutorials
                 yield return null;
             } while (!officer_equipmentCabinet.Inventory.IsEmpty()); // Wait until looted
             //RemoveCompletedObjective(segments[0]);
+            GameAnalyticsManager.AddDesignEvent("Tutorial:OfficerTutorial:Objective0");
             SetHighlight(officer_equipmentCabinet.Item, false);
             do { yield return null; } while (IsSelectedItem(officer_equipmentCabinet.Item));
             TriggerTutorialSegment(1, GameSettings.CurrentConfig.KeyMap.KeyBindText(InputType.Aim), GameSettings.CurrentConfig.KeyMap.KeyBindText(InputType.Shoot)); // Equip melee weapon & armor
@@ -330,6 +310,7 @@ namespace Barotrauma.Tutorials
                 yield return new WaitForSeconds(1f, false);
             } while (!officer.HasEquippedItem("stunbaton".ToIdentifier()) || !officer.HasEquippedItem("bodyarmor".ToIdentifier()) || !officer.HasEquippedItem("ballistichelmet1".ToIdentifier()));
             RemoveCompletedObjective(1);
+            GameAnalyticsManager.AddDesignEvent("Tutorial:OfficerTutorial:Objective1");
             SetDoorAccess(officer_firstDoor, officer_firstDoorLight, true);
 
             // Room 3
@@ -338,6 +319,7 @@ namespace Barotrauma.Tutorials
             officer_crawler = SpawnMonster("crawler", officer_crawlerSpawnPos);
             do { yield return null; } while (!officer_crawler.IsDead);
             RemoveCompletedObjective(2);
+            GameAnalyticsManager.AddDesignEvent("Tutorial:OfficerTutorial:Objective2");
             Heal(officer);
             yield return new WaitForSeconds(1f, false);
             GameMain.GameSession?.CrewManager.AddSinglePlayerChatMessage(radioSpeakerName, TextManager.Get("Officer.Radio.CrawlerDead"), ChatMessageType.Radio, null);
@@ -366,6 +348,8 @@ namespace Barotrauma.Tutorials
             SetHighlight(officer_ammoShelf_1.Item, false);
             SetHighlight(officer_ammoShelf_2.Item, false);
             RemoveCompletedObjective(3);
+            GameAnalyticsManager.AddDesignEvent("Tutorial:OfficerTutorial:Objective3");
+
             yield return new WaitForSeconds(2f, false);
             TriggerTutorialSegment(4, GameSettings.CurrentConfig.KeyMap.KeyBindText(InputType.Select), GameSettings.CurrentConfig.KeyMap.KeyBindText(InputType.Shoot), GameSettings.CurrentConfig.KeyMap.KeyBindText(InputType.Deselect)); // Kill hammerhead
             officer_hammerhead = SpawnMonster("hammerhead", officer_hammerheadSpawnPos);
@@ -401,6 +385,8 @@ namespace Barotrauma.Tutorials
             Heal(officer);
             SetHighlight(officer_coilgunPeriscope, false);
             RemoveCompletedObjective(4);
+            GameAnalyticsManager.AddDesignEvent("Tutorial:OfficerTutorial:Objective4");
+
             yield return new WaitForSeconds(1f, false);
             GameMain.GameSession?.CrewManager.AddSinglePlayerChatMessage(radioSpeakerName, TextManager.Get("Officer.Radio.HammerheadDead"), ChatMessageType.Radio, null);
             SetDoorAccess(officer_thirdDoor, officer_thirdDoorLight, true);
@@ -451,6 +437,7 @@ namespace Barotrauma.Tutorials
                 yield return null;
             } while (!shotGunChamber.Inventory.IsFull(takeStacksIntoAccount: true)); // Wait until all six harpoons loaded
             RemoveCompletedObjective(5);
+            GameAnalyticsManager.AddDesignEvent("Tutorial:OfficerTutorial:Objective5");
             SetHighlight(officer_rangedWeaponCabinet.Item, false);
             SetDoorAccess(officer_fourthDoor, officer_fourthDoorLight, true);
 
@@ -461,6 +448,7 @@ namespace Barotrauma.Tutorials
             do { yield return null; } while (!officer_mudraptor.IsDead);
             Heal(officer);
             RemoveCompletedObjective(6);
+            GameAnalyticsManager.AddDesignEvent("Tutorial:OfficerTutorial:Objective6");
             SetDoorAccess(tutorial_securityFinalDoor, tutorial_securityFinalDoorLight, true);
 
             // Submarine
@@ -512,9 +500,11 @@ namespace Barotrauma.Tutorials
             officer.RemoveActiveObjectiveEntity(officer_subAmmoBox_1);
             officer.RemoveActiveObjectiveEntity(officer_subAmmoBox_2);
             RemoveCompletedObjective(7);
+            GameAnalyticsManager.AddDesignEvent("Tutorial:OfficerTutorial:Objective7");
             GameMain.GameSession?.CrewManager.AddSinglePlayerChatMessage(radioSpeakerName, TextManager.Get("Officer.Radio.Complete"), ChatMessageType.Radio, null);
 
             yield return new WaitForSeconds(4f, false);
+            GameAnalyticsManager.AddDesignEvent("Tutorial:OfficerTutorial:Completed");
             CoroutineManager.StartCoroutine(TutorialCompleted());
         }
 

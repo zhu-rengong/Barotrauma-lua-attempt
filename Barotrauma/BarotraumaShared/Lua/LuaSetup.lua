@@ -1,7 +1,5 @@
 LuaSetup = {}
 
-LuaSetup.Descriptors = {}
-
 local path = table.pack(...)[1]
 
 package.path = {path .. "/?.lua"}
@@ -9,7 +7,7 @@ package.path = {path .. "/?.lua"}
 setmodulepaths(package.path)
 
 -- Setup Libraries
-require("UserDataUtils")
+require("LuaUserData")
 
 require("DefaultRegister/RegisterShared")
 
@@ -37,7 +35,8 @@ AddTableToGlobal(require("CompatibilityLib"))
 
 require("DefaultHook")
 
-Descriptors = LuaSetup.Descriptors
+Descriptors = LuaSetup.LuaUserData.Descriptors
+LuaUserData = LuaSetup.LuaUserData
 
 LuaSetup = nil
 

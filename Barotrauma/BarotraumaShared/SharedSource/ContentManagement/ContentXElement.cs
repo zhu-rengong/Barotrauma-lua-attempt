@@ -27,7 +27,7 @@ namespace Barotrauma
 
         public string BaseUri => Element.BaseUri;
 
-        public XDocument Document => Element.Document ?? throw new NullReferenceException("XML element is invalid: document is null.");
+        public XDocument? Document => Element.Document;
         
         public ContentXElement? FirstElement() => Elements().FirstOrDefault();
         
@@ -51,7 +51,7 @@ namespace Barotrauma
             => Element.Descendants().Select(e => new ContentXElement(ContentPackage, e));
 
         public IEnumerable<ContentXElement> GetChildElements(string name)
-            => Elements().Where(e => string.Equals(name, e.Name.LocalName, StringComparison.CurrentCultureIgnoreCase));
+            => Elements().Where(e => string.Equals(name, e.Name.LocalName, StringComparison.InvariantCultureIgnoreCase));
 
         public XAttribute? GetAttribute(string name) => Element.GetAttribute(name);
         

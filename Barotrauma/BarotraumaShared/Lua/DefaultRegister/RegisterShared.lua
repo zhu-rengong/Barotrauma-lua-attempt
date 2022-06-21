@@ -1,5 +1,5 @@
-local Register = LuaSetup.Register
-local RegisterBarotrauma = LuaSetup.RegisterBarotrauma
+local Register = LuaSetup.LuaUserData.RegisterType
+local RegisterBarotrauma = LuaSetup.LuaUserData.RegisterTypeBarotrauma
 
 Register("System.TimeSpan")
 Register("System.Exception")
@@ -7,6 +7,9 @@ Register("System.Exception")
 RegisterBarotrauma("LuaByte")
 RegisterBarotrauma("LuaUShort")
 RegisterBarotrauma("LuaFloat")
+
+RegisterBarotrauma("Range`1[System.Single]")
+RegisterBarotrauma("Range`1[System.Int32]")
 
 RegisterBarotrauma("Level+InterestingPosition")
 
@@ -16,6 +19,7 @@ RegisterBarotrauma("LanguageIdentifier")
 
 RegisterBarotrauma("Job")
 RegisterBarotrauma("JobPrefab")
+RegisterBarotrauma("JobVariant")
 RegisterBarotrauma("Level")
 RegisterBarotrauma("WayPoint")
 
@@ -41,14 +45,16 @@ RegisterBarotrauma("PreferredContainer")
 RegisterBarotrauma("SwappableItem")
 RegisterBarotrauma("FabricationRecipe+RequiredItemByIdentifier")
 RegisterBarotrauma("FabricationRecipe+RequiredItemByTag")
-
 RegisterBarotrauma("Submarine")
+
 RegisterBarotrauma("INetSerializableStruct")
 RegisterBarotrauma("Networking.Client")
 RegisterBarotrauma("Networking.TempClient")
 RegisterBarotrauma("Networking.NetworkConnection")
 RegisterBarotrauma("Networking.LidgrenConnection")
 RegisterBarotrauma("Networking.SteamP2PConnection")
+RegisterBarotrauma("Networking.VoipQueue")
+
 RegisterBarotrauma("AfflictionPrefab")
 RegisterBarotrauma("Affliction")
 RegisterBarotrauma("AnimController")
@@ -104,6 +110,7 @@ end
 LuaUserData.MakeFieldAccessible(RegisterBarotrauma("Items.Components.CustomInterface"), "customInterfaceElementList")
 RegisterBarotrauma("Items.Components.CustomInterface+CustomInterfaceElement")
 
+RegisterBarotrauma("WearableSprite")
 
 RegisterBarotrauma("AIController")
 RegisterBarotrauma("EnemyAIController")
@@ -169,6 +176,7 @@ RegisterBarotrauma("PvPMode")
 RegisterBarotrauma("Mission")
 RegisterBarotrauma("CampaignMode")
 RegisterBarotrauma("CoOpMode")
+RegisterBarotrauma("MultiPlayerCampaign")
 
 RegisterBarotrauma("CampaignMetadata")
 RegisterBarotrauma("Wallet")
@@ -237,6 +245,12 @@ RegisterBarotrauma("MapCreatures.Behavior.BallastFloraBehavior")
 RegisterBarotrauma("MapCreatures.Behavior.BallastFloraBranch")
 
 RegisterBarotrauma("PetBehavior")
+
+RegisterBarotrauma("Decal")
+RegisterBarotrauma("DecalPrefab")
+RegisterBarotrauma("DecalManager")
+
+RegisterBarotrauma("PriceInfo")
 
 Register("Microsoft.Xna.Framework.Vector2")
 Register("Microsoft.Xna.Framework.Vector3")

@@ -1,8 +1,8 @@
 local defaultLib = {}
 
-local AddCallMetaTable = LuaSetup.AddCallMetaTable
-local CreateStatic = LuaSetup.CreateStatic
-local CreateEnum = LuaUserData.CreateEnumTable
+local AddCallMetaTable = LuaSetup.LuaUserData.AddCallMetaTable
+local CreateStatic = LuaSetup.LuaUserData.CreateStatic
+local CreateEnum = LuaSetup.LuaUserData.CreateEnumTable
 
 require("DefaultLib/Utils/SteamApi")
 
@@ -32,6 +32,12 @@ defaultLib["CauseOfDeathType"] = CreateEnum("Barotrauma.CauseOfDeathType")
 defaultLib["CharacterTeamType"] = CreateEnum("Barotrauma.CharacterTeamType")
 defaultLib["ClientPermissions"] = CreateEnum("Barotrauma.Networking.ClientPermissions")
 defaultLib["OrderCategory"] = CreateEnum("Barotrauma.OrderCategory")
+defaultLib["WearableType"] = CreateEnum("Barotrauma.WearableType")
+defaultLib["NumberType"] = CreateEnum("Barotrauma.NumberType")
+defaultLib["GameDifficulty"] = CreateEnum("Barotrauma.GameDifficulty")
+defaultLib["StartingBalanceAmount"] = CreateEnum("Barotrauma.StartingBalanceAmount")
+defaultLib["ChatMode"] = CreateEnum("Barotrauma.ChatMode")
+defaultLib["CharacterType"] = CreateEnum("Barotrauma.CharacterType")
 defaultLib["InputType"] = CreateStatic("Barotrauma.InputType")
 
 
@@ -58,6 +64,7 @@ defaultLib["FactionPrefab"] = CreateStatic("Barotrauma.FactionPrefab", true)
 defaultLib["Level"] = CreateStatic("Barotrauma.Level")
 defaultLib["Job"] = CreateStatic("Barotrauma.Job", true)
 defaultLib["JobPrefab"] = CreateStatic("Barotrauma.JobPrefab", true)
+defaultLib["JobVariant"] = CreateStatic("Barotrauma.JobVariant", true)
 defaultLib["AfflictionPrefab"] = CreateStatic("Barotrauma.AfflictionPrefab", true)
 defaultLib["SkillSettings"] = CreateStatic("Barotrauma.SkillSettings", true)
 defaultLib["ChatMessage"] = CreateStatic("Barotrauma.Networking.ChatMessage")
@@ -75,6 +82,7 @@ defaultLib["Screen"] = CreateStatic("Barotrauma.Screen")
 defaultLib["AttackResult"] = CreateStatic("Barotrauma.AttackResult", true)
 defaultLib["TempClient"] = CreateStatic("Barotrauma.Networking.TempClient", true)
 defaultLib["TraitorMissionResult"] = CreateStatic("Barotrauma.TraitorMissionResult", true)
+defaultLib["DecalManager"] = CreateStatic("Barotrauma.DecalManager", true)
 
 defaultLib["Explosion"] = CreateStatic("Barotrauma.Explosion", true)
 

@@ -2,9 +2,11 @@
 
 local compatibilityLib = {}
 
-LuaUserData.AddMethod(LuaUserData.RegisterType("Barotrauma.LuaUserData"), "AddCallMetaMember", function (v)
-    print("AddCallMetaMember is deprecated, use debug.setmetatable instead.")
-end)
+local networking = LuaUserData.RegisterType("Barotrauma.LuaCsNetworking")
+
+LuaUserData.AddMethod(networking, "RequestGetHTTP", Networking.HttpGet)
+
+LuaUserData.AddMethod(networking, "RequestPostHTTP", Networking.HttpPost)
 
 compatibilityLib.CreateVector2 = Vector2.__new
 compatibilityLib.CreateVector3 = Vector3.__new

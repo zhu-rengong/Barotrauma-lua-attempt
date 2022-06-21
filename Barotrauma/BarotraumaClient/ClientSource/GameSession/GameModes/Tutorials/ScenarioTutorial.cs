@@ -1,10 +1,7 @@
 ﻿using Barotrauma.Items.Components;
 using Microsoft.Xna.Framework;
-using System;
 using System.Collections.Generic;
-using Barotrauma.IO;
 using System.Linq;
-using System.Xml.Linq;
 
 namespace Barotrauma.Tutorials
 {
@@ -106,7 +103,7 @@ namespace Barotrauma.Tutorials
             Character.Controlled = character;
             character.GiveJobItems(null);
 
-            var idCard = character.Inventory.FindItemByIdentifier("idcard".ToIdentifier());
+            var idCard = character.Inventory.FindItemByTag("identitycard".ToIdentifier());
             if (idCard == null)
             {
                 DebugConsole.ThrowError("Item prefab \"ID Card\" not found!");
@@ -228,6 +225,8 @@ namespace Barotrauma.Tutorials
                     {
                         CoroutineManager.StopCoroutines(tutorialCoroutine);
                     }
+                    GUI.PreventPauseMenuToggle = false;
+                    ContentRunning = false;
                     infoBox = null;
                 }
                 else if (Character.Controlled.IsDead)
@@ -252,6 +251,8 @@ namespace Barotrauma.Tutorials
             Character.Controlled = character = null;
             Stop();
 
+            GameAnalyticsManager.AddDesignEvent("Tutorial:Died");
+
             yield return new WaitForSeconds(3.0f);
 
             var messageBox = new GUIMessageBox(TextManager.Get("Tutorial.TryAgainHeader"), TextManager.Get("Tutorial.TryAgain"), new LocalizedString[] { TextManager.Get("Yes"), TextManager.Get("No") });
@@ -272,6 +273,8 @@ namespace Barotrauma.Tutorials
 
             Character.Controlled.ClearInputs();
             Character.Controlled = null;
+
+            GameAnalyticsManager.AddDesignEvent("Tutorial:Completed");
 
             yield return new WaitForSeconds(waitBeforeFade);
 

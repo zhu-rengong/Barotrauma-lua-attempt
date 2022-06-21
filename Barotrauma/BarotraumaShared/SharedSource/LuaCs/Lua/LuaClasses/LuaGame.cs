@@ -20,6 +20,7 @@ namespace Barotrauma
 
 		public byte MyID => GameMain.Client.ID;
 
+		public ChatMode ActiveChatMode => GameMain.ActiveChatMode;
 
 		public ChatBox ChatBox
 		{
@@ -47,6 +48,9 @@ namespace Barotrauma
 				return GameMain.LightManager;
 			}
 		}
+
+		public bool? ForceVoice = null;
+		public bool? ForceLocalVoice = null;
 #else
 
 		public bool IsDedicated
@@ -366,8 +370,22 @@ namespace Barotrauma
 
 		public void AssignOnExecute(string names, object onExecute) => DebugConsole.AssignOnExecute(names, (string[] a) => { GameMain.LuaCs.CallLuaFunction(onExecute, new object[] { a }); });
 
+		public void SaveGame(string path)
+        {
+			if (LuaCsFile.CanWriteToPath(path)) { throw new ScriptRuntimeException($"Saving files to {path} is disallowed."); }
+			SaveUtil.SaveGame(path);
+        }
+
+		public void LoadGame(string path)
+		{
+			SaveUtil.LoadGame(path);
+		}
 
 #if SERVER
+		public void LoadCampaign(string path)
+		{
+			MultiPlayerCampaign.LoadCampaign(path);
+		}
 
 		public static void SendMessage(string msg, ChatMessageType? messageType = null, Client sender = null, Character character = null)
 		{

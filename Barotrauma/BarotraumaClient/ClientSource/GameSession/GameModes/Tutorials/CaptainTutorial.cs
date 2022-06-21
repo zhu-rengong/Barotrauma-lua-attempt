@@ -102,29 +102,11 @@ namespace Barotrauma.Tutorials
             radioSpeakerName = TextManager.Get("Tutorial.Radio.Watchman");
             GameMain.GameSession.CrewManager.AllowCharacterSwitch = false;
 
-            var revolver = FindOrGiveItem(captain, "revolver".ToIdentifier());
-            revolver.Unequip(captain);
-            captain.Inventory.RemoveItem(revolver);
-
-            var captainscap = 
-                captain.Inventory.FindItemByIdentifier("captainscap1".ToIdentifier()) ??
-                captain.Inventory.FindItemByIdentifier("captainscap2".ToIdentifier()) ??
-                captain.Inventory.FindItemByIdentifier("captainscap3".ToIdentifier());
-
-            if (captainscap != null)
+            foreach (Item item in captain.Inventory.AllItemsMod)
             {
-                captainscap.Unequip(captain);
-                captain.Inventory.RemoveItem(captainscap);
-            }
-
-            var captainsuniform = 
-                captain.Inventory.FindItemByIdentifier("captainsuniform1".ToIdentifier()) ??
-                captain.Inventory.FindItemByIdentifier("captainsuniform2".ToIdentifier()) ??
-                captain.Inventory.FindItemByIdentifier("captainsuniform3".ToIdentifier());
-            if (captainsuniform != null)
-            {
-                captainsuniform.Unequip(captain);
-                captain.Inventory.RemoveItem(captainsuniform);
+                if (item.HasTag("identitycard") || item.HasTag("mobileradio")) { continue; }
+                item.Unequip(captain);
+                captain.Inventory.RemoveItem(item);
             }
 
             var steerOrder = OrderPrefab.Prefabs["steer"];
@@ -189,6 +171,9 @@ namespace Barotrauma.Tutorials
 
             captain_mechanic.CanSpeak = captain_security.CanSpeak = captain_engineer.CanSpeak = false;
             captain_mechanic.AIController.Enabled = captain_security.AIController.Enabled = captain_engineer.AIController.Enabled = false;
+
+            GameAnalyticsManager.AddDesignEvent("Tutorial:CaptainTutorial:Started");
+            GameAnalyticsManager.AddDesignEvent("Tutorial:Started");
         }
 
         public override IEnumerable<CoroutineStatus> UpdateState()
@@ -223,6 +208,7 @@ namespace Barotrauma.Tutorials
             while (!HasOrder(captain_medic, "follow"));
             SetDoorAccess(tutorial_submarineDoor, tutorial_submarineDoorLight, true);
             RemoveCompletedObjective(0);
+            GameAnalyticsManager.AddDesignEvent("Tutorial:CaptainTutorial:Objective0");
 
             // Submarine
             do { yield return null; } while (!captain_enteredSubmarineSensor.MotionDetected);
@@ -238,6 +224,8 @@ namespace Barotrauma.Tutorials
                 //HighlightOrderOption("jobspecific");
             } while (!HasOrder(captain_mechanic, "repairsystems") && !HasOrder(captain_mechanic, "repairmechanical") && !HasOrder(captain_mechanic, "repairelectrical"));
             RemoveCompletedObjective(1);
+            GameAnalyticsManager.AddDesignEvent("Tutorial:CaptainTutorial:Objective1");
+
             yield return new WaitForSeconds(2f, false);
             TriggerTutorialSegment(2, GameSettings.CurrentConfig.KeyMap.KeyBindText(InputType.Command));
             GameMain.GameSession.CrewManager.AddCharacter(captain_security);
@@ -250,6 +238,8 @@ namespace Barotrauma.Tutorials
             }
             while (!HasOrder(captain_security, "operateweapons"));
             RemoveCompletedObjective(2);
+            GameAnalyticsManager.AddDesignEvent("Tutorial:CaptainTutorial:Objective2");
+
             yield return new WaitForSeconds(4f, false);
             TriggerTutorialSegment(3, GameSettings.CurrentConfig.KeyMap.KeyBindText(InputType.Command));
             GameMain.GameSession.CrewManager.AddCharacter(captain_engineer);
@@ -265,6 +255,8 @@ namespace Barotrauma.Tutorials
             }
             while (!HasOrder(captain_engineer, "operatereactor", "powerup"));
             RemoveCompletedObjective(3);
+            GameAnalyticsManager.AddDesignEvent("Tutorial:CaptainTutorial:Objective3");
+
             do { yield return null; } while (!tutorial_submarineReactor.IsActive); // Wait until reactor on      
             TriggerTutorialSegment(4);
             while (ContentRunning) yield return null;            
@@ -279,6 +271,8 @@ namespace Barotrauma.Tutorials
             } while (Submarine.MainSub.DockedTo.Any());
             captain_navConsole.UseAutoDocking = false;
             RemoveCompletedObjective(4);
+            GameAnalyticsManager.AddDesignEvent("Tutorial:CaptainTutorial:Objective4");
+
             yield return new WaitForSeconds(2f, false);
             TriggerTutorialSegment(5); // Navigate to destination
             do
@@ -294,6 +288,8 @@ namespace Barotrauma.Tutorials
             } while (captain_sonar.CurrentMode != Sonar.Mode.Active);
             do { yield return null; } while (Vector2.Distance(Submarine.MainSub.WorldPosition, Level.Loaded.EndPosition) > 4000f);
             RemoveCompletedObjective(5);
+            GameAnalyticsManager.AddDesignEvent("Tutorial:CaptainTutorial:Objective5");
+
             captain_navConsole.UseAutoDocking = true;
             yield return new WaitForSeconds(4f, false);
             TriggerTutorialSegment(6); // Docking
@@ -303,13 +299,16 @@ namespace Barotrauma.Tutorials
                 yield return new WaitForSeconds(1.0f, false);
             } while (!Submarine.MainSub.AtEndExit || !Submarine.MainSub.DockedTo.Any());
             RemoveCompletedObjective(6);
+            GameAnalyticsManager.AddDesignEvent("Tutorial:CaptainTutorial:Objective6");
+
             yield return new WaitForSeconds(3f, false);
             GameMain.GameSession?.CrewManager.AddSinglePlayerChatMessage(radioSpeakerName, TextManager.GetWithVariable("Captain.Radio.Complete", "[OUTPOSTNAME]", GameMain.GameSession.EndLocation.Name), ChatMessageType.Radio, null);
             SetHighlight(captain_navConsole.Item, false);
             SetHighlight(captain_sonar.Item, false);
             SetHighlight(captain_statusMonitor, false);
             captain.RemoveActiveObjectiveEntity(captain_navConsole.Item);
-
+            
+            GameAnalyticsManager.AddDesignEvent("Tutorial:CaptainTutorial:Completed");
             CoroutineManager.StartCoroutine(TutorialCompleted());
         }
 
