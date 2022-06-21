@@ -389,7 +389,7 @@ namespace Barotrauma
 
             return false;
         }
-        
+
         private static bool ResolveKVIndexerArgumentType(Type type, out (Type, Type)? argumentTypes)
         {
             argumentTypes = null;
@@ -435,7 +435,7 @@ namespace Barotrauma
             Do(typeof(LuaFloat), "Float");
 
             Do(typeof(MathUtils));
-            
+
             Do(typeof(Rand));
             Do(typeof(Rand.RandSync), null, new string[] { "RandSync" });
 
@@ -554,6 +554,8 @@ namespace Barotrauma
 
             #endregion
 
+            Do(typeof(GameDifficulty));
+            Do(typeof(StartingBalanceAmount));
 
             #region Level
             Do(typeof(Level.InterestingPosition));
@@ -594,6 +596,7 @@ namespace Barotrauma
 
 
             #region Character
+            Do(typeof(CharacterType));
             Do(typeof(CharacterTeamType));
             Do(typeof(CharacterPrefab));
             Do(typeof(CharacterInfo));
@@ -716,6 +719,13 @@ namespace Barotrauma
             #region Job
             Do(typeof(Job));
             Do(typeof(JobPrefab));
+            Do(typeof(JobVariant));
+            #endregion
+
+            #region Decal
+            Do(typeof(Decal));
+            Do(typeof(DecalManager));
+            Do(typeof(DecalPrefab));
             #endregion
 
 
@@ -762,7 +772,7 @@ namespace Barotrauma
             Do(typeof(Items.Components.SonarTransducer));
             Do(typeof(Items.Components.Steering));
             Do(typeof(Items.Components.Vent));
-            
+
             //Power
             Do(typeof(Items.Components.PowerContainer));
             Do(typeof(Items.Components.Powered));
@@ -924,6 +934,7 @@ namespace Barotrauma
             Do(typeof(Sprite));
             Do(typeof(SpriteSheet));
             Do(typeof(ConditionalSprite));
+            Do(typeof(WearableType));
             Do(typeof(WearableSprite));
             Do(typeof(DeformableSprite));
 
@@ -954,13 +965,29 @@ namespace Barotrauma
             Do(typeof(UpgradePrefab));
             Do(typeof(Upgrade));
             Do(typeof(PurchasedUpgrade));
-#endregion
+            #endregion
 
             #region Networking
+            Do(typeof(Item.EventType));
             Do(typeof(Item.ComponentStateEventData));
             Do(typeof(Item.InventoryStateEventData));
             Do(typeof(Item.ChangePropertyEventData));
             Do(typeof(Item.ApplyStatusEffectEventData));
+
+            Do(typeof(Character.EventType));
+            Do(typeof(Character.InventoryStateEventData));
+            Do(typeof(Character.ControlEventData));
+            Do(typeof(Character.CharacterStatusEventData));
+            Do(typeof(Character.TreatmentEventData));
+            Do(typeof(Character.SetAttackTargetEventData));
+            Do(typeof(Character.ExecuteAttackEventData));
+            Do(typeof(Character.AssignCampaignInteractionEventData));
+            Do(typeof(Character.ObjectiveManagerStateEventData));
+            Do(typeof(Character.AddToCrewEventData));
+            Do(typeof(Character.UpdateExperienceEventData));
+            Do(typeof(Character.UpdatePermanentStatsEventData));
+            Do(typeof(Character.UpdateSkillsEventData));
+            Do(typeof(Character.UpdateTalentsEventData));
 
             Do(typeof(Networking.NetConfig));
             Do(typeof(Networking.ServerSettings));
@@ -1053,6 +1080,13 @@ namespace Barotrauma
             Do(typeof(GUIFont));
             Do(typeof(GUIFontPrefab));
 
+            Do(typeof(GUISpritePrefab));
+            Do(typeof(GUISprite));
+            Do(typeof(GUISpriteSheetPrefab));
+            Do(typeof(GUISpriteSheet));
+            Do(typeof(GUICursorPrefab));
+            Do(typeof(GUICursor));
+
             Do(typeof(GUIButton));
             Do(typeof(GUICanvas));
             Do(typeof(GUIColorPicker));
@@ -1068,7 +1102,7 @@ namespace Barotrauma
             Do(typeof(GUIMessage));
             Do(typeof(GUIMessageBox));
             Do(typeof(GUINumberInput));
-            Do(typeof(GUINumberInput.NumberType));
+            Do(typeof(GUINumberInput.NumberType), null, new string[] { "NumberType" });
             Do(typeof(GUIProgressBar));
             Do(typeof(GUIRadioButtonGroup));
             Do(typeof(GUIScissorComponent));
@@ -1096,6 +1130,12 @@ namespace Barotrauma
             #endregion
 
             #region Lights & Sounds
+            Do(typeof(ChatMode));
+            Do(typeof(Networking.VoipConfig));
+            Do(typeof(Networking.VoipQueue));
+#if SERVER
+            Do(typeof(Networking.VoipServer));
+#endif
 #if CLIENT
             Do(typeof(Lights.LightManager));
             Do(typeof(Lights.LightSource));
@@ -1106,6 +1146,8 @@ namespace Barotrauma
             Do(typeof(Sounds.OggSound));
             Do(typeof(Sounds.VideoSound));
             Do(typeof(Sounds.VoipSound));
+            Do(typeof(Networking.VoipClient));
+            Do(typeof(Networking.VoipCapture));
             Do(typeof(Sounds.SoundChannel));
             Do(typeof(RoundSound));
             Do(typeof(Items.Components.ItemSound));
@@ -1134,11 +1176,11 @@ namespace Barotrauma
             Do(typeof(Barotrauma.SubEditorScreen));
             Do(typeof(Barotrauma.TestScreen));
 #endif
-#endregion
+            #endregion
 
             Do(typeof(KarmaManager));
             Do(typeof(RespawnManager));
-            
+
             Do(typeof(DebugConsole));
             Do(typeof(DebugConsole.Command));
 
@@ -1150,6 +1192,7 @@ namespace Barotrauma
             Do(typeof(LuaCsFile), "File");
             Do(typeof(LuaCsNetworking), "Networking");
             Do(typeof(LuaCsSteam), "Steam");
+            Do(typeof(LuaCsPerformanceCounter), "PerformanceCounter");
             Do(typeof(LuaCsSetup.LuaCsModStore), "ModStore");
             Do(typeof(LuaCsSetup.LuaCsModStore.CsModStore), "ModStore.CsModStore");
             Do(typeof(LuaCsSetup.LuaCsModStore.LuaModStore), "ModStore.LuaModStore");
@@ -1197,7 +1240,7 @@ namespace Barotrauma
             string tableName = aliasTable ?? metadata.GetDefaultTableName();
             var (_, className) = metadata.GetLuaName();
             SingleLuaFileClassNameList.Add(className);
-            
+
             luadocBuilder.Append($"---@meta\n\n");
 
             luadocBuilder.Append($"---'{targetType.FullName}'\n");
@@ -1555,7 +1598,7 @@ namespace Barotrauma
                 {
                     var afflictionTypes = new HashSet<string>();
                     foreach (var prefab in AfflictionPrefab.Prefabs)
-                            afflictionTypes.Add(prefab.AfflictionType.ToString());
+                        afflictionTypes.Add(prefab.AfflictionType.ToString());
 
                     var distinct = new HashSet<string>();
                     foreach (var type in afflictionTypes)
