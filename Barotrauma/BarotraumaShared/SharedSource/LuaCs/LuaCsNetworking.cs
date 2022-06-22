@@ -156,7 +156,7 @@ namespace Barotrauma
 		}
 #endif
 
-		public void HttpRequest(string url, LuaCsAction callback, string data, string method = "POST", string contentType = "application/json")
+		public void HttpRequest(string url, LuaCsAction callback, string data = null, string method = "POST", string contentType = "application/json")
 		{
 			try
 			{
@@ -164,8 +164,11 @@ namespace Barotrauma
 				httpWebRequest.ContentType = contentType;
 				httpWebRequest.Method = method;
 
-				using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
-					streamWriter.Write(data);
+				if (data != null)
+				{
+					using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+						streamWriter.Write(data);
+				}
 
 				httpWebRequest.BeginGetResponse(new AsyncCallback((IAsyncResult result) =>
 				{
@@ -197,9 +200,9 @@ namespace Barotrauma
 		}
 
 
-		public void HttpGet(string url, LuaCsAction callback, string data, string contentType = "application/json")
+		public void HttpGet(string url, LuaCsAction callback)
 		{
-			HttpRequest(url, callback, data, "GET", contentType);
+			HttpRequest(url, callback, null, "GET");
 		}
 
 		public static async void HandleIncomingConnections(System.Net.HttpListener listener, LuaCsAction onRequestReceived)
