@@ -287,7 +287,7 @@ namespace Barotrauma
 
                         if (TalentTree.IsViableTalentForCharacter(this, prefab.Identifier, talentSelection))
                         {
-                            bool? should = GameMain.LuaCs.Hook.Call<bool>("character.updateTalent", this, prefab, c);
+                            bool? should = GameMain.LuaCs.Hook.Call<bool?>("character.updateTalent", this, prefab, c);
                             if (should == null)
                             {
                                 GiveTalent(prefab.Identifier);
