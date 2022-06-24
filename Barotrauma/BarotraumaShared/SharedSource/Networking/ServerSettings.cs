@@ -391,7 +391,7 @@ namespace Barotrauma.Networking
         public const int MaxExtraCargoItemTypes = 20;
         public Dictionary<ItemPrefab, int> ExtraCargo { get; private set; }
 
-        public HashSet<string> HiddenSubs { get; private set; }
+        public HashSet<string> HiddenSubs { get; set; }
 
         private float selectedLevelDifficulty;
         private string password;
