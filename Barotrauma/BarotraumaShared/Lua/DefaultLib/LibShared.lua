@@ -83,6 +83,7 @@ defaultLib["AttackResult"] = CreateStatic("Barotrauma.AttackResult", true)
 defaultLib["TempClient"] = CreateStatic("Barotrauma.Networking.TempClient", true)
 defaultLib["TraitorMissionResult"] = CreateStatic("Barotrauma.TraitorMissionResult", true)
 defaultLib["DecalManager"] = CreateStatic("Barotrauma.DecalManager", true)
+defaultLib["AutoItemPlacer"] = CreateStatic("Barotrauma.AutoItemPlacer")
 
 defaultLib["Explosion"] = CreateStatic("Barotrauma.Explosion", true)
 
