@@ -15,7 +15,7 @@ namespace Barotrauma
 			if (type != null) return type;
 			foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
 			{
-				if (CsScriptFilter.LoadedAssemblyName.Contains(a.GetName().Name))
+				if (CsScriptBase.LoadedAssemblyName.Contains(a.GetName().Name))
                 {
 					var attrs = a.GetCustomAttributes<AssemblyMetadataAttribute>();
 					var revision = attrs.FirstOrDefault(attr => attr.Key == "Revision")?.Value;
@@ -23,7 +23,9 @@ namespace Barotrauma
                 }
 				type = a.GetType(typeName);
 				if (type != null)
+				{
 					return type;
+				}
 			}
 			return null;
 		}

@@ -151,8 +151,6 @@ namespace Barotrauma
 					foreach (var file in src)
 					{
 						var tree = SyntaxFactory.ParseSyntaxTree(File.ReadAllText(file), ParseOptions, file);
-						var error = CsScriptFilter.FilterSyntaxTree(tree as CSharpSyntaxTree); // Check file content for prohibited stuff
-						if (error != null) throw new Exception(error);
 
 						syntaxTrees.Add(tree);
 					}
@@ -166,15 +164,15 @@ namespace Barotrauma
 			return syntaxTrees;
 		}
 
-        public List<Type> Compile()
-        {
+		public List<Type> Compile()
+		{
 			IEnumerable<SyntaxTree> syntaxTrees = ParseSources();
 
 			var options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
 				.WithMetadataImportOptions(MetadataImportOptions.All)
 				.WithOptimizationLevel(OptimizationLevel.Release)
 				.WithAllowUnsafe(false);
-			var compilation = CSharpCompilation.Create(NET_SCRIPT_ASSEMBLY,syntaxTrees, defaultReferences, options);
+			var compilation = CSharpCompilation.Create(NET_SCRIPT_ASSEMBLY, syntaxTrees, defaultReferences, options);
 
 			using (var mem = new MemoryStream())
 			{
@@ -191,20 +189,18 @@ namespace Barotrauma
 				else
 				{
 					mem.Seek(0, SeekOrigin.Begin);
-					var errStr = CsScriptFilter.FilterMetadata(new PEReader(mem).GetMetadataReader());
-					if (errStr == null)
-                    {
-						mem.Seek(0, SeekOrigin.Begin);
-						Assembly = LoadFromStream(mem);
-					}
-					else LuaCsSetup.PrintCsError(errStr);
+					Assembly = LoadFromStream(mem);
 				}
 			}
 
 			if (Assembly != null)
+			{
 				return Assembly.GetTypes().Where(t => t.IsSubclassOf(typeof(ACsMod))).ToList();
+			}
 			else
+			{
 				throw new Exception("Unable to create net mods assembly.");
+			}
 		}
 
 		private static string[] DirSearch(string sDir)
