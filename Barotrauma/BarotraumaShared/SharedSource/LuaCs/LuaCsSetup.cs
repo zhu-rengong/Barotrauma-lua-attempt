@@ -42,6 +42,11 @@ namespace Barotrauma
 		private static int executionNumber = 0;
 
 		private Script lua;
+		public Script Lua
+        {
+            get { return lua; }
+        }
+
 		public CsScriptRunner CsScript { get; private set; }
 
 		/// <summary>
