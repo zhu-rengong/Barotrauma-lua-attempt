@@ -67,8 +67,6 @@ namespace Barotrauma
 		private LuaRequire require { get; set; }
 
 		public CsScriptLoader CsScriptLoader { get; private set; }
-		public CsLua Lua { get; private set; }
-
 		public LuaCsSetupConfig Config { get; private set; }
 
 		public LuaCsSetup()
@@ -335,7 +333,6 @@ namespace Barotrauma
 			PerformanceCounter = new LuaCsPerformanceCounter();
 			LuaScriptLoader = null;
 			lua = null;
-			Lua = null;
 			CsScript = null;
 			Config = null;
 
@@ -359,7 +356,10 @@ namespace Barotrauma
 				using (var file = File.Open(configFileName, FileMode.Open, FileAccess.Read))
 					Config = LuaCsConfig.Load<LuaCsSetupConfig>(file);
 			}
-			else Config = new LuaCsSetupConfig();
+			else
+			{
+				Config = new LuaCsSetupConfig();
+			}
 
 			bool csActive = GetPackage("CsForBarotrauma", false, true) != null;
 
@@ -372,7 +372,6 @@ namespace Barotrauma
 			lua.Options.DebugPrint = PrintMessage;
 			lua.Options.ScriptLoader = LuaScriptLoader;
 			lua.Options.CheckThreadAccess = false;
-			Lua = new CsLua(this);
 			CsScript = new CsScriptRunner(this);
 
 			require = new LuaRequire(lua);
@@ -437,22 +436,7 @@ namespace Barotrauma
 					Config.FirstTimeCsWarning = false;
 					UpdateConfig();
 
-					Timer.Wait((args) => PrintCsError(@"
-  ----====    ====----
-
-        WARNING!
-  --  --  --  --  --  --
-  !Cs Package Enabled!
-
-    Cs Mods are questionably
-sandboxed, as they have
-access to reflection, due to
-modding needs.
-
-    USE ON YOUR OWN RISK!
-
-  ----====    ====----
-"), 200);
+					DebugConsole.AddWarning("Cs package active! Cs mods are NOT sandboxed, use it at your own risk!");
 				}
 
 				CsScriptLoader = new CsScriptLoader(this);
