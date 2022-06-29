@@ -61,6 +61,11 @@ namespace Barotrauma
         {
             while (timedActions.Count > 0)
             {
+                if (timedActions == null)
+                {
+                    throw new Exception($"timedActions was null, how is this possible? On MainThread: {GameMain.MainThread == System.Threading.Thread.CurrentThread}");
+                }
+
                 TimedAction timedAction = timedActions[0];
                 if (Time >= timedAction.executionTime)
                 {
