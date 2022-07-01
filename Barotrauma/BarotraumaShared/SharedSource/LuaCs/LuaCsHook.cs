@@ -266,8 +266,7 @@ namespace Barotrauma
 
 			if (classType == null)
 			{
-				GameMain.LuaCs.HandleException(new Exception($"Invalid class name '{className}'."));
-				return null;
+				throw new ArgumentNullException($"Invalid class name '{className}'.");
 			}
 
 			MethodInfo methodInfo = null;
@@ -285,7 +284,7 @@ namespace Barotrauma
 			if (methodInfo == null)
 			{
 				string parameterNamesStr = parameterNames == null ? "" : string.Join(", ", parameterNames);
-				GameMain.LuaCs.HandleException(new Exception($"Method '{methodName}' with parameters '{parameterNamesStr}' not found in class '{className}'"));
+				throw new ArgumentNullException($"Method '{methodName}' with parameters '{parameterNamesStr}' not found in class '{className}'");
 			}
 
 			return methodInfo;
