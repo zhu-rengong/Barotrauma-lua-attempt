@@ -30,7 +30,7 @@ RegisterBarotrauma("LevelObjectPrefab")
 RegisterBarotrauma("LevelTrigger")
 RegisterBarotrauma("DestructibleLevelWall")
 RegisterBarotrauma("Biome")
-
+RegisterBarotrauma("Map")
 
 RegisterBarotrauma("Character")
 RegisterBarotrauma("CharacterPrefab")
