@@ -98,12 +98,12 @@ namespace Barotrauma
 
 		public void Add(string name, string hookName, LuaCsFunc hook, ACsMod owner = null)
 		{
-			name = name.ToLower();
-
 			if (name == null || hookName == null || hook == null)
 			{
 				throw new ScriptRuntimeException("Hook.Add: name, hookName and hook must not be null.");
 			}
+
+			name = name.ToLower();
 
 			if (!hookFunctions.ContainsKey(name))
 			{
