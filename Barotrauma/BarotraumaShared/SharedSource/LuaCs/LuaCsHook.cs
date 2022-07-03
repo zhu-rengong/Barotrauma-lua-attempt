@@ -100,7 +100,10 @@ namespace Barotrauma
 		{
 			name = name.ToLower();
 
-			if (name == null || hookName == null || hook == null) throw new ArgumentNullException("Names and Hook must not be null");
+			if (name == null || hookName == null || hook == null)
+			{
+				throw new ScriptRuntimeException("Hook.Add: name, hookName and hook must not be null.");
+			}
 
 			if (!hookFunctions.ContainsKey(name))
 			{
@@ -112,12 +115,14 @@ namespace Barotrauma
 
 		public void Remove(string name, string hookName)
 		{
-			if (name == null || hookName == null) return;
+			if (name == null || hookName == null) { return };
 
 			name = name.ToLower();
 
 			if (hookFunctions.ContainsKey(name) && hookFunctions[name].ContainsKey(hookName))
+			{
 				hookFunctions[name].Remove(hookName);
+			}
 		}
 
 		public void Clear()
@@ -145,7 +150,7 @@ namespace Barotrauma
 		public T Call<T>(string name, params object[] args)
 		{
 			if (GameMain.LuaCs == null) { return default(T); }
-			if (name == null) { return default(T); }
+			if (name == null) { throw new ScriptRuntimeException("Hook.Call: name must not be null."); }
 			if (args == null) { args = new object[] { }; }
 
 			name = name.ToLower();
@@ -216,8 +221,7 @@ namespace Barotrauma
 				{
 					StringBuilder argsSb = new StringBuilder();
 					foreach (var arg in args) argsSb.Append(arg + " ");
-					GameMain.LuaCs.HandleException(
-						e, $"Error in Hook '{name}'->'{key}', with args '{argsSb}':\n{e}", ExceptionType.Both);
+					GameMain.LuaCs.HandleException(e, $"Error in Hook '{name}'->'{key}', with args '{argsSb}':\n{e}", ExceptionType.Both);
 				}
 			}
 			foreach (var key in hooksToRemove) 
