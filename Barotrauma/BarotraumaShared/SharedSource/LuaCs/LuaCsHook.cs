@@ -115,7 +115,7 @@ namespace Barotrauma
 
 		public void Remove(string name, string hookName)
 		{
-			if (name == null || hookName == null) { return };
+			if (name == null || hookName == null) { return; }
 
 			name = name.ToLower();
 
