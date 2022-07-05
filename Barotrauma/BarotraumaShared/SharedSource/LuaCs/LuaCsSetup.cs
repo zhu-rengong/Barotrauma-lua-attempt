@@ -444,7 +444,7 @@ namespace Barotrauma
 					DebugConsole.AddWarning("Cs package active! Cs mods are NOT sandboxed, use it at your own risk!");
 				}
 
-				CsScriptLoader = new CsScriptLoader(this);
+				CsScriptLoader = new CsScriptLoader();
 				CsScriptLoader.SearchFolders();
 				if (CsScriptLoader.HasSources)
 				{

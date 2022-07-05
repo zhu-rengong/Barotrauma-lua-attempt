@@ -16,16 +16,13 @@ namespace Barotrauma
 {
 	class CsScriptLoader : CsScriptBase
 	{
-		private LuaCsSetup setup;
 		private List<MetadataReference> defaultReferences;
 
 		private Dictionary<string, List<string>> sources;
 		public Assembly Assembly { get; private set; }
 
-		public CsScriptLoader(LuaCsSetup setup)
+		public CsScriptLoader()
 		{
-			this.setup = setup;
-
 			defaultReferences = AppDomain.CurrentDomain.GetAssemblies()
 				.Where(a => !(a.IsDynamic || string.IsNullOrEmpty(a.Location) || a.Location.Contains("xunit")))
 				.Select(a => MetadataReference.CreateFromFile(a.Location) as MetadataReference)
@@ -59,7 +56,10 @@ namespace Barotrauma
 						LuaCsSetup.PrintCsMessage($"Forced run C# of {cp.Name}");
 						return true;
 					}
-					else if (rtValue == RunType.None) return false;
+					else if (rtValue == RunType.None)
+					{
+						return false;
+					}
 				}
 			}
 
@@ -68,75 +68,69 @@ namespace Barotrauma
 				LuaCsSetup.PrintCsMessage($"Assumed run C# of {cp.Name}");
 				return true;
 			}
-			else return false;
+			else
+			{
+				return false;
+			}
 		}
+
 		public void SearchFolders()
-        {
+		{
 			var paths = new Dictionary<string, string>();
 			foreach (var cp in ContentPackageManager.AllPackages)
-            {
-				var path = $"{Path.GetFullPath(Path.GetDirectoryName(cp.Path)).Replace('\\','/')}/";
+			{
+				var path = $"{Path.GetFullPath(Path.GetDirectoryName(cp.Path)).Replace('\\', '/')}/";
 				if (ShouldRun(cp, path))
 				{
 					if (paths.ContainsKey(cp.Name))
-                    {
-						if (ContentPackageManager.EnabledPackages.All.Contains(cp)) paths[cp.Name] = path;
+					{
+						if (ContentPackageManager.EnabledPackages.All.Contains(cp))
+						{
+							paths[cp.Name] = path;
+						}
 					}
-					else paths.Add(cp.Name, path);
+					else
+					{
+						paths.Add(cp.Name, path);
+					}
 				}
 			}
-			foreach ((var _, var path) in paths) RunFolder(path);
+
+			foreach ((var _, var path) in paths)
+			{
+				RunFolder(path);
+			}
 		}
 
 		public bool HasSources { get => sources.Count > 0; }
 
-		private enum SourceCategory { Shared, Server, Client };
-		private Regex rMaskPathValid = new Regex(@"^/?(((?!csharp)[^/])+/)+csharp(/(shared|client|server))?(/[^/]+)+\.cs$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-		private Regex rMaskPathCategory1 = new Regex(@"/(shared|client|server)(/[^/]+)+\.cs$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-		private Regex rMaskPathCategory2 = new Regex(@"^/(shared|client|server)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-		private void RunFolder(string folder)
-		{
-			var offendingSources = new List<string>();
+		private void AddSources(string folder)
+        {
 			foreach (var str in DirSearch(folder))
 			{
-				var s = str.Replace("\\", "/");
+				string s = str.Replace("\\", "/");
 
-				if (s.EndsWith(".cs") && LuaCsFile.IsPathAllowedCsException(s))
+				if (sources.ContainsKey(folder))
 				{
-					if (rMaskPathValid.IsMatch(s)) // valid path
-					{
-						var sourceCategory = SourceCategory.Shared;
-						{
-							var match = rMaskPathCategory1.Match(s);
-							if (match.Success) match = rMaskPathCategory2.Match(match.Value);
-							if (match.Success)
-							{
-								if (match.Value.EndsWith("shared", StringComparison.OrdinalIgnoreCase)) sourceCategory = SourceCategory.Shared;
-								else if (match.Value.EndsWith("server", StringComparison.OrdinalIgnoreCase)) sourceCategory = SourceCategory.Server;
-								else if (match.Value.EndsWith("client", StringComparison.OrdinalIgnoreCase)) sourceCategory = SourceCategory.Client;
-							}
-						}
-
-						var belongsInAssembly = false;
-						{
-							if (sourceCategory == SourceCategory.Shared) belongsInAssembly = true;
-							else if (sourceCategory == SourceCategory.Server && LuaCsSetup.IsServer) belongsInAssembly = true;
-							else if (sourceCategory == SourceCategory.Client && LuaCsSetup.IsClient) belongsInAssembly = true;
-						}
-
-						if (belongsInAssembly)
-						{
-							if (sources.ContainsKey(folder)) sources[folder].Add(s);
-							else sources.Add(folder, new List<string> { s });
-						}
-					}
-					else offendingSources.Add(s);
+					sources[folder].Add(s);
+				}
+				else
+				{
+					sources.Add(folder, new List<string> { s });
 				}
 			}
-			if (offendingSources.Count > 0)
-            {
-				LuaCsSetup.PrintCsError($"All C# sources must belong to <mod_folder>/CSharp/*\n  Offending sources:{offendingSources.Select(s => $"\n    {s}").Aggregate((s1, s2) => $"{s1}{s2}")}");
-            }
+		}
+
+		private void RunFolder(string folder)
+		{
+
+			AddSources(folder + "/CSharp/Shared");
+
+#if SERVER
+			AddSources(folder + "/CSharp/Server");
+#else
+			AddSources(folder + "/CSharp/Client");
+#endif
 		}
 
 		private IEnumerable<SyntaxTree> ParseSources() {
@@ -205,6 +199,11 @@ namespace Barotrauma
 
 		private static string[] DirSearch(string sDir)
 		{
+			if (!Directory.Exists(sDir))
+            {
+				return new string[] {};
+            }
+
 			return Directory.GetFiles(sDir, "*.cs", SearchOption.AllDirectories);
 		}
 
