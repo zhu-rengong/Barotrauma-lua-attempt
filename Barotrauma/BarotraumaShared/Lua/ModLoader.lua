@@ -2,10 +2,6 @@ local LUA_MOD_REQUIRE_PATH       = "/Lua/?.lua"
 local LUA_MOD_AUTORUN_PATH       = "/Lua/Autorun"
 local LUA_MOD_FORCEDAUTORUN_PATH = "/Lua/ForcedAutorun"
 
-local allPackages     = ContentPackageManager.AllPackages
-local localPackages   = ContentPackageManager.LocalPackages
-local enabledPackages = ContentPackageManager.EnabledPackages.All
-
 local function EndsWith(str, suffix)
     return str:sub(-string.len(suffix)) == suffix
 end
@@ -34,7 +30,7 @@ local function RunFolder(folder, rootFolder, package)
     end
 end
 
-local function assertTypes(expectedTypes, ...)
+local function AssertTypes(expectedTypes, ...)
     local args = table.pack(...)
     assert(
         #args == #expectedTypes,
@@ -74,7 +70,7 @@ local function ExecutionQueue()
         end
     end
     local function queueExecutionFIFO(...)
-        assertTypes(
+        AssertTypes(
             { 'string', 'string', 'userdata' },
             ...
         )
@@ -86,10 +82,10 @@ local function ExecutionQueue()
     return queueExecutionFIFO, processQueueFIFO
 end
 
-local queueAutorun,       processAutorun       = ExecutionQueue()
-local queueForcedAutorun, processForcedAutorun = ExecutionQueue()
+local QueueAutorun,       ProcessAutorun       = ExecutionQueue()
+local QueueForcedAutorun, ProcessForcedAutorun = ExecutionQueue()
 
-local function processPackages(packages, fn)
+local function ProcessPackages(packages, fn)
     for pkg in packages do
         if pkg then
             local pkgPath = pkg.Path
@@ -100,13 +96,13 @@ local function processPackages(packages, fn)
     end
 end
 
-processPackages(
-    enabledPackages,
+ProcessPackages(
+    ContentPackageManager.EnabledPackages.All,
     function(pkg, pkgPath)
         table.insert(package.path, pkgPath .. LUA_MOD_REQUIRE_PATH)
         local autorunPath = pkgPath .. LUA_MOD_AUTORUN_PATH
         if File.DirectoryExists(autorunPath) then
-            queueAutorun(autorunPath, pkgPath, pkg)
+            QueueAutorun(autorunPath, pkgPath, pkg)
         end
     end
 )
@@ -114,26 +110,38 @@ processPackages(
 -- we don't want to execute workshop ForcedAutorun if we have a local Package
 local executedLocalPackages = {}
 
-processPackages(
-    localPackages,
+ProcessPackages(
+    ContentPackageManager.EnabledPackages.All,
     function(pkg, pkgPath)
         table.insert(package.path, pkgPath .. LUA_MOD_REQUIRE_PATH)
         local forcedAutorunPath = pkgPath .. LUA_MOD_FORCEDAUTORUN_PATH
         if File.DirectoryExists(forcedAutorunPath) then
-            queueForcedAutorun(forcedAutorunPath, pkgPath, pkg)
+            QueueForcedAutorun(forcedAutorunPath, pkgPath, pkg)
             executedLocalPackages[pkg.Name] = true
         end
     end
 )
 
-processPackages(
-    allPackages,
+ProcessPackages(
+    ContentPackageManager.LocalPackages,
+    function(pkg, pkgPath)
+        table.insert(package.path, pkgPath .. LUA_MOD_REQUIRE_PATH)
+        local forcedAutorunPath = pkgPath .. LUA_MOD_FORCEDAUTORUN_PATH
+        if File.DirectoryExists(forcedAutorunPath) then
+            QueueForcedAutorun(forcedAutorunPath, pkgPath, pkg)
+            executedLocalPackages[pkg.Name] = true
+        end
+    end
+)
+
+ProcessPackages(
+    ContentPackageManager.AllPackages,
     function(pkg, pkgPath)
         if not executedLocalPackages[pkg.Name] then
             table.insert(package.path, pkgPath .. LUA_MOD_REQUIRE_PATH)
             local forcedAutorunPath = pkgPath .. LUA_MOD_FORCEDAUTORUN_PATH
             if File.DirectoryExists(forcedAutorunPath) then
-                queueForcedAutorun(forcedAutorunPath, pkgPath, pkg)
+                QueueForcedAutorun(forcedAutorunPath, pkgPath, pkg)
             end
         end
     end
@@ -141,8 +149,8 @@ processPackages(
 
 setmodulepaths(package.path)
 setmodulepaths = nil
-processAutorun()
-processForcedAutorun()
+ProcessAutorun()
+ProcessForcedAutorun()
 
 Hook.Add("stop", "luaSetup.stop", function ()
     print("Stopping Lua...")
