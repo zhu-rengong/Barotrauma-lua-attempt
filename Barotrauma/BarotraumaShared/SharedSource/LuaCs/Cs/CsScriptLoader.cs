@@ -77,7 +77,7 @@ namespace Barotrauma
 		public void SearchFolders()
 		{
 			var paths = new Dictionary<string, string>();
-			foreach (var cp in ContentPackageManager.AllPackages)
+			foreach (var cp in ContentPackageManager.AllPackages.Concat(ContentPackageManager.EnabledPackages.All))
 			{
 				var path = $"{Path.GetFullPath(Path.GetDirectoryName(cp.Path)).Replace('\\', '/')}/";
 				if (ShouldRun(cp, path))
