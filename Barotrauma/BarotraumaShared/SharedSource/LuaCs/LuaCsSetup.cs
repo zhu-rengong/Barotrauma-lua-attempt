@@ -318,9 +318,13 @@ namespace Barotrauma
 			{
 				UserData.UnregisterType(type, true);
 			}
-			foreach (var mod in ACsMod.LoadedMods.ToArray()) mod.Dispose();
-			ACsMod.LoadedMods.Clear();
 
+			foreach (var mod in ACsMod.LoadedMods.ToArray())
+			{
+				mod.Dispose();
+			}
+			
+			ACsMod.LoadedMods.Clear();
 
 			if (Thread.CurrentThread == GameMain.MainThread) 
 			{

@@ -29,8 +29,17 @@ namespace Barotrauma
             LoadedMods.Add(this);
         }
 
-        public void Dispose() {
-            Stop();
+        public void Dispose()
+        {
+            try
+            {
+                Stop();
+            }
+            catch (Exception e)
+            {
+                GameMain.LuaCs.HandleException(e, null, LuaCsSetup.ExceptionType.CSharp);
+            }
+
             LoadedMods.Remove(this);
             IsDisposed = true;
         }
