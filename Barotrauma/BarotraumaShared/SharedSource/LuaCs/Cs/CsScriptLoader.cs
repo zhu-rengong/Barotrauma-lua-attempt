@@ -35,12 +35,16 @@ namespace Barotrauma
 		private enum RunType { Standard, Forced, None };
 		private bool ShouldRun(ContentPackage cp, string path)
 		{
-			if (!Directory.Exists(path + "CSharp")) return false;
+			if (!Directory.Exists(path + "CSharp"))
+			{
+				return false;
+			}
 
 			var isEnabled = ContentPackageManager.EnabledPackages.All.Contains(cp);
 			if (File.Exists(path + "CSharp/RunConfig.xml"))
 			{
-				var doc = XDocument.Load(File.Open(path + "CSharp/RunConfig.xml", FileMode.Open, FileAccess.Read));
+				Stream stream = File.Open(path + "CSharp/RunConfig.xml", FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+				var doc = XDocument.Load(stream);
 				var elems = doc.Root.Elements().ToArray();
 				var elem = elems.FirstOrDefault(e => e.Name.LocalName.Equals(LuaCsSetup.IsServer ? "Server" : (LuaCsSetup.IsClient ? "Client" : "None"), StringComparison.OrdinalIgnoreCase));
 
@@ -61,6 +65,8 @@ namespace Barotrauma
 						return false;
 					}
 				}
+
+				stream.Close();
 			}
 
 			if (isEnabled)
