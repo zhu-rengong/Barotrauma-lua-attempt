@@ -473,6 +473,8 @@ namespace Barotrauma
 
 			if (File.Exists(LuaSetupFile))
 			{
+				PrintMessage("Using LuaSetup.lua from the Barotrauma Lua/ folder.");
+
 				try
 				{
 					DynValue function = lua.LoadFile(LuaSetupFile);
@@ -485,6 +487,8 @@ namespace Barotrauma
 			}
 			else if (luaPackage != null)
 			{
+				PrintMessage("Using LuaSetup.lua from the content package.");
+
 				string path = Path.GetDirectoryName(luaPackage.Path);
 
 				try
