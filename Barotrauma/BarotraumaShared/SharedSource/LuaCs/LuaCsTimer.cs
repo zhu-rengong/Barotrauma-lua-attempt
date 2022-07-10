@@ -62,11 +62,15 @@ namespace Barotrauma
             List<TimedAction> timedActionsToRemove = new List<TimedAction>();
             for (int i = 0; i < timedActions.Count; i++)
             {
-                TimedAction timedAction = timedActions[0];
+                TimedAction timedAction = timedActions[i];
                 if (Time >= timedAction.executionTime)
                 {
                     timedAction.action();
                     timedActionsToRemove.Add(timedAction);
+                }
+                else
+                {
+                    break;
                 }
             }
             
