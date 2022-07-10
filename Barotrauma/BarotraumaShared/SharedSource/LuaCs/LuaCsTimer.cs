@@ -59,23 +59,20 @@ namespace Barotrauma
 
         public void Update()
         {
-            while (timedActions.Count > 0)
+            List<TimedAction> timedActionsToRemove = new List<TimedAction>();
+            for (int i = 0; i < timedActions.Count; i++)
             {
-                if (timedActions == null)
-                {
-                    throw new Exception($"timedActions was null, how is this possible? On MainThread: {GameMain.MainThread == System.Threading.Thread.CurrentThread}");
-                }
-
                 TimedAction timedAction = timedActions[0];
                 if (Time >= timedAction.executionTime)
                 {
                     timedAction.action();
-                    timedActions.RemoveAt(0);
+                    timedActionsToRemove.Add(timedAction);
                 }
-                else
-                {
-                    break;
-                }
+            }
+            
+            foreach (TimedAction timedAction in timedActionsToRemove)
+            {
+                timedActions.Remove(timedAction);
             }
         }
 
