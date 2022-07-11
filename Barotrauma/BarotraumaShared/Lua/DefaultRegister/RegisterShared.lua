@@ -187,6 +187,7 @@ RegisterBarotrauma("Mission")
 RegisterBarotrauma("CampaignMode")
 RegisterBarotrauma("CoOpMode")
 RegisterBarotrauma("MultiPlayerCampaign")
+RegisterBarotrauma("Radiation")
 
 RegisterBarotrauma("CampaignMetadata")
 RegisterBarotrauma("Wallet")
