@@ -374,6 +374,12 @@ namespace Barotrauma
 
         public void AddMessage(ChatMessage message)
         {
+            if (GameMain.IsSingleplayer)
+            {
+                var should = GameMain.LuaCs.Hook.Call<bool?>("chatMessage", message.Text, message.SenderClient, message.Type, message);
+                if (should != null && should.Value) { return; }
+            }
+
             while (chatBox.Content.CountChildren > 60)
             {
                 chatBox.RemoveChild(chatBox.Content.Children.First());
