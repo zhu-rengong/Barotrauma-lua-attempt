@@ -327,7 +327,11 @@ namespace Barotrauma
 
 				if (hookPrefixMethods.TryGetValue(funcAddr, out HashSet<(string, LuaCsFunc, ACsMod)> methodSet))
 				{
-					methodSet.RemoveWhere(tuple => tuple.Item1 == identifier);
+					if (identifier != "")
+					{
+						methodSet.RemoveWhere(tuple => tuple.Item1 == identifier);
+					}
+
 					methodSet.Add((identifier, patch, owner));
 				}
 				else if (patch != null)
@@ -355,7 +359,11 @@ namespace Barotrauma
 
 				if (hookPostfixMethods.TryGetValue(funcAddr, out HashSet<(string, LuaCsFunc, ACsMod)> methodSet))
 				{
-					methodSet.RemoveWhere(tuple => tuple.Item1 == identifier);
+					if (identifier != "")
+					{
+						methodSet.RemoveWhere(tuple => tuple.Item1 == identifier);
+					}
+
 					methodSet.Add((identifier, patch, owner));
 				}
 				else if (patch != null)
