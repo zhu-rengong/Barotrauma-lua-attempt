@@ -1462,6 +1462,11 @@ namespace Barotrauma
                 }
                 else
                 {
+                    if (GameMain.NetLobbyScreen.SelectedMode == GameModePreset.MultiPlayerCampaign)
+                    {
+                        MultiPlayerCampaign.StartCampaignSetup();
+                        return;
+                    }
                     if (!GameMain.Server.StartGame()) { NewMessage("Failed to start a new round", Color.Yellow); }
                 }
             }));
