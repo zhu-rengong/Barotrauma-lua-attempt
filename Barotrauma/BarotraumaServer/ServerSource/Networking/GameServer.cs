@@ -2282,8 +2282,6 @@ namespace Barotrauma.Networking
 
                 AssignJobs(teamClients);
 
-                GameMain.LuaCs.Hook.Call("jobsAssigned");
-
                 List<CharacterInfo> characterInfos = new List<CharacterInfo>();
                 foreach (Client client in teamClients)
                 {
@@ -3839,6 +3837,8 @@ namespace Barotrauma.Networking
                     assignedClientCount[c.AssignedJob.Prefab]++;
                 }
             }
+
+            GameMain.LuaCs.Hook.Call("jobsAssigned", unassigned);
         }
 
         public void AssignBotJobs(List<CharacterInfo> bots, CharacterTeamType teamID)
