@@ -89,28 +89,22 @@ namespace Barotrauma
 					else
 					{
 						mem.Seek(0, SeekOrigin.Begin);
-						var errStr = CsScriptFilter.FilterOneTimeMetadata(new PEReader(mem).GetMetadataReader());
-						if (errStr == null)
+						assembly = LoadFromStream(mem);
+						var runner = assembly.CreateInstance("NetOneTimeScript.NetOneTimeScriptRunner");
+						if (runner != null)
 						{
-							mem.Seek(0, SeekOrigin.Begin);
-							assembly = LoadFromStream(mem);
-							var runner = assembly.CreateInstance("NetOneTimeScript.NetOneTimeScriptRunner");
-							if (runner != null)
-                            {
-								var method = runner.GetType().GetMethod("Run", BindingFlags.Public | BindingFlags.Instance);
-								if (method != null)
-                                {
-									scriptResilt = method.Invoke(runner, null);
-									foreach (var type in assembly.GetTypes())
-									{
-                                        UserData.UnregisterType(type, true);
-									}
+							var method = runner.GetType().GetMethod("Run", BindingFlags.Public | BindingFlags.Instance);
+							if (method != null)
+							{
+								scriptResilt = method.Invoke(runner, null);
+								foreach (var type in assembly.GetTypes())
+								{
+									UserData.UnregisterType(type, true);
 								}
-								else LuaCsSetup.PrintCsError("Script Error - no run method detected");
 							}
-							else LuaCsSetup.PrintCsError("Script Error - no runner class detected");
+							else { LuaCsSetup.PrintCsError("Script Error - no run method detected"); }
 						}
-						else LuaCsSetup.PrintCsError(errStr);
+						else { LuaCsSetup.PrintCsError("Script Error - no runner class detected"); }
 					}
 				}
 				Unload();

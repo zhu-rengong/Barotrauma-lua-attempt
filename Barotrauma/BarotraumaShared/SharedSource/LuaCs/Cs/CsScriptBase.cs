@@ -20,6 +20,11 @@ namespace Barotrauma
 		public const string NET_ONE_TIME_SCRIPT_ASSEMBLY = "NetOneTimeScriptAssembly";
 		public const string NET_SCRIPT_ASSEMBLY = "NetScriptAssembly";
 
+		public static readonly string[] LoadedAssemblyName = {
+			CsScriptBase.NET_SCRIPT_ASSEMBLY,
+			CsScriptBase.NET_ONE_TIME_SCRIPT_ASSEMBLY
+		};
+
 		public static Dictionary<string, object> Revision = new Dictionary<string, object>()
         {
 			{ NET_SCRIPT_ASSEMBLY, 0},

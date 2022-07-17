@@ -1613,10 +1613,11 @@ namespace Barotrauma.Networking
             outmsg.Write((UInt16)subList.Count);
             for (int i = 0; i < subList.Count; i++)
             {
-                outmsg.Write(subList[i].Name);
-                outmsg.Write(subList[i].MD5Hash.ToString());
-                outmsg.Write((byte)subList[i].SubmarineClass);
-                outmsg.Write(subList[i].RequiredContentPackagesInstalled);
+                var sub = subList[i];
+                outmsg.Write(sub.Name);
+                outmsg.Write(sub.MD5Hash.ToString());
+                outmsg.Write((byte)sub.SubmarineClass);
+                outmsg.Write(sub.RequiredContentPackagesInstalled);
             }
 
             outmsg.Write(GameStarted);
@@ -2054,12 +2055,15 @@ namespace Barotrauma.Networking
 
             GameModePreset selectedMode = Voting.HighestVoted<GameModePreset>(VoteType.Mode, connectedClients);
             if (selectedMode == null) { selectedMode = GameMain.NetLobbyScreen.SelectedMode; }
-
             if (selectedMode == null)
             {
                 return false;
             }
-
+            if (selectedMode == GameModePreset.MultiPlayerCampaign && !(GameMain.GameSession?.GameMode is CampaignMode))
+            {
+                DebugConsole.ThrowError("StartGame failed. Cannot start a multiplayer campaign via StartGame - use MultiPlayerCampaign.StartNewCampaign or MultiPlayerCampaign.LoadCampaign instead.");
+                return false;
+            }
             initiatedStartGame = true;
             startGameCoroutine = CoroutineManager.StartCoroutine(InitiateStartGame(selectedSub, selectedShuttle, selectedMode), "InitiateStartGame");
 
@@ -2146,11 +2150,17 @@ namespace Barotrauma.Networking
                 yield return CoroutineStatus.Failure;
             }
 
+            bool initialSuppliesSpawned = false;
             //don't instantiate a new gamesession if we're playing a campaign
             if (campaign == null || GameMain.GameSession == null)
             {
                 GameMain.GameSession = new GameSession(selectedSub, "", selectedMode, settings, GameMain.NetLobbyScreen.LevelSeed, missionType: GameMain.NetLobbyScreen.MissionType);
             }
+            else
+            {
+                initialSuppliesSpawned = GameMain.GameSession.SubmarineInfo is { InitialSuppliesSpawned: true };
+            }
+
 
             List<Client> playingClients = new List<Client>(connectedClients);
             if (serverSettings.AllowSpectating)
@@ -2273,8 +2283,6 @@ namespace Barotrauma.Networking
                 //if (!teamClients.Any() && n > 0) { continue; }
 
                 AssignJobs(teamClients);
-
-                GameMain.LuaCs.Hook.Call("jobsAssigned");
 
                 List<CharacterInfo> characterInfos = new List<CharacterInfo>();
                 foreach (Client client in teamClients)
@@ -2435,17 +2443,18 @@ namespace Barotrauma.Networking
 
             campaign?.CargoManager.InitPurchasedIDCards();
 
-            foreach (Submarine sub in Submarine.MainSubs)
+            if (campaign == null || !initialSuppliesSpawned)
             {
-                if (sub == null) { continue; }
-
-                List<PurchasedItem> spawnList = new List<PurchasedItem>();
-                foreach (KeyValuePair<ItemPrefab, int> kvp in serverSettings.ExtraCargo)
+                foreach (Submarine sub in Submarine.MainSubs)
                 {
-                    spawnList.Add(new PurchasedItem(kvp.Key, kvp.Value, buyer: null));
+                    if (sub == null) { continue; }
+                    List<PurchasedItem> spawnList = new List<PurchasedItem>();
+                    foreach (KeyValuePair<ItemPrefab, int> kvp in serverSettings.ExtraCargo)
+                    {
+                        spawnList.Add(new PurchasedItem(kvp.Key, kvp.Value, buyer: null));
+                    }
+                    CargoManager.CreateItems(spawnList, sub, cargoManager: null);
                 }
-
-                CargoManager.CreateItems(spawnList, sub, cargoManager: null);
             }
 
             TraitorManager = null;
@@ -3830,6 +3839,8 @@ namespace Barotrauma.Networking
                     assignedClientCount[c.AssignedJob.Prefab]++;
                 }
             }
+
+            GameMain.LuaCs.Hook.Call("jobsAssigned", unassigned);
         }
 
         public void AssignBotJobs(List<CharacterInfo> bots, CharacterTeamType teamID)

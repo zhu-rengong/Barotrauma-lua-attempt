@@ -42,6 +42,11 @@ namespace Barotrauma
 		private static int executionNumber = 0;
 
 		private Script lua;
+		public Script Lua
+        {
+            get { return lua; }
+        }
+
 		public CsScriptRunner CsScript { get; private set; }
 
 		/// <summary>
@@ -67,8 +72,6 @@ namespace Barotrauma
 		private LuaRequire require { get; set; }
 
 		public CsScriptLoader CsScriptLoader { get; private set; }
-		public CsLua Lua { get; private set; }
-
 		public LuaCsSetupConfig Config { get; private set; }
 
 		public LuaCsSetup()
@@ -213,7 +216,7 @@ namespace Barotrauma
 		public static void PrintCsError(object message) => PrintErrorBase("[SV CS ERROR] ", message, "Null");
 		public static void PrintBothError(object message) => PrintErrorBase("[SV ERROR] ", message, "Null");
 #else
-		private void PrintError(object message) => PrintErrorBase("[CL LUA ERROR] ", message, "nil");
+		public void PrintError(object message) => PrintErrorBase("[CL LUA ERROR] ", message, "nil");
 		public static void PrintCsError(object message) => PrintErrorBase("[CL CS ERROR] ", message, "Null");
 		public static void PrintBothError(object message) => PrintErrorBase("[CL ERROR] ", message, "Null");
 #endif
@@ -315,9 +318,13 @@ namespace Barotrauma
 			{
 				UserData.UnregisterType(type, true);
 			}
-			foreach (var mod in ACsMod.LoadedMods.ToArray()) mod.Dispose();
-			ACsMod.LoadedMods.Clear();
 
+			foreach (var mod in ACsMod.LoadedMods.ToArray())
+			{
+				mod.Dispose();
+			}
+			
+			ACsMod.LoadedMods.Clear();
 
 			if (Thread.CurrentThread == GameMain.MainThread) 
 			{
@@ -335,7 +342,6 @@ namespace Barotrauma
 			PerformanceCounter = new LuaCsPerformanceCounter();
 			LuaScriptLoader = null;
 			lua = null;
-			Lua = null;
 			CsScript = null;
 			Config = null;
 
@@ -359,7 +365,10 @@ namespace Barotrauma
 				using (var file = File.Open(configFileName, FileMode.Open, FileAccess.Read))
 					Config = LuaCsConfig.Load<LuaCsSetupConfig>(file);
 			}
-			else Config = new LuaCsSetupConfig();
+			else
+			{
+				Config = new LuaCsSetupConfig();
+			}
 
 			bool csActive = GetPackage("CsForBarotrauma", false, true) != null;
 
@@ -372,7 +381,6 @@ namespace Barotrauma
 			lua.Options.DebugPrint = PrintMessage;
 			lua.Options.ScriptLoader = LuaScriptLoader;
 			lua.Options.CheckThreadAccess = false;
-			Lua = new CsLua(this);
 			CsScript = new CsScriptRunner(this);
 
 			require = new LuaRequire(lua);
@@ -437,25 +445,10 @@ namespace Barotrauma
 					Config.FirstTimeCsWarning = false;
 					UpdateConfig();
 
-					Timer.Wait((args) => PrintCsError(@"
-  ----====    ====----
-
-        WARNING!
-  --  --  --  --  --  --
-  !Cs Package Enabled!
-
-    Cs Mods are questionably
-sandboxed, as they have
-access to reflection, due to
-modding needs.
-
-    USE ON YOUR OWN RISK!
-
-  ----====    ====----
-"), 200);
+					DebugConsole.AddWarning("Cs package active! Cs mods are NOT sandboxed, use it at your own risk!");
 				}
 
-				CsScriptLoader = new CsScriptLoader(this);
+				CsScriptLoader = new CsScriptLoader();
 				CsScriptLoader.SearchFolders();
 				if (CsScriptLoader.HasSources)
 				{
@@ -480,6 +473,8 @@ modding needs.
 
 			if (File.Exists(LuaSetupFile))
 			{
+				PrintMessage("Using LuaSetup.lua from the Barotrauma Lua/ folder.");
+
 				try
 				{
 					DynValue function = lua.LoadFile(LuaSetupFile);
@@ -492,6 +487,8 @@ modding needs.
 			}
 			else if (luaPackage != null)
 			{
+				PrintMessage("Using LuaSetup.lua from the content package.");
+
 				string path = Path.GetDirectoryName(luaPackage.Path);
 
 				try

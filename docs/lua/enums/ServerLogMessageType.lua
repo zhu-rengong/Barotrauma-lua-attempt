@@ -44,11 +44,21 @@ ServerLogMessageType enum.
 -- @number ServerLogMessageType.ConsoleUsage
 
 ---
--- ServerLogMessageType.Karma = 8
+-- ServerLogMessageType.Money = 8
+-- @realm shared
+-- @number ServerLogMessageType.Money
+
+---
+-- ServerLogMessageType.Karma = 9
 -- @realm shared
 -- @number ServerLogMessageType.Karma
 
 ---
--- ServerLogMessageType.Error = 9
+-- ServerLogMessageType.Talent = 10
+-- @realm shared
+-- @number ServerLogMessageType.Talent
+
+---
+-- ServerLogMessageType.Error = 11
 -- @realm shared
 -- @number ServerLogMessageType.Error

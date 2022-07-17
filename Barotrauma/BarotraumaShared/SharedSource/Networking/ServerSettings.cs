@@ -1,17 +1,13 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Barotrauma.Extensions;
+using Barotrauma.IO;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.ComponentModel;
-using System.Globalization;
-using Barotrauma.IO;
 using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
-using System.Xml;
-using System.Xml.Linq;
-using Barotrauma.Extensions;
 
 namespace Barotrauma.Networking
 {
@@ -391,7 +387,7 @@ namespace Barotrauma.Networking
         public const int MaxExtraCargoItemTypes = 20;
         public Dictionary<ItemPrefab, int> ExtraCargo { get; private set; }
 
-        public HashSet<string> HiddenSubs { get; private set; }
+        public HashSet<string> HiddenSubs { get; set; }
 
         private float selectedLevelDifficulty;
         private string password;

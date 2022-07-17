@@ -59,18 +59,24 @@ namespace Barotrauma
 
         public void Update()
         {
-            while (timedActions.Count > 0)
+            List<TimedAction> timedActionsToRemove = new List<TimedAction>();
+            for (int i = 0; i < timedActions.Count; i++)
             {
-                TimedAction timedAction = timedActions[0];
+                TimedAction timedAction = timedActions[i];
                 if (Time >= timedAction.executionTime)
                 {
                     timedAction.action();
-                    timedActions.RemoveAt(0);
+                    timedActionsToRemove.Add(timedAction);
                 }
                 else
                 {
                     break;
                 }
+            }
+            
+            foreach (TimedAction timedAction in timedActionsToRemove)
+            {
+                timedActions.Remove(timedAction);
             }
         }
 
