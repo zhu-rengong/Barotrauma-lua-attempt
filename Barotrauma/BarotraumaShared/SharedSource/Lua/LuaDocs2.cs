@@ -569,6 +569,9 @@ namespace Barotrauma
             Do(typeof(LevelTrigger));
             Do(typeof(LevelWall));
             Do(typeof(DestructibleLevelWall));
+            Do(typeof(Biome));
+            Do(typeof(Map));
+            Do(typeof(Radiation));
             #endregion
 
 
@@ -600,6 +603,8 @@ namespace Barotrauma
             Do(typeof(CharacterTeamType));
             Do(typeof(CharacterPrefab));
             Do(typeof(CharacterInfo));
+            Do(typeof(CharacterInfo.HeadInfo));
+            Do(typeof(CharacterInfo.HeadPreset));
             Do(typeof(CharacterInfoPrefab));
             Do(typeof(Character));
             Do(typeof(AICharacter));
