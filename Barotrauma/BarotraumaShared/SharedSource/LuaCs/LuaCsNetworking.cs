@@ -87,7 +87,17 @@ namespace Barotrauma
 			if (header == ClientPacketHeader.LUA_NET_MESSAGE)
 			{
 				string netMessageName = netMessage.ReadString();
-				if (LuaCsNetReceives.ContainsKey(netMessageName)) LuaCsNetReceives[netMessageName](netMessage, client);
+				if (LuaCsNetReceives.ContainsKey(netMessageName))
+				{
+					try 
+					{
+						LuaCsNetReceives[netMessageName](netMessage, client);
+					}
+					catch(Exception e)
+                    {
+						GameMain.LuaCs.HandleException(e, $"Exception thrown inside NetMessageReceive({netMessageName})", LuaCsSetup.ExceptionType.CSharp);
+                    }
+				}
 			}
 			else
 			{
@@ -102,7 +112,17 @@ namespace Barotrauma
 			if (header == ServerPacketHeader.LUA_NET_MESSAGE)
 			{
 				string netMessageName = netMessage.ReadString();
-				if (LuaCsNetReceives.ContainsKey(netMessageName)) LuaCsNetReceives[netMessageName](netMessage, client);
+				if (LuaCsNetReceives.ContainsKey(netMessageName))
+                {
+					try
+					{
+						LuaCsNetReceives[netMessageName](netMessage, client);
+					}
+					catch (Exception e)
+					{
+						GameMain.LuaCs.HandleException(e, $"Exception thrown inside NetMessageReceive({netMessageName})", LuaCsSetup.ExceptionType.CSharp);
+					}
+				}
 			}
 			else
 			{
