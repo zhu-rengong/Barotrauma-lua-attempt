@@ -13,8 +13,8 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 
-[assembly: InternalsVisibleTo(Barotrauma.CsScriptBase.NET_SCRIPT_ASSEMBLY, AllInternalsVisible = true)]
-[assembly: InternalsVisibleTo(Barotrauma.CsScriptBase.NET_ONE_TIME_SCRIPT_ASSEMBLY, AllInternalsVisible = true)]
+[assembly: InternalsVisibleTo(Barotrauma.CsScriptBase.CsScriptAssembly, AllInternalsVisible = true)]
+[assembly: InternalsVisibleTo(Barotrauma.CsScriptBase.CsOneTimeScriptAssembly, AllInternalsVisible = true)]
 namespace Barotrauma
 {
 	class LuaCsSetupConfig
@@ -314,7 +314,7 @@ namespace Barotrauma
 
 		public void Stop()
 		{
-			foreach (var type in AppDomain.CurrentDomain.GetAssemblies().Where(a => a.GetName().Name == CsScriptBase.NET_SCRIPT_ASSEMBLY).SelectMany(assembly => assembly.GetTypes()))
+			foreach (var type in AppDomain.CurrentDomain.GetAssemblies().Where(a => a.GetName().Name == CsScriptBase.CsScriptAssembly).SelectMany(assembly => assembly.GetTypes()))
 			{
 				UserData.UnregisterType(type, true);
 			}
@@ -457,7 +457,14 @@ namespace Barotrauma
 						var modTypes = CsScriptLoader.Compile();
 						modTypes.ForEach(t =>
 						{
-							t.GetConstructor(new Type[] { })?.Invoke(null);
+							try
+							{
+								t.GetConstructor(new Type[] { })?.Invoke(null);
+							}
+							catch (Exception ex)
+                            {
+								HandleException(ex, exceptionType: ExceptionType.CSharp);
+							}
 						});
 					}
 					catch (Exception ex)

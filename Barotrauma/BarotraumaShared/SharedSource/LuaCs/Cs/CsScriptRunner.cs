@@ -56,7 +56,7 @@ namespace Barotrauma
 			{
 				code = ToOneTimeScript(code);
 				var syntaxTree = SyntaxFactory.ParseSyntaxTree(code, ParseOptions);
-				var compilation = CSharpCompilation.Create(NET_ONE_TIME_SCRIPT_ASSEMBLY, new[] { AssemblyInfoSyntaxTree(NET_ONE_TIME_SCRIPT_ASSEMBLY), syntaxTree }, defaultReferences, compileOptions);
+				var compilation = CSharpCompilation.Create(CsOneTimeScriptAssembly, new[] { AssemblyInfoSyntaxTree(CsOneTimeScriptAssembly), syntaxTree }, defaultReferences, compileOptions);
 
 				Assembly assembly = null;
 				using (var mem = new MemoryStream())
