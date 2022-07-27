@@ -1031,8 +1031,6 @@ namespace Barotrauma
                 return true;
             }
 
-            GameMain.LuaCs.Initialize();
-
             CloseItem();
 
             backedUpSubInfo = new SubmarineInfo(MainSub);
@@ -1324,12 +1322,12 @@ namespace Barotrauma
         public override void Select()
         {
             Select(enableAutoSave: true);
+
+            GameMain.LuaCs.Initialize();
         }
 
         public void Select(bool enableAutoSave = true)
         {
-            GameMain.LuaCs.Stop();
-
             base.Select();
 
             TaskPool.Add(

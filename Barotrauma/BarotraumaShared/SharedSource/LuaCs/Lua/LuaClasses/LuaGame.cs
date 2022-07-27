@@ -16,10 +16,11 @@ namespace Barotrauma
 		public bool IsMultiplayer => GameMain.IsMultiplayer;
 
 #if CLIENT
+		public bool? ForceVoice = null;
+		public bool? ForceLocalVoice = null;
+
 		public bool Paused => GameMain.Instance?.Paused == true;
-
 		public byte MyID => GameMain.Client.ID;
-
 		public ChatMode ActiveChatMode => GameMain.ActiveChatMode;
 
 		public ChatBox ChatBox
@@ -49,8 +50,21 @@ namespace Barotrauma
 			}
 		}
 
-		public bool? ForceVoice = null;
-		public bool? ForceLocalVoice = null;
+		public SubEditorScreen SubEditorScreen
+		{
+			get
+			{
+				return GameMain.SubEditorScreen;
+			}
+		}
+
+		public bool IsSubEditor
+        {
+            get
+            {
+				return Screen.Selected is SubEditorScreen;
+            }
+        }
 #else
 
 		public bool IsDedicated
@@ -179,13 +193,13 @@ namespace Barotrauma
 		}
 
 #if SERVER
-			public ServerPeer Peer
+		public ServerPeer Peer
+		{
+			get
 			{
-				get
-				{
-					return GameMain.Server.ServerPeer;
-				}
+				return GameMain.Server.ServerPeer;
 			}
+		}
 #else
 		public ClientPeer Peer
 		{
