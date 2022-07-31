@@ -12,7 +12,7 @@ end
 RegisterBarotrauma("EditorScreen")
 RegisterBarotrauma("SubEditorScreen")
 RegisterBarotrauma("EventEditorScreen")
-RegisterBarotrauma("CharacterEditorScreen")
+RegisterBarotrauma("CharacterEditor.CharacterEditorScreen")
 RegisterBarotrauma("SpriteEditorScreen")
 RegisterBarotrauma("LevelEditorScreen")
 
