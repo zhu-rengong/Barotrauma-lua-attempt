@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -541,6 +541,8 @@ namespace Barotrauma
 
         private readonly Dictionary<MethodKey, PatchedMethod> registeredPatches = new Dictionary<MethodKey, PatchedMethod>();
 
+        private LuaCsSetup luaCs;
+
         private static LuaCsHook instance;
 
         private struct MethodKey : IEquatable<MethodKey>
@@ -581,9 +583,10 @@ namespace Barotrauma
             };
         }
 
-        public LuaCsHook()
+        internal LuaCsHook(LuaCsSetup luaCs)
         {
             instance = this;
+            this.luaCs = luaCs;
         }
 
         public void Initialize()
@@ -722,6 +725,18 @@ namespace Barotrauma
         {
             harmony?.UnpatchAll();
 
+            foreach (var (_, patch) in registeredPatches)
+            {
+                // Remove references stored in our dynamic types so the generated
+                // assembly can be garbage-collected.
+                patch.HarmonyPrefixMethod.DeclaringType
+                    .GetField(FIELD_LUACS, BindingFlags.Public | BindingFlags.Static)
+                    .SetValue(null, null);
+                patch.HarmonyPostfixMethod.DeclaringType
+                    .GetField(FIELD_LUACS, BindingFlags.Public | BindingFlags.Static)
+                    .SetValue(null, null);
+            }
+
             hookFunctions.Clear();
             registeredPatches.Clear();
             patchModuleBuilder = null;
@@ -737,7 +752,6 @@ namespace Barotrauma
         [MoonSharpHidden]
         public T Call<T>(string name, params object[] args)
         {
-            if (GameMain.LuaCs == null) throw new InvalidOperationException("Can't call hooks before LuaCsHook is initialized.");
             if (name == null) throw new ArgumentNullException(name);
             if (args == null) args = new object[0];
 
@@ -757,7 +771,7 @@ namespace Barotrauma
 
                 try
                 {
-                    if (GameMain.LuaCs.PerformanceCounter.EnablePerformanceCounter)
+                    if (luaCs.PerformanceCounter.EnablePerformanceCounter)
                     {
                         performanceMeasurement.Start();
                     }
@@ -769,10 +783,10 @@ namespace Barotrauma
                         lastResult = result.ToObject<T>();
                     }
 
-                    if (GameMain.LuaCs.PerformanceCounter.EnablePerformanceCounter)
+                    if (luaCs.PerformanceCounter.EnablePerformanceCounter)
                     {
                         performanceMeasurement.Stop();
-                        GameMain.LuaCs.PerformanceCounter.SetHookElapsedTicks(name, key, performanceMeasurement.ElapsedTicks);
+                        luaCs.PerformanceCounter.SetHookElapsedTicks(name, key, performanceMeasurement.ElapsedTicks);
                         performanceMeasurement.Reset();
                     }
                 }
@@ -840,6 +854,8 @@ namespace Barotrauma
 
         private static readonly Regex InvalidIdentifierCharsRegex = new Regex(@"[^\w\d]", RegexOptions.Compiled);
 
+        private const string FIELD_LUACS = "LuaCs";
+
         // If you need to debug this:
         //   - use https://sharplab.io ; it's a very useful for resource for writing IL by hand.
         //   - use il.NewMessage("") or il.WriteLine("") to see where the IL crashes at runtime.
@@ -875,6 +891,8 @@ namespace Barotrauma
                 ? $"{MangleName(original.DeclaringType)}-{MangleName(original)}"
                 : MangleName(original);
             var typeBuilder = moduleBuilder.DefineType($"Patch_{identifier}_{Guid.NewGuid():N}_{mangledName}", TypeAttributes.Public);
+
+            var luaCsField = typeBuilder.DefineField(FIELD_LUACS, typeof(LuaCsSetup), FieldAttributes.Public | FieldAttributes.Static);
 
             var methodName = hookType == HookMethodType.Before ? "HarmonyPrefix" : "HarmonyPostfix";
             var il = Emit.BuildMethod(
@@ -1094,17 +1112,18 @@ namespace Barotrauma
             var exception = il.DeclareLocal<Exception>("exception");
             il.StoreLocal(exception);
 
-            // IL: var luaCsSetup = GameMain.LuaCs;
-            var luaCsSetup = il.DeclareLocal<LuaCsSetup>("luaCsSetup");
-            il.LoadField(typeof(GameMain).GetField(nameof(GameMain.LuaCs), BindingFlags.Public | BindingFlags.Static));
-            il.StoreLocal(luaCsSetup);
+            // IL: if (LuaCs != null)
+            il.LoadField(luaCsField);
+            il.If((il) =>
+            {
+                // IL: LuaCs.HandleException(exception, "", ExceptionType.Lua);
+                il.LoadField(luaCsField);
+                il.LoadLocal(exception);
+                il.LoadConstant("");
+                il.LoadConstant((int)ExceptionType.Lua); // underlying enum type is int
+                il.Call(typeof(LuaCsSetup).GetMethod(nameof(LuaCsSetup.HandleException)));
+            });
 
-            // IL: luaCsSetup.HandleException(exception, "", ExceptionType.Lua);
-            il.LoadLocal(luaCsSetup);
-            il.LoadLocal(exception);
-            il.LoadConstant("");
-            il.LoadConstant((int)ExceptionType.Lua); // underlying enum type is int
-            il.Call(typeof(LuaCsSetup).GetMethod(nameof(LuaCsSetup.HandleException)));
             il.EndCatchBlock(catchBlock);
 
             il.EndExceptionBlock(exceptionBlock);
@@ -1123,6 +1142,7 @@ namespace Barotrauma
             }
 
             var type = typeBuilder.CreateType();
+            type.GetField(FIELD_LUACS, BindingFlags.Public | BindingFlags.Static).SetValue(null, luaCs);
             return type.GetMethod(methodName, BindingFlags.Public | BindingFlags.Static);
         }
 
