@@ -157,11 +157,7 @@ namespace Barotrauma
 				GameMain.LuaCs.HandleException(new ArgumentNullException("Identifier, Method and Patch arguments must not be null."), exceptionType: ExceptionType.Both);
 				return;
 			}
-			if (prohibitedHooks.Any(h => method.DeclaringType.FullName.StartsWith(h)))
-			{
-				GameMain.LuaCs.HandleException(new ArgumentException("Hooks into Modding Environment are prohibited."), exceptionType: ExceptionType.Both);
-				return;
-			}
+			ValidatePatchTarget(method);
 
 			var funcAddr = ((long)method.MethodHandle.GetFunctionPointer());
 			var patches = Harmony.GetPatchInfo(method);

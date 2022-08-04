@@ -57,6 +57,14 @@ namespace Barotrauma
 			"ContentPackageManager",
 		};
 
+        private static void ValidatePatchTarget(MethodInfo methodInfo)
+        {
+            if (prohibitedHooks.Any(h => methodInfo.DeclaringType.FullName.StartsWith(h)))
+            {
+                throw new ArgumentException("Hooks into the modding environment are prohibited.");
+            }
+        }
+
 		private Harmony harmony;
 
 		private Dictionary<string, Dictionary<string, (LuaCsHookCallback, ACsMod)>> hookFunctions;
@@ -300,10 +308,7 @@ namespace Barotrauma
 			{
 				throw new ArgumentNullException("Identifier, Method and Patch arguments must not be null.");
 			}
-			if (prohibitedHooks.Any(h => method.DeclaringType.FullName.StartsWith(h)))
-			{
-				throw new ArgumentException("Hooks into Modding Environment are prohibited.");
-			}
+			ValidatePatchTarget(method);
 
 			var funcAddr = (long)method.MethodHandle.GetFunctionPointer();
 			var patches = Harmony.GetPatchInfo(method);
