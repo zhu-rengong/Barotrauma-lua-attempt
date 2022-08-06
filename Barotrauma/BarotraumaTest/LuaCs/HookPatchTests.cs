@@ -1,8 +1,7 @@
 ﻿using Barotrauma;
 using Microsoft.Xna.Framework;
 using MoonSharp.Interpreter;
-using System;
-using System.Diagnostics;
+using System.Runtime.ExceptionServices;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -14,9 +13,6 @@ namespace TestProject.LuaCs
 
         public HookPatchTests(ITestOutputHelper output)
         {
-            Console.SetOut(new TestOutputTextWriterAdapter(output));
-            Trace.Listeners.Add(new TestOutputTraceListenerAdapter(output));
-
             UserData.RegisterType<TestValueType>();
             UserData.RegisterType<IBogusInterface>();
             UserData.RegisterType<InterfaceImplementingType>();
@@ -27,6 +23,18 @@ namespace TestProject.LuaCs
             UserData.RegisterType<PatchTarget5>();
             UserData.RegisterType<PatchTarget6>();
 
+            luaCs.MessageLogger = (prefix, o) =>
+            {
+                o ??= "null";
+                output.WriteLine(prefix + o);
+            };
+            luaCs.ExceptionHandler = (ex, _) =>
+            {
+                // Pretend we never caught the exception in the first place
+                // (this allows us to preserve the stack trace)
+                var di = ExceptionDispatchInfo.Capture(ex);
+                di.Throw();
+            };
             luaCs.Initialize();
             luaCs.Lua.Globals["TestValueType"] = UserData.CreateStatic<TestValueType>();
             luaCs.Lua.Globals["InterfaceImplementingType"] = UserData.CreateStatic<InterfaceImplementingType>();
