@@ -284,7 +284,7 @@ namespace Barotrauma
 			return lua.LoadFile(file, globalContext, codeStringFriendly);
 		}
 
-		public object CallLuaFunction(object function, params object[] arguments)
+		public DynValue CallLuaFunction(object function, params object[] arguments)
 		{
 			lock (lua)
 			{

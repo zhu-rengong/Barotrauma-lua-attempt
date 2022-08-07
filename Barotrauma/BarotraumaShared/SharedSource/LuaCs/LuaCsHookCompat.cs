@@ -58,17 +58,17 @@ namespace Barotrauma
 							var _result = tuple.Item2(__instance, args);
 							if (_result != null)
 							{
-								if (_result is LuaResult res)
+								if (_result is DynValue res)
 								{
-									if (!res.IsNull())
+									if (!res.IsNil())
 									{
 										if (__originalMethod is MethodInfo mi && mi.ReturnType != typeof(void))
 										{
-											result = res.DynValue().ToObject(mi.ReturnType);
+											result = res.ToObject(mi.ReturnType);
 										}
 										else
 										{
-											result = res.DynValue().ToObject();
+											result = res.ToObject();
 										}
 									}
 								}

@@ -13,7 +13,7 @@ using System.Diagnostics;
 namespace Barotrauma
 {
 	public delegate void LuaCsAction(params object[] args);
-	public delegate object LuaCsFunc(params object[] args);
+	public delegate DynValue LuaCsFunc(params object[] args);
 	public delegate object LuaCsPatch(object self, Dictionary<string, object> args);
 
 	public partial class LuaCsHook
@@ -157,18 +157,18 @@ namespace Barotrauma
 		[MoonSharpHidden]
 		public T Call<T>(string name, params object[] args)
 		{
-			if (GameMain.LuaCs == null) { return default(T); }
-			if (name == null) { throw new ScriptRuntimeException("Hook.Call: name must not be null."); }
-			if (args == null) { args = new object[] { }; }
+			if (GameMain.LuaCs == null) return default; // FIXME: should this throw an exception?
+			if (name == null) throw new ArgumentNullException(name);
+			if (args == null) args = new object[0];
 
 			name = name.ToLower();
 
 			if (!hookFunctions.ContainsKey(name))
 			{
-				return default(T);
+				return default;
 			}
 
-			T lastResult = default(T);
+			T lastResult = default;
 
 			if (!hookFunctions.ContainsKey(name))
 			{
@@ -192,30 +192,9 @@ namespace Barotrauma
 					}
 
 					var result = tuple.Item1.func(args);
-					if (result != null)
+					if (result != null && !result.IsNil())
 					{
-						if (typeof(object) != typeof(T))
-						{
-							if (result is LuaResult lRes)
-							{
-								if (!lRes.IsNull()) { lastResult = lRes.DynValue().ToObject<T>(); }
-							}
-							else if (result is T cRes && cRes != null)
-							{ 
-								lastResult = cRes;
-							}
-						}
-						else
-						{
-							if (result is LuaResult lRes)
-							{
-								if (!lRes.IsNull()) { lastResult = (T)(object)lRes.DynValue(); }
-							}
-							else
-							{ 
-								lastResult = (T)result; 
-							}
-						}
+						lastResult = result.ToObject<T>();
 					}
 
 					if (GameMain.LuaCs.PerformanceCounter.EnablePerformanceCounter)
@@ -239,10 +218,14 @@ namespace Barotrauma
 
 			return lastResult;
 		}
-		public object Call(string name, params object[] args) => Call<object>(name, args);
 
+        public object Call(string name, params object[] args)
+        {
+			if (name == null) throw new ScriptRuntimeException("Hook.Call: name must not be null.");
+			return Call<object>(name, args);
+        }
 
-		private static bool PatchPrefix(MethodBase __originalMethod, object[] __args, object __instance)
+        private static bool PatchPrefix(MethodBase __originalMethod, object[] __args, object __instance)
 		{
 			ExecutePatch(__originalMethod, __args, __instance, out object result, HookMethodType.Before);
 			return result == null;
@@ -415,31 +398,22 @@ namespace Barotrauma
 						continue;
 					}
 
-					object[] args = new object[] { __instance }.Concat(__args).ToArray();
-					object _result = tuple.Item2(args);
+					var args = Enumerable.Empty<object>()
+						.Concat(__args)
+						.Prepend(__instance)
+						.ToArray();
+					var _result = tuple.Item2(args);
 
-					if (_result == null)
+					if (_result != null && !_result.IsNil())
 					{
-						continue;
-					}
-
-					if (_result is LuaResult res)
-					{
-						if (!res.IsNull())
+						if (__originalMethod is MethodInfo mi && mi.ReturnType != typeof(void))
 						{
-							if (__originalMethod is MethodInfo mi && mi.ReturnType != typeof(void))
-							{
-								result = res.DynValue().ToObject(mi.ReturnType);
-							}
-							else
-							{
-								result = res.DynValue().ToObject();
-							}
+							result = _result.ToObject(mi.ReturnType);
 						}
-					}
-					else
-					{
-						result = _result;
+						else
+						{
+							result = _result.ToObject();
+						}
 					}
 				}
 
