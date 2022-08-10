@@ -15,6 +15,10 @@ RegisterBarotrauma("LuaUInt64")
 RegisterBarotrauma("LuaSingle")
 RegisterBarotrauma("LuaDouble")
 
+RegisterBarotrauma("GameMain")
+RegisterBarotrauma("Networking.BanList")
+RegisterBarotrauma("Networking.BannedPlayer")
+
 RegisterBarotrauma("Range`1[System.Single]")
 RegisterBarotrauma("Range`1[System.Int32]")
 
