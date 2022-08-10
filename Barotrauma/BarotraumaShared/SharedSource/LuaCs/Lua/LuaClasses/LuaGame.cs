@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
@@ -16,6 +16,14 @@ namespace Barotrauma
 		public bool IsMultiplayer => GameMain.IsMultiplayer;
 
 #if CLIENT
+		public GameClient Client
+		{
+			get
+			{
+				return GameMain.Client;
+			}
+	    }
+
 		public bool? ForceVoice = null;
 		public bool? ForceLocalVoice = null;
 
@@ -65,7 +73,15 @@ namespace Barotrauma
 				return Screen.Selected is SubEditorScreen;
             }
         }
+
 #else
+        public GameServer Server
+		{
+			get
+			{
+				return GameMain.Server;
+			}
+		}
 
 		public bool IsDedicated
 		{
@@ -74,12 +90,21 @@ namespace Barotrauma
 				return GameMain.Server.ServerPeer is LidgrenServerPeer;
 			}
 		}
-
-		public ServerSettings ServerSettings => GameMain.Server.ServerSettings;
 #endif
 
-		public DynValue Settings;
+        public ServerSettings ServerSettings
+        {
+            get
+            {
+#if SERVER
+                return GameMain.Server.ServerSettings;
+#else
+                return GameMain.Client.ServerSettings;
+#endif
+            }
+        }
 
+        public DynValue Settings;
 
 		public bool allowWifiChat = false;
 		public bool overrideTraitors = false;
