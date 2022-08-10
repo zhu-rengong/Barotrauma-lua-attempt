@@ -13,12 +13,8 @@ bld/
 [Rr]elease*/
 *.o
 */Barotrauma*/doc/
-doxygen/html/
-doxygen/*/html/
-doxygen/*/*.tag
-doxygen/build
 
-# Misc vs crap 
+# Misc vs crap
 *.v12.suo
 *.suo
 *.csproj.user
@@ -51,7 +47,6 @@ desktop.ini
 # Merge script
 temp.txt
 
-docs/html
 # Private assets
 Barotrauma/BarotraumaShared/Content/*
 Barotrauma/**/GameAnalyticsKeys.cs

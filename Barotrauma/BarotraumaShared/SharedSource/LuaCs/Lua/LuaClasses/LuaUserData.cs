@@ -11,20 +11,27 @@ namespace Barotrauma
 	{
 		public static Type GetType(string typeName)
 		{
+			var byRef = false;
+			if (typeName.StartsWith("out ") || typeName.StartsWith("ref "))
+			{
+				typeName = typeName.Remove(0, 4);
+				byRef = true;
+			}
+
 			var type = Type.GetType(typeName);
-			if (type != null) return type;
+			if (type != null) return byRef ? type.MakeByRefType() : type;
 			foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
 			{
 				if (CsScriptBase.LoadedAssemblyName.Contains(a.GetName().Name))
-                {
+				{
 					var attrs = a.GetCustomAttributes<AssemblyMetadataAttribute>();
 					var revision = attrs.FirstOrDefault(attr => attr.Key == "Revision")?.Value;
 					if (revision != null && int.Parse(revision) != (int)CsScriptBase.Revision[a.GetName().Name]) { continue; }
-                }
+				}
 				type = a.GetType(typeName);
 				if (type != null)
 				{
-					return type;
+					return byRef ? type.MakeByRefType() : type;
 				}
 			}
 			return null;

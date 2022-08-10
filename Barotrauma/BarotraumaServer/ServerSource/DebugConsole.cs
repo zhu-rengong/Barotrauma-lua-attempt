@@ -1249,7 +1249,7 @@ namespace Barotrauma
                 }
                 catch (Exception ex)
                 {
-                    GameMain.LuaCs.HandleException(ex);
+                    GameMain.LuaCs.HandleException(ex, LuaCsMessageOrigin.LuaMod);
                 }
             }));
             commands.Add(new Command("cs", "cs: runs a string", (string[] args) =>
@@ -1284,6 +1284,7 @@ namespace Barotrauma
                     {
                         "Barotrauma.dll", "Barotrauma.deps.json",
                         "0harmony.dll", "Mono.Cecil.dll",
+                        "Sigil.dll",
                         "Mono.Cecil.Mdb.dll", "Mono.Cecil.Pdb.dll",
                         "Mono.Cecil.Rocks.dll", "MonoMod.Common.dll",
                         "MoonSharp.Interpreter.dll",
@@ -1318,13 +1319,13 @@ namespace Barotrauma
                 }
                 catch (UnauthorizedAccessException e)
                 {
-                    GameMain.LuaCs.PrintError("You seem to already have Client Side Lua installed, if you are trying to reinstall, make sure uninstall it first (mainmenu button located top left).");
+                    GameMain.LuaCs.PrintError("You seem to already have Client Side Lua installed, if you are trying to reinstall, make sure uninstall it first (mainmenu button located top left).", LuaCsMessageOrigin.LuaCs);
 
                     return;
                 }
                 catch (Exception e)
                 {
-                    GameMain.LuaCs.HandleException(e);
+                    GameMain.LuaCs.HandleException(e, LuaCsMessageOrigin.LuaCs);
 
                     return;
                 }
