@@ -40,6 +40,7 @@ Same as above, but instead you need to copy/replace the following files:
 - **Barotrauma.dll**
 - **Barotrauma.pdb**
 - **0Harmony.dll**
+- **Sigil.dll**
 - **MoonSharp.Interpreter.dll**
 - **MonoMod.Common.dll**
 - **Mono.Cecil.dll**
