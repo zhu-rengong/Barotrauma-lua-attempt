@@ -9,7 +9,7 @@ try {
   Copy-Item -Path ./js/. -Destination ./build -Recurse -Force | Out-Null
 
   if ((Get-Command "lua_modules/bin/ldoc" -ErrorAction SilentlyContinue) -eq $null) {
-    echo "ldoc not found; please run docs/scripts/install.ps1"
+    echo "ldoc not found; please run scripts/install.ps1"
     exit 1
   }
 
