@@ -1,4 +1,4 @@
-using Barotrauma.Items.Components;
+﻿using Barotrauma.Items.Components;
 using Barotrauma.Networking;
 using MoonSharp.Interpreter;
 using System;
@@ -55,18 +55,19 @@ namespace Barotrauma
 
 			bool pathStartsWith(string prefix) => path.StartsWith(prefix, StringComparison.OrdinalIgnoreCase);
 
-
-			if (pathStartsWith(getFullPath(ContentPackage.LocalModsDir + "LuaForBarotraumaUnstable")))
+			if (pathStartsWith(getFullPath(ContentPackage.LocalModsDir + "Lua For Barotrauma")))
 				return false;
 
-			if (pathStartsWith(getFullPath(ContentPackage.WorkshopModsDir + "LuaForBarotraumaUnstable")))
+			if (pathStartsWith(getFullPath(ContentPackage.WorkshopModsDir + "Lua For Barotrauma")))
 				return false;
 #if CLIENT
-			if (pathStartsWith(getFullPath(ModReceiver.DownloadFolder + "LuaForBarotraumaUnstable")))
+			if (pathStartsWith(getFullPath(ModReceiver.DownloadFolder + "Lua For Barotrauma")))
 				return false;
 #endif
+            if (pathStartsWith(getFullPath(SaveUtil.SaveFolder)))
+                return true;
 
-			if (pathStartsWith(getFullPath(ContentPackage.LocalModsDir)))
+            if (pathStartsWith(getFullPath(ContentPackage.LocalModsDir)))
 				return true;
 
 			if (pathStartsWith(getFullPath(ContentPackage.WorkshopModsDir)))

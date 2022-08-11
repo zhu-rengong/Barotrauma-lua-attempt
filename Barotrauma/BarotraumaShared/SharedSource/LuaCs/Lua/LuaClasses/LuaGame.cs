@@ -14,6 +14,7 @@ namespace Barotrauma
 	{
 		public bool IsSingleplayer => GameMain.IsSingleplayer;
 		public bool IsMultiplayer => GameMain.IsMultiplayer;
+		public string SaveFolder => SaveUtil.SaveFolder;
 
 #if CLIENT
 		public GameClient Client
@@ -22,7 +23,7 @@ namespace Barotrauma
 			{
 				return GameMain.Client;
 			}
-	    }
+		}
 
 		public bool? ForceVoice = null;
 		public bool? ForceLocalVoice = null;
