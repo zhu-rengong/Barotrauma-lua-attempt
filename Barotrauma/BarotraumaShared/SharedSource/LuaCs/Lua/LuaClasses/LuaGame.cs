@@ -410,7 +410,7 @@ namespace Barotrauma
 
 		public void SaveGame(string path)
         {
-			if (LuaCsFile.CanWriteToPath(path)) { throw new ScriptRuntimeException($"Saving files to {path} is disallowed."); }
+			if (!LuaCsFile.CanWriteToPath(path)) { throw new ScriptRuntimeException($"Saving files to {path} is disallowed."); }
 			SaveUtil.SaveGame(path);
         }
 
