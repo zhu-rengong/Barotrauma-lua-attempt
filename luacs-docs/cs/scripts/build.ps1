@@ -1,4 +1,4 @@
-Import-Module $PSScriptRoot/../../scripts/location.ps1
+Import-Module -DisableNameChecking $PSScriptRoot/../../scripts/location.psm1
 
 try {
   Change-Location $PSScriptRoot/..
