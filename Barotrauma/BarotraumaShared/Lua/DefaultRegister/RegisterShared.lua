@@ -42,6 +42,7 @@ RegisterBarotrauma("LevelTrigger")
 RegisterBarotrauma("DestructibleLevelWall")
 RegisterBarotrauma("Biome")
 RegisterBarotrauma("Map")
+RegisterBarotrauma("Networking.RespawnManager")
 
 RegisterBarotrauma("Character")
 RegisterBarotrauma("CharacterPrefab")

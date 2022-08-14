@@ -104,6 +104,18 @@ namespace Barotrauma
 #endif
             }
         }
+        
+        public RespawnManager RespawnManager
+        {
+            get
+            {
+#if SERVER
+                return GameMain.Server.RespawnManager;
+#else
+                return GameMain.Client.RespawnManager;
+#endif
+            }
+        }
 
         public DynValue Settings;
 
