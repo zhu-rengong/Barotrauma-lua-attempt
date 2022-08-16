@@ -218,6 +218,7 @@ RegisterBarotrauma("DebugConsole")
 RegisterBarotrauma("DebugConsole+Command")
 
 RegisterBarotrauma("TextManager")
+RegisterBarotrauma("TextPack")
 
 local descriptor = RegisterBarotrauma("NetLobbyScreen")
 
