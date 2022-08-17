@@ -51,27 +51,27 @@ namespace Barotrauma
                     => Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(T), v => converter(v.Function));
 
                 RegisterHandler(f => (GUIComponent.SecondaryButtonDownHandler)(
-                (a1, a2) => Call(f, a1, a2).CastToBool()));
+                (a1, a2) => Call(f, a1, a2)?.CastToBool() ?? default));
 
                 RegisterHandler(f => (GUIButton.OnClickedHandler)(
-                (a1, a2) => Call(f, a1, a2).CastToBool()));
+                (a1, a2) => Call(f, a1, a2)?.CastToBool() ?? default));
                 RegisterHandler(f => (GUIButton.OnButtonDownHandler)(
-                () => Call(f).CastToBool()));
+                () => Call(f)?.CastToBool() ?? default));
                 RegisterHandler(f => (GUIButton.OnPressedHandler)(
-                () => Call(f).CastToBool()));
+                () => Call(f)?.CastToBool() ?? default));
 
                 RegisterHandler(f => (GUIColorPicker.OnColorSelectedHandler)(
-                (a1, a2) => Call(f, a1, a2).CastToBool()));
+                (a1, a2) => Call(f, a1, a2)?.CastToBool() ?? default));
 
                 RegisterHandler(f => (GUIDropDown.OnSelectedHandler)(
-                (a1, a2) => Call(f, a1, a2).CastToBool()));
+                (a1, a2) => Call(f, a1, a2)?.CastToBool() ?? default));
 
                 RegisterHandler(f => (GUIListBox.OnSelectedHandler)(
-                (a1, a2) => Call(f, a1, a2).CastToBool()));
+                (a1, a2) => Call(f, a1, a2)?.CastToBool() ?? default));
                 RegisterHandler(f => (GUIListBox.OnRearrangedHandler)(
                 (a1, a2) => Call(f, a1, a2)));
                 RegisterHandler(f => (GUIListBox.CheckSelectedHandler)(
-                () => Call(f).ToObject()));
+                () => Call(f)?.ToObject() ?? default));
 
                 RegisterHandler(f => (GUINumberInput.OnValueEnteredHandler)(
                 (a1) => Call(f, a1)));
@@ -79,28 +79,28 @@ namespace Barotrauma
                 (a1) => Call(f, a1)));
 
                 RegisterHandler(f => (GUIProgressBar.ProgressGetterHandler)(
-                () => (float)(Call(f).CastToNumber() ?? 0)));
+                () => (float)(Call(f)?.CastToNumber() ?? default)));
 
                 RegisterHandler(f => (GUIRadioButtonGroup.RadioButtonGroupDelegate)(
                 (a1, a2) => Call(f, a1, a2)));
 
                 RegisterHandler(f => (GUIScrollBar.OnMovedHandler)(
-                (a1, a2) => Call(f, a1, a2).CastToBool()));
+                (a1, a2) => Call(f, a1, a2)?.CastToBool() ?? default));
                 RegisterHandler(f => (GUIScrollBar.ScrollConversion)(
-                (a1, a2) => (float)(Call(f, a1, a2).CastToNumber() ?? 0)));
+                (a1, a2) => (float)(Call(f, a1, a2)?.CastToNumber() ?? default)));
 
                 RegisterHandler(f => (GUITextBlock.TextGetterHandler)(
-                () => Call(f, new object[0]).CastToString()));
+                () => Call(f, new object[0])?.CastToString() ?? default));
 
                 RegisterHandler(f => (GUITextBox.OnEnterHandler)(
-                (a1, a2) => Call(f, a1, a2).CastToBool()));
+                (a1, a2) => Call(f, a1, a2)?.CastToBool() ?? default));
                 RegisterHandler(f => (GUITextBox.OnTextChangedHandler)(
-                (a1, a2) => Call(f, a1, a2).CastToBool()));
+                (a1, a2) => Call(f, a1, a2)?.CastToBool() ?? default));
                 RegisterHandler(f => (TextBoxEvent)(
                 (a1, a2) => Call(f, a1, a2)));
 
                 RegisterHandler(f => (GUITickBox.OnSelectedHandler)(
-                (a1) => Call(f, a1).CastToBool()));
+                (a1) => Call(f, a1)?.CastToBool() ?? default));
 
             }
 #endif
