@@ -18,7 +18,7 @@ using Sigil.NonGeneric;
 namespace Barotrauma
 {
     public delegate void LuaCsAction(params object[] args);
-    public delegate DynValue LuaCsFunc(params object[] args);
+    public delegate object LuaCsFunc(params object[] args);
     public delegate DynValue LuaCsPatchFunc(object instance, LuaCsHook.ParameterTable ptable);
 
     internal static class SigilExtensions
@@ -777,9 +777,13 @@ namespace Barotrauma
 
                     var result = tuple.Item1.func(args);
                     // TODO(BREAKING): change this to !result.IsVoid()
-                    if (result != null && !result.IsNil())
+                    if (result is DynValue luaResult && !luaResult.IsNil())
                     {
-                        lastResult = result.ToObject<T>();
+                        lastResult = luaResult.ToObject<T>();
+                    }
+                    else
+                    {
+                        lastResult = (T)result;
                     }
 
                     if (luaCs.PerformanceCounter.EnablePerformanceCounter)

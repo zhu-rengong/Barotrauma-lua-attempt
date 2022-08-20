@@ -409,7 +409,7 @@ namespace Barotrauma
 			LuaScriptLoader = new LuaScriptLoader();
 			LuaScriptLoader.ModulePaths = new string[] { };
 
-			LuaCustomConverters.Initialize(CallLuaFunction);
+            RegisterLuaConverters();
 
 			lua = new Script(CoreModules.Preset_SoftSandbox | CoreModules.Debug);
 			lua.Options.DebugPrint = PrintMessage;

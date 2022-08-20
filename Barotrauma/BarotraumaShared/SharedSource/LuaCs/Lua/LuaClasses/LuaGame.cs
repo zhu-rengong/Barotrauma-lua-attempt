@@ -409,8 +409,13 @@ namespace Barotrauma
 				() =>
 				{
 					if (getValidArgs == null) return null;
-					return getValidArgs().ToObject<string[][]>();
-				}, isCheat);
+                    var validArgs = getValidArgs();
+                    if (validArgs is DynValue luaValue)
+                    {
+                        return luaValue.ToObject<string[][]>();
+                    }
+                    return (string[][])validArgs;
+                }, isCheat);
 
 			luaAddedCommand.Add(cmd);
 			DebugConsole.Commands.Add(cmd);
