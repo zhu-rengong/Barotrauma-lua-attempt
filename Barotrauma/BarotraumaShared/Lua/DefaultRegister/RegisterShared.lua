@@ -4,9 +4,20 @@ local RegisterBarotrauma = LuaSetup.LuaUserData.RegisterTypeBarotrauma
 Register("System.TimeSpan")
 Register("System.Exception")
 
+RegisterBarotrauma("LuaSByte")
 RegisterBarotrauma("LuaByte")
-RegisterBarotrauma("LuaUShort")
-RegisterBarotrauma("LuaFloat")
+RegisterBarotrauma("LuaInt16")
+RegisterBarotrauma("LuaUInt16")
+RegisterBarotrauma("LuaInt32")
+RegisterBarotrauma("LuaUInt32")
+RegisterBarotrauma("LuaInt64")
+RegisterBarotrauma("LuaUInt64")
+RegisterBarotrauma("LuaSingle")
+RegisterBarotrauma("LuaDouble")
+
+RegisterBarotrauma("GameMain")
+RegisterBarotrauma("Networking.BanList")
+RegisterBarotrauma("Networking.BannedPlayer")
 
 RegisterBarotrauma("Range`1[System.Single]")
 RegisterBarotrauma("Range`1[System.Int32]")
@@ -31,6 +42,7 @@ RegisterBarotrauma("LevelTrigger")
 RegisterBarotrauma("DestructibleLevelWall")
 RegisterBarotrauma("Biome")
 RegisterBarotrauma("Map")
+RegisterBarotrauma("Networking.RespawnManager")
 
 RegisterBarotrauma("Character")
 RegisterBarotrauma("CharacterPrefab")
@@ -206,6 +218,7 @@ RegisterBarotrauma("DebugConsole")
 RegisterBarotrauma("DebugConsole+Command")
 
 RegisterBarotrauma("TextManager")
+RegisterBarotrauma("TextPack")
 
 local descriptor = RegisterBarotrauma("NetLobbyScreen")
 

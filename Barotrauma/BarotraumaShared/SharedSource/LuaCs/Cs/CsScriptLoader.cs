@@ -143,7 +143,7 @@ namespace Barotrauma
 			var syntaxTrees = new List<SyntaxTree>();
 
 			if (sources.Count <= 0) throw new Exception("No Cs sources detected");
-			syntaxTrees.Add(AssemblyInfoSyntaxTree(NET_SCRIPT_ASSEMBLY));
+			syntaxTrees.Add(AssemblyInfoSyntaxTree(CsScriptAssembly));
 			foreach ((var folder, var src) in sources)
             {
 				try
@@ -172,7 +172,7 @@ namespace Barotrauma
 				.WithMetadataImportOptions(MetadataImportOptions.All)
 				.WithOptimizationLevel(OptimizationLevel.Release)
 				.WithAllowUnsafe(false);
-			var compilation = CSharpCompilation.Create(NET_SCRIPT_ASSEMBLY, syntaxTrees, defaultReferences, options);
+			var compilation = CSharpCompilation.Create(CsScriptAssembly, syntaxTrees, defaultReferences, options);
 
 			using (var mem = new MemoryStream())
 			{
@@ -181,7 +181,7 @@ namespace Barotrauma
 				{
 					IEnumerable<Diagnostic> failures = result.Diagnostics.Where(d => d.IsWarningAsError || d.Severity == DiagnosticSeverity.Error);
 
-					string errStr = "NET MODS NOT LOADED | Mod compilation errors:";
+					string errStr = "CS MODS NOT LOADED | Compilation errors:";
 					foreach (Diagnostic diagnostic in failures)
 						errStr += $"\n{diagnostic}";
 					LuaCsSetup.PrintCsError(errStr);
@@ -199,7 +199,7 @@ namespace Barotrauma
 			}
 			else
 			{
-				throw new Exception("Unable to create net mods assembly.");
+				throw new Exception("Unable to create cs mods assembly.");
 			}
 		}
 

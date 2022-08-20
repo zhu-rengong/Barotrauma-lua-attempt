@@ -9,6 +9,13 @@ for key, value in pairs(localizedStrings) do
     RegisterBarotrauma(value)
 end
 
+RegisterBarotrauma("EditorScreen")
+RegisterBarotrauma("SubEditorScreen")
+RegisterBarotrauma("EventEditorScreen")
+RegisterBarotrauma("CharacterEditor.CharacterEditorScreen")
+RegisterBarotrauma("SpriteEditorScreen")
+RegisterBarotrauma("LevelEditorScreen")
+
 RegisterBarotrauma("Networking.ClientPeer")
 RegisterBarotrauma("Networking.GameClient")
 RegisterBarotrauma("Networking.VoipCapture")

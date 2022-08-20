@@ -1,0 +1,119 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+
+name: Update documentation
+
+on:
+  workflow_dispatch:
+
+env:
+  CI_DEPLOY_DIR: luacs-docs/ci-deploy
+  CI_ARTIFACTS_DIR: luacs-docs/ci-artifacts
+  DOCS_LUA_ROOT: luacs-docs/lua
+  DOCS_CS_ROOT: luacs-docs/cs
+  DOCS_LANDINGPAGE_ROOT: luacs-docs/landing-page
+
+jobs:
+  update-docs-lua:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: |
+            3.1.x
+            6.0.x
+
+      - uses: leafo/gh-actions-lua@v8
+        with:
+          luaVersion: "5.2"
+
+      - uses: leafo/gh-actions-luarocks@v4
+
+      - name: Run install script
+        working-directory: ${{ env.DOCS_LUA_ROOT }}
+        run: ./scripts/install.sh
+
+      - name: Run docs generator script
+        working-directory: ${{ env.DOCS_LUA_ROOT }}
+        run: ./scripts/generate_docs.sh
+
+      - name: Run build script
+        working-directory: ${{ env.DOCS_LUA_ROOT }}
+        run: ./scripts/build.sh
+
+      - name: Create tarball
+        run: |
+          mkdir -p "$CI_ARTIFACTS_DIR"
+          tar -czf "$CI_ARTIFACTS_DIR"/lua.tar.gz -C "$DOCS_LUA_ROOT"/build .
+
+      - name: Upload tarball
+        uses: actions/upload-artifact@v3
+        with:
+          name: docs-lua
+          path: ${{ env.CI_ARTIFACTS_DIR }}/lua.tar.gz
+
+  update-docs-cs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3
+
+      - name: Install doxygen
+        run: sudo apt-get update && sudo apt-get install -y doxygen
+
+      - name: Run build script
+        working-directory: ${{ env.DOCS_CS_ROOT }}
+        run: ./scripts/build.sh
+
+      - name: Create tarball
+        run: |
+          mkdir -p "$CI_ARTIFACTS_DIR"
+          tar -czf "$CI_ARTIFACTS_DIR"/cs.tar.gz -C "$DOCS_CS_ROOT"/build .
+
+      - name: Upload tarball
+        uses: actions/upload-artifact@v3
+        with:
+          name: docs-cs
+          path: ${{ env.CI_ARTIFACTS_DIR }}/cs.tar.gz
+
+  deploy-docs:
+    runs-on: ubuntu-latest
+    needs: [update-docs-lua, update-docs-cs]
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3
+
+      - run: mkdir -p "$CI_ARTIFACTS_DIR" "$CI_DEPLOY_DIR"
+
+      - name: "Download build artifacts: lua docs"
+        uses: actions/download-artifact@v3
+        with:
+          name: docs-lua
+          path: ${{ env.CI_ARTIFACTS_DIR }}
+
+      - name: "Download build artifacts: cs docs"
+        uses: actions/download-artifact@v3
+        with:
+          name: docs-cs
+          path: ${{ env.CI_ARTIFACTS_DIR }}
+
+      - name: Extract lua and cs tarballs
+        run: |
+          mkdir -p "$CI_DEPLOY_DIR"/{lua,cs}-docs
+          tar -xzf "$CI_ARTIFACTS_DIR"/lua.tar.gz -C "$CI_DEPLOY_DIR"/lua-docs
+          tar -xzf "$CI_ARTIFACTS_DIR"/cs.tar.gz -C "$CI_DEPLOY_DIR"/cs-docs
+
+      - name: Copy landing page files
+        run: cp -r "$DOCS_LANDINGPAGE_ROOT"/. "$CI_DEPLOY_DIR"
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ${{ env.CI_DEPLOY_DIR }}
+          keep_files: true

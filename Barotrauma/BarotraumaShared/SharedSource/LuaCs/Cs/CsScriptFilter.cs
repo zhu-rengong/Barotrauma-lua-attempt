@@ -12,8 +12,8 @@ namespace Barotrauma {
     class CsScriptFilter
     {
         public static readonly string[] LoadedAssemblyName = {
-            CsScriptBase.NET_SCRIPT_ASSEMBLY,
-            CsScriptBase.NET_ONE_TIME_SCRIPT_ASSEMBLY
+            CsScriptBase.CsScriptAssembly,
+            CsScriptBase.CsOneTimeScriptAssembly
         };
 
         private static readonly string[] typesPermitted = {

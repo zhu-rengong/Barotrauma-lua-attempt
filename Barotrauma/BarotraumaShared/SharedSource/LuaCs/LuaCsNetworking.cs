@@ -87,7 +87,19 @@ namespace Barotrauma
 			if (header == ClientPacketHeader.LUA_NET_MESSAGE)
 			{
 				string netMessageName = netMessage.ReadString();
-				if (LuaCsNetReceives.ContainsKey(netMessageName)) LuaCsNetReceives[netMessageName](netMessage, client);
+				if (LuaCsNetReceives.ContainsKey(netMessageName))
+				{
+					try 
+					{
+						LuaCsNetReceives[netMessageName](netMessage, client);
+					}
+					catch (Exception e)
+                    {
+						// TODO: make LuaCsNetworking hold a reference to LuaCsSetup instead of using this global
+						GameMain.LuaCs.PrintError($"Exception thrown inside NetMessageReceive({netMessageName})", LuaCsMessageOrigin.Unknown);
+						GameMain.LuaCs.HandleException(e, LuaCsMessageOrigin.Unknown);
+                    }
+				}
 			}
 			else
 			{
@@ -102,7 +114,18 @@ namespace Barotrauma
 			if (header == ServerPacketHeader.LUA_NET_MESSAGE)
 			{
 				string netMessageName = netMessage.ReadString();
-				if (LuaCsNetReceives.ContainsKey(netMessageName)) LuaCsNetReceives[netMessageName](netMessage, client);
+				if (LuaCsNetReceives.ContainsKey(netMessageName))
+                {
+					try
+					{
+						LuaCsNetReceives[netMessageName](netMessage, client);
+					}
+					catch (Exception e)
+					{
+						GameMain.LuaCs.PrintError($"Exception thrown inside NetMessageReceive({netMessageName})", LuaCsMessageOrigin.Unknown);
+						GameMain.LuaCs.HandleException(e, LuaCsMessageOrigin.Unknown);
+					}
+				}
 			}
 			else
 			{

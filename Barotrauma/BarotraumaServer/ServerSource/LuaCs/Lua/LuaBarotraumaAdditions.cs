@@ -97,5 +97,11 @@ namespace Barotrauma.Items.Components
 		}
 	}
 
-
+	partial class Quality
+	{
+		public void SetValue(StatType statType, float value)
+		{
+			statValues[statType] = value;
+		}
+	}
 }

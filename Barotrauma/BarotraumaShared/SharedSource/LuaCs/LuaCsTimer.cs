@@ -8,6 +8,17 @@ namespace Barotrauma
     {
         public static double Time => Timing.TotalTime;
         public static double GetTime() => Time;
+        public static double AccumulatorMax
+        {
+            get
+            {
+                return Timing.AccumulatorMax;
+            }
+            set
+            {
+                Timing.AccumulatorMax = value;
+            }
+        }
 
         private class TimerComparer : IComparer<TimedAction>
         {
@@ -15,21 +26,19 @@ namespace Barotrauma
             {
                 if (timedAction1 == null || timedAction2 == null)
                     return 0;
-                return -Math.Sign(timedAction2.executionTime - timedAction1.executionTime);
+                return -Math.Sign(timedAction2.ExecutionTime - timedAction1.ExecutionTime);
             }
         }
 
         private class TimedAction
         {
-            public LuaCsAction action
+            public LuaCsAction Action
             {
                 get;
                 private set;
             }
 
-            private int delayMs;
-
-            public double executionTime
+            public double ExecutionTime
             {
                 get;
                 private set;
@@ -37,9 +46,8 @@ namespace Barotrauma
             
             public TimedAction(LuaCsAction action, int delayMs)
             {
-                this.action = action;
-                this.delayMs = delayMs;
-                executionTime = Time + (delayMs / 1000f);
+                this.Action = action;
+                ExecutionTime = Time + (delayMs / 1000f);
             }
         }
         
@@ -63,9 +71,17 @@ namespace Barotrauma
             for (int i = 0; i < timedActions.Count; i++)
             {
                 TimedAction timedAction = timedActions[i];
-                if (Time >= timedAction.executionTime)
+                if (Time >= timedAction.ExecutionTime)
                 {
-                    timedAction.action();
+                    try
+                    {
+                        timedAction.Action();
+                    }
+                    catch (Exception e)
+                    {
+                        GameMain.LuaCs.HandleException(e, LuaCsMessageOrigin.CSharpMod);
+                    }
+
                     timedActionsToRemove.Add(timedAction);
                 }
                 else
