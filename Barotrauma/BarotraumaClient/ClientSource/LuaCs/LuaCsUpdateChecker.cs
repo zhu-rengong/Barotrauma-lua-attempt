@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 
@@ -50,8 +50,16 @@ namespace Barotrauma
                 {
                     foreach (string file in filesToUpdate)
                     {
-                        File.Move(file, file + ".todelete", true);
-                        File.Copy(Path.Combine(luaCsPath, "Binary", file), file, true);
+                        try
+                        {
+                            File.Move(file, file + ".todelete", true);
+                            File.Copy(Path.Combine(luaCsPath, "Binary", file), file, true);
+                        }
+                        catch (Exception e)
+                        {
+                            DebugConsole.ThrowError($"Failed to update file {e}");
+                        }
+
                     }
 
                     File.WriteAllText(LuaCsSetup.VersionFile, workshopVersion);
