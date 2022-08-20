@@ -16,7 +16,7 @@ using System.Collections.Immutable;
 using System.Runtime.InteropServices;
 
 /// <summary>
-/// 把.net框架下定义的Class转换成lua文档的形式，包括字段、属性、方法、构造器的成员信息。
+/// 把定义的Class转换成lua文档的形式，包括字段、属性、方法、构造器的成员信息。
 /// 文档特性：
 /// 每个C#类型在lua文档中有单独的class名称格式
 /// 可感知
@@ -73,6 +73,8 @@ namespace Barotrauma
             public Type ElementType;
             public Type ValueType;
             public (Type Key, Type Value)? KVType;
+            public bool IsDelegate = false;
+            public MethodInfo DelegateMehtod;
 
             public static ClassMetadata QuickRetrieve(Type target)
             {
@@ -140,6 +142,21 @@ namespace Barotrauma
                         }
                     }
 
+                    {
+                        if (target.IsSubclassOf(typeof(Delegate)))
+                        {
+                            var delmi = target.GetMethod("Invoke");
+                            if (delmi != null)
+                            {
+                                return new ClassMetadata(target)
+                                {
+                                    IsDelegate = true,
+                                    DelegateMehtod = delmi
+                                };
+                            }
+                        }
+                    }
+
                     return new ClassMetadata(target);
                 }
                 return metadata;
@@ -160,6 +177,24 @@ namespace Barotrauma
                             return (true, $@"table<{key}, {value}>");
                         }
                         return (true, "table");
+                    }
+                    else if (IsDelegate)
+                    {
+                        var methodSB = new StringBuilder();
+                        var parameters = DelegateMehtod.GetParameters();
+                        ExplanOverloadMethodStartForGenLuaType(methodSB);
+                        for (var j = 0; j < parameters.Length; j++)
+                        {
+                            var parameter = parameters[j];
+
+                            ExplanOverloadMethodParam(methodSB, parameter);
+                            if (j != parameters.Length - 1)
+                            {
+                                methodSB.Append(", ");
+                            }
+                        }
+                        ExplanOverloadMethodEnd(methodSB, DelegateMehtod);
+                        return (true, $"({methodSB.ToString()})");
                     }
                     else if (TargetType.IsGenericType)
                     {
@@ -238,18 +273,23 @@ namespace Barotrauma
             {
                 switch (className)
                 {
+                    case "Object":
+                        return (true, "any");
                     case "Boolean":
                         return (true, "boolean");
                     case "String":
                         return (true, "string");
-                    //case "Single":
-                    //case "Double":
-                    //case "Int16":
-                    //case "Int32":
-                    //case "Int64":
-                    //case "UInt16":
-                    //case "UInt32":
-                    //case "UInt64":
+                    case "Single":
+                    case "Double":
+                    case "SByte":
+                    case "Byte":
+                    case "Int16":
+                    case "UInt16":
+                    case "Int32":
+                    case "UInt32":
+                    case "Int64":
+                    case "UInt64":
+                        return (true, "number");
                     case "T": return (true, "T");
                     case "T1": return (true, "T1");
                     case "T2": return (true, "T2");
@@ -430,9 +470,16 @@ namespace Barotrauma
 
             #endregion
 
+            Do(typeof(LuaSByte), "SByte");
             Do(typeof(LuaByte), "Byte");
-            Do(typeof(LuaUShort), "UShort");
-            Do(typeof(LuaFloat), "Float");
+            Do(typeof(LuaInt16), "Int16", new string[] { "Short" });
+            Do(typeof(LuaUInt16), "UInt16", new string[] { "UShort" });
+            Do(typeof(LuaInt32), "Int32");
+            Do(typeof(LuaUInt32), "UInt32");
+            Do(typeof(LuaInt64), "Int64");
+            Do(typeof(LuaUInt64), "UInt64");
+            Do(typeof(LuaSingle), "Single", new string[] { "Float" });
+            Do(typeof(LuaDouble), "Double");
 
             Do(typeof(MathUtils));
 
@@ -908,6 +955,9 @@ namespace Barotrauma
             Do(typeof(Networking.TraitorMessageType));
             Do(typeof(TraitorManager));
             Do(typeof(Traitor));
+            Do(typeof(Traitor.TraitorMission));
+            Do(typeof(Traitor.Objective));
+            Do(typeof(Traitor.Goal));
 #endif
             #endregion
 
@@ -1022,6 +1072,9 @@ namespace Barotrauma
 
             Do(typeof(Networking.NetworkMember));
 
+            Do(typeof(Networking.BanList));
+            Do(typeof(Networking.BannedPlayer));
+
 #if SERVER
             Do(typeof(Networking.GameServer));
 
@@ -1075,7 +1128,7 @@ namespace Barotrauma
             Do(typeof(Graph));
 
             Do(typeof(GUI), "Barotrauma_GUI");
-            
+
             Do(typeof(GUIComponentStyle));
             Do(typeof(SpriteFallBackState));
 
@@ -1109,7 +1162,7 @@ namespace Barotrauma
             Do(typeof(GUIMessage));
             Do(typeof(GUIMessageBox));
             Do(typeof(GUINumberInput));
-            
+
             Do(typeof(GUIProgressBar));
             Do(typeof(GUIRadioButtonGroup));
             Do(typeof(GUIScissorComponent));
@@ -1182,6 +1235,7 @@ namespace Barotrauma
             Do(typeof(Barotrauma.SpriteEditorScreen));
             Do(typeof(Barotrauma.SubEditorScreen));
             Do(typeof(Barotrauma.TestScreen));
+            Do(typeof(Barotrauma.CharacterEditor.CharacterEditorScreen));
 #endif
             #endregion
 
@@ -1193,8 +1247,13 @@ namespace Barotrauma
 
             Do(typeof(LuaUserData), "LuaUserData");
             Do(typeof(LuaGame), "Game");
+            Do(typeof(LuaCsPatch));
+            Do(typeof(LuaCsAction));
+            Do(typeof(LuaCsFunc));
+            Do(typeof(LuaCsPatchFunc));
             Do(typeof(LuaCsHook), "Hook");
             Do(typeof(LuaCsHook.HookMethodType), "Hook.HookMethodType");
+            Do(typeof(LuaCsHook.ParameterTable), "Hook.ParameterTable");
             Do(typeof(LuaCsTimer), "Timer");
             Do(typeof(LuaCsFile), "File");
             Do(typeof(LuaCsNetworking), "Networking");
@@ -1240,17 +1299,173 @@ namespace Barotrauma
             }
         }
 
+        private static void ExplanField(StringBuilder builder, FieldInfo field)
+        {
+            var metadata = ClassMetadata.Obtain(field.FieldType);
+            metadata.CollectAllToGlobal();
+            builder.Append($"---\n");
+            builder.Append($"---{metadata.TargetType.FullName}\n");
+            var (_, typeName) = metadata.GetLuaName(LUA_NAME_TYPE);
+            builder.Append($"---@field {field.Name} {typeName}\n");
+        }
+
+        private static void ExplanProperty(StringBuilder builder, PropertyInfo property)
+        {
+            var metadata = ClassMetadata.Obtain(property.PropertyType);
+            metadata.CollectAllToGlobal();
+            builder.Append($"---\n");
+            builder.Append($"---{metadata.TargetType.FullName}\n");
+            var (_, typeName) = metadata.GetLuaName(LUA_NAME_TYPE);
+            builder.Append($"---@field {property.Name} {typeName}\n");
+        }
+
+        private static void ExplanNewLine(StringBuilder builder, int line = 1) { for (int i = 0; i < line; i++) builder.Append("\n"); }
+        private static bool IsParamsParam(ParameterInfo param) => param.GetCustomAttribute<ParamArrayAttribute>(false) != null;
+        private static bool IsOptionalParam(ParameterInfo param) => param.GetCustomAttribute<OptionalAttribute>(false) != null;
+        private static string MakeNonConflictParam(string name) { if (LUAKEYWORDS.Contains(name)) return $"_{name}"; else return name; }
+        private static string MakeParamsParam(string name) => name.Substring(0, name.Length - 2);
+        private static string MakeOverloadMethodParamsParam(string name) => $"...:{MakeParamsParam(name)}";
+        private static string MakePrimaryMethodParamsParam(string name) => $"---@vararg {MakeParamsParam(name)}";
+
+        private static void ExplanOverloadMethodStartForGenLuaType(StringBuilder builder) => builder.Append(@"fun(");
+        private static void ExplanOverloadMethodStart(StringBuilder builder) => builder.Append(@"---@overload fun(");
+        private static void ExplanOverloadMethodEnd(StringBuilder builder, MethodInfo method)
+        {
+            if (method.ReturnType != typeof(void))
+            {
+                var metadata = ClassMetadata.Obtain(method.ReturnType);
+                metadata.CollectAllToGlobal();
+                var (_, typeName) = metadata.GetLuaName(LUA_NAME_TYPE);
+                builder.Append($"):{typeName}");
+            }
+            else
+            {
+                builder.Append(")");
+            }
+        }
+        private static void ExplanOverloadConstructorEnd(StringBuilder builder, string className)
+        {
+            builder.Append($"):{className}");
+        }
+        private static void ExplanOverloadMethodParam(StringBuilder builder, ParameterInfo parameter)
+        {
+            var paramName = parameter.Name;
+            paramName = MakeNonConflictParam(paramName);
+            if (IsOptionalParam(parameter)) { paramName += '?'; }
+            var metadata = ClassMetadata.Obtain(parameter.ParameterType);
+            metadata.CollectAllToGlobal();
+            var typeName = AliasAnnotation.Analyze(parameter) ?? metadata.GetLuaName(LUA_NAME_TYPE).Name;
+            builder.Append(IsParamsParam(parameter) ? MakeOverloadMethodParamsParam(typeName) : $"{paramName}:{typeName}");
+        }
+
+        private static void ExplanPrimaryMethodEnd(StringBuilder builder, MethodInfo method)
+        {
+            var metadata = ClassMetadata.Obtain(method.ReturnType);
+            metadata.CollectAllToGlobal();
+            var (_, typeName) = metadata.GetLuaName(LUA_NAME_TYPE);
+            builder.Append($"---@return {typeName}");
+        }
+        private static void ExplanPrimaryConstructorEnd(StringBuilder builder, string className)
+        {
+            builder.Append($"---@return {className}");
+        }
+        private static void ExplanPrimaryMethodParam(StringBuilder builder, ParameterInfo parameter)
+        {
+            var paramName = parameter.Name;
+            paramName = MakeNonConflictParam(paramName);
+            if (IsOptionalParam(parameter)) { paramName += '?'; }
+            var metadata = ClassMetadata.Obtain(parameter.ParameterType);
+            metadata.CollectAllToGlobal();
+            var typeName = AliasAnnotation.Analyze(parameter) ?? metadata.GetLuaName(LUA_NAME_TYPE).Name;
+            builder.Append(IsParamsParam(parameter) ? $"{MakePrimaryMethodParamsParam(typeName)}" : $"---@param {paramName} {typeName}");
+        }
+
+        private static void ExplanMethod(StringBuilder builder, string className, string tableName, MethodBase[] methods, string methodName)
+        {
+            var methodSB = new StringBuilder();
+            for (int i = 0; i < methods.Length; i++)
+            {
+                var method = methods[i];
+                var paramList = new List<string>();
+                var parameters = method.GetParameters();
+                for (var j = 0; j < parameters.Length; j++)
+                {
+                    var parameter = parameters[j];
+                    paramList.Add(MakeNonConflictParam(parameter.Name));
+                    if (i != methods.Length - 1) // belong to the other overload methods
+                    {
+
+                        if (j == 0) ExplanOverloadMethodStart(methodSB);
+                        ExplanOverloadMethodParam(methodSB, parameter);
+                        if (j != parameters.Length - 1)
+                        {
+                            methodSB.Append(", ");
+                        }
+                        else
+                        {
+                            if (method is MethodInfo)
+                            {
+                                ExplanOverloadMethodEnd(methodSB, method as MethodInfo);
+                            }
+                            else
+                            {
+                                ExplanOverloadConstructorEnd(methodSB, className);
+                            }
+                            
+                            ExplanNewLine(methodSB);
+                        }
+                    }
+                    else // the default overload method
+                    {
+                        ExplanPrimaryMethodParam(methodSB, parameter);
+                        ExplanNewLine(methodSB);
+
+                        if (j == parameters.Length - 1)
+                        {
+                            if (method is MethodInfo)
+                            {
+                                var mi = method as MethodInfo;
+                                if (mi.ReturnType != typeof(void))
+                                {
+                                    ExplanPrimaryMethodEnd(methodSB, mi);
+                                    ExplanNewLine(methodSB);
+                                }
+                            }
+                            else
+                            {
+                                ExplanPrimaryConstructorEnd(methodSB, className);
+                                ExplanNewLine(methodSB);
+                            }
+                        }
+                    }
+                }
+
+                if (i == methods.Length - 1)
+                {
+                    builder.Append(methodSB);
+                    string methodBaseName = methodName == null ? "" : $".{methodName}";
+                    string paramSquence = paramList.ToArray().Aggregate("", (state, value) =>
+                    {
+                        if (state.Equals("")) return value;
+                        return $"{state}, {value}";
+                    });
+                    builder.Append($"function {tableName}{methodBaseName}({paramSquence}) end");
+                    ExplanNewLine(builder, 2);
+                }
+            }
+        }
+
         public static void Do(Type targetType, string aliasTable = null, string[] minorTableNames = null)
         {
             var metadata = ClassMetadata.Obtain(targetType);
-            var luadocBuilder = new StringBuilder();
+            var builder = new StringBuilder();
             string tableName = aliasTable ?? metadata.GetDefaultTableName();
             var (_, className) = metadata.GetLuaName();
             SingleLuaFileClassNameList.Add(className);
 
-            luadocBuilder.Append($"---@meta\n\n");
+            builder.Append($"---@meta\n\n");
 
-            luadocBuilder.Append($"---'{targetType.FullName}'\n");
+            builder.Append($"---'{targetType.FullName}'\n");
 
             bool nonGenericBaseType = targetType.BaseType != null && !targetType.BaseType.IsGenericType;
 
@@ -1259,11 +1474,11 @@ namespace Barotrauma
                 var subMetadata = ClassMetadata.Obtain(targetType.BaseType);
                 var (_, subClassName) = subMetadata.GetLuaName();
                 subMetadata.CollectAllToGlobal();
-                luadocBuilder.Append($"---@class {className} : {subClassName}\n");
+                builder.Append($"---@class {className} : {subClassName}\n");
             }
             else
             {
-                luadocBuilder.Append($"---@class {className}\n");
+                builder.Append($"---@class {className}\n");
             }
 
             const BindingFlags Flags = BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
@@ -1272,29 +1487,17 @@ namespace Barotrauma
 
             foreach (var field in fields.Where(f => !f.Name.Contains("k__BackingField")).ToList())
             {
-                var subMetadata = ClassMetadata.Obtain(field.FieldType);
-                var (_, subClassName) = subMetadata.GetLuaName();
-                subMetadata.CollectAllToGlobal();
-                luadocBuilder.Append($"---\n");
-                luadocBuilder.Append($"---{subMetadata.TargetType.FullName}\n");
-                var (_, subTypeName) = subMetadata.GetLuaName(LUA_NAME_TYPE);
-                luadocBuilder.Append($"---@field {field.Name} {subTypeName}\n");
+                ExplanField(builder, field);
             }
 
             var properties = nonGenericBaseType ? targetType.GetProperties(Flags | BindingFlags.DeclaredOnly) : targetType.GetProperties(Flags);
 
             foreach (var prop in properties)
             {
-                var subMetadata = ClassMetadata.Obtain(prop.PropertyType);
-                var (_, subClassName) = subMetadata.GetLuaName();
-                subMetadata.CollectAllToGlobal();
-                luadocBuilder.Append($"---\n");
-                luadocBuilder.Append($"---{subMetadata.TargetType.FullName}\n");
-                var (_, subTypeName) = subMetadata.GetLuaName(LUA_NAME_TYPE);
-                luadocBuilder.Append($"---@field {prop.Name} {subTypeName}\n");
+                ExplanProperty(builder, prop);
             }
 
-            luadocBuilder.Append($"{tableName}={{}}\n\n");
+            builder.Append($"{tableName}={{}}\n\n");
 
             var methods = nonGenericBaseType ? targetType.GetMethods(Flags | BindingFlags.DeclaredOnly) : targetType.GetMethods(Flags);
 
@@ -1306,168 +1509,22 @@ namespace Barotrauma
                 )
             )
             {
-                var methodArray = groupMethod.ToArray();
-                var methodName = groupMethod.Key;
-                var methodTempSb = new StringBuilder();
-                for (int i = 0; i < methodArray.Length; i++)
-                {
-                    var method = methodArray[i];
-                    var paramNames = "";
-                    var parameters = method.GetParameters();
-                    if (i != methodArray.Length - 1)
-                    {
-                        for (var j = 0; j < parameters.Length; j++)
-                        {
-                            var parameter = parameters[j];
-                            var paramName = parameter.Name;
-                            if (LUAKEYWORDS.Contains(paramName)) { paramName = $"_{paramName}"; }
-
-                            if (j == 0) { methodTempSb.Append(@"---@overload fun("); }
-
-                            var subMetadata = ClassMetadata.Obtain(parameter.ParameterType);
-                            subMetadata.CollectAllToGlobal();
-                            var typeName = AliasAnnotation.Analyze(parameter) ?? subMetadata.GetLuaName(LUA_NAME_TYPE).Name;
-                            if (IsOptional(parameter)) { paramName += '?'; }
-                            methodTempSb.Append((j == parameters.Length - 1 && IsParams(parameter))
-                                ? $"...:{typeName}"
-                                : $"{paramName}:{typeName}");
-
-                            if (j != parameters.Length - 1)
-                            {
-                                methodTempSb.Append(", ");
-                            }
-                            else
-                            {
-                                if (method.ReturnType != typeof(void))
-                                {
-                                    var subSubMetadata = ClassMetadata.Obtain(method.ReturnType);
-                                    var (_, subSubClassName) = subSubMetadata.GetLuaName();
-                                    subSubMetadata.CollectAllToGlobal();
-                                    var (_, subSubTypeName) = subSubMetadata.GetLuaName(LUA_NAME_TYPE);
-                                    methodTempSb.Append($"):{subSubTypeName}\n");
-                                }
-                                else
-                                {
-                                    methodTempSb.Append($")\n");
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        for (var j = 0; j < parameters.Length; j++)
-                        {
-                            var parameter = parameters[j];
-                            var paramName = parameter.Name;
-                            var isParams = IsParams(parameter);
-                            if (LUAKEYWORDS.Contains(paramName)) { paramName = $"_{paramName}"; }
-                            paramNames += (j == parameters.Length - 1) ? (isParams ? "..." : paramName) : (paramName + ", ");
-
-                            var subMetadata = ClassMetadata.Obtain(parameter.ParameterType);
-                            subMetadata.CollectAllToGlobal();
-                            var typeName = AliasAnnotation.Analyze(parameter) ?? subMetadata.GetLuaName(LUA_NAME_TYPE).Name;
-                            if (IsOptional(parameter)) { paramName += '?'; }
-                            methodTempSb.Append((j == parameters.Length - 1 && IsParams(parameter))
-                                ? $"---@vararg {typeName}\n"
-                                : $"---@param {paramName} {typeName}\n");
-                        }
-
-                        if (method.ReturnType != typeof(void))
-                        {
-                            var subMetadata = ClassMetadata.Obtain(method.ReturnType);
-                            var (_, subClassName) = subMetadata.GetLuaName();
-                            subMetadata.CollectAllToGlobal();
-                            var (_, subTypeName) = subMetadata.GetLuaName(LUA_NAME_TYPE);
-                            methodTempSb.Append($"---@return {subTypeName}\n");
-                        }
-                    }
-
-                    if (i == methodArray.Length - 1)
-                    {
-                        luadocBuilder.Append(methodTempSb);
-                        luadocBuilder.Append($"function {tableName}.{methodName}({paramNames}) end\n\n");
-                    }
-                }
+                ExplanMethod(builder, className, tableName, groupMethod.ToArray(), groupMethod.Key);
             }
 
-            var constructors = targetType.GetConstructors();
+            var constructors = targetType.GetConstructors().Where(ctor => ctor.IsPublic).ToArray();
 
-            var constructorTempSb = new StringBuilder();
-            for (int i = 0; i < constructors.Length; i++)
-            {
-                var constructor = constructors[i];
-                if (constructor.IsPrivate) { continue; }
-                var paramNames = "";
-                var parameters = constructor.GetParameters();
-                if (i != constructors.Length - 1)
-                {
-                    for (var j = 0; j < parameters.Length; j++)
-                    {
-                        var parameter = parameters[j];
-                        var paramName = parameter.Name;
-                        if (LUAKEYWORDS.Contains(paramName)) { paramName = $"_{paramName}"; }
-
-                        if (j == 0) { constructorTempSb.Append(@"---@overload fun("); }
-
-                        var subMetadata = ClassMetadata.Obtain(parameter.ParameterType);
-                        subMetadata.CollectAllToGlobal();
-                        var typeName = AliasAnnotation.Analyze(parameter) ?? subMetadata.GetLuaName(LUA_NAME_TYPE).Name;
-                        if (IsOptional(parameter)) { paramName += '?'; }
-                        constructorTempSb.Append((j == parameters.Length - 1 && IsParams(parameter))
-                            ? $"...:{typeName}"
-                            : $"{paramName}:{typeName}");
-
-                        if (j != parameters.Length - 1)
-                        {
-                            constructorTempSb.Append(", ");
-                        }
-                        else
-                        {
-                            constructorTempSb.Append($"):{className}\n");
-                        }
-                    }
-                }
-                else
-                {
-                    for (var j = 0; j < parameters.Length; j++)
-                    {
-                        var parameter = parameters[j];
-                        var paramName = parameter.Name;
-                        var isParams = IsParams(parameter);
-                        if (LUAKEYWORDS.Contains(paramName)) { paramName = $"_{paramName}"; }
-                        paramNames += (j == parameters.Length - 1) ? (isParams ? "..." : paramName) : (paramName + ", ");
-
-                        var subMetadata = ClassMetadata.Obtain(parameter.ParameterType);
-                        subMetadata.CollectAllToGlobal();
-                        var typeName = AliasAnnotation.Analyze(parameter) ?? subMetadata.GetLuaName(LUA_NAME_TYPE).Name;
-                        if (IsOptional(parameter)) { paramName += '?'; }
-                        constructorTempSb.Append((j == parameters.Length - 1 && isParams)
-                            ? $"---@vararg {typeName}\n"
-                            : $"---@param {paramName} {typeName}\n");
-                    }
-
-                    constructorTempSb.Append($"---@return {className}\n");
-                }
-
-                if (i == constructors.Length - 1)
-                {
-                    luadocBuilder.Append(constructorTempSb);
-                    luadocBuilder.Append($"function {tableName}({paramNames}) end\n");
-                    luadocBuilder.Append($"{tableName}.__new = {tableName}\n\n");
-                }
-            }
-
+            ExplanMethod(builder, className, tableName, constructors, null);
+            ExplanMethod(builder, className, tableName, constructors, "__new");
 
             if (minorTableNames != null)
             {
                 foreach (var minorTableName in minorTableNames)
                 {
-                    luadocBuilder.Append($"{minorTableName} = {tableName}\n");
+                    builder.Append($"{minorTableName} = {tableName}");
+                    ExplanNewLine(builder);
                 }
             }
-
-            static bool IsParams(ParameterInfo param) => param.GetCustomAttribute<ParamArrayAttribute>(false) != null;
-            static bool IsOptional(ParameterInfo param) => param.GetCustomAttribute<OptionalAttribute>(false) != null;
 
             try
             {
@@ -1490,7 +1547,7 @@ namespace Barotrauma
                         : $@"{targetType.Name}"
                     );
 
-                File.WriteAllText($@"{BLuaDocPath}/{fileName}.lua", luadocBuilder.ToString());
+                File.WriteAllText($@"{BLuaDocPath}/{fileName}.lua", builder.ToString());
             }
             catch (Exception ex)
             {
@@ -1511,7 +1568,7 @@ namespace Barotrauma
                 {
                     if (resolver.Match(param))
                     {
-                        return $"{PREFIX}{resolver.Alias}|{Alternative(param)}";
+                        return $"{Alternative(param)}|{PREFIX}{resolver.Alias}";
                     }
                 }
 
@@ -1548,7 +1605,7 @@ namespace Barotrauma
             public static (Func<ParameterInfo, bool> Match, string Alias, Func<StringBuilder, string> Content) GUIComponentStyle = (
                 param => param.GetCustomAttribute<LuaAlias.GUIComponentStyleAttribute>(false) != null,
                 "gui.component.style",
-                (sb) => 
+                (sb) =>
                 {
                     foreach (var identifier in GUIStyle.ComponentStyles.Keys) sb.Append($"---| \"{identifier.Value}\"\n");
                     return sb.ToString();
