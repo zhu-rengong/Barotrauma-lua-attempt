@@ -19,6 +19,7 @@ namespace Barotrauma
             RegisterAction<Item>();
             RegisterAction<Character>();
             RegisterAction<Entity>();
+            RegisterAction<float>();
             RegisterAction();
 
             RegisterFunc<Fixture, Vector2, Vector2, float, float>();
@@ -42,7 +43,8 @@ namespace Barotrauma
                 v => (LuaCsPatchFunc)((self, args) => CallLuaFunction(v.Function, self, args)));
 
 #if CLIENT
-            RegisterAction<float>();
+            RegisterAction<Microsoft.Xna.Framework.Graphics.SpriteBatch, GUICustomComponent>();
+            RegisterAction<float, Microsoft.Xna.Framework.Graphics.SpriteBatch>();
             RegisterAction<Microsoft.Xna.Framework.Graphics.SpriteBatch, float>();
 
             {
