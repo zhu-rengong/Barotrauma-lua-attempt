@@ -273,23 +273,23 @@ namespace Barotrauma
             {
                 switch (className)
                 {
-                    case "Object":
-                        return (true, "any");
+                    //case "Object":
+                    //    return (true, "any");
                     case "Boolean":
                         return (true, "boolean");
                     case "String":
                         return (true, "string");
-                    case "Single":
-                    case "Double":
-                    case "SByte":
-                    case "Byte":
-                    case "Int16":
-                    case "UInt16":
-                    case "Int32":
-                    case "UInt32":
-                    case "Int64":
-                    case "UInt64":
-                        return (true, "number");
+                    //case "Single":
+                    //case "Double":
+                    //case "SByte":
+                    //case "Byte":
+                    //case "Int16":
+                    //case "UInt16":
+                    //case "Int32":
+                    //case "UInt32":
+                    //case "Int64":
+                    //case "UInt64":
+                    //    return (true, "number");
                     case "T": return (true, "T");
                     case "T1": return (true, "T1");
                     case "T2": return (true, "T2");
