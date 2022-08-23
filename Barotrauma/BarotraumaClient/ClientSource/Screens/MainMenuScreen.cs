@@ -406,57 +406,7 @@ namespace Barotrauma
                 ToolTip = "Remove Client-Side LuaCs.",
                 OnClicked = (tb, userdata) =>
                 {
-					if (!File.Exists("Barotrauma.dll.old"))
-					{
-                        new GUIMessageBox("Error", "Error: Barotrauma.dll.original not found, Github version? Use Steam validate files instead.");
-
-                        return false;
-					}
-
-                    if (!File.Exists("Barotrauma.deps.json.old"))
-                    {
-                        new GUIMessageBox("Error", "Error: Barotrauma.deps.json.original not found, Github version? Use Steam validate files instead.");
-
-                        return false;
-                    }
-
-                    var msg = new GUIMessageBox("Confirm", "Are you sure you want to remove Client-Side LuaCs?", new LocalizedString[2] { TextManager.Get("Yes"), TextManager.Get("Cancel") });
-
-                    msg.Buttons[0].OnClicked = (GUIButton button, object obj) =>
-                    {
-                        msg.Close();
-
-                        string[] filesToRemove = new string[]
-                        {
-                            "Barotrauma.dll", "Barotrauma.deps.json",
-                            "System.Reflection.Metadata.dll", "System.Collections.Immutable.dll",
-                            "System.Runtime.CompilerServices.Unsafe.dll"
-                        };
-                        try
-                        {
-                            foreach (string file in filesToRemove)
-                            {
-                                System.IO.File.Move(file, file + ".todelete", true);
-                                System.IO.File.Move(file + ".old", file, true);
-                            }
-                        }
-                        catch(Exception e)
-						{
-                            new GUIMessageBox("Error", $"{e} {e.InnerException}");
-                            return false;
-                        }
-
-                        new GUIMessageBox("Restart", "Restart your game to apply the changes.");
-
-                        return true;
-                    };
-
-                    msg.Buttons[1].OnClicked = (GUIButton button, object obj) =>
-                    {
-                        msg.Close();
-                        return true;
-                    };
-
+                    LuaCsInstaller.Uninstall();
                     return true;
                 }
             };
