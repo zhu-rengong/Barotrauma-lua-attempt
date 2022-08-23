@@ -17,9 +17,6 @@ If you get TextManager errors, open `config_player.xml` in your server folder an
 2. Extract the zip archive into your game folder and replace files as necessary
 
 ## Installing from scratch
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/ov0MUOUVB7A" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-
 1. Download [the latest build](https://github.com/evilfactory/LuaCsForBarotrauma/releases/tag/latest) (make sure to download the "build" zip for your platform, e.g `luacsforbarotrauma_build_windows.zip`)
 2. Extract the zip file
 3. Find the Content folder in your original Barotrauma game:<br/>
