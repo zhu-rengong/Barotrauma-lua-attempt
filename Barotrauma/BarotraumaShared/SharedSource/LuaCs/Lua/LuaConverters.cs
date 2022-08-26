@@ -6,19 +6,14 @@ using LuaCsCompatPatchFunc = Barotrauma.LuaCsPatch;
 
 namespace Barotrauma
 {
-    public delegate DynValue CallLuaFunctionFunc(object function, params object[] args);
-
-    internal static class LuaCustomConverters
+    partial class LuaCsSetup
     {
-        private static CallLuaFunctionFunc CallLuaFunction;
-
-        public static void Initialize(CallLuaFunctionFunc callLuaFunction)
+        private void RegisterLuaConverters()
         {
-            CallLuaFunction = callLuaFunction;
-
             RegisterAction<Item>();
             RegisterAction<Character>();
             RegisterAction<Entity>();
+            RegisterAction<float>();
             RegisterAction();
 
             RegisterFunc<Fixture, Vector2, Vector2, float, float>();
@@ -42,7 +37,8 @@ namespace Barotrauma
                 v => (LuaCsPatchFunc)((self, args) => CallLuaFunction(v.Function, self, args)));
 
 #if CLIENT
-            RegisterAction<float>();
+            RegisterAction<Microsoft.Xna.Framework.Graphics.SpriteBatch, GUICustomComponent>();
+            RegisterAction<float, Microsoft.Xna.Framework.Graphics.SpriteBatch>();
             RegisterAction<Microsoft.Xna.Framework.Graphics.SpriteBatch, float>();
 
             {
@@ -192,7 +188,7 @@ namespace Barotrauma
                     : throw new ScriptRuntimeException("use Double(value) to pass primitive type 'double' to C#"));
         }
 
-        public static void RegisterAction<T>()
+        private void RegisterAction<T>()
         {
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(Action<T>), v =>
             {
@@ -207,7 +203,7 @@ namespace Barotrauma
             });
         }
 
-        public static void RegisterAction<T1, T2>()
+        private void RegisterAction<T1, T2>()
         {
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(Action<T1, T2>), v =>
             {
@@ -222,7 +218,7 @@ namespace Barotrauma
             });
         }
 
-        public static void RegisterAction()
+        private void RegisterAction()
         {
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(Action), v => 
             {
@@ -237,7 +233,7 @@ namespace Barotrauma
             });
         }
 
-        public static void RegisterFunc<T1>()
+        private void RegisterFunc<T1>()
         {
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(Func<T1>), v =>
             {
@@ -252,7 +248,7 @@ namespace Barotrauma
             });
         }
 
-        public static void RegisterFunc<T1, T2>()
+        private void RegisterFunc<T1, T2>()
         {
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(Func<T1, T2>), v =>
             {
@@ -267,7 +263,7 @@ namespace Barotrauma
             });
         }
 
-        public static void RegisterFunc<T1, T2, T3, T4, T5>()
+        private void RegisterFunc<T1, T2, T3, T4, T5>()
         {
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(Func<T1, T2, T3, T4, T5>), v =>
             {

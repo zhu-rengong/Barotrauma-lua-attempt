@@ -23,6 +23,36 @@ local function isSectionEmpty(mod, sections)
   end
   return true
 end
+
+local function kinds()
+  local kinds = {"Manual", "Code", "Enum"}
+
+  local kindIndices = {}
+  for i, v in pairs(kinds) do
+    kindIndices[v] = i
+  end
+
+  local t = {}
+  for kind, mods, type in ldoc.kinds() do
+    local entry = {kind, mods, type}
+    local idx = kindIndices[kind]
+
+    if idx then
+      t[idx] = entry
+    else
+      t[#t + 1] = entry
+    end
+  end
+
+  local idx
+  return function(t, i)
+    i = i + 1
+    local v = t[i]
+    if v then
+      return i, table.unpack(v)
+    end
+  end, t, 0
+end
 %}
 
 <nav>
@@ -34,7 +64,7 @@ end
   </header>
 
   <section>
-    {% for kind, mods, type in ldoc.kinds() do %}
+    {% for _, kind, mods, type in kinds() do %}
       {% if (ldoc.allowed_in_contents(type, mod)) then %}
         <details class="category" open>
           <summary>
