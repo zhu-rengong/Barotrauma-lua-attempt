@@ -1303,22 +1303,56 @@ namespace Barotrauma
         {
             var metadata = ClassMetadata.Obtain(field.FieldType);
             metadata.CollectAllToGlobal();
-            builder.Append($"---\n");
-            builder.Append($"---{metadata.TargetType.FullName}\n");
+            ExplanAnnotationPrefix(builder);
+            ExplanNewLine(builder);
+            ExplanAnnotationPrefix(builder);
+            builder.Append("`Field` ");
+            if (field.IsPublic) { builder.Append("`Public`"); }
+            else if (field.IsPrivate) { builder.Append("`Private`"); }
+            else { builder.Append("`NonPublic`"); }
+            builder.Append(" " + (field.IsStatic ? "`Static`" : "`Instance`"));
+            ExplanNewLine(builder);
+            ExplanAnnotationPrefix(builder);
+            builder.Append($"{metadata.TargetType.FullName}");
+            ExplanNewLine(builder);
             var (_, typeName) = metadata.GetLuaName(LUA_NAME_TYPE);
-            builder.Append($"---@field {field.Name} {typeName}\n");
+            ExplanAnnotationField(builder, field.Name, typeName);
         }
 
         private static void ExplanProperty(StringBuilder builder, PropertyInfo property)
         {
             var metadata = ClassMetadata.Obtain(property.PropertyType);
             metadata.CollectAllToGlobal();
-            builder.Append($"---\n");
-            builder.Append($"---{metadata.TargetType.FullName}\n");
+
+            ExplanAnnotationPrefix(builder);
+            ExplanNewLine(builder);
+
+            if (property.GetMethod != null)
+            {
+                ExplanAnnotationPrefix(builder);
+                builder.Append("`Getter` ");
+                ExplanMethodModifiers(builder, GetMethodModifiers(property.GetMethod));
+                ExplanNewLine(builder);
+            }
+
+            if (property.SetMethod != null)
+            {
+                ExplanAnnotationPrefix(builder);
+                builder.Append("`Setter` ");
+                ExplanMethodModifiers(builder, GetMethodModifiers(property.SetMethod));
+                ExplanNewLine(builder);
+            }
+
+            ExplanAnnotationPrefix(builder);
+            builder.Append($"{metadata.TargetType.FullName}");
+            ExplanNewLine(builder);
             var (_, typeName) = metadata.GetLuaName(LUA_NAME_TYPE);
-            builder.Append($"---@field {property.Name} {typeName}\n");
+            ExplanAnnotationProperty(builder, property.Name, typeName);
         }
 
+        private static void ExplanAnnotationPrefix(StringBuilder builder) { builder.Append("---"); }
+        private static void ExplanAnnotationField(StringBuilder builder, string fieldName, string typeName) { ExplanAnnotationPrefix(builder); builder.Append($"@field {fieldName} {typeName}"); }
+        private static void ExplanAnnotationProperty(StringBuilder builder, string propertyName, string typeName) { ExplanAnnotationPrefix(builder); builder.Append($"@field {propertyName} {typeName}"); }
         private static void ExplanNewLine(StringBuilder builder, int line = 1) { for (int i = 0; i < line; i++) builder.Append("\n"); }
         private static bool IsParamsParam(ParameterInfo param) => param.GetCustomAttribute<ParamArrayAttribute>(false) != null;
         private static bool IsOptionalParam(ParameterInfo param) => param.GetCustomAttribute<OptionalAttribute>(false) != null;
@@ -1380,7 +1414,28 @@ namespace Barotrauma
             builder.Append(IsParamsParam(parameter) ? $"{MakePrimaryMethodParamsParam(typeName)}" : $"---@param {paramName} {typeName}");
         }
 
-        private static void ExplanMethod(StringBuilder builder, string className, string tableName, MethodBase[] methods, string methodName)
+        private static uint GetMethodModifiers(MethodBase methodBase)
+        {
+            uint result = 0x00;
+            if (methodBase.IsPublic) { result |= 0x01; }
+            if (methodBase.IsPrivate) { result |= 0x02; }
+            if (methodBase.IsStatic) { result |= 0x04; }
+            if (methodBase.IsAbstract) { result |= 0x08; }
+            if (methodBase.IsVirtual) { result |= 0x10; }
+            return result;
+        }
+
+        private static void ExplanMethodModifiers(StringBuilder builder, uint modifiers)
+        {
+            if ((modifiers & 0x01) > 0) { builder.Append("`Public`"); }
+            else if ((modifiers & 0x02) > 0) { builder.Append("`Private`"); }
+            else { builder.Append("`NonPublic`"); }
+            builder.Append(" " + (((modifiers & 0x04) > 0) ? "`Static`" : "`Instance`"));
+            if ((modifiers & 0x08) > 0) { builder.Append(" `Abstract`"); }
+            if ((modifiers & 0x10) > 0) { builder.Append(" `Virtual`"); }
+        }
+
+        private static void ExplanMethods(StringBuilder builder, string className, string tableName, MethodBase[] methods, string methodName)
         {
             var methodSB = new StringBuilder();
             for (int i = 0; i < methods.Length; i++)
@@ -1411,7 +1466,7 @@ namespace Barotrauma
                             {
                                 ExplanOverloadConstructorEnd(methodSB, className);
                             }
-                            
+
                             ExplanNewLine(methodSB);
                         }
                     }
@@ -1488,6 +1543,7 @@ namespace Barotrauma
             foreach (var field in fields.Where(f => !f.Name.Contains("k__BackingField")).ToList())
             {
                 ExplanField(builder, field);
+                ExplanNewLine(builder);
             }
 
             var properties = nonGenericBaseType ? targetType.GetProperties(Flags | BindingFlags.DeclaredOnly) : targetType.GetProperties(Flags);
@@ -1495,27 +1551,59 @@ namespace Barotrauma
             foreach (var prop in properties)
             {
                 ExplanProperty(builder, prop);
+                ExplanNewLine(builder);
             }
 
-            builder.Append($"{tableName}={{}}\n\n");
+            builder.Append($"{tableName}={{}}");
+            ExplanNewLine(builder, 2);
 
             var methods = nonGenericBaseType ? targetType.GetMethods(Flags | BindingFlags.DeclaredOnly) : targetType.GetMethods(Flags);
 
-            foreach (var groupMethod in (
-                    from method in methods
-                    where !method.Name.StartsWith("get_") && !method.Name.StartsWith("set_")
-                    where !Regex.IsMatch(method.Name, @"<.*?>")
-                    group method by method.Name
-                )
-            )
+            if (methods.Length > 0)
             {
-                ExplanMethod(builder, className, tableName, groupMethod.ToArray(), groupMethod.Key);
+                foreach (var groupMethod in (
+                        from method in methods
+                        where !method.Name.StartsWith("get_") && !method.Name.StartsWith("set_")
+                        where !Regex.IsMatch(method.Name, @"<.*?>")
+                        group method by method.Name
+                    )
+                )
+                {
+                    foreach (var groupMethodByModifers in (
+                            from method in groupMethod.ToArray()
+                            group method by GetMethodModifiers(method)
+                        )
+                    )
+                    {
+                        ExplanAnnotationPrefix(builder);
+                        ExplanMethodModifiers(builder, groupMethodByModifers.Key);
+                        ExplanNewLine(builder);
+                        ExplanMethods(builder, className, tableName, groupMethodByModifers.ToArray(), groupMethod.Key);
+                    }
+                }
             }
 
-            var constructors = targetType.GetConstructors().Where(ctor => ctor.IsPublic).ToArray();
+            var constructors = targetType.GetConstructors(Flags | BindingFlags.DeclaredOnly).ToArray();
 
-            ExplanMethod(builder, className, tableName, constructors, null);
-            ExplanMethod(builder, className, tableName, constructors, "__new");
+            if (constructors.Length > 0)
+            {
+                foreach (var groupConstructorByModifers in (
+                            from ctor in constructors
+                            group ctor by GetMethodModifiers(ctor)
+                        )
+                    )
+                {
+                    ExplanAnnotationPrefix(builder);
+                    ExplanMethodModifiers(builder, groupConstructorByModifers.Key);
+                    ExplanNewLine(builder);
+                    ExplanMethods(builder, className, tableName, constructors, null);
+
+                    ExplanAnnotationPrefix(builder);
+                    ExplanMethodModifiers(builder, groupConstructorByModifers.Key);
+                    ExplanNewLine(builder);
+                    ExplanMethods(builder, className, tableName, constructors, "__new");
+                }
+            }
 
             if (minorTableNames != null)
             {
