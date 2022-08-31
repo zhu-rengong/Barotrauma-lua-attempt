@@ -20,20 +20,39 @@ luaUserData.CreateUserDataFromDescriptor = clrLuaUserData.CreateUserDataFromDesc
 luaUserData.CreateUserDataFromType = clrLuaUserData.CreateUserDataFromType
 
 luaUserData.RegisterType = function(typeName)
-    local descriptor = clrLuaUserData.RegisterType(typeName)
+	local success, result = pcall(clrLuaUserData.RegisterType, typeName)
 
-    luaUserData.Descriptors[typeName] = descriptor
+	if not success then
+		error(result, 2)
+	end
 
-    return descriptor
+    luaUserData.Descriptors[typeName] = result
+
+    return result
 end
 
 luaUserData.RegisterTypeBarotrauma = function(typeName)
-    return luaUserData.RegisterType("Barotrauma." .. typeName)
+	typeName = "Barotrauma." .. typeName
+	local success, result = pcall(luaUserData.RegisterType, typeName)
+
+	if not success then
+		error(result, 2)
+	end
+
+    return result
 end
 
 luaUserData.AddCallMetaTable = function (userdata)
+	if userdata == nil then
+		error("Attempted to add a call metatable to a nil value.", 2)
+	end
+
 	debug.setmetatable(userdata, {
-		__call = function(obj, ...) 
+		__call = function(obj, ...)
+			if userdata == nil then
+				error("userdata was nil.", 2)
+			end
+
 			local success, result = pcall(userdata.__new, ...)
 
 			if not success then
@@ -46,11 +65,15 @@ luaUserData.AddCallMetaTable = function (userdata)
 end
 
 luaUserData.CreateStatic = function(typeName, addCallMethod)
-	local staticUserdata = clrLuaUserData.CreateStatic(typeName)
+	local success, result = pcall(clrLuaUserData.CreateStatic, typeName)
 
-	if addCallMethod then
-		luaUserData.AddCallMetaTable(staticUserdata)
+	if not success then
+		error(result, 2)
 	end
 
-	return staticUserdata
+	if addCallMethod then
+		luaUserData.AddCallMetaTable(result)
+	end
+
+	return result
 end
