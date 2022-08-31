@@ -229,6 +229,9 @@ if SERVER then
     LuaUserData.MakeFieldAccessible(descriptor, "subs")
 end
 
+RegisterBarotrauma("EventManager")
+RegisterBarotrauma("EventManagerSettings")
+
 RegisterBarotrauma("Networking.IWriteMessage")
 RegisterBarotrauma("Networking.IReadMessage")
 RegisterBarotrauma("Networking.NetEntityEvent")
