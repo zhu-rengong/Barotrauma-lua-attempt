@@ -375,7 +375,7 @@ namespace Barotrauma
 
         static void Initialize()
         {
-            DebugConsole.NewMessage($"reflush the bt lua doc root directory...");
+            
             var paths = new string[] { BLuaDocPath, SharedPath,
                 Path.Combine(BLuaDocPath, AliasDir), Path.Combine(SharedPath, AliasDir) };
 
@@ -487,7 +487,6 @@ namespace Barotrauma
 
         public static void Work()
         {
-            DebugConsole.NewMessage($"Start to generate all lua docs...");
             Initialize();
 
             Gen(typeof(System.Object));
@@ -1033,7 +1032,6 @@ namespace Barotrauma
             Gen(typeof(DeformableSprite));
 
 #if CLIENT
-            Gen(typeof(SpriteFallBackState));
             Gen(typeof(SpriteRecorder));
             Gen(typeof(DecorativeSprite));
             Gen(typeof(BrokenItemSprite));
@@ -1789,7 +1787,7 @@ namespace Barotrauma
             }
 
             ClassDefinition.Add(GetLuaClassFileName(targetType), builder);
-            DebugConsole.NewMessage($"File:{GetLuaClassFileName(targetType)} | MaxSize: {builder.Capacity/1024}K");
+            
         }
 
         public static class AliasAnnotation
