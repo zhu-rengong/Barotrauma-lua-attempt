@@ -166,7 +166,7 @@ namespace Barotrauma
                 return metadata;
             }
 
-            public (bool state, string Name) GetLuaName(int luaName = LUA_NAME_CLASS, char split = '_')
+            public (bool state, string Name) GetLuaName(int luaName = LUA_NAME_CLASS, char split = '_', bool tryGetMappedName = true)
             {
                 if (luaName == LUA_NAME_TYPE)
                 {
@@ -218,8 +218,12 @@ namespace Barotrauma
                 {
                     string className = tgt.Name;
                     className = Regex.Replace(className, @"\[\]|`1|`2|`3|&", "");
-                    var (state, mapName) = GetMapClassName(tgt.Namespace, className);
-                    if (state) { return (true, mapName); }
+
+                    if (tryGetMappedName)
+                    {
+                        var (state, mapName) = GetMapClassName(tgt.Namespace, className);
+                        if (state) { return (true, mapName); }
+                    }
 
                     var nameSpacePart = tgt.Namespace;
                     var declarT = tgt.DeclaringType;
@@ -280,31 +284,31 @@ namespace Barotrauma
                     switch (className)
                     {
                         case "Object":
-                            return (true, $"{ClassMetadata.Obtain(typeof(Object)).GetLuaName(LUA_NAME_TYPE).Name}|any");
+                            return (true, $"{ClassMetadata.Obtain(typeof(Object)).GetLuaName(LUA_NAME_TYPE, tryGetMappedName: false).Name}|any");
                         case "Boolean":
-                            return (true, $"{ClassMetadata.Obtain(typeof(Boolean)).GetLuaName(LUA_NAME_TYPE).Name}|boolean");
+                            return (true, $"{ClassMetadata.Obtain(typeof(Boolean)).GetLuaName(LUA_NAME_TYPE, tryGetMappedName: false).Name}|boolean");
                         case "String":
-                            return (true, $"{ClassMetadata.Obtain(typeof(String)).GetLuaName(LUA_NAME_TYPE).Name}|string");
+                            return (true, $"{ClassMetadata.Obtain(typeof(String)).GetLuaName(LUA_NAME_TYPE, tryGetMappedName: false).Name}|string");
                         case "Single":
-                            return (true, $"{ClassMetadata.Obtain(typeof(Single)).GetLuaName(LUA_NAME_TYPE).Name}|number");
+                            return (true, $"{ClassMetadata.Obtain(typeof(Single)).GetLuaName(LUA_NAME_TYPE, tryGetMappedName: false).Name}|number");
                         case "Double":
-                            return (true, $"{ClassMetadata.Obtain(typeof(Double)).GetLuaName(LUA_NAME_TYPE).Name}|number");
+                            return (true, $"{ClassMetadata.Obtain(typeof(Double)).GetLuaName(LUA_NAME_TYPE, tryGetMappedName: false).Name}|number");
                         case "SByte":
-                            return (true, $"{ClassMetadata.Obtain(typeof(SByte)).GetLuaName(LUA_NAME_TYPE).Name}|number");
+                            return (true, $"{ClassMetadata.Obtain(typeof(SByte)).GetLuaName(LUA_NAME_TYPE, tryGetMappedName: false).Name}|number");
                         case "Byte":
-                            return (true, $"{ClassMetadata.Obtain(typeof(Byte)).GetLuaName(LUA_NAME_TYPE).Name}|number");
+                            return (true, $"{ClassMetadata.Obtain(typeof(Byte)).GetLuaName(LUA_NAME_TYPE, tryGetMappedName: false).Name}|number");
                         case "Int16":
-                            return (true, $"{ClassMetadata.Obtain(typeof(Int16)).GetLuaName(LUA_NAME_TYPE).Name}|number");
+                            return (true, $"{ClassMetadata.Obtain(typeof(Int16)).GetLuaName(LUA_NAME_TYPE, tryGetMappedName: false).Name}|number");
                         case "UInt16":
-                            return (true, $"{ClassMetadata.Obtain(typeof(UInt16)).GetLuaName(LUA_NAME_TYPE).Name}|number");
+                            return (true, $"{ClassMetadata.Obtain(typeof(UInt16)).GetLuaName(LUA_NAME_TYPE, tryGetMappedName: false).Name}|number");
                         case "Int32":
-                            return (true, $"{ClassMetadata.Obtain(typeof(Int32)).GetLuaName(LUA_NAME_TYPE).Name}|number");
+                            return (true, $"{ClassMetadata.Obtain(typeof(Int32)).GetLuaName(LUA_NAME_TYPE, tryGetMappedName: false).Name}|number");
                         case "UInt32":
-                            return (true, $"{ClassMetadata.Obtain(typeof(UInt32)).GetLuaName(LUA_NAME_TYPE).Name}|number");
+                            return (true, $"{ClassMetadata.Obtain(typeof(UInt32)).GetLuaName(LUA_NAME_TYPE, tryGetMappedName: false).Name}|number");
                         case "Int64":
-                            return (true, $"{ClassMetadata.Obtain(typeof(Int64)).GetLuaName(LUA_NAME_TYPE).Name}|number");
+                            return (true, $"{ClassMetadata.Obtain(typeof(Int64)).GetLuaName(LUA_NAME_TYPE, tryGetMappedName: false).Name}|number");
                         case "UInt64":
-                            return (true, $"{ClassMetadata.Obtain(typeof(UInt64)).GetLuaName(LUA_NAME_TYPE).Name}|number");
+                            return (true, $"{ClassMetadata.Obtain(typeof(UInt64)).GetLuaName(LUA_NAME_TYPE, tryGetMappedName: false).Name}|number");
                         default:
                             break;
                     }
@@ -497,7 +501,8 @@ namespace Barotrauma
             Gen(typeof(System.UInt32));
             Gen(typeof(System.Int64));
             Gen(typeof(System.UInt64));
-
+            Gen(typeof(System.Single));
+            Gen(typeof(System.Double));
             #region Steam
             Gen(typeof(Steamworks.Friend));
             Gen(typeof(Steamworks.Ugc.Item));
@@ -1336,6 +1341,7 @@ namespace Barotrauma
             {
                 if (OverloadedOperatorAnnotations.TryGetValue(fileName, out StringBuilder ops))
                 {
+                    ops.Remove(ops.Length - 1, 1); // remove the last newline, @field must be defined after @class
                     builder.Replace("[placeHolder:operators]", ops.ToString());
                 }
                 else
@@ -1618,7 +1624,7 @@ namespace Barotrauma
             var metadata = ClassMetadata.Obtain(targetType);
             var builder = new StringBuilder();
             string tableName = aliasTable ?? metadata.GetDefaultTableName();
-            var (_, className) = metadata.GetLuaName();
+            var (_, className) = metadata.GetLuaName(tryGetMappedName: false);
             SingleLuaFileClassNameList.Add(className);
 
             builder.Append($"---@meta");
@@ -1678,6 +1684,16 @@ namespace Barotrauma
                     )
                 )
                 {
+                    string methodName = null;
+                    if (Regex.Match(groupMethod.Key, @"\.(?<name>[^\.]+)$").Groups.TryGetValue("name", out Group group))
+                    {
+                        methodName = group.Value;
+                    }
+                    else
+                    {
+                        methodName = groupMethod.Key;
+                    }
+
                     foreach (var groupMethodByModifers in (
                             from method in groupMethod.ToArray()
                             group method by GetMethodModifiers(method)
@@ -1687,7 +1703,7 @@ namespace Barotrauma
                         ExplanAnnotationPrefix(builder);
                         ExplanMethodModifiers(builder, groupMethodByModifers.Key);
                         ExplanNewLine(builder);
-                        ExplanMethods(builder, className, tableName, groupMethodByModifers.ToArray(), groupMethod.Key);
+                        ExplanMethods(builder, className, tableName, groupMethodByModifers.ToArray(), methodName);
                     }
                 }
             }
