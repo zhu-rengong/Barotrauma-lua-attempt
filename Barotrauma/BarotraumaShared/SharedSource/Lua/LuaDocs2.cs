@@ -25,6 +25,7 @@ using System.Runtime.InteropServices;
 ///     重载的方法、构造器
 ///     可选参数、参量参数
 ///     嵌套的数组、列表、字典、集合及元素类型
+///     重载操作运算符+-*/
 ///     Vallina 原版内容包预设的参数值
 /// </summary>
 namespace Barotrauma
@@ -55,6 +56,9 @@ namespace Barotrauma
             ("table", ""),
             ("function", "")
         );
+
+        public static Dictionary<string, StringBuilder> ClassDefinition = new Dictionary<string, StringBuilder>();
+        public static Dictionary<string, StringBuilder> OverloadedOperatorAnnotations = new Dictionary<string, StringBuilder>();
 
         public static List<(string targetClassName, string baseClassName)> GlobalLuaDef = new List<(string, string)>(DefaultGLuaDef);
 
@@ -214,7 +218,7 @@ namespace Barotrauma
                 {
                     string className = tgt.Name;
                     className = Regex.Replace(className, @"\[\]|`1|`2|`3|&", "");
-                    var (state, mapName) = GetMapClassName(className);
+                    var (state, mapName) = GetMapClassName(tgt.Namespace, className);
                     if (state) { return (true, mapName); }
 
                     var nameSpacePart = tgt.Namespace;
@@ -269,27 +273,45 @@ namespace Barotrauma
                     )).Replace("...", $"{split}");
             }
 
-            public static (bool, string) GetMapClassName(string className)
+            public static (bool, string) GetMapClassName(string nameSpace, string className)
             {
+                if (nameSpace.StartsWith("System"))
+                {
+                    switch (className)
+                    {
+                        case "Object":
+                            return (true, $"{ClassMetadata.Obtain(typeof(Object)).GetLuaName(LUA_NAME_TYPE).Name}|any");
+                        case "Boolean":
+                            return (true, $"{ClassMetadata.Obtain(typeof(Boolean)).GetLuaName(LUA_NAME_TYPE).Name}|boolean");
+                        case "String":
+                            return (true, $"{ClassMetadata.Obtain(typeof(String)).GetLuaName(LUA_NAME_TYPE).Name}|string");
+                        case "Single":
+                            return (true, $"{ClassMetadata.Obtain(typeof(Single)).GetLuaName(LUA_NAME_TYPE).Name}|number");
+                        case "Double":
+                            return (true, $"{ClassMetadata.Obtain(typeof(Double)).GetLuaName(LUA_NAME_TYPE).Name}|number");
+                        case "SByte":
+                            return (true, $"{ClassMetadata.Obtain(typeof(SByte)).GetLuaName(LUA_NAME_TYPE).Name}|number");
+                        case "Byte":
+                            return (true, $"{ClassMetadata.Obtain(typeof(Byte)).GetLuaName(LUA_NAME_TYPE).Name}|number");
+                        case "Int16":
+                            return (true, $"{ClassMetadata.Obtain(typeof(Int16)).GetLuaName(LUA_NAME_TYPE).Name}|number");
+                        case "UInt16":
+                            return (true, $"{ClassMetadata.Obtain(typeof(UInt16)).GetLuaName(LUA_NAME_TYPE).Name}|number");
+                        case "Int32":
+                            return (true, $"{ClassMetadata.Obtain(typeof(Int32)).GetLuaName(LUA_NAME_TYPE).Name}|number");
+                        case "UInt32":
+                            return (true, $"{ClassMetadata.Obtain(typeof(UInt32)).GetLuaName(LUA_NAME_TYPE).Name}|number");
+                        case "Int64":
+                            return (true, $"{ClassMetadata.Obtain(typeof(Int64)).GetLuaName(LUA_NAME_TYPE).Name}|number");
+                        case "UInt64":
+                            return (true, $"{ClassMetadata.Obtain(typeof(UInt64)).GetLuaName(LUA_NAME_TYPE).Name}|number");
+                        default:
+                            break;
+                    }
+                }
+
                 switch (className)
                 {
-                    //case "Object":
-                    //    return (true, "any");
-                    case "Boolean":
-                        return (true, "boolean");
-                    case "String":
-                        return (true, "string");
-                    //case "Single":
-                    //case "Double":
-                    //case "SByte":
-                    //case "Byte":
-                    //case "Int16":
-                    //case "UInt16":
-                    //case "Int32":
-                    //case "UInt32":
-                    //case "Int64":
-                    //case "UInt64":
-                    //    return (true, "number");
                     case "T": return (true, "T");
                     case "T1": return (true, "T1");
                     case "T2": return (true, "T2");
@@ -349,6 +371,7 @@ namespace Barotrauma
 
         static void Initialize()
         {
+            DebugConsole.NewMessage($"reflush the bt lua doc root directory...");
             var paths = new string[] { BLuaDocPath, SharedPath,
                 Path.Combine(BLuaDocPath, AliasDir), Path.Combine(SharedPath, AliasDir) };
 
@@ -460,815 +483,826 @@ namespace Barotrauma
 
         public static void Work()
         {
+            DebugConsole.NewMessage($"Start to generate all lua docs...");
             Initialize();
 
-            Do(typeof(System.Object));
+            Gen(typeof(System.Object));
+            Gen(typeof(System.Boolean));
+            Gen(typeof(System.String));
+            Gen(typeof(System.Byte));
+            Gen(typeof(System.SByte));
+            Gen(typeof(System.Int16));
+            Gen(typeof(System.UInt16));
+            Gen(typeof(System.Int32));
+            Gen(typeof(System.UInt32));
+            Gen(typeof(System.Int64));
+            Gen(typeof(System.UInt64));
 
             #region Steam
-            Do(typeof(Steamworks.Friend));
-            Do(typeof(Steamworks.Ugc.Item));
+            Gen(typeof(Steamworks.Friend));
+            Gen(typeof(Steamworks.Ugc.Item));
 
             #endregion
 
-            Do(typeof(LuaSByte), "SByte");
-            Do(typeof(LuaByte), "Byte");
-            Do(typeof(LuaInt16), "Int16", new string[] { "Short" });
-            Do(typeof(LuaUInt16), "UInt16", new string[] { "UShort" });
-            Do(typeof(LuaInt32), "Int32");
-            Do(typeof(LuaUInt32), "UInt32");
-            Do(typeof(LuaInt64), "Int64");
-            Do(typeof(LuaUInt64), "UInt64");
-            Do(typeof(LuaSingle), "Single", new string[] { "Float" });
-            Do(typeof(LuaDouble), "Double");
+            Gen(typeof(LuaSByte), "SByte");
+            Gen(typeof(LuaByte), "Byte");
+            Gen(typeof(LuaInt16), "Int16", new string[] { "Short" });
+            Gen(typeof(LuaUInt16), "UInt16", new string[] { "UShort" });
+            Gen(typeof(LuaInt32), "Int32");
+            Gen(typeof(LuaUInt32), "UInt32");
+            Gen(typeof(LuaInt64), "Int64");
+            Gen(typeof(LuaUInt64), "UInt64");
+            Gen(typeof(LuaSingle), "Single", new string[] { "Float" });
+            Gen(typeof(LuaDouble), "Double");
 
-            Do(typeof(MathUtils));
+            Gen(typeof(MathUtils));
 
-            Do(typeof(Rand));
-            Do(typeof(Rand.RandSync), null, new string[] { "RandSync" });
+            Gen(typeof(Rand));
+            Gen(typeof(Rand.RandSync), null, new string[] { "RandSync" });
 
-            Do(typeof(PerformanceCounter));
+            Gen(typeof(PerformanceCounter));
 
-            Do(typeof(GameMain));
+            Gen(typeof(GameMain));
 
-            Do(typeof(SerializableProperty));
+            Gen(typeof(SerializableProperty));
 
             #region String
-            Do(typeof(AddedPunctuationLString));
-            Do(typeof(CapitalizeLString));
-            Do(typeof(ConcatLString));
-            Do(typeof(FallbackLString));
-            Do(typeof(FormattedLString));
-            Do(typeof(InputTypeLString));
-            Do(typeof(JoinLString));
-            Do(typeof(LocalizedString));
-            Do(typeof(LowerLString));
-            Do(typeof(RawLString));
-            Do(typeof(ReplaceLString));
-            Do(typeof(ServerMsgLString));
-            Do(typeof(SplitLString));
-            Do(typeof(TagLString));
-            Do(typeof(TrimLString));
-            Do(typeof(UpperLString));
+            Gen(typeof(AddedPunctuationLString));
+            Gen(typeof(CapitalizeLString));
+            Gen(typeof(ConcatLString));
+            Gen(typeof(FallbackLString));
+            Gen(typeof(FormattedLString));
+            Gen(typeof(InputTypeLString));
+            Gen(typeof(JoinLString));
+            Gen(typeof(LocalizedString));
+            Gen(typeof(LowerLString));
+            Gen(typeof(RawLString));
+            Gen(typeof(ReplaceLString));
+            Gen(typeof(ServerMsgLString));
+            Gen(typeof(SplitLString));
+            Gen(typeof(TagLString));
+            Gen(typeof(TrimLString));
+            Gen(typeof(UpperLString));
 
-            Do(typeof(RichString));
-            Do(typeof(StripRichTagsLString));
-            Do(typeof(RichTextData));
+            Gen(typeof(RichString));
+            Gen(typeof(StripRichTagsLString));
+            Gen(typeof(RichTextData));
 
-            Do(typeof(TextManager));
-            Do(typeof(TextPack));
+            Gen(typeof(TextManager));
+            Gen(typeof(TextPack));
 
-            Do(typeof(Identifier));
-            Do(typeof(LanguageIdentifier));
+            Gen(typeof(Identifier));
+            Gen(typeof(LanguageIdentifier));
             #endregion
 
-            Do(typeof(ContentFile));
-            Do(typeof(ContentPackage));
-            Do(typeof(ContentPackageManager));
-            Do(typeof(ContentPackageManager.PackageSource));
-            Do(typeof(ContentPackageManager.EnabledPackages));
-            Do(typeof(RegularPackage));
-            Do(typeof(CorePackage));
-            Do(typeof(ContentXElement));
+            Gen(typeof(ContentFile));
+            Gen(typeof(ContentPackage));
+            Gen(typeof(ContentPackageManager));
+            Gen(typeof(ContentPackageManager.PackageSource));
+            Gen(typeof(ContentPackageManager.EnabledPackages));
+            Gen(typeof(RegularPackage));
+            Gen(typeof(CorePackage));
+            Gen(typeof(ContentXElement));
 
 
-            Do(typeof(Camera));
+            Gen(typeof(Camera));
 
-            Do(typeof(CauseOfDeathType));
-            Do(typeof(CauseOfDeath));
+            Gen(typeof(CauseOfDeathType));
+            Gen(typeof(CauseOfDeath));
 
-            Do(typeof(SpawnType));
-            Do(typeof(WayPoint));
+            Gen(typeof(SpawnType));
+            Gen(typeof(WayPoint));
 
-            Do(typeof(Networking.ServerLog));
-            Do(typeof(Networking.ServerLog.MessageType), null, new string[] { "ServerLog_MessageType", "ServerLogMessageType" });
+            Gen(typeof(Networking.ServerLog));
+            Gen(typeof(Networking.ServerLog.MessageType), null, new string[] { "ServerLog_MessageType", "ServerLogMessageType" });
 
-            Do(typeof(PropertyConditional));
-            Do(typeof(StatusEffect));
-            Do(typeof(DelayedEffect));
+            Gen(typeof(PropertyConditional));
+            Gen(typeof(StatusEffect));
+            Gen(typeof(DelayedEffect));
 
-            Do(typeof(FireSource));
-            Do(typeof(DummyFireSource));
+            Gen(typeof(FireSource));
+            Gen(typeof(DummyFireSource));
 
-            Do(typeof(Explosion));
+            Gen(typeof(Explosion));
 
             #region Enum
-            Do(typeof(TransitionMode));
-            Do(typeof(ActionType));
-            Do(typeof(AbilityEffectType));
-            Do(typeof(StatTypes));
-            Do(typeof(AbilityFlags));
+            Gen(typeof(TransitionMode));
+            Gen(typeof(ActionType));
+            Gen(typeof(AbilityEffectType));
+            Gen(typeof(StatTypes));
+            Gen(typeof(AbilityFlags));
             #endregion
 
             #region Game
-            Do(typeof(Screen));
-            Do(typeof(GameScreen));
-            Do(typeof(NetLobbyScreen));
+            Gen(typeof(Screen));
+            Gen(typeof(GameScreen));
+            Gen(typeof(NetLobbyScreen));
 
-            Do(typeof(GameSettings));
+            Gen(typeof(GameSettings));
 
-            Do(typeof(GameSession));
+            Gen(typeof(GameSession));
 
             //Data
-            Do(typeof(CampaignMetadata));
-            Do(typeof(CharacterCampaignData));
-            Do(typeof(Faction));
-            Do(typeof(FactionPrefab));
-            Do(typeof(Reputation));
+            Gen(typeof(CampaignMetadata));
+            Gen(typeof(CharacterCampaignData));
+            Gen(typeof(Faction));
+            Gen(typeof(FactionPrefab));
+            Gen(typeof(Reputation));
 
             //Game Mode
-            Do(typeof(GameModePreset));
-            Do(typeof(GameMode));
+            Gen(typeof(GameModePreset));
+            Gen(typeof(GameMode));
 #if CLIENT
-            Do(typeof(TestGameMode));
-            Do(typeof(TutorialMode));
+            Gen(typeof(TestGameMode));
+            Gen(typeof(TutorialMode));
 #endif
-            Do(typeof(CampaignMode));
+            Gen(typeof(CampaignMode));
 #if CLIENT
-            Do(typeof(SinglePlayerCampaign));
+            Gen(typeof(SinglePlayerCampaign));
 #endif
-            Do(typeof(MultiPlayerCampaign));
-            Do(typeof(CoOpMode));
-            Do(typeof(MissionMode));
-            Do(typeof(PvPMode));
+            Gen(typeof(MultiPlayerCampaign));
+            Gen(typeof(CoOpMode));
+            Gen(typeof(MissionMode));
+            Gen(typeof(PvPMode));
 
 
-            Do(typeof(AutoItemPlacer));
-            Do(typeof(CargoManager));
-            Do(typeof(CrewManager));
-            Do(typeof(HireManager));
-            Do(typeof(MedicalClinic));
-            Do(typeof(ReadyCheck));
+            Gen(typeof(AutoItemPlacer));
+            Gen(typeof(CargoManager));
+            Gen(typeof(CrewManager));
+            Gen(typeof(HireManager));
+            Gen(typeof(MedicalClinic));
+            Gen(typeof(ReadyCheck));
 
             #endregion
 
-            Do(typeof(GameDifficulty));
-            Do(typeof(StartingBalanceAmount));
+            Gen(typeof(GameDifficulty));
+            Gen(typeof(StartingBalanceAmount));
 
             #region Level
-            Do(typeof(Level.InterestingPosition));
-            Do(typeof(Level.PositionType), null, new string[] { "PositionType" });
-            Do(typeof(Level));
-            Do(typeof(LevelData));
-            Do(typeof(LevelGenerationParams));
-            Do(typeof(LevelObjectManager));
-            Do(typeof(LevelObjectPrefab));
-            Do(typeof(LevelObject));
-            Do(typeof(LevelTrigger));
-            Do(typeof(LevelWall));
-            Do(typeof(DestructibleLevelWall));
-            Do(typeof(Biome));
-            Do(typeof(Map));
-            Do(typeof(Radiation));
+            Gen(typeof(Level.InterestingPosition));
+            Gen(typeof(Level.PositionType), null, new string[] { "PositionType" });
+            Gen(typeof(Level));
+            Gen(typeof(LevelData));
+            Gen(typeof(LevelGenerationParams));
+            Gen(typeof(LevelObjectManager));
+            Gen(typeof(LevelObjectPrefab));
+            Gen(typeof(LevelObject));
+            Gen(typeof(LevelTrigger));
+            Gen(typeof(LevelWall));
+            Gen(typeof(DestructibleLevelWall));
+            Gen(typeof(Biome));
+            Gen(typeof(Map));
+            Gen(typeof(Radiation));
             #endregion
 
 
             #region Location
-            Do(typeof(PriceInfo));
-            Do(typeof(LocationType));
-            Do(typeof(Location));
-            Do(typeof(LocationConnection));
-            Do(typeof(LocationTypeChange));
+            Gen(typeof(PriceInfo));
+            Gen(typeof(LocationType));
+            Gen(typeof(Location));
+            Gen(typeof(LocationConnection));
+            Gen(typeof(LocationTypeChange));
             #endregion
 
 
             #region Entity
-            Do(typeof(Entity));
-            Do(typeof(EntitySpawner));
-            Do(typeof(EntityGrid));
+            Gen(typeof(Entity));
+            Gen(typeof(EntitySpawner));
+            Gen(typeof(EntityGrid));
 
-            Do(typeof(MapEntityCategory));
-            Do(typeof(MapEntity));
-            Do(typeof(Prefab));
-            Do(typeof(PrefabWithUintIdentifier));
-            Do(typeof(MapEntityPrefab));
-            Do(typeof(CoreEntityPrefab));
+            Gen(typeof(MapEntityCategory));
+            Gen(typeof(MapEntity));
+            Gen(typeof(Prefab));
+            Gen(typeof(PrefabWithUintIdentifier));
+            Gen(typeof(MapEntityPrefab));
+            Gen(typeof(CoreEntityPrefab));
             #endregion
 
 
             #region Character
-            Do(typeof(CharacterType));
-            Do(typeof(CharacterTeamType));
-            Do(typeof(CharacterPrefab));
-            Do(typeof(CharacterInfo));
-            Do(typeof(CharacterInfo.HeadInfo));
-            Do(typeof(CharacterInfo.HeadPreset));
-            Do(typeof(CharacterInfoPrefab));
-            Do(typeof(Character));
-            Do(typeof(AICharacter));
-            Do(typeof(CharacterHealth));
-            Do(typeof(CharacterHealth.LimbHealth));
-            Do(typeof(CharacterInventory));
-            Do(typeof(CharacterTalent));
+            Gen(typeof(CharacterType));
+            Gen(typeof(CharacterTeamType));
+            Gen(typeof(CharacterPrefab));
+            Gen(typeof(CharacterInfo));
+            Gen(typeof(CharacterInfo.HeadInfo));
+            Gen(typeof(CharacterInfo.HeadPreset));
+            Gen(typeof(CharacterInfoPrefab));
+            Gen(typeof(Character));
+            Gen(typeof(AICharacter));
+            Gen(typeof(CharacterHealth));
+            Gen(typeof(CharacterHealth.LimbHealth));
+            Gen(typeof(CharacterInventory));
+            Gen(typeof(CharacterTalent));
 
-            Do(typeof(CharacterParams));
-            Do(typeof(CharacterParams.AIParams));
-            Do(typeof(CharacterParams.HealthParams));
-            Do(typeof(CharacterParams.InventoryParams));
-            Do(typeof(CharacterParams.ParticleParams));
-            Do(typeof(CharacterParams.SoundParams));
-            Do(typeof(CharacterParams.SubParam));
-            Do(typeof(CharacterParams.TargetParams));
+            Gen(typeof(CharacterParams));
+            Gen(typeof(CharacterParams.AIParams));
+            Gen(typeof(CharacterParams.HealthParams));
+            Gen(typeof(CharacterParams.InventoryParams));
+            Gen(typeof(CharacterParams.ParticleParams));
+            Gen(typeof(CharacterParams.SoundParams));
+            Gen(typeof(CharacterParams.SubParam));
+            Gen(typeof(CharacterParams.TargetParams));
 
-            Do(typeof(MapCreatures.Behavior.BallastFloraBehavior));
-            Do(typeof(MapCreatures.Behavior.BallastFloraBranch));
-            Do(typeof(PetBehavior));
+            Gen(typeof(MapCreatures.Behavior.BallastFloraBehavior));
+            Gen(typeof(MapCreatures.Behavior.BallastFloraBranch));
+            Gen(typeof(PetBehavior));
             #endregion
 
-            Do(typeof(OrderCategory));
-            Do(typeof(OrderPrefab));
-            Do(typeof(Order));
-            Do(typeof(OrderTarget));
+            Gen(typeof(OrderCategory));
+            Gen(typeof(OrderPrefab));
+            Gen(typeof(Order));
+            Gen(typeof(OrderTarget));
 
             #region AI
-            Do(typeof(AIState));
+            Gen(typeof(AIState));
 
-            Do(typeof(AIController));
-            Do(typeof(EnemyAIController));
-            Do(typeof(HumanAIController));
+            Gen(typeof(AIController));
+            Gen(typeof(EnemyAIController));
+            Gen(typeof(HumanAIController));
 
-            Do(typeof(AITarget));
-            Do(typeof(AITargetMemory));
+            Gen(typeof(AITarget));
+            Gen(typeof(AITargetMemory));
 
-            Do(typeof(AIChatMessage));
-            Do(typeof(AIObjectiveManager));
-            Do(typeof(AITrigger));
+            Gen(typeof(AIChatMessage));
+            Gen(typeof(AIObjectiveManager));
+            Gen(typeof(AITrigger));
 
-            Do(typeof(AIObjective));
-            Do(typeof(AIObjectiveChargeBatteries));
-            Do(typeof(AIObjectiveCleanupItem));
-            Do(typeof(AIObjectiveCleanupItems));
-            Do(typeof(AIObjectiveCombat));
-            Do(typeof(AIObjectiveContainItem));
-            Do(typeof(AIObjectiveDecontainItem));
-            Do(typeof(AIObjectiveEscapeHandcuffs));
-            Do(typeof(AIObjectiveExtinguishFire));
-            Do(typeof(AIObjectiveExtinguishFires));
-            Do(typeof(AIObjectiveFightIntruders));
-            Do(typeof(AIObjectiveFindDivingGear));
-            Do(typeof(AIObjectiveFindSafety));
-            Do(typeof(AIObjectiveFixLeak));
-            Do(typeof(AIObjectiveFixLeaks));
-            Do(typeof(AIObjectiveGetItem));
-            Do(typeof(AIObjectiveGetItems));
-            Do(typeof(AIObjectiveGoTo));
-            Do(typeof(AIObjectiveIdle));
-            Do(typeof(AIObjectiveOperateItem));
-            Do(typeof(AIObjectivePrepare));
-            Do(typeof(AIObjectivePumpWater));
-            Do(typeof(AIObjectiveRepairItem));
-            Do(typeof(AIObjectiveRepairItems));
-            Do(typeof(AIObjectiveRescue));
-            Do(typeof(AIObjectiveRescueAll));
-            Do(typeof(AIObjectiveReturn));
-            Do(typeof(AIObjectiveCombat.CombatMode), null, new string[] { "CombatMode" });
+            Gen(typeof(AIObjective));
+            Gen(typeof(AIObjectiveChargeBatteries));
+            Gen(typeof(AIObjectiveCleanupItem));
+            Gen(typeof(AIObjectiveCleanupItems));
+            Gen(typeof(AIObjectiveCombat));
+            Gen(typeof(AIObjectiveContainItem));
+            Gen(typeof(AIObjectiveDecontainItem));
+            Gen(typeof(AIObjectiveEscapeHandcuffs));
+            Gen(typeof(AIObjectiveExtinguishFire));
+            Gen(typeof(AIObjectiveExtinguishFires));
+            Gen(typeof(AIObjectiveFightIntruders));
+            Gen(typeof(AIObjectiveFindDivingGear));
+            Gen(typeof(AIObjectiveFindSafety));
+            Gen(typeof(AIObjectiveFixLeak));
+            Gen(typeof(AIObjectiveFixLeaks));
+            Gen(typeof(AIObjectiveGetItem));
+            Gen(typeof(AIObjectiveGetItems));
+            Gen(typeof(AIObjectiveGoTo));
+            Gen(typeof(AIObjectiveIdle));
+            Gen(typeof(AIObjectiveOperateItem));
+            Gen(typeof(AIObjectivePrepare));
+            Gen(typeof(AIObjectivePumpWater));
+            Gen(typeof(AIObjectiveRepairItem));
+            Gen(typeof(AIObjectiveRepairItems));
+            Gen(typeof(AIObjectiveRescue));
+            Gen(typeof(AIObjectiveRescueAll));
+            Gen(typeof(AIObjectiveReturn));
+            Gen(typeof(AIObjectiveCombat.CombatMode), null, new string[] { "CombatMode" });
             #endregion
 
             #region Ragdoll
-            Do(typeof(LimbType));
-            Do(typeof(Limb));
-            Do(typeof(LimbJoint));
-            Do(typeof(LimbPos));
+            Gen(typeof(LimbType));
+            Gen(typeof(Limb));
+            Gen(typeof(LimbJoint));
+            Gen(typeof(LimbPos));
 
-            Do(typeof(Ragdoll));
-            Do(typeof(AnimController));
-            Do(typeof(FishAnimController));
-            Do(typeof(HumanoidAnimController));
+            Gen(typeof(Ragdoll));
+            Gen(typeof(AnimController));
+            Gen(typeof(FishAnimController));
+            Gen(typeof(HumanoidAnimController));
 
-            Do(typeof(EditableParams));
-            Do(typeof(RagdollParams));
-            Do(typeof(AnimationParams));
+            Gen(typeof(EditableParams));
+            Gen(typeof(RagdollParams));
+            Gen(typeof(AnimationParams));
 
-            Do(typeof(SwimParams));
-            Do(typeof(GroundedMovementParams));
+            Gen(typeof(SwimParams));
+            Gen(typeof(GroundedMovementParams));
 
-            Do(typeof(HumanRagdollParams));
-            Do(typeof(HumanGroundedParams));
-            Do(typeof(HumanWalkParams));
-            Do(typeof(HumanRunParams));
-            Do(typeof(HumanCrouchParams));
-            Do(typeof(HumanSwimParams));
-            Do(typeof(HumanSwimFastParams));
-            Do(typeof(HumanSwimSlowParams));
+            Gen(typeof(HumanRagdollParams));
+            Gen(typeof(HumanGroundedParams));
+            Gen(typeof(HumanWalkParams));
+            Gen(typeof(HumanRunParams));
+            Gen(typeof(HumanCrouchParams));
+            Gen(typeof(HumanSwimParams));
+            Gen(typeof(HumanSwimFastParams));
+            Gen(typeof(HumanSwimSlowParams));
 
-            Do(typeof(FishRagdollParams));
-            Do(typeof(FishWalkParams));
-            Do(typeof(FishGroundedParams));
-            Do(typeof(FishRunParams));
-            Do(typeof(FishSwimParams));
-            Do(typeof(FishSwimFastParams));
-            Do(typeof(FishSwimSlowParams));
+            Gen(typeof(FishRagdollParams));
+            Gen(typeof(FishWalkParams));
+            Gen(typeof(FishGroundedParams));
+            Gen(typeof(FishRunParams));
+            Gen(typeof(FishSwimParams));
+            Gen(typeof(FishSwimFastParams));
+            Gen(typeof(FishSwimSlowParams));
 
             #endregion
 
 
             #region Skill
-            Do(typeof(Skill));
-            Do(typeof(SkillPrefab));
-            Do(typeof(SkillSettings));
+            Gen(typeof(Skill));
+            Gen(typeof(SkillPrefab));
+            Gen(typeof(SkillSettings));
             #endregion
 
 
             #region Job
-            Do(typeof(Job));
-            Do(typeof(JobPrefab));
-            Do(typeof(JobVariant));
+            Gen(typeof(Job));
+            Gen(typeof(JobPrefab));
+            Gen(typeof(JobVariant));
             #endregion
 
             #region Decal
-            Do(typeof(Decal));
-            Do(typeof(DecalManager));
-            Do(typeof(DecalPrefab));
+            Gen(typeof(Decal));
+            Gen(typeof(DecalManager));
+            Gen(typeof(DecalPrefab));
             #endregion
 
 
             #region Talent
-            Do(typeof(TalentPrefab));
-            Do(typeof(TalentOption));
-            Do(typeof(TalentSubTree));
-            Do(typeof(TalentTree));
+            Gen(typeof(TalentPrefab));
+            Gen(typeof(TalentOption));
+            Gen(typeof(TalentSubTree));
+            Gen(typeof(TalentTree));
             #endregion
 
 
             #region Item
-            Do(typeof(ItemPrefab));
-            Do(typeof(Item));
-            Do(typeof(ItemInventory));
-            Do(typeof(RelatedItem));
+            Gen(typeof(ItemPrefab));
+            Gen(typeof(Item));
+            Gen(typeof(ItemInventory));
+            Gen(typeof(RelatedItem));
             #endregion
 
 
             #region Items.Components
             //Holdable
-            Do(typeof(Items.Components.Holdable));
-            Do(typeof(Items.Components.IdCard));
-            Do(typeof(Items.Components.LevelResource));
-            Do(typeof(Items.Components.MeleeWeapon));
-            Do(typeof(Items.Components.Pickable));
-            Do(typeof(Items.Components.Propulsion));
-            Do(typeof(Items.Components.RangedWeapon));
-            Do(typeof(Items.Components.RepairTool));
-            Do(typeof(Items.Components.Sprayer));
-            Do(typeof(Items.Components.Throwable));
+            Gen(typeof(Items.Components.Holdable));
+            Gen(typeof(Items.Components.IdCard));
+            Gen(typeof(Items.Components.LevelResource));
+            Gen(typeof(Items.Components.MeleeWeapon));
+            Gen(typeof(Items.Components.Pickable));
+            Gen(typeof(Items.Components.Propulsion));
+            Gen(typeof(Items.Components.RangedWeapon));
+            Gen(typeof(Items.Components.RepairTool));
+            Gen(typeof(Items.Components.Sprayer));
+            Gen(typeof(Items.Components.Throwable));
 
             //Machine
-            Do(typeof(Items.Components.Controller));
-            Do(typeof(Items.Components.Deconstructor));
-            Do(typeof(Items.Components.Engine));
-            Do(typeof(Items.Components.Fabricator));
-            Do(typeof(Items.Components.MiniMap));
-            Do(typeof(Items.Components.OutpostTerminal));
-            Do(typeof(Items.Components.OxygenGenerator));
-            Do(typeof(Items.Components.Pump));
-            Do(typeof(Items.Components.Reactor));
-            Do(typeof(Items.Components.Sonar));
-            Do(typeof(Items.Components.SonarTransducer));
-            Do(typeof(Items.Components.Steering));
-            Do(typeof(Items.Components.Vent));
+            Gen(typeof(Items.Components.Controller));
+            Gen(typeof(Items.Components.Deconstructor));
+            Gen(typeof(Items.Components.Engine));
+            Gen(typeof(Items.Components.Fabricator));
+            Gen(typeof(Items.Components.MiniMap));
+            Gen(typeof(Items.Components.OutpostTerminal));
+            Gen(typeof(Items.Components.OxygenGenerator));
+            Gen(typeof(Items.Components.Pump));
+            Gen(typeof(Items.Components.Reactor));
+            Gen(typeof(Items.Components.Sonar));
+            Gen(typeof(Items.Components.SonarTransducer));
+            Gen(typeof(Items.Components.Steering));
+            Gen(typeof(Items.Components.Vent));
 
             //Power
-            Do(typeof(Items.Components.PowerContainer));
-            Do(typeof(Items.Components.Powered));
-            Do(typeof(Items.Components.PowerTransfer));
+            Gen(typeof(Items.Components.PowerContainer));
+            Gen(typeof(Items.Components.Powered));
+            Gen(typeof(Items.Components.PowerTransfer));
 
             //Signal
-            Do(typeof(Items.Components.AdderComponent));
-            Do(typeof(Items.Components.AndComponent));
-            Do(typeof(Items.Components.ArithmeticComponent));
-            Do(typeof(Items.Components.ButtonTerminal));
-            Do(typeof(Items.Components.ColorComponent));
-            Do(typeof(Items.Components.ConcatComponent));
-            Do(typeof(Items.Components.Connection));
-            Do(typeof(Items.Components.ConnectionPanel));
-            Do(typeof(Items.Components.CustomInterface));
-            Do(typeof(Items.Components.DelayComponent));
-            Do(typeof(Items.Components.DivideComponent));
-            Do(typeof(Items.Components.EqualsComponent));
-            Do(typeof(Items.Components.ExponentiationComponent));
-            Do(typeof(Items.Components.FunctionComponent));
-            Do(typeof(Items.Components.GreaterComponent));
-            Do(typeof(Items.Components.LightComponent));
-            Do(typeof(Items.Components.MemoryComponent));
-            Do(typeof(Items.Components.ModuloComponent));
-            Do(typeof(Items.Components.MotionSensor));
-            Do(typeof(Items.Components.MultiplyComponent));
-            Do(typeof(Items.Components.NotComponent));
-            Do(typeof(Items.Components.OrComponent));
-            Do(typeof(Items.Components.OscillatorComponent));
-            Do(typeof(Items.Components.OxygenDetector));
-            Do(typeof(Items.Components.RegExFindComponent));
-            Do(typeof(Items.Components.RelayComponent));
-            Do(typeof(Items.Components.Signal));
-            Do(typeof(Items.Components.SignalCheckComponent));
-            Do(typeof(Items.Components.SmokeDetector));
-            Do(typeof(Items.Components.StringComponent));
-            Do(typeof(Items.Components.SubtractComponent));
-            Do(typeof(Items.Components.Terminal));
-            Do(typeof(Items.Components.TrigonometricFunctionComponent));
-            Do(typeof(Items.Components.WaterDetector));
-            Do(typeof(Items.Components.WifiComponent));
-            Do(typeof(Items.Components.Wire));
-            Do(typeof(Items.Components.XorComponent));
+            Gen(typeof(Items.Components.AdderComponent));
+            Gen(typeof(Items.Components.AndComponent));
+            Gen(typeof(Items.Components.ArithmeticComponent));
+            Gen(typeof(Items.Components.ButtonTerminal));
+            Gen(typeof(Items.Components.ColorComponent));
+            Gen(typeof(Items.Components.ConcatComponent));
+            Gen(typeof(Items.Components.Connection));
+            Gen(typeof(Items.Components.ConnectionPanel));
+            Gen(typeof(Items.Components.CustomInterface));
+            Gen(typeof(Items.Components.DelayComponent));
+            Gen(typeof(Items.Components.DivideComponent));
+            Gen(typeof(Items.Components.EqualsComponent));
+            Gen(typeof(Items.Components.ExponentiationComponent));
+            Gen(typeof(Items.Components.FunctionComponent));
+            Gen(typeof(Items.Components.GreaterComponent));
+            Gen(typeof(Items.Components.LightComponent));
+            Gen(typeof(Items.Components.MemoryComponent));
+            Gen(typeof(Items.Components.ModuloComponent));
+            Gen(typeof(Items.Components.MotionSensor));
+            Gen(typeof(Items.Components.MultiplyComponent));
+            Gen(typeof(Items.Components.NotComponent));
+            Gen(typeof(Items.Components.OrComponent));
+            Gen(typeof(Items.Components.OscillatorComponent));
+            Gen(typeof(Items.Components.OxygenDetector));
+            Gen(typeof(Items.Components.RegExFindComponent));
+            Gen(typeof(Items.Components.RelayComponent));
+            Gen(typeof(Items.Components.Signal));
+            Gen(typeof(Items.Components.SignalCheckComponent));
+            Gen(typeof(Items.Components.SmokeDetector));
+            Gen(typeof(Items.Components.StringComponent));
+            Gen(typeof(Items.Components.SubtractComponent));
+            Gen(typeof(Items.Components.Terminal));
+            Gen(typeof(Items.Components.TrigonometricFunctionComponent));
+            Gen(typeof(Items.Components.WaterDetector));
+            Gen(typeof(Items.Components.WifiComponent));
+            Gen(typeof(Items.Components.Wire));
+            Gen(typeof(Items.Components.XorComponent));
 
             //Commonly
-            Do(typeof(Items.Components.DockingPort));
-            Do(typeof(Items.Components.Door));
-            Do(typeof(Items.Components.ElectricalDischarger));
-            Do(typeof(Items.Components.EntitySpawnerComponent));
-            Do(typeof(Items.Components.GeneticMaterial));
-            Do(typeof(Items.Components.Growable));
-            Do(typeof(Items.Components.ProducedItem));
-            Do(typeof(Items.Components.VineTile));
-            Do(typeof(Items.Components.GrowthSideExtension));
-            Do(typeof(Items.Components.ItemComponent));
-            Do(typeof(Items.Components.ItemContainer));
-            Do(typeof(Items.Components.ItemLabel));
-            Do(typeof(Items.Components.Ladder));
-            Do(typeof(Items.Components.NameTag));
-            Do(typeof(Items.Components.Planter));
-            Do(typeof(Items.Components.Projectile));
-            Do(typeof(Items.Components.Quality));
-            Do(typeof(Items.Components.RemoteController));
-            Do(typeof(Items.Components.Repairable));
-            Do(typeof(Items.Components.Rope));
-            Do(typeof(Items.Components.Scanner));
-            Do(typeof(Items.Components.StatusHUD));
-            Do(typeof(Items.Components.TriggerComponent));
-            Do(typeof(Items.Components.Turret));
-            Do(typeof(Items.Components.Wearable));
+            Gen(typeof(Items.Components.DockingPort));
+            Gen(typeof(Items.Components.Door));
+            Gen(typeof(Items.Components.ElectricalDischarger));
+            Gen(typeof(Items.Components.EntitySpawnerComponent));
+            Gen(typeof(Items.Components.GeneticMaterial));
+            Gen(typeof(Items.Components.Growable));
+            Gen(typeof(Items.Components.ProducedItem));
+            Gen(typeof(Items.Components.VineTile));
+            Gen(typeof(Items.Components.GrowthSideExtension));
+            Gen(typeof(Items.Components.ItemComponent));
+            Gen(typeof(Items.Components.ItemContainer));
+            Gen(typeof(Items.Components.ItemLabel));
+            Gen(typeof(Items.Components.Ladder));
+            Gen(typeof(Items.Components.NameTag));
+            Gen(typeof(Items.Components.Planter));
+            Gen(typeof(Items.Components.Projectile));
+            Gen(typeof(Items.Components.Quality));
+            Gen(typeof(Items.Components.RemoteController));
+            Gen(typeof(Items.Components.Repairable));
+            Gen(typeof(Items.Components.Rope));
+            Gen(typeof(Items.Components.Scanner));
+            Gen(typeof(Items.Components.StatusHUD));
+            Gen(typeof(Items.Components.TriggerComponent));
+            Gen(typeof(Items.Components.Turret));
+            Gen(typeof(Items.Components.Wearable));
 
             #endregion
 
 
             #region Submarine
-            Do(typeof(SubmarineInfo));
-            Do(typeof(Submarine));
-            Do(typeof(SubmarineBody));
+            Gen(typeof(SubmarineInfo));
+            Gen(typeof(Submarine));
+            Gen(typeof(SubmarineBody));
             #endregion
 
             #region Structure
-            Do(typeof(Structure));
-            Do(typeof(StructurePrefab));
+            Gen(typeof(Structure));
+            Gen(typeof(StructurePrefab));
             #endregion
 
             #region Affliction
-            Do(typeof(AfflictionPrefab));
-            Do(typeof(Affliction));
-            Do(typeof(AfflictionPrefabHusk));
-            Do(typeof(AfflictionHusk));
-            Do(typeof(AfflictionBleeding));
-            Do(typeof(AfflictionPsychosis));
-            Do(typeof(AfflictionSpaceHerpes));
+            Gen(typeof(AfflictionPrefab));
+            Gen(typeof(Affliction));
+            Gen(typeof(AfflictionPrefabHusk));
+            Gen(typeof(AfflictionHusk));
+            Gen(typeof(AfflictionBleeding));
+            Gen(typeof(AfflictionPsychosis));
+            Gen(typeof(AfflictionSpaceHerpes));
             #endregion
 
             #region Attack
-            Do(typeof(AttackContext));
-            Do(typeof(AttackPattern));
-            Do(typeof(AttackTarget));
-            Do(typeof(Attack));
-            Do(typeof(AttackResult));
+            Gen(typeof(AttackContext));
+            Gen(typeof(AttackPattern));
+            Gen(typeof(AttackTarget));
+            Gen(typeof(Attack));
+            Gen(typeof(AttackResult));
             #endregion
 
             #region Inventroy and slot
-            Do(typeof(InvSlotType));
+            Gen(typeof(InvSlotType));
 #if CLIENT
-            Do(typeof(InventorySlotItem));
-            Do(typeof(VisualSlot));
+            Gen(typeof(InventorySlotItem));
+            Gen(typeof(VisualSlot));
 #endif
-            Do(typeof(Inventory));
+            Gen(typeof(Inventory));
             #endregion
 
             #region Command
-            Do(typeof(Command));
+            Gen(typeof(Command));
 #if CLIENT
-            Do(typeof(TransformCommand));
-            Do(typeof(AddOrDeleteCommand));
-            Do(typeof(PropertyCommand));
-            Do(typeof(InventoryMoveCommand));
-            Do(typeof(InventoryPlaceCommand));
+            Gen(typeof(TransformCommand));
+            Gen(typeof(AddOrDeleteCommand));
+            Gen(typeof(PropertyCommand));
+            Gen(typeof(InventoryMoveCommand));
+            Gen(typeof(InventoryPlaceCommand));
 #endif
             #endregion
 
             #region Traitor
-            Do(typeof(TraitorMissionPrefab));
-            Do(typeof(TraitorMissionResult));
+            Gen(typeof(TraitorMissionPrefab));
+            Gen(typeof(TraitorMissionResult));
 #if SERVER
-            Do(typeof(Networking.TraitorMessageType));
-            Do(typeof(TraitorManager));
-            Do(typeof(Traitor));
-            Do(typeof(Traitor.TraitorMission));
-            Do(typeof(Traitor.Objective));
-            Do(typeof(Traitor.Goal));
+            Gen(typeof(Networking.TraitorMessageType));
+            Gen(typeof(TraitorManager));
+            Gen(typeof(Traitor));
+            Gen(typeof(Traitor.TraitorMission));
+            Gen(typeof(Traitor.Objective));
+            Gen(typeof(Traitor.Goal));
 #endif
             #endregion
 
             #region Physic
-            Do(typeof(FarseerPhysics.Dynamics.World));
-            Do(typeof(FarseerPhysics.Dynamics.Fixture));
-            Do(typeof(Physics));
-            Do(typeof(PhysicsBody));
+            Gen(typeof(FarseerPhysics.Dynamics.World));
+            Gen(typeof(FarseerPhysics.Dynamics.Fixture));
+            Gen(typeof(Physics));
+            Gen(typeof(PhysicsBody));
 
-            Do(typeof(Hull));
-            Do(typeof(Gap));
+            Gen(typeof(Hull));
+            Gen(typeof(Gap));
             #endregion
 
             #region Geometry
 #if CLIENT
-            Do(typeof(Microsoft.Xna.Framework.Graphics.SpriteBatch));
-            Do(typeof(Microsoft.Xna.Framework.Graphics.Texture2D));
+            Gen(typeof(Microsoft.Xna.Framework.Graphics.SpriteBatch));
+            Gen(typeof(Microsoft.Xna.Framework.Graphics.Texture2D));
 #endif
-            Do(typeof(Microsoft.Xna.Framework.Matrix), "Matrix");
-            Do(typeof(Microsoft.Xna.Framework.Vector2), "Vector2");
-            Do(typeof(Microsoft.Xna.Framework.Vector3), "Vector3");
-            Do(typeof(Microsoft.Xna.Framework.Vector4), "Vector4");
-            Do(typeof(Microsoft.Xna.Framework.Color), "Color");
-            Do(typeof(Microsoft.Xna.Framework.Point), "Point");
-            Do(typeof(Microsoft.Xna.Framework.Rectangle), "Rectangle");
+            Gen(typeof(Microsoft.Xna.Framework.Matrix), "Matrix");
+            Gen(typeof(Microsoft.Xna.Framework.Vector2), "Vector2");
+            Gen(typeof(Microsoft.Xna.Framework.Vector3), "Vector3");
+            Gen(typeof(Microsoft.Xna.Framework.Vector4), "Vector4");
+            Gen(typeof(Microsoft.Xna.Framework.Color), "Color");
+            Gen(typeof(Microsoft.Xna.Framework.Point), "Point");
+            Gen(typeof(Microsoft.Xna.Framework.Rectangle), "Rectangle");
             #endregion
 
             #region Sprite
-            Do(typeof(Sprite));
-            Do(typeof(SpriteSheet));
-            Do(typeof(ConditionalSprite));
-            Do(typeof(WearableType));
-            Do(typeof(WearableSprite));
-            Do(typeof(DeformableSprite));
+            Gen(typeof(Sprite));
+            Gen(typeof(SpriteSheet));
+            Gen(typeof(ConditionalSprite));
+            Gen(typeof(WearableType));
+            Gen(typeof(WearableSprite));
+            Gen(typeof(DeformableSprite));
 
 #if CLIENT
-            Do(typeof(SpriteFallBackState));
-            Do(typeof(SpriteRecorder));
-            Do(typeof(DecorativeSprite));
-            Do(typeof(BrokenItemSprite));
-            Do(typeof(ContainedItemSprite));
-            Do(typeof(VineSprite));
+            Gen(typeof(SpriteFallBackState));
+            Gen(typeof(SpriteRecorder));
+            Gen(typeof(DecorativeSprite));
+            Gen(typeof(BrokenItemSprite));
+            Gen(typeof(ContainedItemSprite));
+            Gen(typeof(VineSprite));
 #endif
             #endregion
 
             #region Craft
-            Do(typeof(DeconstructItem));
-            Do(typeof(PreferredContainer));
-            Do(typeof(SwappableItem));
-            Do(typeof(FabricationRecipe));
-            Do(typeof(FabricationRecipe.RequiredItemByIdentifier));
-            Do(typeof(FabricationRecipe.RequiredItemByTag));
-            Do(typeof(FabricationRecipe.RequiredItem));
+            Gen(typeof(DeconstructItem));
+            Gen(typeof(PreferredContainer));
+            Gen(typeof(SwappableItem));
+            Gen(typeof(FabricationRecipe));
+            Gen(typeof(FabricationRecipe.RequiredItemByIdentifier));
+            Gen(typeof(FabricationRecipe.RequiredItemByTag));
+            Gen(typeof(FabricationRecipe.RequiredItem));
             #endregion
 
             #region Upgrade
-            Do(typeof(UpgradeCategory));
-            Do(typeof(UpgradePrice));
-            Do(typeof(UpgradeManager));
-            Do(typeof(UpgradePrefab));
-            Do(typeof(Upgrade));
-            Do(typeof(PurchasedUpgrade));
+            Gen(typeof(UpgradeCategory));
+            Gen(typeof(UpgradePrice));
+            Gen(typeof(UpgradeManager));
+            Gen(typeof(UpgradePrefab));
+            Gen(typeof(Upgrade));
+            Gen(typeof(PurchasedUpgrade));
             #endregion
 
             #region Networking
-            Do(typeof(Item.EventType));
-            Do(typeof(Item.ComponentStateEventData));
-            Do(typeof(Item.InventoryStateEventData));
-            Do(typeof(Item.ChangePropertyEventData));
-            Do(typeof(Item.ApplyStatusEffectEventData));
+            Gen(typeof(Item.EventType));
+            Gen(typeof(Item.ComponentStateEventData));
+            Gen(typeof(Item.InventoryStateEventData));
+            Gen(typeof(Item.ChangePropertyEventData));
+            Gen(typeof(Item.ApplyStatusEffectEventData));
 
-            Do(typeof(Character.EventType));
-            Do(typeof(Character.InventoryStateEventData));
-            Do(typeof(Character.ControlEventData));
-            Do(typeof(Character.CharacterStatusEventData));
-            Do(typeof(Character.TreatmentEventData));
-            Do(typeof(Character.SetAttackTargetEventData));
-            Do(typeof(Character.ExecuteAttackEventData));
-            Do(typeof(Character.AssignCampaignInteractionEventData));
-            Do(typeof(Character.ObjectiveManagerStateEventData));
-            Do(typeof(Character.AddToCrewEventData));
-            Do(typeof(Character.UpdateExperienceEventData));
-            Do(typeof(Character.UpdatePermanentStatsEventData));
-            Do(typeof(Character.UpdateSkillsEventData));
-            Do(typeof(Character.UpdateTalentsEventData));
+            Gen(typeof(Character.EventType));
+            Gen(typeof(Character.InventoryStateEventData));
+            Gen(typeof(Character.ControlEventData));
+            Gen(typeof(Character.CharacterStatusEventData));
+            Gen(typeof(Character.TreatmentEventData));
+            Gen(typeof(Character.SetAttackTargetEventData));
+            Gen(typeof(Character.ExecuteAttackEventData));
+            Gen(typeof(Character.AssignCampaignInteractionEventData));
+            Gen(typeof(Character.ObjectiveManagerStateEventData));
+            Gen(typeof(Character.AddToCrewEventData));
+            Gen(typeof(Character.UpdateExperienceEventData));
+            Gen(typeof(Character.UpdatePermanentStatsEventData));
+            Gen(typeof(Character.UpdateSkillsEventData));
+            Gen(typeof(Character.UpdateTalentsEventData));
 
-            Do(typeof(Networking.NetConfig));
-            Do(typeof(Networking.ServerSettings));
+            Gen(typeof(Networking.NetConfig));
+            Gen(typeof(Networking.ServerSettings));
 
-            Do(typeof(Networking.ChatMessageType));
-            Do(typeof(Networking.ChatMessage));
+            Gen(typeof(Networking.ChatMessageType));
+            Gen(typeof(Networking.ChatMessage));
 
-            Do(typeof(Networking.ServerPacketHeader));
-            Do(typeof(Networking.ClientPacketHeader));
-            Do(typeof(Networking.DeliveryMethod));
-            Do(typeof(Networking.IWriteMessage));
-            Do(typeof(Networking.WriteOnlyMessage));
-            Do(typeof(Networking.IReadMessage));
-            Do(typeof(Networking.ReadOnlyMessage));
-            Do(typeof(Networking.ReadWriteMessage));
+            Gen(typeof(Networking.ServerPacketHeader));
+            Gen(typeof(Networking.ClientPacketHeader));
+            Gen(typeof(Networking.DeliveryMethod));
+            Gen(typeof(Networking.IWriteMessage));
+            Gen(typeof(Networking.WriteOnlyMessage));
+            Gen(typeof(Networking.IReadMessage));
+            Gen(typeof(Networking.ReadOnlyMessage));
+            Gen(typeof(Networking.ReadWriteMessage));
 
-            Do(typeof(Networking.ClientPermissions));
-            Do(typeof(Networking.Client));
-            Do(typeof(Networking.TempClient));
-            Do(typeof(INetSerializableStruct));
+            Gen(typeof(Networking.ClientPermissions));
+            Gen(typeof(Networking.Client));
+            Gen(typeof(Networking.TempClient));
+            Gen(typeof(INetSerializableStruct));
 
-            Do(typeof(Networking.NetworkConnectionStatus));
-            Do(typeof(Networking.NetworkConnection));
-            Do(typeof(Networking.PipeConnection));
-            Do(typeof(Networking.LidgrenConnection));
-            Do(typeof(Networking.SteamP2PConnection));
+            Gen(typeof(Networking.NetworkConnectionStatus));
+            Gen(typeof(Networking.NetworkConnection));
+            Gen(typeof(Networking.PipeConnection));
+            Gen(typeof(Networking.LidgrenConnection));
+            Gen(typeof(Networking.SteamP2PConnection));
 
-            Do(typeof(Networking.NetworkMember));
+            Gen(typeof(Networking.NetworkMember));
 
-            Do(typeof(Networking.BanList));
-            Do(typeof(Networking.BannedPlayer));
+            Gen(typeof(Networking.BanList));
+            Gen(typeof(Networking.BannedPlayer));
 
 #if SERVER
-            Do(typeof(Networking.GameServer));
+            Gen(typeof(Networking.GameServer));
 
-            Do(typeof(Networking.ServerPeer));
-            Do(typeof(Networking.LidgrenServerPeer));
-            Do(typeof(Networking.SteamP2PServerPeer));
+            Gen(typeof(Networking.ServerPeer));
+            Gen(typeof(Networking.LidgrenServerPeer));
+            Gen(typeof(Networking.SteamP2PServerPeer));
 #endif
 
 #if CLIENT
-            Do(typeof(Networking.GameClient));
+            Gen(typeof(Networking.GameClient));
 
-            Do(typeof(Networking.ClientPeer));
-            Do(typeof(Networking.LidgrenClientPeer));
-            Do(typeof(Networking.SteamP2PClientPeer));
-            Do(typeof(Networking.SteamP2POwnerPeer));
+            Gen(typeof(Networking.ClientPeer));
+            Gen(typeof(Networking.LidgrenClientPeer));
+            Gen(typeof(Networking.SteamP2PClientPeer));
+            Gen(typeof(Networking.SteamP2POwnerPeer));
 #endif
             #endregion
 
             #region Keys
-            Do(typeof(InputType));
-            Do(typeof(Key));
+            Gen(typeof(InputType));
+            Gen(typeof(Key));
 #if CLIENT
-            Do(typeof(EventInput.KeyboardDispatcher));
-            Do(typeof(EventInput.KeyEventArgs));
-            Do(typeof(Microsoft.Xna.Framework.Input.Keys), "Keys");
+            Gen(typeof(EventInput.KeyboardDispatcher));
+            Gen(typeof(EventInput.KeyEventArgs));
+            Gen(typeof(Microsoft.Xna.Framework.Input.Keys), "Keys");
 #endif
             #endregion
 
             #region Particles
 #if CLIENT
-            Do(typeof(Particles.Particle));
-            Do(typeof(Particles.ParticleEmitter));
-            Do(typeof(Particles.ParticleManager));
-            Do(typeof(Particles.ParticlePrefab));
+            Gen(typeof(Particles.Particle));
+            Gen(typeof(Particles.ParticleEmitter));
+            Gen(typeof(Particles.ParticleManager));
+            Gen(typeof(Particles.ParticlePrefab));
 #endif
             #endregion
 
             #region GUI
-            Do(typeof(NumberType));
+            Gen(typeof(NumberType));
 
 #if CLIENT
-            Do(typeof(ScalableFont));
+            Gen(typeof(ScalableFont));
 
-            Do(typeof(Anchor));
-            Do(typeof(Pivot));
-            Do(typeof(ScaleBasis));
+            Gen(typeof(Anchor));
+            Gen(typeof(Pivot));
+            Gen(typeof(ScaleBasis));
 
-            Do(typeof(ChatBox));
-            Do(typeof(CrewManagement));
-            Do(typeof(FileSelection));
-            Do(typeof(Graph));
+            Gen(typeof(ChatBox));
+            Gen(typeof(CrewManagement));
+            Gen(typeof(FileSelection));
+            Gen(typeof(Graph));
 
-            Do(typeof(GUI), "Barotrauma_GUI");
+            Gen(typeof(GUI), "Barotrauma_GUI");
 
-            Do(typeof(GUIComponentStyle));
-            Do(typeof(SpriteFallBackState));
+            Gen(typeof(GUIComponentStyle));
+            Gen(typeof(SpriteFallBackState));
 
-            Do(typeof(GUISoundType));
-            Do(typeof(CursorState));
+            Gen(typeof(GUISoundType));
+            Gen(typeof(CursorState));
 
-            Do(typeof(PlayerInput));
+            Gen(typeof(PlayerInput));
 
-            Do(typeof(GUIFont));
-            Do(typeof(GUIFontPrefab));
+            Gen(typeof(GUIFont));
+            Gen(typeof(GUIFontPrefab));
 
-            Do(typeof(GUISpritePrefab));
-            Do(typeof(GUISprite));
-            Do(typeof(GUISpriteSheetPrefab));
-            Do(typeof(GUISpriteSheet));
-            Do(typeof(GUICursorPrefab));
-            Do(typeof(GUICursor));
+            Gen(typeof(GUISpritePrefab));
+            Gen(typeof(GUISprite));
+            Gen(typeof(GUISpriteSheetPrefab));
+            Gen(typeof(GUISpriteSheet));
+            Gen(typeof(GUICursorPrefab));
+            Gen(typeof(GUICursor));
 
-            Do(typeof(GUIButton));
-            Do(typeof(GUICanvas));
-            Do(typeof(GUIColorPicker));
-            Do(typeof(GUIComponent));
-            Do(typeof(GUIComponent.ComponentState));
-            Do(typeof(GUIContextMenu));
-            Do(typeof(GUICustomComponent));
-            Do(typeof(GUIDropDown));
-            Do(typeof(GUIFrame));
-            Do(typeof(GUIImage));
-            Do(typeof(GUILayoutGroup));
-            Do(typeof(GUIListBox));
-            Do(typeof(GUIMessage));
-            Do(typeof(GUIMessageBox));
-            Do(typeof(GUINumberInput));
+            Gen(typeof(GUIButton));
+            Gen(typeof(GUICanvas));
+            Gen(typeof(GUIColorPicker));
+            Gen(typeof(GUIComponent));
+            Gen(typeof(GUIComponent.ComponentState));
+            Gen(typeof(GUIContextMenu));
+            Gen(typeof(GUICustomComponent));
+            Gen(typeof(GUIDropDown));
+            Gen(typeof(GUIFrame));
+            Gen(typeof(GUIImage));
+            Gen(typeof(GUILayoutGroup));
+            Gen(typeof(GUIListBox));
+            Gen(typeof(GUIMessage));
+            Gen(typeof(GUIMessageBox));
+            Gen(typeof(GUINumberInput));
 
-            Do(typeof(GUIProgressBar));
-            Do(typeof(GUIRadioButtonGroup));
-            Do(typeof(GUIScissorComponent));
-            Do(typeof(GUIScrollBar));
-            Do(typeof(GUIStyle));
-            Do(typeof(GUITextBlock));
-            Do(typeof(GUITextBox));
-            Do(typeof(GUITickBox));
-            Do(typeof(HUDLayoutSettings));
-            Do(typeof(LoadingScreen));
-            Do(typeof(MedicalClinicUI));
-            Do(typeof(ParamsEditor));
-            Do(typeof(RectTransform));
-            Do(typeof(ShapeExtensions));
-            Do(typeof(Store));
-            Do(typeof(SubmarineSelection));
-            Do(typeof(TabMenu));
-            Do(typeof(UISprite));
-            Do(typeof(UpgradeStore));
-            Do(typeof(VideoPlayer));
-            Do(typeof(VotingInterface));
-            Do(typeof(Widget));
+            Gen(typeof(GUIProgressBar));
+            Gen(typeof(GUIRadioButtonGroup));
+            Gen(typeof(GUIScissorComponent));
+            Gen(typeof(GUIScrollBar));
+            Gen(typeof(GUIStyle));
+            Gen(typeof(GUITextBlock));
+            Gen(typeof(GUITextBox));
+            Gen(typeof(GUITickBox));
+            Gen(typeof(HUDLayoutSettings));
+            Gen(typeof(LoadingScreen));
+            Gen(typeof(MedicalClinicUI));
+            Gen(typeof(ParamsEditor));
+            Gen(typeof(RectTransform));
+            Gen(typeof(ShapeExtensions));
+            Gen(typeof(Store));
+            Gen(typeof(SubmarineSelection));
+            Gen(typeof(TabMenu));
+            Gen(typeof(UISprite));
+            Gen(typeof(UpgradeStore));
+            Gen(typeof(VideoPlayer));
+            Gen(typeof(VotingInterface));
+            Gen(typeof(Widget));
 #endif
-            Do(typeof(Alignment));
+            Gen(typeof(Alignment));
             #endregion
 
             #region Lights & Sounds
-            Do(typeof(ChatMode));
-            Do(typeof(Networking.VoipConfig));
-            Do(typeof(Networking.VoipQueue));
+            Gen(typeof(ChatMode));
+            Gen(typeof(Networking.VoipConfig));
+            Gen(typeof(Networking.VoipQueue));
 #if SERVER
-            Do(typeof(Networking.VoipServer));
+            Gen(typeof(Networking.VoipServer));
 #endif
 #if CLIENT
-            Do(typeof(Lights.LightManager));
-            Do(typeof(Lights.LightSource));
-            Do(typeof(Lights.LightSourceParams));
+            Gen(typeof(Lights.LightManager));
+            Gen(typeof(Lights.LightSource));
+            Gen(typeof(Lights.LightSourceParams));
 
 
-            Do(typeof(Sounds.SoundManager));
-            Do(typeof(Sounds.OggSound));
-            Do(typeof(Sounds.VideoSound));
-            Do(typeof(Sounds.VoipSound));
-            Do(typeof(Networking.VoipClient));
-            Do(typeof(Networking.VoipCapture));
-            Do(typeof(Sounds.SoundChannel));
-            Do(typeof(RoundSound));
-            Do(typeof(Items.Components.ItemSound));
+            Gen(typeof(Sounds.SoundManager));
+            Gen(typeof(Sounds.OggSound));
+            Gen(typeof(Sounds.VideoSound));
+            Gen(typeof(Sounds.VoipSound));
+            Gen(typeof(Networking.VoipClient));
+            Gen(typeof(Networking.VoipCapture));
+            Gen(typeof(Sounds.SoundChannel));
+            Gen(typeof(RoundSound));
+            Gen(typeof(Items.Components.ItemSound));
 
-            Do(typeof(Sounds.LowpassFilter));
-            Do(typeof(Sounds.HighpassFilter));
-            Do(typeof(Sounds.BandpassFilter));
-            Do(typeof(Sounds.NotchFilter));
-            Do(typeof(Sounds.HighShelfFilter));
-            Do(typeof(Sounds.LowShelfFilter));
-            Do(typeof(Sounds.PeakFilter));
+            Gen(typeof(Sounds.LowpassFilter));
+            Gen(typeof(Sounds.HighpassFilter));
+            Gen(typeof(Sounds.BandpassFilter));
+            Gen(typeof(Sounds.NotchFilter));
+            Gen(typeof(Sounds.HighShelfFilter));
+            Gen(typeof(Sounds.LowShelfFilter));
+            Gen(typeof(Sounds.PeakFilter));
 #endif
             #endregion
 
             #region Screen
 #if CLIENT
-            Do(typeof(Barotrauma.CampaignEndScreen));
-            Do(typeof(Barotrauma.EditorScreen));
-            Do(typeof(Barotrauma.EventEditorScreen));
-            Do(typeof(Barotrauma.LevelEditorScreen));
-            Do(typeof(Barotrauma.MainMenuScreen));
-            Do(typeof(Barotrauma.ParticleEditorScreen));
-            Do(typeof(Barotrauma.RoundSummaryScreen));
-            Do(typeof(Barotrauma.ServerListScreen));
-            Do(typeof(Barotrauma.SpriteEditorScreen));
-            Do(typeof(Barotrauma.SubEditorScreen));
-            Do(typeof(Barotrauma.TestScreen));
-            Do(typeof(Barotrauma.CharacterEditor.CharacterEditorScreen));
+            Gen(typeof(Barotrauma.CampaignEndScreen));
+            Gen(typeof(Barotrauma.EditorScreen));
+            Gen(typeof(Barotrauma.EventEditorScreen));
+            Gen(typeof(Barotrauma.LevelEditorScreen));
+            Gen(typeof(Barotrauma.MainMenuScreen));
+            Gen(typeof(Barotrauma.ParticleEditorScreen));
+            Gen(typeof(Barotrauma.RoundSummaryScreen));
+            Gen(typeof(Barotrauma.ServerListScreen));
+            Gen(typeof(Barotrauma.SpriteEditorScreen));
+            Gen(typeof(Barotrauma.SubEditorScreen));
+            Gen(typeof(Barotrauma.TestScreen));
+            Gen(typeof(Barotrauma.CharacterEditor.CharacterEditorScreen));
 #endif
             #endregion
 
-            Do(typeof(KarmaManager));
-            Do(typeof(RespawnManager));
+            Gen(typeof(KarmaManager));
+            Gen(typeof(RespawnManager));
 
-            Do(typeof(DebugConsole));
-            Do(typeof(DebugConsole.Command));
+            Gen(typeof(DebugConsole));
+            Gen(typeof(DebugConsole.Command));
 
-            Do(typeof(LuaUserData), "LuaUserData");
-            Do(typeof(LuaGame), "Game");
-            Do(typeof(LuaCsPatch));
-            Do(typeof(LuaCsAction));
-            Do(typeof(LuaCsFunc));
-            Do(typeof(LuaCsPatchFunc));
-            Do(typeof(LuaCsHook), "Hook");
-            Do(typeof(LuaCsHook.HookMethodType), "Hook.HookMethodType");
-            Do(typeof(LuaCsHook.ParameterTable), "Hook.ParameterTable");
-            Do(typeof(LuaCsTimer), "Timer");
-            Do(typeof(LuaCsFile), "File");
-            Do(typeof(LuaCsNetworking), "Networking");
-            Do(typeof(LuaCsSteam), "Steam");
-            Do(typeof(LuaCsPerformanceCounter), "PerformanceCounter");
-            Do(typeof(LuaCsSetup.LuaCsModStore), "ModStore");
-            Do(typeof(LuaCsSetup.LuaCsModStore.CsModStore), "ModStore.CsModStore");
-            Do(typeof(LuaCsSetup.LuaCsModStore.LuaModStore), "ModStore.LuaModStore");
-            Do(typeof(MoonSharp.Interpreter.Interop.IUserDataDescriptor));
+            Gen(typeof(LuaUserData), "LuaUserData");
+            Gen(typeof(LuaGame), "Game");
+            Gen(typeof(LuaCsPatch));
+            Gen(typeof(LuaCsAction));
+            Gen(typeof(LuaCsFunc));
+            Gen(typeof(LuaCsPatchFunc));
+            Gen(typeof(LuaCsHook), "Hook");
+            Gen(typeof(LuaCsHook.HookMethodType), "Hook.HookMethodType");
+            Gen(typeof(LuaCsHook.ParameterTable), "Hook.ParameterTable");
+            Gen(typeof(LuaCsTimer), "Timer");
+            Gen(typeof(LuaCsFile), "File");
+            Gen(typeof(LuaCsNetworking), "Networking");
+            Gen(typeof(LuaCsSteam), "Steam");
+            Gen(typeof(LuaCsPerformanceCounter), "PerformanceCounter");
+            Gen(typeof(LuaCsSetup.LuaCsModStore), "ModStore");
+            Gen(typeof(LuaCsSetup.LuaCsModStore.CsModStore), "ModStore.CsModStore");
+            Gen(typeof(LuaCsSetup.LuaCsModStore.LuaModStore), "ModStore.LuaModStore");
+            Gen(typeof(MoonSharp.Interpreter.Interop.IUserDataDescriptor));
 
-            AliasAnnotation.Do();
-            DoGlobal();
+            AliasAnnotation.Gen();
+            GenCommon();
         }
 
-        public static void DoGlobal()
+        public static void GenCommon()
         {
             var global = new StringBuilder($"---@meta\n\n");
 
@@ -1296,6 +1330,28 @@ namespace Barotrauma
             {
                 File.WriteAllText("reportexception_global.txt", ex.Message);
                 throw;
+            }
+
+            foreach (var (fileName, builder) in ClassDefinition)
+            {
+                if (OverloadedOperatorAnnotations.TryGetValue(fileName, out StringBuilder ops))
+                {
+                    builder.Replace("[placeHolder:operators]", ops.ToString());
+                }
+                else
+                {
+                    builder.Replace("[placeHolder:operators]", "---");
+                }
+
+                try
+                {
+                    File.WriteAllText($@"{BLuaDocPath}/{fileName}.lua", builder.ToString());
+                }
+                catch (Exception ex)
+                {
+                    File.WriteAllText("CrashReport.log", ex.Message);
+                    throw;
+                }
             }
         }
 
@@ -1350,9 +1406,34 @@ namespace Barotrauma
             ExplanAnnotationProperty(builder, property.Name, typeName);
         }
 
+        private static string[] _overloadedOperatorMethodNames = { "op_UnaryNegation", "op_Addition", "op_Subtraction", "op_Multiply", "op_Division" };
+        private static bool IsOverloadedOperatorMethod(MethodInfo method)
+        {
+            return method.IsSpecialName && _overloadedOperatorMethodNames.Contains(method.Name);
+        }
+
+        private static StringBuilder ObtainOverloadedOperatorAnnotations(Type type)
+        {
+            string fileName = GetLuaClassFileName(type);
+            if (OverloadedOperatorAnnotations.ContainsKey(fileName))
+            {
+                return OverloadedOperatorAnnotations[fileName];
+            }
+            else
+            {
+                var opsBuilder = new StringBuilder();
+                ExplanAnnotationPrefix(opsBuilder);
+                ExplanNewLine(opsBuilder);
+                OverloadedOperatorAnnotations.Add(fileName, opsBuilder);
+                return opsBuilder;
+            }
+        }
+
         private static void ExplanAnnotationPrefix(StringBuilder builder) { builder.Append("---"); }
         private static void ExplanAnnotationField(StringBuilder builder, string fieldName, string typeName) { ExplanAnnotationPrefix(builder); builder.Append($"@field {fieldName} {typeName}"); }
         private static void ExplanAnnotationProperty(StringBuilder builder, string propertyName, string typeName) { ExplanAnnotationPrefix(builder); builder.Append($"@field {propertyName} {typeName}"); }
+        private static void ExplanAnnotationUnOperator(StringBuilder builder, string op, string outType) { ExplanAnnotationPrefix(builder); builder.Append($"@operator {op}:{outType}"); }
+        private static void ExplanAnnotationBinOperator(StringBuilder builder, string op, string inpType, string outType) { ExplanAnnotationPrefix(builder); builder.Append($"@operator {op}({inpType}):{outType}"); }
         private static void ExplanNewLine(StringBuilder builder, int line = 1) { for (int i = 0; i < line; i++) builder.Append("\n"); }
         private static bool IsParamsParam(ParameterInfo param) => param.GetCustomAttribute<ParamArrayAttribute>(false) != null;
         private static bool IsOptionalParam(ParameterInfo param) => param.GetCustomAttribute<OptionalAttribute>(false) != null;
@@ -1435,6 +1516,28 @@ namespace Barotrauma
             if ((modifiers & 0x10) > 0) { builder.Append(" `Virtual`"); }
         }
 
+        private static string GetLuaClassFileName(Type type)
+        {
+            var nameSpacePart = type.Namespace;
+            var declarT = type.DeclaringType;
+            var prefix = "";
+            while (declarT != null)
+            {
+                prefix = $@"{declarT.Name}.{prefix}";
+                declarT = declarT.DeclaringType;
+            }
+
+            return nameSpacePart != ""
+                ? (prefix != ""
+                    ? $@"{nameSpacePart}.{prefix}{type.Name}"
+                    : $@"{nameSpacePart}.{type.Name}"
+                )
+                : (prefix != ""
+                    ? $@"{prefix}{type.Name}"
+                    : $@"{type.Name}"
+                );
+        }
+
         private static void ExplanMethods(StringBuilder builder, string className, string tableName, MethodBase[] methods, string methodName)
         {
             var methodSB = new StringBuilder();
@@ -1510,7 +1613,7 @@ namespace Barotrauma
             }
         }
 
-        public static void Do(Type targetType, string aliasTable = null, string[] minorTableNames = null)
+        public static void Gen(Type targetType, string aliasTable = null, string[] minorTableNames = null)
         {
             var metadata = ClassMetadata.Obtain(targetType);
             var builder = new StringBuilder();
@@ -1518,9 +1621,11 @@ namespace Barotrauma
             var (_, className) = metadata.GetLuaName();
             SingleLuaFileClassNameList.Add(className);
 
-            builder.Append($"---@meta\n\n");
+            builder.Append($"---@meta");
+            ExplanNewLine(builder, 2);
 
-            builder.Append($"---'{targetType.FullName}'\n");
+            builder.Append($"---'{targetType.FullName}'");
+            ExplanNewLine(builder);
 
             bool nonGenericBaseType = targetType.BaseType != null && !targetType.BaseType.IsGenericType;
 
@@ -1529,12 +1634,17 @@ namespace Barotrauma
                 var subMetadata = ClassMetadata.Obtain(targetType.BaseType);
                 var (_, subClassName) = subMetadata.GetLuaName();
                 subMetadata.CollectAllToGlobal();
-                builder.Append($"---@class {className} : {subClassName}\n");
+                builder.Append($"---@class {className} : {subClassName}");
+                ExplanNewLine(builder);
             }
             else
             {
-                builder.Append($"---@class {className}\n");
+                builder.Append($"---@class {className}");
+                ExplanNewLine(builder);
             }
+
+            builder.Append("[placeHolder:operators]");
+            ExplanNewLine(builder);
 
             const BindingFlags Flags = BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
@@ -1558,7 +1668,6 @@ namespace Barotrauma
             ExplanNewLine(builder, 2);
 
             var methods = nonGenericBaseType ? targetType.GetMethods(Flags | BindingFlags.DeclaredOnly) : targetType.GetMethods(Flags);
-
             if (methods.Length > 0)
             {
                 foreach (var groupMethod in (
@@ -1614,34 +1723,57 @@ namespace Barotrauma
                 }
             }
 
-            try
+            foreach (var method in methods)
             {
-                var nameSpacePart = targetType.Namespace;
-                var declarT = targetType.DeclaringType;
-                var prefix = "";
-                while (declarT != null)
+                if (!IsOverloadedOperatorMethod(method)) { continue; }
+
+                switch (method.Name)
                 {
-                    prefix = $@"{declarT.Name}.{prefix}";
-                    declarT = declarT.DeclaringType;
+                    case "op_UnaryNegation":
+                        ExplanUnOps(method, targetType, "unm");
+                        break;
+                    case "op_Addition":
+                        ExplanBinOps(method, targetType, "add");
+                        break;
+                    case "op_Subtraction":
+                        ExplanBinOps(method, targetType, "sub");
+                        break;
+                    case "op_Multiply":
+                        ExplanBinOps(method, targetType, "mul");
+                        break;
+                    case "op_Division":
+                        ExplanBinOps(method, targetType, "div");
+                        break;
+                    default:
+                        break;
                 }
 
-                var fileName = nameSpacePart != ""
-                    ? (prefix != ""
-                        ? $@"{nameSpacePart}.{prefix}{targetType.Name}"
-                        : $@"{nameSpacePart}.{targetType.Name}"
-                    )
-                    : (prefix != ""
-                        ? $@"{prefix}{targetType.Name}"
-                        : $@"{targetType.Name}"
-                    );
+                void ExplanBinOps(MethodInfo method, Type type, string op)
+                {
+                    var tgtOps = (method.GetParameters()[0].ParameterType == type)
+                        ? ObtainOverloadedOperatorAnnotations(targetType)
+                        : ObtainOverloadedOperatorAnnotations(method.GetParameters()[0].ParameterType);
+                    ExplanAnnotationBinOperator(
+                        tgtOps,
+                        op,
+                        ClassMetadata.Obtain(method.GetParameters()[1].ParameterType).GetLuaName(LUA_NAME_TYPE).Name,
+                        ClassMetadata.Obtain(method.ReturnType).GetLuaName(LUA_NAME_TYPE).Name);
+                    ExplanNewLine(tgtOps);
+                }
 
-                File.WriteAllText($@"{BLuaDocPath}/{fileName}.lua", builder.ToString());
+                void ExplanUnOps(MethodInfo method, Type type, string op)
+                {
+                    var tgtOps = ObtainOverloadedOperatorAnnotations(targetType);
+                    ExplanAnnotationUnOperator(
+                        tgtOps,
+                        op,
+                        ClassMetadata.Obtain(method.ReturnType).GetLuaName(LUA_NAME_TYPE).Name);
+                    ExplanNewLine(tgtOps);
+                }
             }
-            catch (Exception ex)
-            {
-                File.WriteAllText("CrashReport.log", ex.Message);
-                throw;
-            }
+
+            ClassDefinition.Add(GetLuaClassFileName(targetType), builder);
+            DebugConsole.NewMessage($"File:{GetLuaClassFileName(targetType)} | MaxSize: {builder.Capacity/1024}K");
         }
 
         public static class AliasAnnotation
@@ -1680,7 +1812,7 @@ namespace Barotrauma
                 };
             }
 
-            public static void Do()
+            public static void Gen()
             {
                 foreach (var resolver in Resolvers)
                 {
