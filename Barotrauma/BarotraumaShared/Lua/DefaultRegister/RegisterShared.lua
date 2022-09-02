@@ -30,6 +30,12 @@ RegisterBarotrauma("Job")
 RegisterBarotrauma("JobPrefab")
 RegisterBarotrauma("JobVariant")
 
+Register("Voronoi2.DoubleVector2")
+Register("Voronoi2.Site")
+Register("Voronoi2.Edge")
+Register("Voronoi2.Halfedge")
+Register("Voronoi2.VoronoiCell")
+
 RegisterBarotrauma("WayPoint")
 RegisterBarotrauma("Level")
 RegisterBarotrauma("LevelData")
