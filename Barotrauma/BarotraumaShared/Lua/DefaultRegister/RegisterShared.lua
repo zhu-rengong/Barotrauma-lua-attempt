@@ -35,6 +35,7 @@ Register("Voronoi2.Site")
 Register("Voronoi2.Edge")
 Register("Voronoi2.Halfedge")
 Register("Voronoi2.VoronoiCell")
+Register("Voronoi2.GraphEdge")
 
 RegisterBarotrauma("WayPoint")
 RegisterBarotrauma("Level")
