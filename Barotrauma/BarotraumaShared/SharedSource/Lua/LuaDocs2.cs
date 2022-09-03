@@ -198,7 +198,8 @@ namespace Barotrauma
                             }
                         }
                         ExplanOverloadMethodEnd(methodSB, DelegateMehtod);
-                        return (true, $"({methodSB.ToString()})");
+                        string name = TargetType.IsGenericType ? Obtain(typeof(System.Delegate)).GetLuaName(LUA_NAME_TYPE).Name : GetLuaName().Name;
+                        return (true, $"{name}|({methodSB.ToString()})");
                     }
                     else if (TargetType.IsGenericType)
                     {
@@ -219,11 +220,8 @@ namespace Barotrauma
                     string className = tgt.Name;
                     className = Regex.Replace(className, @"\[\]|`1|`2|`3|&", "");
 
-                    if (tryGetMappedName)
-                    {
-                        var (state, mapName) = GetMapClassName(tgt.Namespace, className);
-                        if (state) { return (true, mapName); }
-                    }
+                    var (state, mapName) = GetMapClassName(tgt.Namespace, className, tryGetMappedName);
+                    if (state) { return (true, mapName); }
 
                     var nameSpacePart = tgt.Namespace;
                     var declarT = tgt.DeclaringType;
@@ -257,7 +255,6 @@ namespace Barotrauma
                 {
                     nameSpacePart = nameSpacePart + "..";
                 }
-
                 var declarT = TargetType.DeclaringType;
                 var prefix = "";
                 while (declarT != null)
@@ -277,9 +274,9 @@ namespace Barotrauma
                     )).Replace("...", $"{split}");
             }
 
-            public static (bool, string) GetMapClassName(string nameSpace, string className)
+            public static (bool, string) GetMapClassName(string nameSpace, string className, bool tryGetMappedName)
             {
-                if (nameSpace.StartsWith("System"))
+                if (tryGetMappedName && nameSpace.StartsWith("System"))
                 {
                     switch (className)
                     {
@@ -342,13 +339,13 @@ namespace Barotrauma
 
             public void CollectSelfToGlobal()
             {
-                var (state, className) = GetLuaName();
+                var (state, className) = GetLuaName(tryGetMappedName: false);
                 if (state && !GlobalLuaDef.Exists(def => def.targetClassName == className))
                 {
                     if (TargetType.BaseType != null && !TargetType.BaseType.IsGenericType)
                     {
                         var metadata = Obtain(TargetType.BaseType);
-                        var (subState, baseClassName) = metadata.GetLuaName();
+                        var (subState, baseClassName) = metadata.GetLuaName(tryGetMappedName: false);
                         if (subState)
                         {
                             GlobalLuaDef.Add((className, baseClassName));
@@ -864,8 +861,8 @@ namespace Barotrauma
             Gen(typeof(Items.Components.Vent));
 
             //Power
-            Gen(typeof(Items.Components.PowerContainer));
             Gen(typeof(Items.Components.Powered));
+            Gen(typeof(Items.Components.PowerContainer));
             Gen(typeof(Items.Components.PowerTransfer));
 
             //Signal
@@ -1009,6 +1006,14 @@ namespace Barotrauma
             Gen(typeof(Gap));
             #endregion
 
+            #region Voronoi2
+            Gen(typeof(Voronoi2.DoubleVector2));
+            Gen(typeof(Voronoi2.Site));
+            Gen(typeof(Voronoi2.Edge));
+            Gen(typeof(Voronoi2.Halfedge));
+            Gen(typeof(Voronoi2.VoronoiCell));
+            #endregion
+
             #region Geometry
 #if CLIENT
             Gen(typeof(Microsoft.Xna.Framework.Graphics.SpriteBatch));
@@ -1058,6 +1063,9 @@ namespace Barotrauma
             Gen(typeof(Upgrade));
             Gen(typeof(PurchasedUpgrade));
             #endregion
+            
+            Gen(typeof(EventManager));
+            Gen(typeof(EventManagerSettings));
 
             #region Networking
             Gen(typeof(Item.EventType));
@@ -1442,7 +1450,7 @@ namespace Barotrauma
         private static bool IsParamsParam(ParameterInfo param) => param.GetCustomAttribute<ParamArrayAttribute>(false) != null;
         private static bool IsOptionalParam(ParameterInfo param) => param.GetCustomAttribute<OptionalAttribute>(false) != null;
         private static string MakeNonConflictParam(string name) { if (LUAKEYWORDS.Contains(name)) return $"_{name}"; else return name; }
-        private static string MakeParamsParam(string name) => name.Substring(0, name.Length - 2);
+        private static string MakeParamsParam(string name) => name.Substring(0, name.Length - 2); // remove the last two chars '[]'
         private static string MakeOverloadMethodParamsParam(string name) => $"...:{MakeParamsParam(name)}";
         private static string MakePrimaryMethodParamsParam(string name) => $"---@vararg {MakeParamsParam(name)}";
 
