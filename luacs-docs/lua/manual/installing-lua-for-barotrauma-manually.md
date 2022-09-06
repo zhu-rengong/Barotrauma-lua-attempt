@@ -16,7 +16,9 @@ If you get TextManager errors, open `config_player.xml` in your server folder an
 
 2. Extract the zip archive into your game folder and replace files as necessary
 
+
 ## Installing from scratch
+
 1. Download [the latest build](https://github.com/evilfactory/LuaCsForBarotrauma/releases/tag/latest) (make sure to download the "build" zip for your platform, e.g `luacsforbarotrauma_build_windows.zip`)
 2. Extract the zip file
 3. Find the Content folder in your original Barotrauma game:<br/>
@@ -31,6 +33,12 @@ If you get TextManager errors, open `config_player.xml` in your server folder an
 ### Linux notice
 
 Sometimes you will get steam initialization errors, most of the time it's because it's missing the `linux64/steamclient.so` binary, so you can just copy the binary from your steam installation over to the folder and it should work.
+
+### Mac Notice
+
+The installing from scratch installation has a few issues for this specific operating system, it's recommended to do the adding to an existing server/client instead, but if you want to do it anyway, you might need to:
+- Copy steamclient.dylib located at /Users/YourUsername/Library/Application Support/Steam/Steam.AppBundle/Steam/Contents/MacOS* to the extracted folder
+- Create a file called steam_appid.txt with the content 255710 inside the extracted folder.*
 
 ## Checking if everything is working
 
