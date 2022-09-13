@@ -4,6 +4,8 @@
 
 If you get TextManager errors, open `config_player.xml` in your server folder and change the language from "None" to "English"
 
+<iframe width="560" height="315" src="https://www.youtube.com/embed/1T0srKPp5BI" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 ## Adding to an existing server
 
 1. Download [the latest server patch](https://github.com/evilfactory/LuaCsForBarotrauma/releases/tag/latest) (make sure to download the "patch" zip for your platform, e.g. `luacsforbarotrauma_patch_windows_server.zip`)
