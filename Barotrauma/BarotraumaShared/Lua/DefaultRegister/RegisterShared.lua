@@ -108,12 +108,17 @@ RegisterBarotrauma("Gap")
 RegisterBarotrauma("PhysicsBody")
 RegisterBarotrauma("AbilityFlags")
 RegisterBarotrauma("ItemPrefab")
-RegisterBarotrauma("SerializableProperty")
 RegisterBarotrauma("InputType")
 
 RegisterBarotrauma("FireSource")
 
+RegisterBarotrauma("SerializableProperty")
 RegisterBarotrauma("StatusEffect")
+RegisterBarotrauma("DurationListElement")
+RegisterBarotrauma("PropertyConditional")
+RegisterBarotrauma("DelayedListElement")
+RegisterBarotrauma("DelayedEffect")
+
 
 RegisterBarotrauma("ContentPackageManager")
 RegisterBarotrauma("ContentPackageManager+PackageSource")
@@ -122,6 +127,14 @@ RegisterBarotrauma("ContentPackage")
 RegisterBarotrauma("RegularPackage")
 RegisterBarotrauma("CorePackage")
 RegisterBarotrauma("ContentXElement")
+
+Register("System.Xml.Linq.XElement")
+Register("System.Xml.Linq.XName")
+Register("System.Xml.Linq.XAttribute")
+Register("System.Xml.Linq.XContainer")
+Register("System.Xml.Linq.XDocument")
+Register("System.Xml.Linq.XNode")
+
 
 RegisterBarotrauma("SubmarineBody")
 RegisterBarotrauma("Explosion")

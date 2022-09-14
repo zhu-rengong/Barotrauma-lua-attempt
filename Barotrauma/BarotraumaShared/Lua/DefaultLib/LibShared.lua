@@ -99,6 +99,17 @@ defaultLib["TempClient"] = CreateStatic("Barotrauma.Networking.TempClient", true
 defaultLib["TraitorMissionResult"] = CreateStatic("Barotrauma.TraitorMissionResult", true)
 defaultLib["DecalManager"] = CreateStatic("Barotrauma.DecalManager", true)
 defaultLib["AutoItemPlacer"] = CreateStatic("Barotrauma.AutoItemPlacer")
+defaultLib["PropertyConditional"] = CreateStatic("Barotrauma.PropertyConditional", true)
+defaultLib["StatusEffect"] = CreateStatic("Barotrauma.StatusEffect", true)
+
+defaultLib["ContentXElement"] = CreateStatic("Barotrauma.ContentXElement", true)
+defaultLib["XElement"] = CreateStatic("System.Xml.Linq.XElement", true)
+defaultLib["XName"] = CreateStatic("System.Xml.Linq.XName", true)
+defaultLib["XAttribute"] = CreateStatic("System.Xml.Linq.XAttribute", true)
+defaultLib["XContainer"] = CreateStatic("System.Xml.Linq.XContainer", true)
+defaultLib["XDocument"] = CreateStatic("System.Xml.Linq.XDocument", true)
+defaultLib["XNode"] = CreateStatic("System.Xml.Linq.XNode", true)
+
 
 defaultLib["Explosion"] = CreateStatic("Barotrauma.Explosion", true)
 
