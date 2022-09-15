@@ -1,104 +1,44 @@
 ﻿using Barotrauma;
 using Microsoft.Xna.Framework;
 using MoonSharp.Interpreter;
-using System.Runtime.ExceptionServices;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace TestProject.LuaCs
 {
-    public class HookPatchTests
+    [Collection("LuaCs")]
+    public class HookPatchTests : IClassFixture<LuaCsFixture>
     {
-        private readonly LuaCsSetup luaCs = new();
+        private readonly LuaCsSetup luaCs;
 
-        public HookPatchTests(ITestOutputHelper output)
+        public HookPatchTests(LuaCsFixture luaCsFixture, ITestOutputHelper output)
         {
-            UserData.RegisterType<TestValueType>();
-            UserData.RegisterType<IBogusInterface>();
-            UserData.RegisterType<InterfaceImplementingType>();
-            UserData.RegisterType<PatchTarget1>();
-            UserData.RegisterType<PatchTarget2>();
-            UserData.RegisterType<PatchTarget3>();
-            UserData.RegisterType<PatchTarget4>();
-            UserData.RegisterType<PatchTarget5>();
-            UserData.RegisterType<PatchTarget6>();
+            // XXX: we can't have multiple instances of LuaCs patching the
+            // same methods, otherwise we get script ownership exceptions.
+            luaCs = luaCsFixture.LuaCs;
 
             luaCs.MessageLogger = (prefix, o) =>
             {
                 o ??= "null";
-                output.WriteLine(prefix + o);
+                output?.WriteLine(prefix + o);
             };
-            luaCs.ExceptionHandler = (ex, _) =>
-            {
-                // Pretend we never caught the exception in the first place
-                // (this allows us to preserve the stack trace)
-                var di = ExceptionDispatchInfo.Capture(ex);
-                di.Throw();
-            };
+
+            UserData.RegisterType<TestValueType>();
+            UserData.RegisterType<IBogusInterface>();
+            UserData.RegisterType<InterfaceImplementingType>();
+            UserData.RegisterType<PatchTargetSimple>();
+            UserData.RegisterType<PatchTargetReturnsObject>();
+            UserData.RegisterType<PatchTargetReturnsInterface>();
+            UserData.RegisterType<PatchTargetModifyParams>();
+            UserData.RegisterType<PatchTargetVector2>();
+            UserData.RegisterType<PatchTargetNumbers>();
+
             luaCs.Initialize();
             luaCs.Lua.Globals["TestValueType"] = UserData.CreateStatic<TestValueType>();
             luaCs.Lua.Globals["InterfaceImplementingType"] = UserData.CreateStatic<InterfaceImplementingType>();
         }
 
-        private DynValue AddPrefix<T>(string body, string testMethod = "Run", string? patchId = null)
-        {
-            var className = typeof(T).FullName;
-            if (patchId != null)
-            {
-                return luaCs.Lua.DoString(@$"
-                    return Hook.Patch('{patchId}', '{className}', '{testMethod}', function(instance, ptable)
-                    {body}
-                    end, Hook.HookMethodType.Before)
-                ");
-            }
-            else
-            {
-                return luaCs.Lua.DoString(@$"
-                    return Hook.Patch('{className}', '{testMethod}', function(instance, ptable)
-                    {body}
-                    end, Hook.HookMethodType.Before)
-                ");
-            }
-        }
-
-        private DynValue AddPostfix<T>(string body, string testMethod = "Run", string? patchId = null)
-        {
-            var className = typeof(T).FullName;
-            if (patchId != null)
-            {
-                return luaCs.Lua.DoString(@$"
-                    return Hook.Patch('{patchId}', '{className}', '{testMethod}', function(instance, ptable)
-                    {body}
-                    end, Hook.HookMethodType.After)
-                ");
-            }
-            else
-            {
-                return luaCs.Lua.DoString(@$"
-                    return Hook.Patch('{className}', '{testMethod}', function(instance, ptable)
-                    {body}
-                    end, Hook.HookMethodType.After)
-                ");
-            }
-        }
-
-        private DynValue RemovePrefix<T>(string patchName, string testMethod = "Run")
-        {
-            var className = typeof(T).FullName;
-            return luaCs.Lua.DoString($@"
-                return Hook.RemovePatch('{patchName}', '{className}', '{testMethod}', Hook.HookMethodType.Before)
-            ");
-        }
-
-        private DynValue RemovePostfix<T>(string patchName, string testMethod = "Run")
-        {
-            var className = typeof(T).FullName;
-            return luaCs.Lua.DoString($@"
-                return Hook.RemovePatch('{patchName}', '{className}', '{testMethod}', Hook.HookMethodType.After)
-            ");
-        }
-
-        public class PatchTarget1
+        private class PatchTargetSimple
         {
             public bool ran;
 
@@ -111,8 +51,9 @@ namespace TestProject.LuaCs
         [Fact]
         public void TestFullMethodReplacement()
         {
-            var target = new PatchTarget1();
-            AddPrefix<PatchTarget1>("ptable.PreventExecution = true");
+            using var patchTargetHandle = HookPatchHelpers.LockPatchTarget<PatchTargetSimple>();
+            var target = new PatchTargetSimple();
+            using var patchHandle = luaCs.AddPrefix<PatchTargetSimple>("ptable.PreventExecution = true");
             target.Run();
             Assert.False(target.ran);
         }
@@ -120,8 +61,9 @@ namespace TestProject.LuaCs
         [Fact]
         public void TestOverrideExistingPatch()
         {
-            var target = new PatchTarget1();
-            AddPrefix<PatchTarget1>(@"
+            using var patchTargetHandle = HookPatchHelpers.LockPatchTarget<PatchTargetSimple>();
+            var target = new PatchTargetSimple();
+            using var patchHandle = luaCs.AddPrefix<PatchTargetSimple>(@"
                 ptable.PreventExecution = true
                 originalPatchRan = true
             ", patchId: "test");
@@ -134,7 +76,7 @@ namespace TestProject.LuaCs
             luaCs.Lua.Globals["originalPatchRan"] = false;
 
             // Replace the existing prefix, but don't prevent execution this time
-            AddPrefix<PatchTarget1>("replacementPatchRan = true", patchId: "test");
+            luaCs.AddPrefix<PatchTargetSimple>("replacementPatchRan = true", patchId: "test");
             target.Run();
             Assert.True(target.ran);
 
@@ -148,19 +90,20 @@ namespace TestProject.LuaCs
         [Fact]
         public void TestRemovePrefix()
         {
-            var target = new PatchTarget1();
-            var patchId = AddPrefix<PatchTarget1>(@"
+            using var patchTargetHandle = HookPatchHelpers.LockPatchTarget<PatchTargetSimple>();
+            var target = new PatchTargetSimple();
+            using (var patchHandle = luaCs.AddPrefix<PatchTargetSimple>(@"
                 ptable.PreventExecution = true
                 patchRan = true
-            ");
-            target.Run();
-            Assert.False(target.ran);
-            Assert.True(luaCs.Lua.Globals["patchRan"] as bool?);
+            "))
+            {
+                target.Run();
+                Assert.False(target.ran);
+                Assert.True(luaCs.Lua.Globals["patchRan"] as bool?);
 
-            luaCs.Lua.Globals["patchRan"] = false;
+                luaCs.Lua.Globals["patchRan"] = false;
+            }
 
-            Assert.Equal(DataType.String, patchId.Type);
-            RemovePrefix<PatchTarget1>(patchId.String);
             target.Run();
             Assert.True(target.ran);
             Assert.False(luaCs.Lua.Globals["patchRan"] as bool?);
@@ -169,19 +112,20 @@ namespace TestProject.LuaCs
         [Fact]
         public void TestRemovePostfix()
         {
-            var target = new PatchTarget1();
-            var patchId = AddPostfix<PatchTarget1>(@"
+            using var patchTargetHandle = HookPatchHelpers.LockPatchTarget<PatchTargetSimple>();
+            var target = new PatchTargetSimple();
+            using (var patchHandle = luaCs.AddPostfix<PatchTargetSimple>(@"
                 patchRan = true
-            ");
-            target.Run();
-            Assert.True(target.ran);
-            Assert.True(luaCs.Lua.Globals["patchRan"] as bool?);
+            "))
+            {
+                target.Run();
+                Assert.True(target.ran);
+                Assert.True(luaCs.Lua.Globals["patchRan"] as bool?);
 
-            target.ran = false;
-            luaCs.Lua.Globals["patchRan"] = false;
+                target.ran = false;
+                luaCs.Lua.Globals["patchRan"] = false;
+            }
 
-            Assert.Equal(DataType.String, patchId.Type);
-            RemovePostfix<PatchTarget1>(patchId.String);
             target.Run();
             Assert.True(target.ran);
             Assert.False(luaCs.Lua.Globals["patchRan"] as bool?);
@@ -197,7 +141,7 @@ namespace TestProject.LuaCs
             }
         }
 
-        public class PatchTarget2
+        private class PatchTargetReturnsObject
         {
             public bool ran;
 
@@ -213,7 +157,7 @@ namespace TestProject.LuaCs
             int GetFoo();
         }
 
-        public class InterfaceImplementingType : IBogusInterface
+        private class InterfaceImplementingType : IBogusInterface
         {
             private readonly int foo;
 
@@ -228,8 +172,9 @@ namespace TestProject.LuaCs
         [Fact]
         public void TestReturnBoxed()
         {
-            var target = new PatchTarget2();
-            AddPrefix<PatchTarget2>(@"
+            using var patchTargetHandle = HookPatchHelpers.LockPatchTarget<PatchTargetReturnsObject>();
+            var target = new PatchTargetReturnsObject();
+            using var patchHandle = luaCs.AddPrefix<PatchTargetReturnsObject>(@"
                 ptable.PreventExecution = true
                 return 123
             ");
@@ -241,9 +186,10 @@ namespace TestProject.LuaCs
         [Fact]
         public void TestReturnVoid()
         {
-            var target = new PatchTarget2();
+            using var patchTargetHandle = HookPatchHelpers.LockPatchTarget<PatchTargetReturnsObject>();
+            var target = new PatchTargetReturnsObject();
             // This should have no effect
-            AddPrefix<PatchTarget2>("return");
+            using var patchHandle = luaCs.AddPrefix<PatchTargetReturnsObject>("return");
             var returnValue = target.Run();
             Assert.True(target.ran);
             Assert.Equal(5, returnValue);
@@ -252,9 +198,10 @@ namespace TestProject.LuaCs
         [Fact]
         public void TestReturnNil()
         {
-            var target = new PatchTarget2();
+            using var patchTargetHandle = HookPatchHelpers.LockPatchTarget<PatchTargetReturnsObject>();
+            var target = new PatchTargetReturnsObject();
             // This should modify the return value to "null"
-            AddPostfix<PatchTarget2>("return nil");
+            using var patchHandle = luaCs.AddPostfix<PatchTargetReturnsObject>("return nil");
             var returnValue = target.Run();
             Assert.True(target.ran);
             Assert.Null(returnValue);
@@ -263,8 +210,9 @@ namespace TestProject.LuaCs
         [Fact]
         public void TestReturnValueType()
         {
-            var target = new PatchTarget2();
-            AddPostfix<PatchTarget2>(@"
+            using var patchTargetHandle = HookPatchHelpers.LockPatchTarget<PatchTargetReturnsObject>();
+            var target = new PatchTargetReturnsObject();
+            using var patchHandle = luaCs.AddPostfix<PatchTargetReturnsObject>(@"
                 return TestValueType.__new(100)
             ");
             var returnValue = target.Run();
@@ -273,7 +221,7 @@ namespace TestProject.LuaCs
             Assert.Equal(100, ((TestValueType)returnValue).foo);
         }
 
-        public class PatchTarget3
+        private class PatchTargetReturnsInterface
         {
             public bool ran;
 
@@ -287,8 +235,9 @@ namespace TestProject.LuaCs
         [Fact]
         public void TestReturnInterfaceImplementingType()
         {
-            var target = new PatchTarget3();
-            AddPostfix<PatchTarget3>(@"
+            using var patchTargetHandle = HookPatchHelpers.LockPatchTarget<PatchTargetReturnsInterface>();
+            var target = new PatchTargetReturnsInterface();
+            using var patchHandle = luaCs.AddPostfix<PatchTargetReturnsInterface>(@"
                 return InterfaceImplementingType.__new(100);
             ");
             var returnValue = target.Run()!;
@@ -296,7 +245,7 @@ namespace TestProject.LuaCs
             Assert.Equal(100, returnValue.GetFoo());
         }
 
-        public class PatchTarget4
+        private class PatchTargetModifyParams
         {
             public bool ran;
 
@@ -310,8 +259,9 @@ namespace TestProject.LuaCs
         [Fact]
         public void TestModifyParameters()
         {
-            var target = new PatchTarget4();
-            AddPrefix<PatchTarget4>(@"
+            using var patchTargetHandle = HookPatchHelpers.LockPatchTarget<PatchTargetModifyParams>();
+            var target = new PatchTargetModifyParams();
+            using var patchHandle = luaCs.AddPrefix<PatchTargetModifyParams>(@"
                 ptable['a'] = Int32(100)
                 ptable['b'] = 'abc'
                 ptable['refByte'] = Byte(4)
@@ -322,7 +272,7 @@ namespace TestProject.LuaCs
             Assert.Equal("100abc4", outString);
         }
 
-        public class PatchTarget5
+        private class PatchTargetVector2
         {
             public bool ran;
 
@@ -336,15 +286,16 @@ namespace TestProject.LuaCs
         [Fact]
         public void TestParameterValueType()
         {
-            var target = new PatchTarget5();
-            AddPrefix<PatchTarget5>("patchRan = true");
+            using var patchTargetHandle = HookPatchHelpers.LockPatchTarget<PatchTargetVector2>();
+            var target = new PatchTargetVector2();
+            using var patchHandle = luaCs.AddPrefix<PatchTargetVector2>("patchRan = true");
             var returnValue = target.Run(new Vector2(1, 2));
             Assert.True(target.ran);
             Assert.True(luaCs.Lua.Globals["patchRan"] as bool?);
             Assert.Equal("{X:1 Y:2}", returnValue);
         }
 
-        public class PatchTarget6
+        private class PatchTargetNumbers
         {
             public bool ran;
 
@@ -410,120 +361,130 @@ namespace TestProject.LuaCs
         }
 
         [Fact]
-        public void TestCastPrimitiveWrapperSByte()
+        public void TestCastSByte()
         {
-            var target = new PatchTarget6();
-            AddPrefix<PatchTarget6>(@"
+            using var patchTargetHandle = HookPatchHelpers.LockPatchTarget<PatchTargetNumbers>();
+            var target = new PatchTargetNumbers();
+            using var patchHandle = luaCs.AddPrefix<PatchTargetNumbers>(@"
                 ptable['v'] = SByte(-6)
-            ", testMethod: nameof(PatchTarget6.RunSByte));
+            ", methodName: nameof(PatchTargetNumbers.RunSByte));
             var returnValue = target.RunSByte(-5);
             Assert.True(target.ran);
             Assert.Equal(-6, returnValue);
         }
 
         [Fact]
-        public void TestCastPrimitiveWrapperByte()
+        public void TestCastByte()
         {
-            var target = new PatchTarget6();
-            AddPrefix<PatchTarget6>(@"
+            using var patchTargetHandle = HookPatchHelpers.LockPatchTarget<PatchTargetNumbers>();
+            var target = new PatchTargetNumbers();
+            using var patchHandle = luaCs.AddPrefix<PatchTargetNumbers>(@"
                 ptable['v'] = Byte(6)
-            ", testMethod: nameof(PatchTarget6.RunByte));
+            ", methodName: nameof(PatchTargetNumbers.RunByte));
             var returnValue = target.RunByte(5);
             Assert.True(target.ran);
             Assert.Equal(6, returnValue);
         }
 
         [Fact]
-        public void TestCastPrimitiveWrapperInt16()
+        public void TestCastInt16()
         {
-            var target = new PatchTarget6();
-            AddPrefix<PatchTarget6>(@"
+            using var patchTargetHandle = HookPatchHelpers.LockPatchTarget<PatchTargetNumbers>();
+            var target = new PatchTargetNumbers();
+            using var patchHandle = luaCs.AddPrefix<PatchTargetNumbers>(@"
                 ptable['v'] = Int16(-25000)
-            ", testMethod: nameof(PatchTarget6.RunInt16));
+            ", methodName: nameof(PatchTargetNumbers.RunInt16));
             var returnValue = target.RunInt16(30000);
             Assert.True(target.ran);
             Assert.Equal(-25000, returnValue);
         }
 
         [Fact]
-        public void TestCastPrimitiveWrapperUInt16()
+        public void TestCastUInt16()
         {
-            var target = new PatchTarget6();
-            AddPrefix<PatchTarget6>(@"
+            using var patchTargetHandle = HookPatchHelpers.LockPatchTarget<PatchTargetNumbers>();
+            var target = new PatchTargetNumbers();
+            using var patchHandle = luaCs.AddPrefix<PatchTargetNumbers>(@"
                 ptable['v'] = UInt16(60000)
-            ", testMethod: nameof(PatchTarget6.RunUInt16));
+            ", methodName: nameof(PatchTargetNumbers.RunUInt16));
             var returnValue = target.RunUInt16(50000);
             Assert.True(target.ran);
             Assert.Equal(60000, returnValue);
         }
 
         [Fact]
-        public void TestCastPrimitiveWrapperInt32()
+        public void TestCastInt32()
         {
-            var target = new PatchTarget6();
-            AddPrefix<PatchTarget6>(@"
+            using var patchTargetHandle = HookPatchHelpers.LockPatchTarget<PatchTargetNumbers>();
+            var target = new PatchTargetNumbers();
+            using var patchHandle = luaCs.AddPrefix<PatchTargetNumbers>(@"
                 ptable['v'] = Int32('7FFFFF00', 16)
-            ", testMethod: nameof(PatchTarget6.RunInt32));
+            ", methodName: nameof(PatchTargetNumbers.RunInt32));
             var returnValue = target.RunInt32(900000);
             Assert.True(target.ran);
             Assert.Equal(0x7FFFFF00, returnValue);
         }
 
         [Fact]
-        public void TestCastPrimitiveWrapperUInt32()
+        public void TestCastUInt32()
         {
-            var target = new PatchTarget6();
-            AddPrefix<PatchTarget6>(@"
+            using var patchTargetHandle = HookPatchHelpers.LockPatchTarget<PatchTargetNumbers>();
+            var target = new PatchTargetNumbers();
+            using var patchHandle = luaCs.AddPrefix<PatchTargetNumbers>(@"
                 ptable['v'] = UInt32('AFFFFFFF', 16)
-            ", testMethod: nameof(PatchTarget6.RunUInt32));
+            ", methodName: nameof(PatchTargetNumbers.RunUInt32));
             var returnValue = target.RunUInt32(300500);
             Assert.True(target.ran);
             Assert.Equal(0xAFFFFFFF, returnValue);
         }
 
         [Fact]
-        public void TestCastPrimitiveWrapperInt64()
+        public void TestCastInt64()
         {
-            var target = new PatchTarget6();
-            AddPrefix<PatchTarget6>(@"
+            using var patchTargetHandle = HookPatchHelpers.LockPatchTarget<PatchTargetNumbers>();
+            var target = new PatchTargetNumbers();
+            using var patchHandle = luaCs.AddPrefix<PatchTargetNumbers>(@"
                 ptable['v'] = Int64('7555555555555555', 16)
-            ", testMethod: nameof(PatchTarget6.RunInt64));
+            ", methodName: nameof(PatchTargetNumbers.RunInt64));
             var returnValue = target.RunInt64(0x7FFFFFFF00000000);
             Assert.True(target.ran);
             Assert.Equal(0x7555555555555555, returnValue);
         }
 
         [Fact]
-        public void TestCastPrimitiveWrapperUInt64()
+        public void TestCastUInt64()
         {
-            var target = new PatchTarget6();
-            AddPrefix<PatchTarget6>(@"
+            using var patchTargetHandle = HookPatchHelpers.LockPatchTarget<PatchTargetNumbers>();
+            var target = new PatchTargetNumbers();
+            using var patchHandle = luaCs.AddPrefix<PatchTargetNumbers>(@"
                 ptable['v'] = UInt64('F555555555555555', 16)
-            ", testMethod: nameof(PatchTarget6.RunUInt64));
+            ", methodName: nameof(PatchTargetNumbers.RunUInt64));
             var returnValue = target.RunUInt64(0xFFFFFFFF00000000);
             Assert.True(target.ran);
             Assert.Equal(0xF555555555555555, returnValue);
         }
 
         [Fact]
-        public void TestCastPrimitiveWrapperSingle()
+        public void TestCastSingle()
         {
-            var target = new PatchTarget6();
-            AddPrefix<PatchTarget6>(@"
+            using var patchTargetHandle = HookPatchHelpers.LockPatchTarget<PatchTargetNumbers>();
+            var target = new PatchTargetNumbers();
+            using var patchHandle = luaCs.AddPrefix<PatchTargetNumbers>(@"
                 ptable['v'] = Single(123.456)
-            ", testMethod: nameof(PatchTarget6.RunSingle));
+            ", methodName: nameof(PatchTargetNumbers.RunSingle));
             var returnValue = target.RunSingle(111.111f);
             Assert.True(target.ran);
             Assert.Equal(123.456f, returnValue);
         }
 
         [Fact]
-        public void TestCastPrimitiveWrapperDouble()
+        public void TestCastDouble()
         {
-            var target = new PatchTarget6();
-            AddPrefix<PatchTarget6>(@"
+            using var patchTargetHandle = HookPatchHelpers.LockPatchTarget<PatchTargetNumbers>();
+            var target = new PatchTargetNumbers();
+            using var patchHandle = luaCs.AddPrefix<PatchTargetNumbers>(@"
                 ptable['v'] = Double(123.456)
-            ", testMethod: nameof(PatchTarget6.RunDouble));
+            ", methodName: nameof(PatchTargetNumbers.RunDouble));
             var returnValue = target.RunDouble(111.111d);
             Assert.True(target.ran);
             Assert.Equal(123.456d, returnValue);
