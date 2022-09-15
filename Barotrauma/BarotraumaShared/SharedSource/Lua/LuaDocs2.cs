@@ -565,6 +565,13 @@ namespace Barotrauma
             Gen(typeof(CorePackage));
             Gen(typeof(ContentXElement));
 
+            Gen(typeof(XElement));
+            Gen(typeof(XName));
+            Gen(typeof(XAttribute));
+            Gen(typeof(XContainer));
+            Gen(typeof(XDocument));
+            Gen(typeof(XNode));
+
 
             Gen(typeof(Camera));
 
@@ -578,8 +585,18 @@ namespace Barotrauma
             Gen(typeof(Networking.ServerLog.MessageType), null, new string[] { "ServerLog_MessageType", "ServerLogMessageType" });
 
             Gen(typeof(PropertyConditional));
+            Gen(typeof(PropertyConditional.Comparison));
+            Gen(typeof(PropertyConditional.ConditionType));
+            Gen(typeof(PropertyConditional.OperatorType));
             Gen(typeof(StatusEffect));
+            Gen(typeof(StatusEffect.TargetType));
+            Gen(typeof(StatusEffect.AbilityStatusEffectIdentifier));
+            Gen(typeof(StatusEffect.CharacterSpawnInfo));
+            Gen(typeof(StatusEffect.GiveSkill));
+            Gen(typeof(StatusEffect.GiveTalentInfo));
             Gen(typeof(DelayedEffect));
+            Gen(typeof(DelayedListElement));
+            Gen(typeof(DurationListElement));
 
             Gen(typeof(FireSource));
             Gen(typeof(DummyFireSource));
@@ -1012,6 +1029,7 @@ namespace Barotrauma
             Gen(typeof(Voronoi2.Edge));
             Gen(typeof(Voronoi2.Halfedge));
             Gen(typeof(Voronoi2.VoronoiCell));
+            Gen(typeof(Voronoi2.GraphEdge));
             #endregion
 
             #region Geometry
