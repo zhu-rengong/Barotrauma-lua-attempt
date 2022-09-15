@@ -30,6 +30,13 @@ RegisterBarotrauma("Job")
 RegisterBarotrauma("JobPrefab")
 RegisterBarotrauma("JobVariant")
 
+Register("Voronoi2.DoubleVector2")
+Register("Voronoi2.Site")
+Register("Voronoi2.Edge")
+Register("Voronoi2.Halfedge")
+Register("Voronoi2.VoronoiCell")
+Register("Voronoi2.GraphEdge")
+
 RegisterBarotrauma("WayPoint")
 RegisterBarotrauma("Level")
 RegisterBarotrauma("LevelData")
@@ -101,12 +108,17 @@ RegisterBarotrauma("Gap")
 RegisterBarotrauma("PhysicsBody")
 RegisterBarotrauma("AbilityFlags")
 RegisterBarotrauma("ItemPrefab")
-RegisterBarotrauma("SerializableProperty")
 RegisterBarotrauma("InputType")
 
 RegisterBarotrauma("FireSource")
 
+RegisterBarotrauma("SerializableProperty")
 RegisterBarotrauma("StatusEffect")
+RegisterBarotrauma("DurationListElement")
+RegisterBarotrauma("PropertyConditional")
+RegisterBarotrauma("DelayedListElement")
+RegisterBarotrauma("DelayedEffect")
+
 
 RegisterBarotrauma("ContentPackageManager")
 RegisterBarotrauma("ContentPackageManager+PackageSource")
@@ -115,6 +127,14 @@ RegisterBarotrauma("ContentPackage")
 RegisterBarotrauma("RegularPackage")
 RegisterBarotrauma("CorePackage")
 RegisterBarotrauma("ContentXElement")
+
+Register("System.Xml.Linq.XElement")
+Register("System.Xml.Linq.XName")
+Register("System.Xml.Linq.XAttribute")
+Register("System.Xml.Linq.XContainer")
+Register("System.Xml.Linq.XDocument")
+Register("System.Xml.Linq.XNode")
+
 
 RegisterBarotrauma("SubmarineBody")
 RegisterBarotrauma("Explosion")
@@ -228,6 +248,9 @@ local descriptor = RegisterBarotrauma("NetLobbyScreen")
 if SERVER then
     LuaUserData.MakeFieldAccessible(descriptor, "subs")
 end
+
+RegisterBarotrauma("EventManager")
+RegisterBarotrauma("EventManagerSettings")
 
 RegisterBarotrauma("Networking.IWriteMessage")
 RegisterBarotrauma("Networking.IReadMessage")
