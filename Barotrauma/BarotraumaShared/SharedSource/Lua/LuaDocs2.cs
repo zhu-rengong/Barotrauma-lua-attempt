@@ -565,12 +565,12 @@ namespace Barotrauma
             Gen(typeof(CorePackage));
             Gen(typeof(ContentXElement));
 
-            Gen(typeof(XElement));
-            Gen(typeof(XName));
-            Gen(typeof(XAttribute));
-            Gen(typeof(XContainer));
-            Gen(typeof(XDocument));
-            Gen(typeof(XNode));
+            Gen(typeof(XElement), nameof(XElement));
+            Gen(typeof(XName), nameof(XName));
+            Gen(typeof(XAttribute), nameof(XAttribute));
+            Gen(typeof(XContainer), nameof(XContainer));
+            Gen(typeof(XDocument), nameof(XDocument));
+            Gen(typeof(XNode), nameof(XNode));
 
 
             Gen(typeof(Camera));
