@@ -2,6 +2,8 @@
 using MoonSharp.Interpreter;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Text;
 using System.Threading;
 using Xunit;
 
@@ -24,70 +26,108 @@ namespace TestProject.LuaCs
             public void Dispose() => disposeAction();
         }
 
-        public static PatchHandle AddPrefix<T>(this LuaCsSetup luaCs, string body, string methodName = "Run", string? patchId = null)
+        private static List<string> BuildHookPatchArgsList(
+            string? patchId,
+            string className,
+            string methodName,
+            string[]? parameters)
         {
-            var className = typeof(T).FullName;
-            DynValue returnValue;
-            if (patchId != null)
-            {
-                returnValue = luaCs.Lua.DoString(@$"
-                    return Hook.Patch('{patchId}', '{className}', '{methodName}', function(instance, ptable)
-                    {body}
-                    end, Hook.HookMethodType.Before)
-                ");
-            }
-            else
-            {
-                returnValue = luaCs.Lua.DoString(@$"
-                    return Hook.Patch('{className}', '{methodName}', function(instance, ptable)
-                    {body}
-                    end, Hook.HookMethodType.Before)
-                ");
-            }
+            static string Stringify(object value) =>
+                "\"" + value.ToString()!.Replace(@"\", @"\\").Replace("\"", "\\\"") + "\"";
 
+            var args = new List<string>();
+            if (patchId != null) args.Add(Stringify(patchId));
+            args.Add(Stringify(className));
+            args.Add(Stringify(methodName));
+            if (parameters != null && parameters.Length > 0)
+            {
+                var sb = new StringBuilder();
+                sb.Append("{ ");
+                foreach (var param in parameters)
+                {
+                    sb.Append(Stringify(param));
+                    sb.Append(", ");
+                }
+                sb.Append(" }");
+                args.Add(sb.ToString());
+            }
+            return args;
+        }
+
+        private static DynValue DoHookPatch(
+            this LuaCsSetup luaCs,
+            string? patchId,
+            string className,
+            string methodName,
+            string[]? parameters,
+            string function,
+            LuaCsHook.HookMethodType patchType)
+        {
+            var args = BuildHookPatchArgsList(patchId, className, methodName, parameters);
+            args.Add(function);
+            args.Add(patchType switch
+            {
+                LuaCsHook.HookMethodType.Before => "Hook.HookMethodType.Before",
+                LuaCsHook.HookMethodType.After => "Hook.HookMethodType.After",
+                _ => throw new NotImplementedException(),
+            });
+            return luaCs.Lua.DoString($"return Hook.Patch({string.Join(", ", args)})");
+        }
+
+        private static DynValue DoHookRemovePatch(
+            this LuaCsSetup luaCs,
+            string? patchId,
+            string className,
+            string methodName,
+            string[]? parameters,
+            LuaCsHook.HookMethodType patchType)
+        {
+            var args = BuildHookPatchArgsList(patchId, className, methodName, parameters);
+            args.Add(patchType switch
+            {
+                LuaCsHook.HookMethodType.Before => "Hook.HookMethodType.Before",
+                LuaCsHook.HookMethodType.After => "Hook.HookMethodType.After",
+                _ => throw new NotImplementedException(),
+            });
+            return luaCs.Lua.DoString($"return Hook.RemovePatch({string.Join(", ", args)})");
+        }
+
+        public static PatchHandle AddPrefix<T>(this LuaCsSetup luaCs, string body, string methodName, string[]? parameters = null, string? patchId = null)
+        {
+            var className = typeof(T).FullName!;
+            var returnValue = luaCs.DoHookPatch(patchId, className, methodName, parameters, @$"
+                function(instance, ptable)
+                {body}
+                end
+            ", LuaCsHook.HookMethodType.Before);
             Assert.Equal(DataType.String, returnValue.Type);
             return new(returnValue.String, () => luaCs.RemovePrefix<T>(returnValue.String, methodName));
         }
 
-        public static PatchHandle AddPostfix<T>(this LuaCsSetup luaCs, string body, string methodName = "Run", string? patchId = null)
+        public static PatchHandle AddPostfix<T>(this LuaCsSetup luaCs, string body, string methodName, string[]? parameters = null, string? patchId = null)
         {
-            var className = typeof(T).FullName;
-            DynValue returnValue;
-            if (patchId != null)
-            {
-                returnValue = luaCs.Lua.DoString(@$"
-                    return Hook.Patch('{patchId}', '{className}', '{methodName}', function(instance, ptable)
-                    {body}
-                    end, Hook.HookMethodType.After)
-                ");
-            }
-            else
-            {
-                returnValue = luaCs.Lua.DoString(@$"
-                    return Hook.Patch('{className}', '{methodName}', function(instance, ptable)
-                    {body}
-                    end, Hook.HookMethodType.After)
-                ");
-            }
+            var className = typeof(T).FullName!;
+            var returnValue = luaCs.DoHookPatch(patchId, className, methodName, parameters, @$"
+                function(instance, ptable)
+                {body}
+                end
+            ", LuaCsHook.HookMethodType.After);
+            Assert.Equal(DataType.String, returnValue.Type);
             return new(returnValue.String, () => luaCs.RemovePostfix<T>(returnValue.String, methodName));
         }
 
-        public static bool RemovePrefix<T>(this LuaCsSetup luaCs, string patchId, string methodName = "Run")
+        public static bool RemovePrefix<T>(this LuaCsSetup luaCs, string patchId, string methodName, string[]? parameters = null)
         {
-            var className = typeof(T).FullName;
-            var returnValue = luaCs.Lua.DoString($@"
-                return Hook.RemovePatch('{patchId}', '{className}', '{methodName}', Hook.HookMethodType.Before)
-            ");
+            var className = typeof(T).FullName!;
+            var returnValue = luaCs.DoHookRemovePatch(patchId, className, methodName, parameters, LuaCsHook.HookMethodType.Before);
             Assert.Equal(DataType.Boolean, returnValue.Type);
             return returnValue.Boolean;
         }
 
-        public static bool RemovePostfix<T>(this LuaCsSetup luaCs, string patchId, string methodName = "Run")
+        public static bool RemovePostfix<T>(this LuaCsSetup luaCs, string patchId, string methodName, string[]? parameters = null)
         {
-            var className = typeof(T).FullName;
-            var returnValue = luaCs.Lua.DoString($@"
-                return Hook.RemovePatch('{patchId}', '{className}', '{methodName}', Hook.HookMethodType.After)
-            ");
+            var className = typeof(T).FullName!;
+            var returnValue = luaCs.DoHookRemovePatch(patchId, className, methodName, parameters, LuaCsHook.HookMethodType.After);
             Assert.Equal(DataType.Boolean, returnValue.Type);
             return returnValue.Boolean;
         }
