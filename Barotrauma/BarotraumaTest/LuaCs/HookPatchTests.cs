@@ -1,6 +1,7 @@
 ﻿using Barotrauma;
 using Microsoft.Xna.Framework;
 using MoonSharp.Interpreter;
+using System;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -31,6 +32,7 @@ namespace TestProject.LuaCs
             UserData.RegisterType<PatchTargetReturnsInterface>();
             UserData.RegisterType<PatchTargetModifyParams>();
             UserData.RegisterType<PatchTargetVector2>();
+            UserData.RegisterType<PatchTargetAmbiguous>();
             UserData.RegisterType<PatchTargetConstructor>();
             UserData.RegisterType<PatchTargetNumbers>();
 
@@ -306,6 +308,41 @@ namespace TestProject.LuaCs
             Assert.Equal("{X:1 Y:2}", returnValue);
         }
 
+        private class PatchTargetAmbiguous
+        {
+            public PatchTargetAmbiguous() { }
+
+            public PatchTargetAmbiguous(int a) { }
+
+            public void Blah() { }
+
+            public void Blah(int a) { }
+        }
+
+        [Fact]
+        public void TestPatchAmbiguous()
+        {
+            using var patchTargetHandle = HookPatchHelpers.LockPatchTarget<PatchTargetAmbiguous>();
+
+            Assert.Throws<ScriptRuntimeException>(() =>
+            {
+                using var postfixHandle = luaCs.AddPostfix<PatchTargetAmbiguous>("", ".ctor");
+            });
+            Assert.Throws<ScriptRuntimeException>(() =>
+            {
+                using var prefixHandle = luaCs.AddPrefix<PatchTargetAmbiguous>("", ".ctor");
+            });
+
+            Assert.Throws<ScriptRuntimeException>(() =>
+            {
+                using var postfixHandle = luaCs.AddPostfix<PatchTargetAmbiguous>("", nameof(PatchTargetAmbiguous.Blah));
+            });
+            Assert.Throws<ScriptRuntimeException>(() =>
+            {
+                using var prefixHandle = luaCs.AddPrefix<PatchTargetAmbiguous>("", nameof(PatchTargetAmbiguous.Blah));
+            });
+        }
+
         private class PatchTargetConstructor
         {
             public enum CtorType
@@ -345,10 +382,10 @@ namespace TestProject.LuaCs
             {
                 using var postfixHandle = luaCs.AddPostfix<PatchTargetConstructor>(@$"
                     instance.Ctor = {(int)PatchTargetConstructor.CtorType.Patched}
-                ", ".ctor");
+                ", ".ctor", Array.Empty<string>());
                 using var prefixHandle = luaCs.AddPrefix<PatchTargetConstructor>(@$"
                     instance.PrefixRan = true
-                ", ".ctor");
+                ", ".ctor", Array.Empty<string>());
                 var target = new PatchTargetConstructor();
                 Assert.Equal(PatchTargetConstructor.CtorType.Patched, target.Ctor);
                 Assert.True(target.PrefixRan);

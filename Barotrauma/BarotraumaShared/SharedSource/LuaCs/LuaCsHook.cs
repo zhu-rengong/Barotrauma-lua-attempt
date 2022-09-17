@@ -817,31 +817,59 @@ namespace Barotrauma
         private static MethodBase ResolveMethod(string className, string methodName, string[] parameters)
         {
             var classType = LuaUserData.GetType(className);
-            if (classType == null) throw new InvalidOperationException($"Invalid class name '{className}'");
+            if (classType == null) throw new ScriptRuntimeException($"invalid class name '{className}'");
 
             const BindingFlags BINDING_FLAGS = BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-            const string CTOR = ".ctor";
 
             MethodBase method = null;
-            if (parameters != null)
+
+            try
             {
-                var parameterTypes = parameters.Select(x => LuaUserData.GetType(x)).ToArray();
-                // TODO: remove the casts once we can use C# 9 features
-                method = methodName == CTOR
-                    ? (MethodBase)classType.GetConstructor(BINDING_FLAGS, null, parameterTypes, null)
-                    : (MethodBase)classType.GetMethod(methodName, BINDING_FLAGS, null, parameterTypes, null);
+                if (parameters != null)
+                {
+                    var parameterTypes = parameters.Select(x => LuaUserData.GetType(x)).ToArray();
+                    method = methodName switch
+                    {
+                        ".cctor" => classType.TypeInitializer,
+                        ".ctor" => classType.GetConstructors(BINDING_FLAGS)
+                            .Except(new[] { classType.TypeInitializer })
+                            .Where(x => x.GetParameters().Select(x => x.ParameterType).SequenceEqual(parameterTypes))
+                            .SingleOrDefault(),
+                        _ => classType.GetMethod(methodName, BINDING_FLAGS, null, parameterTypes, null),
+                    };
+                }
+                else
+                {
+                    ConstructorInfo GetCtor()
+                    {
+                        var ctors = classType.GetConstructors(BINDING_FLAGS)
+                            .Except(new[] { classType.TypeInitializer })
+                            .GetEnumerator();
+
+                        if (!ctors.MoveNext()) return null;
+                        var ctor = ctors.Current;
+
+                        if (ctors.MoveNext()) throw new AmbiguousMatchException();
+                        return ctor;
+                    }
+
+                    method = methodName switch
+                    {
+                        ".cctor" => throw new ScriptRuntimeException("type initializers can't have parameters"),
+                        ".ctor" => GetCtor(),
+                        _ => classType.GetMethod(methodName, BINDING_FLAGS),
+                    };
+                }
             }
-            else
+            catch (AmbiguousMatchException)
             {
-                method = methodName == CTOR
-                    ? (MethodBase)classType.GetConstructor(BINDING_FLAGS, null, Array.Empty<Type>(), null)
-                    : (MethodBase)classType.GetMethod(methodName, BINDING_FLAGS);
+                throw new ScriptRuntimeException("ambiguous method signature");
             }
 
             if (method == null)
             {
                 var parameterNamesStr = parameters == null ? "" : string.Join(", ", parameters);
-                throw new InvalidOperationException($"Method '{methodName}({parameterNamesStr})' not found in class '{className}'");
+                throw new ScriptRuntimeException($"method '{methodName}({parameterNamesStr})' not found in class '{className}'");
             }
 
             return method;

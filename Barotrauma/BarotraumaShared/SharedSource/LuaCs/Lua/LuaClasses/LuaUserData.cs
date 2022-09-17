@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -11,8 +11,10 @@ namespace Barotrauma
 	{
 		public static Type GetType(string typeName)
 		{
+            if (typeName == null || typeName.Length == 0) return null;
+
 			var byRef = false;
-			if (typeName.StartsWith("out ") || typeName.StartsWith("ref "))
+            if (typeName.StartsWith("out ") || typeName.StartsWith("ref "))
 			{
 				typeName = typeName.Remove(0, 4);
 				byRef = true;
