@@ -32,6 +32,7 @@ namespace TestProject.LuaCs
             UserData.RegisterType<PatchTargetReturnsInterface>();
             UserData.RegisterType<PatchTargetModifyParams>();
             UserData.RegisterType<PatchTargetVector2>();
+            UserData.RegisterType<PatchTargetAmbiguous>();
             UserData.RegisterType<PatchTargetConstructor>();
             UserData.RegisterType<PatchTargetNumbers>();
 
@@ -305,6 +306,41 @@ namespace TestProject.LuaCs
             Assert.True(target.ran);
             Assert.True(luaCs.Lua.Globals["patchRan"] as bool?);
             Assert.Equal("{X:1 Y:2}", returnValue);
+        }
+
+        private class PatchTargetAmbiguous
+        {
+            public PatchTargetAmbiguous() { }
+
+            public PatchTargetAmbiguous(int a) { }
+
+            public void Blah() { }
+
+            public void Blah(int a) { }
+        }
+
+        [Fact]
+        public void TestPatchAmbiguous()
+        {
+            using var patchTargetHandle = HookPatchHelpers.LockPatchTarget<PatchTargetAmbiguous>();
+
+            Assert.Throws<ScriptRuntimeException>(() =>
+            {
+                using var postfixHandle = luaCs.AddPostfix<PatchTargetAmbiguous>("", ".ctor");
+            });
+            Assert.Throws<ScriptRuntimeException>(() =>
+            {
+                using var prefixHandle = luaCs.AddPrefix<PatchTargetAmbiguous>("", ".ctor");
+            });
+
+            Assert.Throws<ScriptRuntimeException>(() =>
+            {
+                using var postfixHandle = luaCs.AddPostfix<PatchTargetAmbiguous>("", nameof(PatchTargetAmbiguous.Blah));
+            });
+            Assert.Throws<ScriptRuntimeException>(() =>
+            {
+                using var prefixHandle = luaCs.AddPrefix<PatchTargetAmbiguous>("", nameof(PatchTargetAmbiguous.Blah));
+            });
         }
 
         private class PatchTargetConstructor
