@@ -39,7 +39,7 @@ namespace TestProject.LuaCs
             if (patchId != null) args.Add(Stringify(patchId));
             args.Add(Stringify(className));
             args.Add(Stringify(methodName));
-            if (parameters != null && parameters.Length > 0)
+            if (parameters != null)
             {
                 var sb = new StringBuilder();
                 sb.Append("{ ");
@@ -101,7 +101,7 @@ namespace TestProject.LuaCs
                 end
             ", LuaCsHook.HookMethodType.Before);
             Assert.Equal(DataType.String, returnValue.Type);
-            return new(returnValue.String, () => luaCs.RemovePrefix<T>(returnValue.String, methodName));
+            return new(returnValue.String, () => luaCs.RemovePrefix<T>(returnValue.String, methodName, parameters));
         }
 
         public static PatchHandle AddPostfix<T>(this LuaCsSetup luaCs, string body, string methodName, string[]? parameters = null, string? patchId = null)
@@ -113,7 +113,7 @@ namespace TestProject.LuaCs
                 end
             ", LuaCsHook.HookMethodType.After);
             Assert.Equal(DataType.String, returnValue.Type);
-            return new(returnValue.String, () => luaCs.RemovePostfix<T>(returnValue.String, methodName));
+            return new(returnValue.String, () => luaCs.RemovePostfix<T>(returnValue.String, methodName, parameters));
         }
 
         public static bool RemovePrefix<T>(this LuaCsSetup luaCs, string patchId, string methodName, string[]? parameters = null)

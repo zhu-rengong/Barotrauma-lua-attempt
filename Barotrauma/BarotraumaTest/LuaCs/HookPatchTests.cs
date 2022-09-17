@@ -1,6 +1,7 @@
 ﻿using Barotrauma;
 using Microsoft.Xna.Framework;
 using MoonSharp.Interpreter;
+using System;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -345,10 +346,10 @@ namespace TestProject.LuaCs
             {
                 using var postfixHandle = luaCs.AddPostfix<PatchTargetConstructor>(@$"
                     instance.Ctor = {(int)PatchTargetConstructor.CtorType.Patched}
-                ", ".ctor");
+                ", ".ctor", Array.Empty<string>());
                 using var prefixHandle = luaCs.AddPrefix<PatchTargetConstructor>(@$"
                     instance.PrefixRan = true
-                ", ".ctor");
+                ", ".ctor", Array.Empty<string>());
                 var target = new PatchTargetConstructor();
                 Assert.Equal(PatchTargetConstructor.CtorType.Patched, target.Ctor);
                 Assert.True(target.PrefixRan);

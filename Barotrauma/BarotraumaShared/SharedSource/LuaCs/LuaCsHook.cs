@@ -820,22 +820,42 @@ namespace Barotrauma
             if (classType == null) throw new InvalidOperationException($"Invalid class name '{className}'");
 
             const BindingFlags BINDING_FLAGS = BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-            const string CTOR = ".ctor";
 
             MethodBase method = null;
             if (parameters != null)
             {
                 var parameterTypes = parameters.Select(x => LuaUserData.GetType(x)).ToArray();
-                // TODO: remove the casts once we can use C# 9 features
-                method = methodName == CTOR
-                    ? (MethodBase)classType.GetConstructor(BINDING_FLAGS, null, parameterTypes, null)
-                    : (MethodBase)classType.GetMethod(methodName, BINDING_FLAGS, null, parameterTypes, null);
+                method = methodName switch
+                {
+                    ".cctor" => classType.TypeInitializer,
+                    ".ctor" => classType.GetConstructors(BINDING_FLAGS)
+                        .Except(new[] { classType.TypeInitializer })
+                        .Where(x => x.GetParameters().Select(x => x.ParameterType).SequenceEqual(parameterTypes))
+                        .SingleOrDefault(),
+                    _ => classType.GetMethod(methodName, BINDING_FLAGS, null, parameterTypes, null),
+                };
             }
             else
             {
-                method = methodName == CTOR
-                    ? (MethodBase)classType.GetConstructor(BINDING_FLAGS, null, Array.Empty<Type>(), null)
-                    : (MethodBase)classType.GetMethod(methodName, BINDING_FLAGS);
+                ConstructorInfo GetCtor()
+                {
+                    var ctors = classType.GetConstructors(BINDING_FLAGS)
+                        .Except(new[] { classType.TypeInitializer })
+                        .GetEnumerator();
+
+                    if (!ctors.MoveNext()) return null;
+                    var ctor = ctors.Current;
+
+                    if (ctors.MoveNext()) throw new AmbiguousMatchException();
+                    return ctor;
+                }
+
+                method = methodName switch
+                {
+                    ".cctor" => throw new InvalidOperationException("Type initializers can't have parameters."),
+                    ".ctor" => GetCtor(),
+                    _ => classType.GetMethod(methodName, BINDING_FLAGS),
+                };
             }
 
             if (method == null)
