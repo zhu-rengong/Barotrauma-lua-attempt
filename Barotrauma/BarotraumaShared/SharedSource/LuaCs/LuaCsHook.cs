@@ -759,12 +759,12 @@ namespace Barotrauma
 
             T lastResult = default;
 
-            var hooksToRemove = new List<string>();
-            foreach ((var key, var tuple) in hookFunctions[name])
+            var hooks = hookFunctions[name].ToArray();
+            foreach ((string key, var tuple) in hooks)
             {
                 if (tuple.Item2 != null && tuple.Item2.IsDisposed)
                 {
-                    hooksToRemove.Add(key);
+                    hookFunctions[name].Remove(key);
                     continue;
                 }
 
@@ -803,10 +803,6 @@ namespace Barotrauma
                     luaCs.PrintError($"Error in Hook '{name}'->'{key}', with args '{argsSb}':\n{e}", LuaCsMessageOrigin.Unknown);
                     luaCs.HandleException(e, LuaCsMessageOrigin.Unknown);
                 }
-            }
-            foreach (var key in hooksToRemove)
-            {
-                hookFunctions[name].Remove(key);
             }
 
             return lastResult;
