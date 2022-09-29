@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Text;
 using MoonSharp.Interpreter;
 using Microsoft.Xna.Framework;
+using Barotrauma.Networking;
 
 namespace Barotrauma.Networking
 {
 	partial class Client
 	{
-		public static List<Client> ClientList
+		public static IReadOnlyList<Client> ClientList
 		{
 			get
 			{
@@ -19,6 +20,21 @@ namespace Barotrauma.Networking
 #endif
 			}
 		}
+
+        public ulong SteamID
+        {
+            get
+            {
+                if (AccountId.TryUnwrap(out AccountId outValue) && outValue is SteamId steamId)
+                {
+                    return steamId.Value;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+        }
 
 	}
 

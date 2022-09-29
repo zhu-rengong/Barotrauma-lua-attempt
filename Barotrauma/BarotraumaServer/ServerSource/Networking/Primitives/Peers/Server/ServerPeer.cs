@@ -36,7 +36,7 @@ namespace Barotrauma.Networking
         public abstract void Close();
         public abstract void Update(float deltaTime);
 
-        protected sealed class PendingClient
+        public sealed class PendingClient
         {
             public string? Name;
             public Option<int> OwnerKey;
@@ -285,7 +285,7 @@ namespace Barotrauma.Networking
 
         protected virtual void CheckOwnership(PendingClient pendingClient) { }
 
-        protected void RemovePendingClient(PendingClient pendingClient, PeerDisconnectPacket peerDisconnectPacket)
+        public void RemovePendingClient(PendingClient pendingClient, PeerDisconnectPacket peerDisconnectPacket)
         {
             if (pendingClients.Contains(pendingClient))
             {

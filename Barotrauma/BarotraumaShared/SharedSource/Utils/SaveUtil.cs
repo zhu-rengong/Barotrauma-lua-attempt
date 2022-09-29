@@ -27,7 +27,7 @@ namespace Barotrauma
 #else
         //"C:/Users/*user*/AppData/Local/Daedalic Entertainment GmbH/" on Windows
         //"/home/*user*/.local/share/Daedalic Entertainment GmbH/" on Linux
-        public static readonly string SaveFolder = Path.Combine(
+        public static string SaveFolder = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "Daedalic Entertainment GmbH",
             "Barotrauma");
