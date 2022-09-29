@@ -7,16 +7,19 @@ on:
   workflow_call:
 
 env:
-  ZIP_BASE_NAME: luacsforbarotrauma
-  ZIP_FILES_SERVER: |
+  ARTIFACTS_DIR: 2049ef39-42a2-46d2-b513-ee6d2e3a7b15
+  ARCHIVE_BASE_NAME: luacsforbarotrauma
+  # XXX: these file names are subject to shell expansion.
+  # Be careful when using special characters.
+  ARCHIVE_FILES_SERVER: |
     DedicatedServer.deps.json
     DedicatedServer.dll
     DedicatedServer.pdb
-  ZIP_FILES_CLIENT: |
+  ARCHIVE_FILES_CLIENT: |
     Barotrauma.deps.json
     Barotrauma.dll
     Barotrauma.pdb
-  ZIP_FILES_SHARED: |
+  ARCHIVE_FILES_SHARED: |
     0Harmony.dll
     Sigil.dll
     MoonSharp.Interpreter.dll
@@ -32,6 +35,7 @@ env:
     System.Collections.Immutable.dll
     System.Reflection.Metadata.dll
     System.Runtime.CompilerServices.Unsafe.dll
+    mscordaccore_amd64_amd64_*
     Lua
 
 jobs:
@@ -66,32 +70,15 @@ jobs:
       - name: "Build: MacClient"
         run: dotnet publish Barotrauma/BarotraumaClient/MacClient.csproj -c Release -clp:"ErrorsOnly;Summary" --self-contained -r osx-x64 \/p:Platform="x64"
 
-      - name: Create zip files
+      - name: Create archives
         run: |
-          IFS=$'\n' readarray -td $'\n' ZIP_FILES_SHARED <<< "$ZIP_FILES_SHARED"
-          IFS=$'\n' readarray -td $'\n' ZIP_FILES_CLIENT <<< "$ZIP_FILES_CLIENT"
-          IFS=$'\n' readarray -td $'\n' ZIP_FILES_SERVER <<< "$ZIP_FILES_SERVER"
+          set -e
+          shopt -s globstar nullglob
+          shopt -u dotglob
 
-          for i in "${!ZIP_FILES_SHARED[@]}"; do
-            file="${ZIP_FILES_SHARED[i]}"
-            if [[ -z "$file" ]]; then
-              unset "ZIP_FILES_SHARED[$i]"
-            fi
-          done
-
-          for i in "${!ZIP_FILES_CLIENT[@]}"; do
-            file="${ZIP_FILES_CLIENT[i]}"
-            if [[ -z "$file" ]]; then
-              unset "ZIP_FILES_CLIENT[$i]"
-            fi
-          done
-
-          for i in "${!ZIP_FILES_SERVER[@]}"; do
-            file="${ZIP_FILES_SERVER[i]}"
-            if [[ -z "$file" ]]; then
-              unset "ZIP_FILES_SERVER[$i]"
-            fi
-          done
+          IFS=$'\n' readarray -td $'\n' ARCHIVE_FILES_SHARED <<< "$ARCHIVE_FILES_SHARED"
+          IFS=$'\n' readarray -td $'\n' ARCHIVE_FILES_CLIENT <<< "$ARCHIVE_FILES_CLIENT"
+          IFS=$'\n' readarray -td $'\n' ARCHIVE_FILES_SERVER <<< "$ARCHIVE_FILES_SERVER"
 
           platforms=(
             "windows"
@@ -104,23 +91,46 @@ jobs:
             "Barotrauma/bin/ReleaseMac/netcoreapp3.1/osx-x64/publish"
           )
 
+          mkdir -p "$ARTIFACTS_DIR"
+          artifacts_dir="$(realpath "$ARTIFACTS_DIR")"
+
           for i in "${!platforms[@]}"; do
             (
               platform="${platforms[i]}"
               publish_dir="${publish_dirs[i]}"
               cd "$publish_dir"
               echo "Creating build_${platform}.zip"
-              zip -x *.zip -r "${ZIP_BASE_NAME}_build_${platform}.zip" .
+              zip -qr "${artifacts_dir}/${ARCHIVE_BASE_NAME}_build_${platform}.zip" *
               echo "Creating patch_${platform}_client.zip"
-              zip -x *.zip -r "${ZIP_BASE_NAME}_patch_${platform}_client.zip" \
-                "${ZIP_FILES_SHARED[@]}" \
-                mscordaccore_amd64_amd64_* \
-                "${ZIP_FILES_CLIENT[@]}"
+              zip -qr "${artifacts_dir}/${ARCHIVE_BASE_NAME}_patch_${platform}_client.zip" \
+                ${ARCHIVE_FILES_SHARED[@]} \
+                ${ARCHIVE_FILES_CLIENT[@]}
               echo "Creating patch_${platform}_server.zip"
-              zip -x *.zip -r "${ZIP_BASE_NAME}_patch_${platform}_server.zip" \
-                "${ZIP_FILES_SHARED[@]}" \
-                mscordaccore_amd64_amd64_* \
-                "${ZIP_FILES_SERVER[@]}"
+              zip -qr "${artifacts_dir}/${ARCHIVE_BASE_NAME}_patch_${platform}_server.zip" \
+                ${ARCHIVE_FILES_SHARED[@]} \
+                ${ARCHIVE_FILES_SERVER[@]}
+            )
+          done
+
+          for i in "${!platforms[@]}"; do
+            (
+              platform="${platforms[i]}"
+              publish_dir="${publish_dirs[i]}"
+              cd "$publish_dir"
+              echo "Creating build_${platform}.tar.gz"
+              tar -czf "${artifacts_dir}/${ARCHIVE_BASE_NAME}_build_${platform}.tar.gz" \
+                --owner=0 --group=0 \
+                *
+              echo "Creating patch_${platform}_client.tar.gz"
+              tar -czf "${artifacts_dir}/${ARCHIVE_BASE_NAME}_patch_${platform}_client.tar.gz" \
+                --owner=0 --group=0 \
+                ${ARCHIVE_FILES_SHARED[@]} \
+                ${ARCHIVE_FILES_CLIENT[@]}
+              echo "Creating patch_${platform}_server.tar.gz"
+              tar -czf "${artifacts_dir}/${ARCHIVE_BASE_NAME}_patch_${platform}_server.tar.gz" \
+                --owner=0 --group=0 \
+                ${ARCHIVE_FILES_SHARED[@]} \
+                ${ARCHIVE_FILES_SERVER[@]}
             )
           done
 
@@ -132,12 +142,15 @@ jobs:
           prerelease: false
           title: Automatic Build
           files: |
-            Barotrauma/bin/ReleaseWindows/netcoreapp3.1/win-x64/publish/${{ env.ZIP_BASE_NAME }}_build_windows.zip
-            Barotrauma/bin/ReleaseWindows/netcoreapp3.1/win-x64/publish/${{ env.ZIP_BASE_NAME }}_patch_windows_client.zip
-            Barotrauma/bin/ReleaseWindows/netcoreapp3.1/win-x64/publish/${{ env.ZIP_BASE_NAME }}_patch_windows_server.zip
-            Barotrauma/bin/ReleaseLinux/netcoreapp3.1/linux-x64/publish/${{ env.ZIP_BASE_NAME }}_build_linux.zip
-            Barotrauma/bin/ReleaseLinux/netcoreapp3.1/linux-x64/publish/${{ env.ZIP_BASE_NAME }}_patch_linux_client.zip
-            Barotrauma/bin/ReleaseLinux/netcoreapp3.1/linux-x64/publish/${{ env.ZIP_BASE_NAME }}_patch_linux_server.zip
-            Barotrauma/bin/ReleaseMac/netcoreapp3.1/osx-x64/publish/${{ env.ZIP_BASE_NAME }}_build_mac.zip
-            Barotrauma/bin/ReleaseMac/netcoreapp3.1/osx-x64/publish/${{ env.ZIP_BASE_NAME }}_patch_mac_client.zip
-            Barotrauma/bin/ReleaseMac/netcoreapp3.1/osx-x64/publish/${{ env.ZIP_BASE_NAME }}_patch_mac_server.zip
+            ${{ env.ARTIFACTS_DIR }}/${{ env.ARCHIVE_BASE_NAME }}_build_windows.zip
+            ${{ env.ARTIFACTS_DIR }}/${{ env.ARCHIVE_BASE_NAME }}_patch_windows_client.zip
+            ${{ env.ARTIFACTS_DIR }}/${{ env.ARCHIVE_BASE_NAME }}_patch_windows_server.zip
+            ${{ env.ARTIFACTS_DIR }}/${{ env.ARCHIVE_BASE_NAME }}_build_linux.zip
+            ${{ env.ARTIFACTS_DIR }}/${{ env.ARCHIVE_BASE_NAME }}_build_linux.tar.gz
+            ${{ env.ARTIFACTS_DIR }}/${{ env.ARCHIVE_BASE_NAME }}_patch_linux_client.zip
+            ${{ env.ARTIFACTS_DIR }}/${{ env.ARCHIVE_BASE_NAME }}_patch_linux_client.tar.gz
+            ${{ env.ARTIFACTS_DIR }}/${{ env.ARCHIVE_BASE_NAME }}_patch_linux_server.zip
+            ${{ env.ARTIFACTS_DIR }}/${{ env.ARCHIVE_BASE_NAME }}_patch_linux_server.tar.gz
+            ${{ env.ARTIFACTS_DIR }}/${{ env.ARCHIVE_BASE_NAME }}_build_mac.zip
+            ${{ env.ARTIFACTS_DIR }}/${{ env.ARCHIVE_BASE_NAME }}_patch_mac_client.zip
+            ${{ env.ARTIFACTS_DIR }}/${{ env.ARCHIVE_BASE_NAME }}_patch_mac_server.zip
