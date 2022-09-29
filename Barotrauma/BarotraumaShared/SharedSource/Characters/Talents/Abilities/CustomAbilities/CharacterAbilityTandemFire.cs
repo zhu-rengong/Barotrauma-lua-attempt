@@ -1,8 +1,4 @@
-﻿using Barotrauma.Items.Components;
-using Microsoft.Xna.Framework;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
+﻿using Microsoft.Xna.Framework;
 
 namespace Barotrauma.Abilities
 {
@@ -17,7 +13,7 @@ namespace Barotrauma.Abilities
 
         protected override void ApplyEffect()
         {
-            if (Character.SelectedConstruction == null || !Character.SelectedConstruction.HasTag(tag)) { return; }
+            if (!SelectedItemHasTag(Character)) { return; }
 
             Character closestCharacter = null;
             float closestDistance = squaredMaxDistance;
@@ -31,13 +27,17 @@ namespace Barotrauma.Abilities
                 }
             }
 
-            if (closestCharacter?.SelectedConstruction == null || !closestCharacter.SelectedConstruction.HasTag(tag)) { return; }
+            if (closestCharacter == null || !SelectedItemHasTag(closestCharacter)) { return; }
 
             if (closestDistance < squaredMaxDistance)
             {
                 ApplyEffectSpecific(Character);
                 ApplyEffectSpecific(closestCharacter);
             }
+
+            bool SelectedItemHasTag(Character character) =>
+                (character.SelectedItem != null && character.SelectedItem.HasTag(tag)) ||
+                (character.SelectedSecondaryItem != null && character.SelectedSecondaryItem.HasTag(tag));
         }
     }
 }

@@ -295,12 +295,11 @@ namespace Barotrauma.Items.Components
 
             if (attachable)
             {
-                DeattachFromWall();
-
                 if (body != null)
                 {
                     item.body = body;
                 }
+                DeattachFromWall();
             }
 
             if (Pusher != null) { Pusher.Enabled = false; }
@@ -619,6 +618,10 @@ namespace Barotrauma.Items.Components
 #if CLIENT
             item.DrawDepthOffset = SpriteDepthWhenDropped - item.SpriteDepth;
 #endif
+            foreach (LightComponent light in item.GetComponents<LightComponent>())
+            {
+                light.CheckIfNeedsUpdate();
+            }
         }
 
         public override void ParseMsg()
@@ -691,11 +694,29 @@ namespace Barotrauma.Items.Components
                 {
                     item.Drop(character);
                     item.SetTransform(ConvertUnits.ToSimUnits(GetAttachPosition(character)), 0.0f, findNewHull: false);
+                    //the light source won't get properly updated if lighting is disabled (even though the light sprite is still drawn when lighting is disabled)
+                    //so let's ensure the light source is up-to-date
+                    RefreshLightSources(item);
                 }
                 AttachToWall();
             }
             return true;
+
+            static void RefreshLightSources(Item item)
+            {
+                item.body?.UpdateDrawPosition();
+                foreach (var light in item.GetComponents<LightComponent>())
+                {
+                    light.SetLightSourceTransform();
+                }
+                item.GetComponent<ItemContainer>()?.SetContainedItemPositions();
+                foreach (var containedItem in item.ContainedItems)
+                {
+                    RefreshLightSources(containedItem);
+                }
+            }
         }
+
 
         public override bool SecondaryUse(float deltaTime, Character character = null)
         {
