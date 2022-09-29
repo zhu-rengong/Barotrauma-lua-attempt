@@ -116,6 +116,9 @@ namespace Barotrauma
             }
         }
 
+        public bool? ForceVoice = null;
+        public bool? ForceLocalVoice = null;
+
         public DynValue Settings;
 
 		public bool allowWifiChat = false;
