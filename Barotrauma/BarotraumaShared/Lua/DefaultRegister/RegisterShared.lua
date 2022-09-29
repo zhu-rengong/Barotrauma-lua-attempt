@@ -127,6 +127,9 @@ RegisterBarotrauma("ContentPackage")
 RegisterBarotrauma("RegularPackage")
 RegisterBarotrauma("CorePackage")
 RegisterBarotrauma("ContentXElement")
+RegisterBarotrauma("ContentPath")
+
+RegisterBarotrauma("SoundsFile")
 
 Register("System.Xml.Linq.XElement")
 Register("System.Xml.Linq.XName")
