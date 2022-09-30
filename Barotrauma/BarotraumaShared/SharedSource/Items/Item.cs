@@ -3216,6 +3216,7 @@ namespace Barotrauma
             }
 #endif
 
+            item.condition = element.GetAttributeFloat("condition", item.condition);
             foreach (XAttribute attribute in (appliedSwap?.ConfigElement ?? element).Attributes())
             {
                 if (!item.SerializableProperties.TryGetValue(attribute.NameAsIdentifier(), out SerializableProperty property)) { continue; }
