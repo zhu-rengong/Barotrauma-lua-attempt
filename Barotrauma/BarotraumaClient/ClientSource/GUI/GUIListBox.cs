@@ -352,7 +352,7 @@ namespace Barotrauma
         #endregion
 
         /// <param name="isScrollBarOnDefaultSide">For horizontal listbox, default side is on the bottom. For vertical, it's on the right.</param>
-        public GUIListBox(RectTransform rectT, bool isHorizontal = false, Color? color = null, [LuaAlias.GUIComponentStyle] string style = "", bool isScrollBarOnDefaultSide = true, bool useMouseDownToSelect = false) : base(style, rectT)
+        public GUIListBox(RectTransform rectT, bool isHorizontal = false, Color? color = null, string style = "", bool isScrollBarOnDefaultSide = true, bool useMouseDownToSelect = false) : base(style, rectT)
         {
             this.isHorizontal = isHorizontal;
             HoverCursor = CursorState.Hand;

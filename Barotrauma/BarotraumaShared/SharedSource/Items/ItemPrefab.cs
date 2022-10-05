@@ -1233,7 +1233,7 @@ namespace Barotrauma
 
         #endregion
 
-        public static ItemPrefab Find(string name, [LuaAlias.ItemIdentifier] Identifier identifier)
+        public static ItemPrefab Find(string name, Identifier identifier)
         {
             if (string.IsNullOrEmpty(name) && identifier.IsEmpty)
             {

@@ -315,13 +315,13 @@ namespace Barotrauma
         private LimbHealth GetMatchingLimbHealth(Limb limb) => limb == null ? null : limbHealths[limb.HealthIndex];
         private LimbHealth GetMatchingLimbHealth(Affliction affliction) => GetMatchingLimbHealth(Character.AnimController.GetLimb(affliction.Prefab.IndicatorLimb, excludeSevered: false));
 
-        public Affliction GetAffliction([LuaAlias.AfflictionIdentifier] string identifier, bool allowLimbAfflictions = true) =>
+        public Affliction GetAffliction(string identifier, bool allowLimbAfflictions = true) =>
             GetAffliction(identifier.ToIdentifier(), allowLimbAfflictions);
         
-        public Affliction GetAffliction([LuaAlias.AfflictionIdentifier] Identifier identifier, bool allowLimbAfflictions = true)
+        public Affliction GetAffliction(Identifier identifier, bool allowLimbAfflictions = true)
             => GetAffliction(a => a.Prefab.Identifier == identifier, allowLimbAfflictions);
 
-        public Affliction GetAfflictionOfType([LuaAlias.AfflictionType] Identifier afflictionType, bool allowLimbAfflictions = true) 
+        public Affliction GetAfflictionOfType(Identifier afflictionType, bool allowLimbAfflictions = true) 
             => GetAffliction(a => a.Prefab.AfflictionType == afflictionType, allowLimbAfflictions);
 
         private Affliction GetAffliction(Func<Affliction, bool> predicate, bool allowLimbAfflictions = true)
@@ -334,12 +334,12 @@ namespace Barotrauma
             return null;
         }
 
-        public T GetAffliction<T>([LuaAlias.AfflictionIdentifier] string identifier, bool allowLimbAfflictions = true) where T : Affliction
+        public T GetAffliction<T>(string identifier, bool allowLimbAfflictions = true) where T : Affliction
         {
             return GetAffliction(identifier, allowLimbAfflictions) as T;
         }
 
-        public Affliction GetAffliction([LuaAlias.AfflictionIdentifier] string identifier, Limb limb)
+        public Affliction GetAffliction(string identifier, Limb limb)
         {
             if (limb.HealthIndex < 0 || limb.HealthIndex >= limbHealths.Count)
             {
@@ -375,7 +375,7 @@ namespace Barotrauma
         /// <param name="limb">The limb the affliction is attached to</param>
         /// <param name="requireLimbSpecific">Does the affliction have to be attached to only the specific limb. 
         /// Most monsters for example don't have separate healths for different limbs, essentially meaning that every affliction is applied to every limb.</param>
-        public float GetAfflictionStrength([LuaAlias.AfflictionType] string afflictionType, Limb limb, bool requireLimbSpecific)
+        public float GetAfflictionStrength(string afflictionType, Limb limb, bool requireLimbSpecific)
         {
             if (requireLimbSpecific && limbHealths.Count == 1) { return 0.0f; }
 
@@ -396,7 +396,7 @@ namespace Barotrauma
             return strength;
         }
 
-        public float GetAfflictionStrength([LuaAlias.AfflictionType] string afflictionType, bool allowLimbAfflictions = true)
+        public float GetAfflictionStrength(string afflictionType, bool allowLimbAfflictions = true)
         {
             float strength = 0.0f;
             foreach (KeyValuePair<Affliction, LimbHealth> kvp in afflictions)
@@ -479,7 +479,7 @@ namespace Barotrauma
             ReduceMatchingAfflictions(amount, treatmentAction);
         }
         
-        public void ReduceAfflictionOnAllLimbs([LuaAlias.AfflictionIdentifier] Identifier affliction, float amount, ActionType? treatmentAction = null)
+        public void ReduceAfflictionOnAllLimbs(Identifier affliction, float amount, ActionType? treatmentAction = null)
         {
             if (affliction.IsEmpty) { throw new ArgumentException($"{nameof(affliction)} is empty"); }
             
@@ -505,7 +505,7 @@ namespace Barotrauma
             ReduceMatchingAfflictions(amount, treatmentAction);
         }
         
-        public void ReduceAfflictionOnLimb(Limb targetLimb, [LuaAlias.AfflictionIdentifier] Identifier affliction, float amount, ActionType? treatmentAction = null)
+        public void ReduceAfflictionOnLimb(Limb targetLimb, Identifier affliction, float amount, ActionType? treatmentAction = null)
         {
             if (affliction.IsEmpty) { throw new ArgumentException($"{nameof(affliction)} is empty"); }
             if (targetLimb is null) { throw new ArgumentNullException(nameof(targetLimb)); }

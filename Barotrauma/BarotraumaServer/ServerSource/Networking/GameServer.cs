@@ -195,8 +195,6 @@ namespace Barotrauma.Networking
 
             Log("Server started", ServerLog.MessageType.ServerMessage);
 
-            LuaDocs2.Work();
-
             GameMain.NetLobbyScreen.Select();
             GameMain.NetLobbyScreen.RandomizeSettings();
             if (!string.IsNullOrEmpty(ServerSettings.SelectedSubmarine))

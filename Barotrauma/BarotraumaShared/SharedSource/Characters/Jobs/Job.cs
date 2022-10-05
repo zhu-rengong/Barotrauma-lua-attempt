@@ -85,14 +85,14 @@ namespace Barotrauma
             return skills.Values;
         }
 
-        public float GetSkillLevel([LuaAlias.SkillIdentifier] Identifier skillIdentifier)
+        public float GetSkillLevel(Identifier skillIdentifier)
         {
             if (skillIdentifier.IsEmpty) { return 0.0f; }
             skills.TryGetValue(skillIdentifier, out Skill skill);
             return skill?.Level ?? 0.0f;
         }
 
-        public Skill GetSkill([LuaAlias.SkillIdentifier] Identifier skillIdentifier)
+        public Skill GetSkill(Identifier skillIdentifier)
         {
             if (skillIdentifier.IsEmpty) { return null; }
             skills.TryGetValue(skillIdentifier, out Skill skill);

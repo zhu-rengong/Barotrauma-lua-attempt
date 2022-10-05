@@ -39,7 +39,7 @@ namespace Barotrauma
             }
         }
         
-        public GUIProgressBar(RectTransform rectT, float barSize, Color? color = null, [LuaAlias.GUIComponentStyle] string style = "", bool showFrame = true) : base(style, rectT)
+        public GUIProgressBar(RectTransform rectT, float barSize, Color? color = null, string style = "", bool showFrame = true) : base(style, rectT)
         {
             if (color.HasValue)
             {

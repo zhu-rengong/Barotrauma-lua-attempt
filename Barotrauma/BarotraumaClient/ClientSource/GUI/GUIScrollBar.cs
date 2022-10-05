@@ -197,7 +197,7 @@ namespace Barotrauma
             }
         }
         
-        public GUIScrollBar(RectTransform rectT, float barSize = 1, Color? color = null, [LuaAlias.GUIComponentStyle] string style = "", bool? isHorizontal = null) : base(style, rectT)
+        public GUIScrollBar(RectTransform rectT, float barSize = 1, Color? color = null, string style = "", bool? isHorizontal = null) : base(style, rectT)
         {
             CanBeFocused = true;
             this.isHorizontal = isHorizontal ?? (Rect.Width > Rect.Height);

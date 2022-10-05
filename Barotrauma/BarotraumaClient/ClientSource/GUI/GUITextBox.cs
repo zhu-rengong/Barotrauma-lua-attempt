@@ -264,7 +264,7 @@ namespace Barotrauma
         public override bool PlaySoundOnSelect { get; set; } = true;
 
         public GUITextBox(RectTransform rectT, string text = "", Color? textColor = null, GUIFont font = null,
-                          Alignment textAlignment = Alignment.Left, bool wrap = false, [LuaAlias.GUIComponentStyle] string style = "", Color? color = null, bool createClearButton = false, bool createPenIcon = true)
+                          Alignment textAlignment = Alignment.Left, bool wrap = false, string style = "", Color? color = null, bool createClearButton = false, bool createPenIcon = true)
             : base(style, rectT)
         {
             HoverCursor = CursorState.IBeam;

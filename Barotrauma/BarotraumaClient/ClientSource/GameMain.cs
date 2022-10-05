@@ -573,7 +573,7 @@ namespace Barotrauma
 #if CLIENT
             LuaCsInstaller.CheckUpdate();
 #endif
-            LuaDocs2.Work();
+
             yield return CoroutineStatus.Success;
 
         }

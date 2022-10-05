@@ -168,7 +168,7 @@ namespace Barotrauma
         public static GUIComponentStyle GetComponentStyle(Identifier identifier)
             => ComponentStyles.TryGet(identifier, out var style) ? style : null;
 
-        public static void Apply(GUIComponent targetComponent, [LuaAlias.GUIComponentStyle] string styleName = "", GUIComponent parent = null)
+        public static void Apply(GUIComponent targetComponent, string styleName = "", GUIComponent parent = null)
         {
             Apply(targetComponent, styleName.ToIdentifier(), parent);
         }

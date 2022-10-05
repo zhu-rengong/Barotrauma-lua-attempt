@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using MoonSharp.Interpreter;
 using Microsoft.Xna.Framework;
 using Barotrauma.Networking;
 using System.Threading.Tasks;
@@ -36,7 +35,6 @@ namespace Barotrauma
         const int LUA_NAME_CLASS = 1;
         const int LUA_NAME_TYPE = 2;
 
-        const string AliasDir = @"alias";
         const string SharedPath = @"baroluadocs/types/shared";
 #if SERVER
         const string BLuaDocPath = @"baroluadocs/types/server";
@@ -373,8 +371,7 @@ namespace Barotrauma
         static void Initialize()
         {
             
-            var paths = new string[] { BLuaDocPath, SharedPath,
-                Path.Combine(BLuaDocPath, AliasDir), Path.Combine(SharedPath, AliasDir) };
+            var paths = new string[] { BLuaDocPath, SharedPath };
 
             for (int i = 0; i < paths.Length; i++)
             {
@@ -1326,8 +1323,6 @@ namespace Barotrauma
             Gen(typeof(LuaCsSetup.LuaCsModStore.CsModStore), "ModStore.CsModStore");
             Gen(typeof(LuaCsSetup.LuaCsModStore.LuaModStore), "ModStore.LuaModStore");
             Gen(typeof(MoonSharp.Interpreter.Interop.IUserDataDescriptor));
-
-            AliasAnnotation.Gen();
             GenCommon();
         }
 
@@ -1499,7 +1494,7 @@ namespace Barotrauma
             if (IsOptionalParam(parameter)) { paramName += '?'; }
             var metadata = ClassMetadata.Obtain(parameter.ParameterType);
             metadata.CollectAllToGlobal();
-            var typeName = AliasAnnotation.Analyze(parameter) ?? metadata.GetLuaName(LUA_NAME_TYPE).Name;
+            var typeName = metadata.GetLuaName(LUA_NAME_TYPE).Name;
             builder.Append(IsParamsParam(parameter) ? MakeOverloadMethodParamsParam(typeName) : $"{paramName}:{typeName}");
         }
 
@@ -1521,7 +1516,7 @@ namespace Barotrauma
             if (IsOptionalParam(parameter)) { paramName += '?'; }
             var metadata = ClassMetadata.Obtain(parameter.ParameterType);
             metadata.CollectAllToGlobal();
-            var typeName = AliasAnnotation.Analyze(parameter) ?? metadata.GetLuaName(LUA_NAME_TYPE).Name;
+            var typeName = metadata.GetLuaName(LUA_NAME_TYPE).Name;
             builder.Append(IsParamsParam(parameter) ? $"{MakePrimaryMethodParamsParam(typeName)}" : $"---@param {paramName} {typeName}");
         }
 
@@ -1815,137 +1810,5 @@ namespace Barotrauma
             ClassDefinition.Add(GetLuaClassFileName(targetType), builder);
             
         }
-
-        public static class AliasAnnotation
-        {
-            public const string PREFIX = "alias.annotation.";
-
-            public static Func<ParameterInfo, string> Alternative = (param) => ClassMetadata.Obtain(param.ParameterType).GetLuaName(LUA_NAME_TYPE).Name;
-
-            public static string Analyze(ParameterInfo param)
-            {
-                foreach (var resolver in Resolvers)
-                {
-                    if (resolver.Match(param))
-                    {
-                        return $"{Alternative(param)}|{PREFIX}{resolver.Alias}";
-                    }
-                }
-
-                return null;
-            }
-
-            public static List<(Func<ParameterInfo, bool> Match, string Alias, Func<StringBuilder, string> Content)> Resolvers;
-
-            static AliasAnnotation()
-            {
-                Resolvers = new List<(Func<ParameterInfo, bool>, string, Func<StringBuilder, string>)>()
-                {
-#if CLIENT
-                    AliasAnnotation.GUIComponentStyle,
-#endif
-                    AliasAnnotation.SkillIdentifier,
-                    AliasAnnotation.JobIdentifier,
-                    AliasAnnotation.AfflictionIdentifier,
-                    AliasAnnotation.AfflictionType,
-                    AliasAnnotation.ItemIdentifier
-                };
-            }
-
-            public static void Gen()
-            {
-                foreach (var resolver in Resolvers)
-                {
-                    var content = resolver.Content(new StringBuilder($"---@alias {PREFIX}{resolver.Alias}\n"));
-                    File.WriteAllText(@$"{BLuaDocPath}/{AliasDir}/{resolver.Alias}.lua", content);
-                }
-            }
-
-#if CLIENT
-            public static (Func<ParameterInfo, bool> Match, string Alias, Func<StringBuilder, string> Content) GUIComponentStyle = (
-                param => param.GetCustomAttribute<LuaAlias.GUIComponentStyleAttribute>(false) != null,
-                "gui.component.style",
-                (sb) =>
-                {
-                    foreach (var identifier in GUIStyle.ComponentStyles.Keys) sb.Append($"---| \"{identifier.Value}\"\n");
-                    return sb.ToString();
-                }
-            );
-#endif
-
-            public static (Func<ParameterInfo, bool> Match, string Alias, Func<StringBuilder, string> Content) SkillIdentifier = (
-                param => param.GetCustomAttribute<LuaAlias.SkillIdentifierAttribute>(false) != null,
-                "skill.identifier",
-                (sb) =>
-                {
-                    var skillPrefabs = new HashSet<string>();
-                    foreach (var prefab in JobPrefab.Prefabs)
-                        foreach (var skill in prefab.Skills)
-                            skillPrefabs.Add(skill.Identifier.Value);
-
-                    var distinct = new HashSet<string>();
-                    foreach (var skill in skillPrefabs)
-                        if (!distinct.Contains(skill))
-                            distinct.Add(skill);
-
-                    foreach (var skill in distinct)
-                        sb.Append($"---| \"{skill}\"\n");
-
-                    return sb.ToString();
-                }
-            );
-
-            public static (Func<ParameterInfo, bool> Match, string Alias, Func<StringBuilder, string> Content) JobIdentifier = (
-                param => param.GetCustomAttribute<LuaAlias.JobIdentifierAttribute>(false) != null,
-                "job.identifier",
-                (sb) =>
-                {
-                    foreach (var identifier in JobPrefab.Prefabs.Keys) sb.Append($"---| \"{identifier.Value}\"\n");
-                    return sb.ToString();
-                }
-            );
-
-            public static (Func<ParameterInfo, bool> Match, string Alias, Func<StringBuilder, string> Content) AfflictionIdentifier = (
-                param => param.GetCustomAttribute<LuaAlias.AfflictionIdentifierAttribute>(false) != null,
-                "affliction.identifier",
-                (sb) =>
-                {
-                    foreach (var identifier in AfflictionPrefab.Prefabs.Keys) sb.Append($"---| \"{identifier.Value}\"\n");
-                    return sb.ToString();
-                }
-            );
-
-            public static (Func<ParameterInfo, bool> Match, string Alias, Func<StringBuilder, string> Content) AfflictionType = (
-                param => param.GetCustomAttribute<LuaAlias.AfflictionTypeAttribute>(false) != null,
-                "affliction.type",
-                (sb) =>
-                {
-                    var afflictionTypes = new HashSet<string>();
-                    foreach (var prefab in AfflictionPrefab.Prefabs)
-                        afflictionTypes.Add(prefab.AfflictionType.ToString());
-
-                    var distinct = new HashSet<string>();
-                    foreach (var type in afflictionTypes)
-                        if (!distinct.Contains(type))
-                            distinct.Add(type);
-
-                    foreach (var type in distinct)
-                        sb.Append($"---| \"{type}\"\n");
-
-                    return sb.ToString();
-                }
-            );
-
-            public static (Func<ParameterInfo, bool> Match, string Alias, Func<StringBuilder, string> Content) ItemIdentifier = (
-                param => param.GetCustomAttribute<LuaAlias.ItemIdentifierAttribute>(false) != null,
-                "item.identifier",
-                (sb) =>
-                {
-                    foreach (var identifier in ItemPrefab.Prefabs.Keys) sb.Append($"---| \"{identifier.Value}\"\n");
-                    return sb.ToString();
-                }
-            );
-        }
-
     }
 }

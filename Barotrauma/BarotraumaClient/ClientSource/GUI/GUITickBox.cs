@@ -133,7 +133,7 @@ namespace Barotrauma
 
         public override bool PlaySoundOnSelect { get; set; } = true;
 
-        public GUITickBox(RectTransform rectT, LocalizedString label, GUIFont font = null, [LuaAlias.GUIComponentStyle] string style = "") : base(null, rectT)
+        public GUITickBox(RectTransform rectT, LocalizedString label, GUIFont font = null, string style = "") : base(null, rectT)
         {
             CanBeFocused = true;
             HoverCursor = CursorState.Hand;
