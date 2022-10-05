@@ -11,6 +11,11 @@ namespace Barotrauma.Networking
 {
     partial class RespawnManager : Entity, IServerSerializable
     {
+        /// <summary>
+        /// How much skills drop towards the job's default skill levels when dying
+        /// </summary>
+        const float SkillReductionOnDeath = 0.75f;
+
         public enum State
         {
             Waiting,
@@ -285,6 +290,7 @@ namespace Barotrauma.Networking
 #endif
                 }
             }
+            respawnItems.Clear();
 
             foreach (Structure wall in Structure.WallList)
             {
@@ -343,10 +349,14 @@ namespace Barotrauma.Networking
             RespawnCharactersProjSpecific(shuttlePos);
         }
 
+        public static AfflictionPrefab GetRespawnPenaltyAfflictionPrefab()
+        {
+            return AfflictionPrefab.Prefabs.First(a => a.AfflictionType == "respawnpenalty");
+        }
+
         public static Affliction GetRespawnPenaltyAffliction()
         {
-            var respawnPenaltyAffliction = AfflictionPrefab.Prefabs.First(a => a.AfflictionType == "respawnpenalty");
-            return respawnPenaltyAffliction?.Instantiate(10.0f);
+            return GetRespawnPenaltyAfflictionPrefab()?.Instantiate(10.0f);
         }
 
         public static void GiveRespawnPenaltyAffliction(Character character)

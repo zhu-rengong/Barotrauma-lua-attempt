@@ -412,7 +412,8 @@ namespace Barotrauma
                 return;
             }
 
-            if (MouseRect.Contains(PlayerInput.MousePosition) && (GUI.MouseOn == null || (!(GUI.MouseOn is GUIButton) && GUI.IsMouseOn(this))))
+            bool isMouseOn = MouseRect.Contains(PlayerInput.MousePosition) && (GUI.MouseOn == null || (!(GUI.MouseOn is GUIButton) && GUI.IsMouseOn(this)));
+            if (isMouseOn || isSelecting)
             {
                 State = ComponentState.Hover;
                 if (PlayerInput.PrimaryMouseButtonDown())
@@ -447,10 +448,6 @@ namespace Barotrauma
                 }
                 isSelecting = false;
                 State = ComponentState.None;
-            }
-            if (!isSelecting)
-            {
-                isSelecting = PlayerInput.IsShiftDown();
             }
 
             if (mouseHeldInside && !PlayerInput.PrimaryMouseButtonHeld())

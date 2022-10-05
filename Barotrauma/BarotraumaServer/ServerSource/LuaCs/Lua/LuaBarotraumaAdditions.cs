@@ -16,32 +16,32 @@ namespace Barotrauma.Networking
 			GameMain.Server.KickClient(this.Connection, reason);
 		}
 
-		public void Ban(string reason = "", bool range = false, float seconds = -1)
+		public void Ban(string reason = "", float seconds = -1)
 		{
 			if (seconds == -1)
 			{
-				GameMain.Server.BanClient(this, reason, range, null);
+				GameMain.Server.BanClient(this, reason, null);
 			}
 			else
 			{
-				GameMain.Server.BanClient(this, reason, range, TimeSpan.FromSeconds(seconds));
+				GameMain.Server.BanClient(this, reason, TimeSpan.FromSeconds(seconds));
 			}
 		}
 
-		public static void Unban(string player, string endpoint)
+		public static void UnbanPlayer(string playerName)
 		{
-			GameMain.Server.UnbanPlayer(player, endpoint);
+			GameMain.Server.UnbanPlayer(playerName);
 		}
 
-		public static void Ban(string player, string reason, bool range = false, float seconds = -1)
+		public static void BanPlayer(string player, string reason, bool range = false, float seconds = -1)
 		{
 			if (seconds == -1)
 			{
-				GameMain.Server.BanPlayer(player, reason, range, null);
+				GameMain.Server.BanPlayer(player, reason, null);
 			}
 			else
 			{
-				GameMain.Server.BanPlayer(player, reason, range, TimeSpan.FromSeconds(seconds));
+				GameMain.Server.BanPlayer(player, reason, TimeSpan.FromSeconds(seconds));
 			}
 		}
 

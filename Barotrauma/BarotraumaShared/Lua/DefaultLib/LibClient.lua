@@ -11,14 +11,23 @@ for key, value in pairs(localizedStrings) do
 	defaultLib[value] = CreateStatic("Barotrauma." .. value, true)
 end
 
-defaultLib["Sounds.LowpassFilter"] = CreateStatic("Barotrauma.Sounds.LowpassFilter")
-defaultLib["Sounds.HighpassFilter"] = CreateStatic("Barotrauma.Sounds.HighpassFilter")
-defaultLib["Sounds.BandpassFilter"] = CreateStatic("Barotrauma.Sounds.BandpassFilter")
-defaultLib["Sounds.NotchFilter"] = CreateStatic("Barotrauma.Sounds.NotchFilter")
-defaultLib["Sounds.LowShelfFilter"] = CreateStatic("Barotrauma.Sounds.LowShelfFilter")
-defaultLib["Sounds.HighShelfFilter"] = CreateStatic("Barotrauma.Sounds.HighShelfFilter")
-defaultLib["Sounds.PeakFilter"] = CreateStatic("Barotrauma.Sounds.PeakFilter")
+local sounds = {}
+sounds.LowpassFilter = CreateStatic("Barotrauma.Sounds.LowpassFilter")
+sounds.HighpassFilter = CreateStatic("Barotrauma.Sounds.HighpassFilter")
+sounds.BandpassFilter = CreateStatic("Barotrauma.Sounds.BandpassFilter")
+sounds.NotchFilter = CreateStatic("Barotrauma.Sounds.NotchFilter")
+sounds.LowShelfFilter = CreateStatic("Barotrauma.Sounds.LowShelfFilter")
+sounds.HighShelfFilter = CreateStatic("Barotrauma.Sounds.HighShelfFilter")
+sounds.PeakFilter = CreateStatic("Barotrauma.Sounds.PeakFilter")
+defaultLib["Sounds"] = sounds
 
+defaultLib["SoundPlayer"] = CreateStatic("Barotrauma.SoundPlayer")
+defaultLib["SoundPrefab"] = CreateStatic("Barotrauma.SoundPrefab", true)
+defaultLib["BackgroundMusic"] = CreateStatic("Barotrauma.BackgroundMusic", true)
+defaultLib["GUISound"] = CreateStatic("Barotrauma.GUISound", true)
+defaultLib["DamageSound"] = CreateStatic("Barotrauma.DamageSound", true)
+
+defaultLib["TextureLoader"] = CreateStatic("Barotrauma.TextureLoader")
 defaultLib["Sprite"] = CreateStatic("Barotrauma.Sprite", true)
 defaultLib["PlayerInput"] = CreateStatic("Barotrauma.PlayerInput", true)
 

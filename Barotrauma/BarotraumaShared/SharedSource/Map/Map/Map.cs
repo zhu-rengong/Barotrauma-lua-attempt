@@ -149,7 +149,7 @@ namespace Barotrauma
                             Biome.Prefabs.FirstOrDefault(b => b.Identifier == biomeId) ??
                             Biome.Prefabs.FirstOrDefault(b => !b.OldIdentifier.IsEmpty && b.OldIdentifier == biomeId) ??
                             Biome.Prefabs.First();
-                        connection.Difficulty = MathHelper.Clamp(connection.Difficulty, connection.Biome.MinDifficulty, connection.Biome.MaxDifficulty);
+                        connection.Difficulty = MathHelper.Clamp(connection.Difficulty, connection.Biome.MinDifficulty, connection.Biome.AdjustedMaxDifficulty);
                         connection.LevelData = new LevelData(subElement.Element("Level"), connection.Difficulty);
                         Connections.Add(connection);
                         connectionElements.Add(subElement);
@@ -462,6 +462,13 @@ namespace Barotrauma
                 }
             }
 
+            //make sure the connections are in the same order on the locations and the Connections list
+            //otherwise their order will change when loading the game (as they're added to the locations in the same order they're loaded)
+            foreach (var location in Locations)
+            {
+                location.Connections.Sort((c1, c2) => Connections.IndexOf(c1).CompareTo(Connections.IndexOf(c2)));
+            }
+
             for (int i = Connections.Count - 1; i >= 0; i--)
             {
                 i = Math.Min(i, Connections.Count - 1);
@@ -562,7 +569,7 @@ namespace Barotrauma
             {
                 if (connection.Locations.Any(l => l.IsGateBetweenBiomes))
                 {
-                    connection.Difficulty = connection.Locations.Min(l => l.Biome.MaxDifficulty);
+                    connection.Difficulty = Math.Min(connection.Locations.Min(l => l.Biome.ActualMaxDifficulty), connection.Biome.AdjustedMaxDifficulty);
                 }
                 else
                 {
@@ -591,7 +598,7 @@ namespace Barotrauma
                 if (biome != null)
                 {
                     minDifficulty = biome.MinDifficulty;
-                    maxDifficulty = biome.MaxDifficulty;
+                    maxDifficulty = biome.AdjustedMaxDifficulty;
                     float diff = 1 - settingsFactor;
                     difficulty *= 1 - (1f / biome.AllowedZones.Max() * diff);
                 }
@@ -944,14 +951,19 @@ namespace Barotrauma
         {
             foreach (Location location in Locations)
             {
+                location.LevelData.EventsExhausted = false;
                 if (location.Discovered)
                 {
-                    if (furthestDiscoveredLocation == null || 
+                    if (furthestDiscoveredLocation == null ||
                         location.MapPosition.X > furthestDiscoveredLocation.MapPosition.X)
                     {
                         furthestDiscoveredLocation = location;
                     }
                 }
+            }
+            foreach (LocationConnection connection in Connections)
+            {
+                connection.LevelData.EventsExhausted = false;
             }
 
             foreach (Location location in Locations)

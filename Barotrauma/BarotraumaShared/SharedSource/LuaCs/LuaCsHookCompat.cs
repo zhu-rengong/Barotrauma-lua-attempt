@@ -1,10 +1,9 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 using System.Collections.Generic;
 using MoonSharp.Interpreter;
-using static Barotrauma.LuaCsSetup;
 using LuaCsCompatPatchFunc = Barotrauma.LuaCsPatch;
 
 namespace Barotrauma
@@ -122,7 +121,7 @@ namespace Barotrauma
 		private static MethodInfo _miHookLuaCsPatchRetPostfix = typeof(LuaCsHook).GetMethod("HookLuaCsPatchRetPostfix", BindingFlags.NonPublic | BindingFlags.Static);
 
         // TODO: deprecate this
-		public void HookMethod(string identifier, MethodInfo method, LuaCsCompatPatchFunc patch, HookMethodType hookType = HookMethodType.Before, ACsMod owner = null)
+		public void HookMethod(string identifier, MethodBase method, LuaCsCompatPatchFunc patch, HookMethodType hookType = HookMethodType.Before, ACsMod owner = null)
 		{
 			if (identifier == null || method == null || patch == null)
 			{
@@ -136,7 +135,7 @@ namespace Barotrauma
 
 			if (hookType == HookMethodType.Before)
 			{
-				if (method.ReturnType != typeof(void))
+				if (method is MethodInfo mi && mi.ReturnType != typeof(void))
 				{
 					if (patches == null || patches.Prefixes == null || patches.Prefixes.Find(patch => patch.PatchMethod == _miHookLuaCsPatchRetPrefix) == null)
 					{
@@ -168,7 +167,7 @@ namespace Barotrauma
 			}
 			else if (hookType == HookMethodType.After)
 			{
-				if (method.ReturnType != typeof(void))
+				if (method is MethodInfo mi && mi.ReturnType != typeof(void))
 				{
 					if (patches == null || patches.Postfixes == null || patches.Postfixes.Find(patch => patch.PatchMethod == _miHookLuaCsPatchRetPostfix) == null)
 					{
@@ -200,13 +199,13 @@ namespace Barotrauma
 		}
 		protected void HookMethod(string identifier, string className, string methodName, string[] parameterNames, LuaCsCompatPatchFunc patch, HookMethodType hookMethodType = HookMethodType.Before)
 		{
-			var methodInfo = ResolveMethod(className, methodName, parameterNames);
-			if (methodInfo == null) return;
-			if (methodInfo.GetParameters().Any(x => x.ParameterType.IsByRef))
+			var method = ResolveMethod(className, methodName, parameterNames);
+			if (method == null) return;
+			if (method.GetParameters().Any(x => x.ParameterType.IsByRef))
             {
 				throw new InvalidOperationException($"{nameof(HookMethod)} doesn't support ByRef parameters; use {nameof(Patch)} instead.");
             }
-			HookMethod(identifier, methodInfo, patch, hookMethodType);
+			HookMethod(identifier, method, patch, hookMethodType);
 		}
 		protected void HookMethod(string identifier, string className, string methodName, LuaCsCompatPatchFunc patch, HookMethodType hookMethodType = HookMethodType.Before) =>
 			HookMethod(identifier, className, methodName, null, patch, hookMethodType);
@@ -216,9 +215,9 @@ namespace Barotrauma
 			HookMethod("", className, methodName, parameterNames, patch, hookMethodType);
 
 
-		public void UnhookMethod(string identifier, MethodInfo method, HookMethodType hookType = HookMethodType.Before)
+		public void UnhookMethod(string identifier, MethodBase method, HookMethodType hookType = HookMethodType.Before)
 		{
-			var funcAddr = ((long)method.MethodHandle.GetFunctionPointer());
+			var funcAddr = (long)method.MethodHandle.GetFunctionPointer();
 
 			Dictionary<long, HashSet<(string, LuaCsCompatPatchFunc, ACsMod)>> methods;
 			if (hookType == HookMethodType.Before) methods = compatHookPrefixMethods;
@@ -229,9 +228,9 @@ namespace Barotrauma
 		}
 		protected void UnhookMethod(string identifier, string className, string methodName, string[] parameterNames, HookMethodType hookType = HookMethodType.Before)
 		{
-			var methodInfo = ResolveMethod(className, methodName, parameterNames);
-			if (methodInfo == null) return;
-			UnhookMethod(identifier, methodInfo, hookType);
+			var method = ResolveMethod(className, methodName, parameterNames);
+			if (method == null) return;
+			UnhookMethod(identifier, method, hookType);
 		}
 	}
 }

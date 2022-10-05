@@ -186,6 +186,31 @@ namespace Barotrauma
                 converter: luaValue => luaValue.UserData.Object is LuaDouble v
                     ? (double)v
                     : throw new ScriptRuntimeException("use Double(value) to pass primitive type 'double' to C#"));
+
+            RegisterOption<Character>();
+            RegisterOption<Barotrauma.Networking.AccountId>();
+            RegisterOption<int>();
+        }
+
+        private void RegisterOption<T>()
+        {
+            Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion(typeof(Option<T>), (Script v, object obj) =>
+            {
+                if (obj is Option<T> option)
+                {
+                    if (option.TryUnwrap(out T outValue))
+                    {
+                        return UserData.Create(outValue);
+                    }
+                }
+
+                return null;
+            });
+
+            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.UserData, typeof(Option<T>), v =>
+            {
+                return Option<T>.Some(v.ToObject<T>());
+            });
         }
 
         private void RegisterAction<T>()

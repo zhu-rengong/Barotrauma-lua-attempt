@@ -91,7 +91,7 @@ namespace Barotrauma
         }
 
         // Copied from https://github.com/evilfactory/moonsharp/blob/5264656c6442e783f3c75082cce69a93d66d4cc0/src/MoonSharp.Interpreter/Interop/Converters/ScriptToClrConversions.cs#L79-L99
-        private static MethodInfo HasImplicitConversion(Type baseType, Type targetType)
+        private static MethodInfo GetImplicitOperatorMethod(Type baseType, Type targetType)
         {
             try
             {
@@ -101,12 +101,12 @@ namespace Barotrauma
             {
                 if (baseType.BaseType != null)
                 {
-                    return HasImplicitConversion(baseType.BaseType, targetType);
+                    return GetImplicitOperatorMethod(baseType.BaseType, targetType);
                 }
 
                 if (targetType.BaseType != null)
                 {
-                    return HasImplicitConversion(baseType, targetType.BaseType);
+                    return GetImplicitOperatorMethod(baseType, targetType.BaseType);
                 }
 
                 return null;
@@ -141,18 +141,18 @@ namespace Barotrauma
             il.Call(typeof(object).GetMethod("GetType"));
             il.StoreLocal(baseType);
 
-            // IL: var implicitConversionMethod = SigilExtensions.HasImplicitConversion(baseType, <targetType>);
-            var implicitConversionMethod = il.DeclareLocal(typeof(MethodInfo), $"cast_implicitConversionMethod_{guid}");
+            // IL: var implicitOperatorMethod = SigilExtensions.GetImplicitOperatorMethod(baseType, <targetType>);
+            var implicitOperatorMethod = il.DeclareLocal(typeof(MethodInfo), $"cast_implicitOperatorMethod_{guid}");
             il.LoadLocal(baseType);
             il.LoadType(targetType);
-            il.Call(typeof(SigilExtensions).GetMethod(nameof(HasImplicitConversion), BindingFlags.NonPublic | BindingFlags.Static));
-            il.StoreLocal(implicitConversionMethod);
+            il.Call(typeof(SigilExtensions).GetMethod(nameof(GetImplicitOperatorMethod), BindingFlags.NonPublic | BindingFlags.Static));
+            il.StoreLocal(implicitOperatorMethod);
 
             // IL: <TargetType> castValue;
             var castValue = il.DeclareLocal(targetType, $"cast_castValue_{guid}");
 
             // IL: if (implicitConversionMethod != null)
-            il.LoadLocal(implicitConversionMethod);
+            il.LoadLocal(implicitOperatorMethod);
             il.Branch((il) =>
             {
                 // IL: var methodInvokeParams = new object[1];
@@ -168,7 +168,7 @@ namespace Barotrauma
                 il.StoreElement<object>();
 
                 // IL: castValue = (<TargetType>)implicitConversionMethod.Invoke(null, methodInvokeParams);
-                il.LoadLocal(implicitConversionMethod);
+                il.LoadLocal(implicitOperatorMethod);
                 il.LoadNull(); // first parameter is null because implicit cast operators are static
                 il.LoadLocal(methodInvokeParams);
                 il.Call(typeof(MethodInfo).GetMethod("Invoke", new[] { typeof(object), typeof(object[]) }));
@@ -519,9 +519,9 @@ namespace Barotrauma
             "ContentPackageManager",
         };
 
-        private static void ValidatePatchTarget(MethodInfo methodInfo)
+        private static void ValidatePatchTarget(MethodBase method)
         {
-            if (prohibitedHooks.Any(h => methodInfo.DeclaringType.FullName.StartsWith(h)))
+            if (prohibitedHooks.Any(h => method.DeclaringType.FullName.StartsWith(h)))
             {
                 throw new ArgumentException("Hooks into the modding environment are prohibited.");
             }
@@ -575,7 +575,7 @@ namespace Barotrauma
                 return !(left == right);
             }
 
-            public static MethodKey Create(MethodInfo method) => new MethodKey
+            public static MethodKey Create(MethodBase method) => new MethodKey
             {
                 ModuleHandle = method.Module.ModuleHandle,
                 MetadataToken = method.MetadataToken,
@@ -759,12 +759,12 @@ namespace Barotrauma
 
             T lastResult = default;
 
-            var hooksToRemove = new List<string>();
-            foreach ((var key, var tuple) in hookFunctions[name])
+            var hooks = hookFunctions[name].ToArray();
+            foreach ((string key, var tuple) in hooks)
             {
                 if (tuple.Item2 != null && tuple.Item2.IsDisposed)
                 {
-                    hooksToRemove.Add(key);
+                    hookFunctions[name].Remove(key);
                     continue;
                 }
 
@@ -804,40 +804,71 @@ namespace Barotrauma
                     luaCs.HandleException(e, LuaCsMessageOrigin.Unknown);
                 }
             }
-            foreach (var key in hooksToRemove)
-            {
-                hookFunctions[name].Remove(key);
-            }
 
             return lastResult;
         }
 
         public object Call(string name, params object[] args) => Call<object>(name, args);
 
-        private static MethodInfo ResolveMethod(string className, string methodName, string[] parameterNames)
+        private static MethodBase ResolveMethod(string className, string methodName, string[] parameters)
         {
             var classType = LuaUserData.GetType(className);
-            if (classType == null) throw new InvalidOperationException($"Invalid class name '{className}'");
+            if (classType == null) throw new ScriptRuntimeException($"invalid class name '{className}'");
 
             const BindingFlags BINDING_FLAGS = BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-            MethodInfo methodInfo = null;
-            if (parameterNames != null)
+
+            MethodBase method = null;
+
+            try
             {
-                var parameterTypes = parameterNames.Select(x => LuaUserData.GetType(x)).ToArray();
-                methodInfo = classType.GetMethod(methodName, BINDING_FLAGS, null, parameterTypes, null);
+                if (parameters != null)
+                {
+                    var parameterTypes = parameters.Select(x => LuaUserData.GetType(x)).ToArray();
+                    method = methodName switch
+                    {
+                        ".cctor" => classType.TypeInitializer,
+                        ".ctor" => classType.GetConstructors(BINDING_FLAGS)
+                            .Except(new[] { classType.TypeInitializer })
+                            .Where(x => x.GetParameters().Select(x => x.ParameterType).SequenceEqual(parameterTypes))
+                            .SingleOrDefault(),
+                        _ => classType.GetMethod(methodName, BINDING_FLAGS, null, parameterTypes, null),
+                    };
+                }
+                else
+                {
+                    ConstructorInfo GetCtor()
+                    {
+                        var ctors = classType.GetConstructors(BINDING_FLAGS)
+                            .Except(new[] { classType.TypeInitializer })
+                            .GetEnumerator();
+
+                        if (!ctors.MoveNext()) return null;
+                        var ctor = ctors.Current;
+
+                        if (ctors.MoveNext()) throw new AmbiguousMatchException();
+                        return ctor;
+                    }
+
+                    method = methodName switch
+                    {
+                        ".cctor" => throw new ScriptRuntimeException("type initializers can't have parameters"),
+                        ".ctor" => GetCtor(),
+                        _ => classType.GetMethod(methodName, BINDING_FLAGS),
+                    };
+                }
             }
-            else
+            catch (AmbiguousMatchException)
             {
-                methodInfo = classType.GetMethod(methodName, BINDING_FLAGS);
+                throw new ScriptRuntimeException("ambiguous method signature");
             }
 
-            if (methodInfo == null)
+            if (method == null)
             {
-                var parameterNamesStr = parameterNames == null ? "" : string.Join(", ", parameterNames);
-                throw new InvalidOperationException($"Method '{methodName}({parameterNamesStr})' not found in class '{className}'");
+                var parameterNamesStr = parameters == null ? "" : string.Join(", ", parameters);
+                throw new ScriptRuntimeException($"method '{methodName}({parameterNamesStr})' not found in class '{className}'");
             }
 
-            return methodInfo;
+            return method;
         }
 
         private class DynamicParameterMapping
@@ -863,7 +894,7 @@ namespace Barotrauma
         // If you need to debug this:
         //   - use https://sharplab.io ; it's a very useful for resource for writing IL by hand.
         //   - use il.NewMessage("") or il.WriteLine("") to see where the IL crashes at runtime.
-        private MethodInfo CreateDynamicHarmonyPatch(string identifier, MethodInfo original, HookMethodType hookType)
+        private MethodInfo CreateDynamicHarmonyPatch(string identifier, MethodBase original, HookMethodType hookType)
         {
             var parameters = new List<DynamicParameterMapping>
             {
@@ -871,7 +902,7 @@ namespace Barotrauma
                 new DynamicParameterMapping("__instance", null, typeof(object)),
             };
 
-            var hasReturnType = original.ReturnType != typeof(void);
+            var hasReturnType = original is MethodInfo mi && mi.ReturnType != typeof(void);
             if (hasReturnType)
             {
                 parameters.Add(new DynamicParameterMapping("__result", null, typeof(object).MakeByRefType()));
@@ -919,7 +950,7 @@ namespace Barotrauma
             // IL: var patchKey = MethodKey.Create(__originalMethod);
             var patchKey = il.DeclareLocal<MethodKey>("patchKey");
             il.LoadArgument(0); // load __originalMethod
-            il.CastClass<MethodInfo>();
+            il.CastClass<MethodBase>();
             il.Call(typeof(MethodKey).GetMethod(nameof(MethodKey.Create)));
             il.StoreLocal(patchKey);
 
@@ -1032,10 +1063,10 @@ namespace Barotrauma
                         {
                             // IL: var csReturnType = Type.GetTypeFromHandle(<original.ReturnType>);
                             var csReturnType = il.DeclareLocal<Type>("csReturnType");
-                            il.LoadType(original.ReturnType);
+                            il.LoadType(((MethodInfo)original).ReturnType);
                             il.StoreLocal(csReturnType);
 
-                            // IL: var csReturnValue = luaReturnValue.ToObject(csReturnValueType);
+                            // IL: var csReturnValue = luaReturnValue.ToObject(csReturnType);
                             var csReturnValue = il.DeclareLocal<object>("csReturnValue");
                             il.LoadLocal(luaReturnValue);
                             il.LoadLocal(csReturnType);
@@ -1149,7 +1180,7 @@ namespace Barotrauma
             return type.GetMethod(methodName, BindingFlags.Public | BindingFlags.Static);
         }
 
-        private string Patch(string identifier, MethodInfo method, LuaCsPatchFunc patch, HookMethodType hookType = HookMethodType.Before)
+        private string Patch(string identifier, MethodBase method, LuaCsPatchFunc patch, HookMethodType hookType = HookMethodType.Before)
         {
             if (method == null) throw new ArgumentNullException(nameof(method));
             if (patch == null) throw new ArgumentNullException(nameof(patch));
@@ -1199,29 +1230,29 @@ namespace Barotrauma
 
         public string Patch(string identifier, string className, string methodName, string[] parameterTypes, LuaCsPatchFunc patch, HookMethodType hookType = HookMethodType.Before)
         {
-            var methodInfo = ResolveMethod(className, methodName, parameterTypes);
-            return Patch(identifier, methodInfo, patch, hookType);
+            var method = ResolveMethod(className, methodName, parameterTypes);
+            return Patch(identifier, method, patch, hookType);
         }
 
         public string Patch(string identifier, string className, string methodName, LuaCsPatchFunc patch, HookMethodType hookType = HookMethodType.Before)
         {
-            var methodInfo = ResolveMethod(className, methodName, null);
-            return Patch(identifier, methodInfo, patch, hookType);
+            var method = ResolveMethod(className, methodName, null);
+            return Patch(identifier, method, patch, hookType);
         }
 
         public string Patch(string className, string methodName, string[] parameterTypes, LuaCsPatchFunc patch, HookMethodType hookType = HookMethodType.Before)
         {
-            var methodInfo = ResolveMethod(className, methodName, parameterTypes);
-            return Patch(null, methodInfo, patch, hookType);
+            var method = ResolveMethod(className, methodName, parameterTypes);
+            return Patch(null, method, patch, hookType);
         }
 
         public string Patch(string className, string methodName, LuaCsPatchFunc patch, HookMethodType hookType = HookMethodType.Before)
         {
-            var methodInfo = ResolveMethod(className, methodName, null);
-            return Patch(null, methodInfo, patch, hookType);
+            var method = ResolveMethod(className, methodName, null);
+            return Patch(null, method, patch, hookType);
         }
 
-        private bool RemovePatch(string identifier, MethodInfo method, HookMethodType hookType)
+        private bool RemovePatch(string identifier, MethodBase method, HookMethodType hookType)
         {
             if (identifier == null) throw new ArgumentNullException(nameof(identifier));
             identifier = NormalizeIdentifier(identifier);
@@ -1242,14 +1273,14 @@ namespace Barotrauma
 
         public bool RemovePatch(string identifier, string className, string methodName, string[] parameterTypes, HookMethodType hookType)
         {
-            var methodInfo = ResolveMethod(className, methodName, parameterTypes);
-            return RemovePatch(identifier, methodInfo, hookType);
+            var method = ResolveMethod(className, methodName, parameterTypes);
+            return RemovePatch(identifier, method, hookType);
         }
 
         public bool RemovePatch(string identifier, string className, string methodName, HookMethodType hookType)
         {
-            var methodInfo = ResolveMethod(className, methodName, null);
-            return RemovePatch(identifier, methodInfo, hookType);
+            var method = ResolveMethod(className, methodName, null);
+            return RemovePatch(identifier, method, hookType);
         }
     }
 }

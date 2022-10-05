@@ -103,12 +103,14 @@ defaultLib["PropertyConditional"] = CreateStatic("Barotrauma.PropertyConditional
 defaultLib["StatusEffect"] = CreateStatic("Barotrauma.StatusEffect", true)
 
 defaultLib["ContentXElement"] = CreateStatic("Barotrauma.ContentXElement", true)
+defaultLib["ContentPath"] = CreateStatic("Barotrauma.ContentPath", true)
 defaultLib["XElement"] = CreateStatic("System.Xml.Linq.XElement", true)
 defaultLib["XName"] = CreateStatic("System.Xml.Linq.XName", true)
 defaultLib["XAttribute"] = CreateStatic("System.Xml.Linq.XAttribute", true)
 defaultLib["XContainer"] = CreateStatic("System.Xml.Linq.XContainer", true)
 defaultLib["XDocument"] = CreateStatic("System.Xml.Linq.XDocument", true)
 defaultLib["XNode"] = CreateStatic("System.Xml.Linq.XNode", true)
+defaultLib["SoundsFile"] = CreateStatic("Barotrauma.SoundsFile", true)
 
 
 defaultLib["Explosion"] = CreateStatic("Barotrauma.Explosion", true)
