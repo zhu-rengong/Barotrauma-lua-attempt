@@ -70,6 +70,7 @@ Register("EventInput.KeyEventArgs")
 Register("Microsoft.Xna.Framework.Input.Keys")
 Register("Microsoft.Xna.Framework.Input.KeyboardState")
 
+RegisterBarotrauma("TextureLoader")
 RegisterBarotrauma("Sprite")
 RegisterBarotrauma("GUI")
 RegisterBarotrauma("GUIStyle")
