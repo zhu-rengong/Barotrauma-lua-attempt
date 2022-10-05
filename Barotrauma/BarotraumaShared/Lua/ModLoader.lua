@@ -125,11 +125,13 @@ ProcessPackages(
 ProcessPackages(
     ContentPackageManager.LocalPackages,
     function(pkg, pkgPath)
-        table.insert(package.path, pkgPath .. LUA_MOD_REQUIRE_PATH)
-        local forcedAutorunPath = pkgPath .. LUA_MOD_FORCEDAUTORUN_PATH
-        if File.DirectoryExists(forcedAutorunPath) then
-            QueueForcedAutorun(forcedAutorunPath, pkgPath, pkg)
-            executedLocalPackages[pkg.Name] = true
+        if not executedLocalPackages[pkg.Name] then
+            table.insert(package.path, pkgPath .. LUA_MOD_REQUIRE_PATH)
+            local forcedAutorunPath = pkgPath .. LUA_MOD_FORCEDAUTORUN_PATH
+            if File.DirectoryExists(forcedAutorunPath) then
+                QueueForcedAutorun(forcedAutorunPath, pkgPath, pkg)
+                executedLocalPackages[pkg.Name] = true
+            end
         end
     end
 )

@@ -25,12 +25,11 @@ namespace Barotrauma
 			}
 		}
 
-		public bool? ForceVoice = null;
-		public bool? ForceLocalVoice = null;
-
 		public bool Paused => GameMain.Instance?.Paused == true;
-		public byte MyID => GameMain.Client.ID;
-		public ChatMode ActiveChatMode => GameMain.ActiveChatMode;
+        public byte SessionId => GameMain.Client.SessionId;
+		public byte MyID => SessionId; // compatibility
+
+        public ChatMode ActiveChatMode => GameMain.ActiveChatMode;
 
 		public ChatBox ChatBox
 		{
@@ -116,6 +115,9 @@ namespace Barotrauma
 #endif
             }
         }
+
+        public bool? ForceVoice = null;
+        public bool? ForceLocalVoice = null;
 
         public DynValue Settings;
 

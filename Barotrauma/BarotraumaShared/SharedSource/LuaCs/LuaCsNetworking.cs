@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
@@ -142,12 +142,12 @@ namespace Barotrauma
 		{
 			var message = new WriteOnlyMessage();
 #if SERVER
-			message.Write((byte)ServerPacketHeader.LUA_NET_MESSAGE);
+			message.WriteByte((byte)ServerPacketHeader.LUA_NET_MESSAGE);
 #else
-			message.Write((byte)ClientPacketHeader.LUA_NET_MESSAGE);
+			message.WriteByte((byte)ClientPacketHeader.LUA_NET_MESSAGE);
 #endif
-			message.Write(netMessageName);
-			return ((IWriteMessage)message);
+			message.WriteString(netMessageName);
+			return message;
 		}
 
 		public IWriteMessage Start()
@@ -274,9 +274,9 @@ namespace Barotrauma
 			GameMain.Server.UpdateClientPermissions(client);
 		}
 
-		public void RemovePendingClient(ServerPeer.PendingClient pendingClient, DisconnectReason reason, string msg)
+		public void RemovePendingClient(ServerPeer.PendingClient pendingClient, PeerDisconnectPacket peerDisconnectPacket)
 		{
-			GameMain.Server.ServerPeer.RemovePendingClient(pendingClient, reason, msg);
+			GameMain.Server.ServerPeer.RemovePendingClient(pendingClient, peerDisconnectPacket);
 		}
 
 		public int FileSenderMaxPacketsPerUpdate

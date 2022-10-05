@@ -27,6 +27,7 @@ defaultLib["BackgroundMusic"] = CreateStatic("Barotrauma.BackgroundMusic", true)
 defaultLib["GUISound"] = CreateStatic("Barotrauma.GUISound", true)
 defaultLib["DamageSound"] = CreateStatic("Barotrauma.DamageSound", true)
 
+defaultLib["TextureLoader"] = CreateStatic("Barotrauma.TextureLoader")
 defaultLib["Sprite"] = CreateStatic("Barotrauma.Sprite", true)
 defaultLib["PlayerInput"] = CreateStatic("Barotrauma.PlayerInput", true)
 
