@@ -3216,7 +3216,6 @@ namespace Barotrauma
             }
 #endif
 
-            item.condition = element.GetAttributeFloat("condition", item.condition);
             foreach (XAttribute attribute in (appliedSwap?.ConfigElement ?? element).Attributes())
             {
                 if (!item.SerializableProperties.TryGetValue(attribute.NameAsIdentifier(), out SerializableProperty property)) { continue; }
@@ -3368,6 +3367,7 @@ namespace Barotrauma
                 item.PurchasedNewSwap = false;
             }
 
+            item.condition = element.GetAttributeFloat("condition", item.condition);
             item.condition = MathHelper.Clamp(item.condition, 0, item.MaxCondition);
             item.lastSentCondition = item.condition;
             item.RecalculateConditionValues();
