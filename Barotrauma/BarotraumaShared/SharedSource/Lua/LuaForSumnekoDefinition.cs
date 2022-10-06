@@ -27,30 +27,12 @@ namespace Barotrauma
             "not", "or", "repeat", "return", "then", "true", "until", "while"
         );
 
-        public static ImmutableList<(string clrNam, string baseClrName)> DefaultLuaClrBasePairs = ImmutableList.Create(
-            ("any", ""),
-            ("number", ""),
-            ("boolean", ""),
-            ("string", ""),
-            ("table", ""),
-            ("function", "")
-        );
-
-        public static Dictionary<string, StringBuilder> ClassDefinition = new Dictionary<string, StringBuilder>();
+        public static Dictionary<int, StringBuilder> LuaClrDefinitions = new Dictionary<int, StringBuilder>();
         public static Dictionary<string, StringBuilder> OverloadedOperatorAnnotations = new Dictionary<string, StringBuilder>();
 
-        public static List<(string clrName, string baseClrName)> LuaClrBasePairs = new List<(string, string)>(DefaultLuaClrBasePairs);
+        public static List<(ClassMetadata derivedMetadata, ClassMetadata baseMetadata)> LuaClrBasePairs = new List<(ClassMetadata, ClassMetadata)>();
 
-        public class ZRG<T1>
-        {
-            public class COC<T2>
-            {
-                public class TLS<T3>
-                {
-
-                }
-            }
-        }
+        public static List<ClassMetadata> LualyRecorder = new List<ClassMetadata>() { };
 
         public static void Execute()
         {
@@ -66,14 +48,38 @@ namespace Barotrauma
                 }
             }
 
+            LualyAll();
 
-            Lualy<Dictionary<ZRG<int>, ZRG<int>>>();
-            Lualy<Dictionary<ZRG<int>, ZRG<int>.COC<int>>>();
-            Lualy<Tuple<ZRG<int>, Dictionary<ZRG<int>, ZRG<int>>>>();
-            Lualy<ZRG<Tuple<ZRG<int>, Dictionary<ZRG<int>, ZRG<int>>>>.COC<bool>.TLS<string>>();
-            Lualy<ZRG<int>>();
-            Lualy<ZRG<int>.COC<bool>>();
-            Lualy<ZRG<int>.COC<bool>.TLS<string>>();
+            foreach (var metadata in LualyRecorder)
+            {
+                LuaClrBasePairs.RemoveAll(pair => pair.derivedMetadata == metadata);
+            }
+
+            var _0Global = new StringBuilder();
+            ExplanNewLine(_0Global);
+            foreach (var pair in LuaClrBasePairs)
+            {
+                if (pair.baseMetadata == ClassMetadata.Empty)
+                {
+                    _0Global.AppendLine($@"---@class {pair.derivedMetadata.LuaClrName}");
+                }
+                else
+                {
+                    _0Global.AppendLine($@"---@class {pair.derivedMetadata.LuaClrName} : {pair.baseMetadata.LuaClrName}");
+                }
+            }
+            _0Global.Insert(0, "---@meta\n");
+
+            File.WriteAllText(Path.Combine(DocumentationRelativePath, $"{nameof(_0Global)}.lua"), _0Global.ToString());
+
+            foreach (var (token, builder) in LuaClrDefinitions)
+            {
+                File.WriteAllText(Path.Combine(DocumentationRelativePath, $"{token}.lua"), builder.ToString());
+            }
+        }
+
+        public static void LualyAll()
+        {
             Lualy<Option<Barotrauma.Character.Attacker>>();
             Lualy<Barotrauma.Option<Barotrauma.Networking.AccountId>>();
             Lualy<Barotrauma.Networking.AccountId>();
@@ -82,8 +88,6 @@ namespace Barotrauma
             Lualy<Barotrauma.Character>();
             Lualy<Barotrauma.Item>();
             Lualy<Barotrauma.PrefabCollection<Barotrauma.ItemPrefab>>();
-            Lualy<Nullable<int>>();
-            Lualy<Dictionary<Tuple<int, string>, List<Nullable<ValueTuple<bool, byte>>>>>();
         }
     }
 }

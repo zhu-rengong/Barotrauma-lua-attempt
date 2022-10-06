@@ -23,7 +23,9 @@ namespace Barotrauma
 
         public class ClassMetadata
         {
+            public readonly static ClassMetadata Empty = new ClassMetadata();
             public readonly static HashSet<ClassMetadata> Caches = new HashSet<ClassMetadata>();
+            public bool IsEmpty = false;
             public Type OriginalType;
             public Type NullableType;
             public Type ResolvedType => NullableType != null ? NullableType : OriginalType;
@@ -48,6 +50,8 @@ namespace Barotrauma
                     return null;
                 }
             }
+
+            private ClassMetadata() { IsEmpty = true; }
 
             public ClassMetadata(Type originalType)
             {
@@ -184,17 +188,17 @@ namespace Barotrauma
 
             public void CollectSelfToGlobal()
             {
-                if (!LuaClrBasePairs.Exists(pair => pair.clrName == LuaClrName))
+                if (!LuaClrBasePairs.Exists(pair => pair.derivedMetadata == this))
                 {
                     if (ResolvedType.BaseType != null)
                     {
                         var metadata = Obtain(ResolvedType.BaseType);
-                        LuaClrBasePairs.Add((LuaClrName, metadata.LuaClrName));
+                        LuaClrBasePairs.Add((this, metadata));
                         metadata.CollectAllToGlobal();
                     }
                     else
                     {
-                        LuaClrBasePairs.Add((LuaClrName, ""));
+                        LuaClrBasePairs.Add((this, Empty));
                     }
                 }
             }
@@ -326,7 +330,9 @@ namespace Barotrauma
             }
 
             int subLen = typeInfo.Name.IndexOf('`'); // removes all trivils from the begining of the generic type symbol
-            name.Append(typeInfo.Name.Substring(0, (subLen > -1) ? subLen : typeInfo.Name.Length));
+            // Moonsharp implicit processes ref/out param, remove &
+            // ignore array, remove []
+            name.Append(typeInfo.Name.Substring(0, (subLen > -1) ? subLen : typeInfo.Name.Length).Remove("&").Remove("[]"));
             if (typeInfo.GenericTypeArguments.Length > 0)
             {
                 foreach (var genericTypeArgument in typeInfo.GenericTypeArguments)
@@ -340,8 +346,10 @@ namespace Barotrauma
 
         public static void Lualy<T>(string[] majorTable = null, string[][] minorTables = null)
         {
-            var luaDocBuilder = new StringBuilder();
             var type = typeof(T);
+            if (LuaClrDefinitions.ContainsKey(type.MetadataToken)) { return; }
+
+            var luaDocBuilder = new StringBuilder();
             var typeInfo = type.GetTypeInfo();
             var metadata = ClassMetadata.Obtain(type);
             string luaClrName = metadata.LuaClrName;
@@ -417,7 +425,8 @@ namespace Barotrauma
                 }
             }
 
-            File.WriteAllText(Path.Combine(DocumentationRelativePath, Convert.ToString(++FileNo, 2).PadLeft(16, '0') + ".lua"), luaDocBuilder.ToString());
+            LuaClrDefinitions.Add(type.MetadataToken, luaDocBuilder);
+            LualyRecorder.Add(metadata);
         }
     }
 }
