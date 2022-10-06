@@ -567,7 +567,6 @@ namespace Barotrauma
             Gen(typeof(Networking.PipeAddress));
             Gen(typeof(Networking.SteamP2PAddress));
             Gen(typeof(Networking.UnknownAddress));
-            Gen(LuaUserData.GetType("Barotrauma.Networking.EndPoint"));
             Gen(typeof(Networking.LidgrenEndpoint));
             Gen(typeof(Networking.SteamP2PEndpoint));
 
