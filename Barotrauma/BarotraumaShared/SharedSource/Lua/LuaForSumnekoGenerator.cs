@@ -19,7 +19,7 @@ namespace Barotrauma
 {
     public static partial class LuaForSumneko
     {
-        private static int FielNo = 0;
+        private static int FileNo = 0;
 
         public class ClassMetadata
         {
@@ -182,6 +182,33 @@ namespace Barotrauma
                 }
             }
 
+            public void CollectSelfToGlobal()
+            {
+                if (!LuaClrBasePairs.Exists(pair => pair.clrName == LuaClrName))
+                {
+                    if (ResolvedType.BaseType != null)
+                    {
+                        var metadata = Obtain(ResolvedType.BaseType);
+                        LuaClrBasePairs.Add((LuaClrName, metadata.LuaClrName));
+                        metadata.CollectAllToGlobal();
+                    }
+                    else
+                    {
+                        LuaClrBasePairs.Add((LuaClrName, ""));
+                    }
+                }
+            }
+
+            public void CollectAllToGlobal()
+            {
+                CollectSelfToGlobal();
+                var allTypes = new List<Type>();
+                if (IsArrayIndexer) { allTypes.Add(ArrayElementType); }
+                if (IsValueIndexer) { allTypes.Add(ValueType); }
+                if (IsKeyValueIndexer) { allTypes.AddRange(new Type[] { KeyValueType.Value.Key, KeyValueType.Value.Value }); }
+                foreach (var type in allTypes) { Obtain(type).CollectAllToGlobal(); }
+            }
+
             private static bool ResolveNullableArgumentType(Type type, out Type argumentType)
             {
                 argumentType = null;
@@ -323,19 +350,74 @@ namespace Barotrauma
             luaDocBuilder.AppendLine($"---@meta");
             luaDocBuilder.Append($"---@class {luaClrName}");
             if (typeInfo.BaseType != null) { luaDocBuilder.Append($" : {ClassMetadata.Obtain(typeInfo.BaseType).LuaClrName}"); }
-            luaDocBuilder.AppendLine();
+            ExplanNewLine(luaDocBuilder);
 
             foreach (var field in (
                 from field in typeInfo.DeclaredFields
                 where !field.Name.Contains(">k__BackingField")
                 select field).ToList())
             {
-                luaDocBuilder.AppendLine($"---@field {field.Name} {ClassMetadata.Obtain(field.FieldType).LuaScriptName}");
+                ExplanField(luaDocBuilder, field);
+                ExplanNewLine(luaDocBuilder);
+            }
+
+            foreach (var property in (
+                from property in typeInfo.DeclaredProperties
+                select property).ToList())
+            {
+                ExplanProperty(luaDocBuilder, property);
+                ExplanNewLine(luaDocBuilder);
             }
 
             luaDocBuilder.AppendLine($"{table} = {{}}");
+            ExplanNewLine(luaDocBuilder);
 
-            File.WriteAllText(Path.Combine(DocumentationRelativePath, $"{++FielNo}.lua"), luaDocBuilder.ToString());
+            var methods = typeInfo.DeclaredMethods.ToArray();
+            if (methods.Length > 0)
+            {
+                foreach (var groupMethodByName in (
+                        from method in methods
+                        where !method.IsSpecialName && method.IsFamily
+                        group method by method.Name
+                    )
+                )
+                {
+                    foreach (var groupMethodByModifers in (
+                            from method in groupMethodByName.ToArray()
+                            group method by GetMethodModifiers(method)
+                        )
+                    )
+                    {
+                        ExplanAnnotationPrefix(luaDocBuilder);
+                        ExplanMethodModifiers(luaDocBuilder, groupMethodByModifers.Key);
+                        ExplanNewLine(luaDocBuilder);
+                        ExplanMethods(luaDocBuilder, luaClrName, table, groupMethodByModifers.ToArray(), groupMethodByName.Key);
+                    }
+                }
+            }
+
+            var constructors = typeInfo.DeclaredConstructors.ToArray();
+            if (constructors.Length > 0)
+            {
+                foreach (var groupConstructorByModifers in (
+                            from ctor in constructors
+                            group ctor by GetMethodModifiers(ctor)
+                        )
+                    )
+                {
+                    ExplanAnnotationPrefix(luaDocBuilder);
+                    ExplanMethodModifiers(luaDocBuilder, groupConstructorByModifers.Key, "Constructor");
+                    ExplanNewLine(luaDocBuilder);
+                    ExplanMethods(luaDocBuilder, luaClrName, table, constructors, null);
+
+                    ExplanAnnotationPrefix(luaDocBuilder);
+                    ExplanMethodModifiers(luaDocBuilder, groupConstructorByModifers.Key, "Constructor");
+                    ExplanNewLine(luaDocBuilder);
+                    ExplanMethods(luaDocBuilder, luaClrName, table, constructors, "__new");
+                }
+            }
+
+            File.WriteAllText(Path.Combine(DocumentationRelativePath, Convert.ToString(++FileNo, 2).PadLeft(16, '0') + ".lua"), luaDocBuilder.ToString());
         }
     }
 }

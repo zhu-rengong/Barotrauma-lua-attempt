@@ -21,6 +21,26 @@ namespace Barotrauma
     {
         public readonly static string DocumentationRelativePath = "LuaForSumenko";
 
+        public static ImmutableHashSet<string> LuaKeyWords = ImmutableHashSet.Create(
+            "and", "break", "do", "else", "elseif", "end", "false",
+            "for", "function", "goto", "if", "in", "local", "nil",
+            "not", "or", "repeat", "return", "then", "true", "until", "while"
+        );
+
+        public static ImmutableList<(string clrNam, string baseClrName)> DefaultLuaClrBasePairs = ImmutableList.Create(
+            ("any", ""),
+            ("number", ""),
+            ("boolean", ""),
+            ("string", ""),
+            ("table", ""),
+            ("function", "")
+        );
+
+        public static Dictionary<string, StringBuilder> ClassDefinition = new Dictionary<string, StringBuilder>();
+        public static Dictionary<string, StringBuilder> OverloadedOperatorAnnotations = new Dictionary<string, StringBuilder>();
+
+        public static List<(string clrName, string baseClrName)> LuaClrBasePairs = new List<(string, string)>(DefaultLuaClrBasePairs);
+
         public class ZRG<T1>
         {
             public class COC<T2>
