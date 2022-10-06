@@ -514,6 +514,9 @@ namespace Barotrauma
             Gen(typeof(LuaDouble), "Double");
 
             Gen(typeof(MathUtils));
+            Gen(typeof(System.Math));
+            Gen(typeof(System.MathF));
+            Gen(typeof(Microsoft.Xna.Framework.MathHelper));
 
             Gen(typeof(Rand));
             Gen(typeof(Rand.RandSync), null, new string[] { "RandSync" });
@@ -552,6 +555,21 @@ namespace Barotrauma
             Gen(typeof(Identifier));
             Gen(typeof(LanguageIdentifier));
             #endregion
+
+#if CLIENT
+            Gen(typeof(TextureLoader));
+#endif
+            Gen(typeof(Networking.AccountInfo));
+            Gen(typeof(Networking.AccountId));
+            Gen(typeof(Networking.SteamId));
+            Gen(typeof(Networking.Address));
+            Gen(typeof(Networking.LidgrenAddress));
+            Gen(typeof(Networking.PipeAddress));
+            Gen(typeof(Networking.SteamP2PAddress));
+            Gen(typeof(Networking.UnknownAddress));
+            Gen(LuaUserData.GetType("Barotrauma.Networking.EndPoint"));
+            Gen(typeof(Networking.LidgrenEndpoint));
+            Gen(typeof(Networking.SteamP2PEndpoint));
 
             Gen(typeof(ContentFile));
             Gen(typeof(ContentPackage));
@@ -1110,9 +1128,11 @@ namespace Barotrauma
             Gen(typeof(Networking.ChatMessageType));
             Gen(typeof(Networking.ChatMessage));
 
+            Gen(typeof(Networking.PacketHeader));
             Gen(typeof(Networking.ServerPacketHeader));
             Gen(typeof(Networking.ClientPacketHeader));
             Gen(typeof(Networking.DeliveryMethod));
+            Gen(typeof(Networking.ConnectionInitialization));
             Gen(typeof(Networking.IWriteMessage));
             Gen(typeof(Networking.WriteOnlyMessage));
             Gen(typeof(Networking.IReadMessage));
