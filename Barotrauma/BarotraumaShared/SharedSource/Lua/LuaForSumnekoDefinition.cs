@@ -123,6 +123,7 @@ namespace Barotrauma
             Lualy<Barotrauma.LuaUInt64>(new string[] { "UInt64" });
             Lualy<Barotrauma.LuaSingle>(new string[] { "Single" }, new string[] { "Float" });
             Lualy<Barotrauma.LuaDouble>(new string[] { "Double" });
+            Lualy<Barotrauma.LuaNone>(new string[] { "none" });
 
             LualyBase(typeof(LuaUserData), new string[] { "LuaUserData" });
             LualyBase(typeof(LuaGame), new string[] { "Game" });
@@ -148,6 +149,7 @@ namespace Barotrauma
 
             Lualy<Steamworks.Friend>();
             Lualy<Steamworks.Ugc.Item>();
+            Lualy<Barotrauma.SteamWorkshopId>();
 
             LualyBase(typeof(Barotrauma.MathUtils));
             LualyBase(typeof(System.Math));
@@ -160,9 +162,39 @@ namespace Barotrauma
 
             Lualy<Barotrauma.SerializableProperty>();
 
+            #region String
+            Lualy<AddedPunctuationLString>();
+            Lualy<CapitalizeLString>();
+            Lualy<ConcatLString>();
+            Lualy<FallbackLString>();
+            Lualy<FormattedLString>();
+            Lualy<InputTypeLString>();
+            Lualy<JoinLString>();
+            Lualy<LocalizedString>();
+            Lualy<LowerLString>();
+            Lualy<RawLString>();
+            Lualy<ReplaceLString>();
+            Lualy<ServerMsgLString>();
+            Lualy<SplitLString>();
+            Lualy<TagLString>();
+            Lualy<TrimLString>();
+            Lualy<UpperLString>();
+
+            Lualy<RichString>();
+            Lualy<StripRichTagsLString>();
+            Lualy<RichTextData>();
+
+            LualyBase(typeof(TextManager));
+            Lualy<TextPack>();
+
+            Lualy<Identifier>();
+            Lualy<LanguageIdentifier>();
+            #endregion
+
             Lualy<Barotrauma.Networking.AccountInfo>();
             Lualy<Barotrauma.Networking.AccountId>();
             Lualy<Barotrauma.Networking.SteamId>();
+            Lualy<System.Net.IPAddress>(new string[] { "IPAddress" });
             Lualy<Barotrauma.Networking.Address>();
             Lualy<Barotrauma.Networking.LidgrenAddress>();
             Lualy<Barotrauma.Networking.SteamP2PAddress>();
@@ -175,12 +207,14 @@ namespace Barotrauma
 
             Lualy<Barotrauma.ContentFile>();
             Lualy<Barotrauma.ContentPackage>();
+            Lualy<Barotrauma.ContentPackageId>();
             LualyBase(typeof(Barotrauma.ContentPackageManager));
             Lualy<Barotrauma.ContentPackageManager.PackageSource>();
             LualyBase(typeof(Barotrauma.ContentPackageManager.EnabledPackages));
             Lualy<Barotrauma.RegularPackage>();
             Lualy<Barotrauma.CorePackage>();
             Lualy<Barotrauma.ContentXElement>();
+            Lualy<Barotrauma.ContentPath>();
 
             Lualy<System.Xml.Linq.XElement>(new string[] { nameof(XElement) });
             Lualy<System.Xml.Linq.XName>(new string[] { nameof(XName) });
@@ -232,6 +266,9 @@ namespace Barotrauma
             Lualy<Barotrauma.NetLobbyScreen>();
 
             LualyBase(typeof(Barotrauma.GameSettings));
+#if CLIENT
+            Lualy<Barotrauma.SettingsMenu>();
+#endif
 
             Lualy<GameSession>();
 
@@ -309,6 +346,25 @@ namespace Barotrauma
             Lualy<Barotrauma.PrefabWithUintIdentifier>();
             Lualy<Barotrauma.MapEntityPrefab>();
             Lualy<Barotrauma.CoreEntityPrefab>();
+
+            Lualy<Barotrauma.PrefabCollection<Barotrauma.ItemPrefab>>();
+            Lualy<Barotrauma.PrefabCollection<Barotrauma.JobPrefab>>();
+            Lualy<Barotrauma.PrefabCollection<Barotrauma.CharacterPrefab>>();
+            Lualy<Barotrauma.PrefabCollection<Barotrauma.HumanPrefab>>();
+            Lualy<Barotrauma.PrefabCollection<Barotrauma.AfflictionPrefab>>();
+            Lualy<Barotrauma.PrefabCollection<Barotrauma.TalentPrefab>>();
+            Lualy<Barotrauma.PrefabCollection<Barotrauma.TalentTree>>();
+            Lualy<Barotrauma.PrefabCollection<Barotrauma.OrderPrefab>>();
+            Lualy<Barotrauma.PrefabCollection<Barotrauma.EventPrefab>>();
+
+#if CLIENT
+            Lualy<Barotrauma.PrefabCollection<Barotrauma.GUIPrefab>>();
+            Lualy<Barotrauma.PrefabCollection<Barotrauma.SoundPrefab>>();
+            Lualy<Barotrauma.PrefabCollection<Barotrauma.BackgroundMusic>>();
+            Lualy<Barotrauma.PrefabCollection<Barotrauma.GUISound>>();
+            Lualy<Barotrauma.PrefabCollection<Barotrauma.DamageSound>>();
+            Lualy<Barotrauma.PrefabSelector<Barotrauma.SoundPrefab>>();
+#endif
             #endregion
 
 
@@ -680,6 +736,8 @@ namespace Barotrauma
             Lualy<Barotrauma.PurchasedUpgrade>();
             #endregion
 
+            Lualy<Barotrauma.Event>();
+            Lualy<Barotrauma.EventPrefab>();
             Lualy<Barotrauma.EventManager>();
             Lualy<Barotrauma.EventManagerSettings>();
 
@@ -791,8 +849,9 @@ namespace Barotrauma
             Lualy<Barotrauma.Graph>();
 
             LualyBase(typeof(Barotrauma.GUI), new string[] { "GUI", "GUI" });
-
+            Lualy<Barotrauma.GUIPrefab>();
             Lualy<Barotrauma.GUIComponentStyle>();
+
             Lualy<Barotrauma.SpriteFallBackState>();
 
             Lualy<Barotrauma.GUISoundType>();
@@ -803,15 +862,17 @@ namespace Barotrauma
             Lualy<Barotrauma.GUIFont>();
             Lualy<Barotrauma.GUIFontPrefab>();
 
-            Lualy<Barotrauma.GUISpritePrefab>();
             Lualy<Barotrauma.GUISprite>();
-            Lualy<Barotrauma.GUISpriteSheetPrefab>();
+            Lualy<Barotrauma.GUISpritePrefab>();
             Lualy<Barotrauma.GUISpriteSheet>();
-            Lualy<Barotrauma.GUICursorPrefab>();
+            Lualy<Barotrauma.GUISpriteSheetPrefab>();
             Lualy<Barotrauma.GUICursor>();
+            Lualy<Barotrauma.GUICursorPrefab>();
 
             Lualy<Barotrauma.GUIButton>(new string[] { "GUI", "Button" });
             Lualy<Barotrauma.GUICanvas>(new string[] { "GUI", "Canvas" });
+            Lualy<Barotrauma.GUIColor>();
+            Lualy<Barotrauma.GUIColorPrefab>();
             Lualy<Barotrauma.GUIColorPicker>(new string[] { "GUI", "ColorPicker" });
             Lualy<Barotrauma.GUIComponent>();
             Lualy<Barotrauma.GUIComponent.ComponentState>();
@@ -857,6 +918,8 @@ namespace Barotrauma
             LualyBase(typeof(Barotrauma.Networking.VoipConfig));
             Lualy<Barotrauma.Networking.VoipQueue>();
 
+            Lualy<Barotrauma.SoundsFile>();
+
 #if SERVER
             Lualy<Networking.VoipServer>();
 #endif
@@ -873,6 +936,7 @@ namespace Barotrauma
             Lualy<Barotrauma.Sounds.VoipSound>();
             Lualy<Barotrauma.Networking.VoipClient>();
             Lualy<Barotrauma.Networking.VoipCapture>();
+            Lualy<Barotrauma.Sounds.SoundBuffers>();
             Lualy<Barotrauma.Sounds.SoundChannel>();
             Lualy<Barotrauma.RoundSound>();
             Lualy<Barotrauma.Items.Components.ItemSound>();
