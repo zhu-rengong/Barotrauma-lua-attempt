@@ -71,8 +71,19 @@ namespace Barotrauma
             ExplanAnnotationProperty(builder, property.Name, metadata.LuaScriptName);
         }
 
-        private static void ExplanOverloadMethodStartForGenLuaType(StringBuilder builder) => builder.Append(@"fun(");
+
         private static void ExplanOverloadMethodStart(StringBuilder builder) => builder.Append(@"---@overload fun(");
+
+        private static void ExplanOverloadMethodParam(StringBuilder builder, ParameterInfo parameter)
+        {
+            var paramName = parameter.Name;
+            paramName = MakeNonConflictParam(paramName);
+            if (IsOptionalParam(parameter)) { paramName += '?'; }
+            var metadata = ClassMetadata.Obtain(parameter.ParameterType);
+            metadata.CollectAllToGlobal();
+            builder.Append(IsParamsParam(parameter) ? MakeOverloadMethodParamsParam(metadata.LuaScriptName) : $"{paramName}:{metadata.LuaScriptName}");
+        }
+
         private static void ExplanOverloadMethodEnd(StringBuilder builder, MethodInfo method)
         {
             if (method.ReturnType != typeof(void))
@@ -92,15 +103,9 @@ namespace Barotrauma
             builder.Append($"):{clrName}");
         }
 
-        private static void ExplanOverloadMethodParam(StringBuilder builder, ParameterInfo parameter)
-        {
-            var paramName = parameter.Name;
-            paramName = MakeNonConflictParam(paramName);
-            if (IsOptionalParam(parameter)) { paramName += '?'; }
-            var metadata = ClassMetadata.Obtain(parameter.ParameterType);
-            metadata.CollectAllToGlobal();
-            builder.Append(IsParamsParam(parameter) ? MakeOverloadMethodParamsParam(metadata.LuaScriptName) : $"{paramName}:{metadata.LuaScriptName}");
-        }
+        private static void ExplanDelegateMethodStart(StringBuilder builder) => builder.Append(@"fun(");
+        private static void ExplanDelegateMethodEnd(StringBuilder builder, MethodInfo method) => ExplanOverloadMethodEnd(builder, method);
+        private static void ExplanDelegateMethodParam(StringBuilder builder, ParameterInfo parameter) => ExplanOverloadMethodParam(builder, parameter);
 
         private static void ExplanPrimaryMethodEnd(StringBuilder builder, MethodInfo method)
         {
@@ -121,7 +126,9 @@ namespace Barotrauma
             if (IsOptionalParam(parameter)) { paramName += '?'; }
             var metadata = ClassMetadata.Obtain(parameter.ParameterType);
             metadata.CollectAllToGlobal();
-            ExplanAnnotationParam(builder, IsParamsParam(parameter) ? "..." : paramName, metadata.LuaScriptName);
+            ExplanAnnotationParam(builder,
+                IsParamsParam(parameter) ? "..." : paramName,
+                IsParamsParam(parameter) ? metadata.LuaScriptName[..^2] : metadata.LuaScriptName);
         }
 
         private static uint GetMethodModifiers(MethodBase methodBase)
@@ -155,59 +162,45 @@ namespace Barotrauma
                 var method = methods[i];
                 var paramList = new List<string>();
                 var parameters = method.GetParameters();
-                for (var j = 0; j < parameters.Length; j++)
-                {
-                    var parameter = parameters[j];
-                    paramList.Add(MakeNonConflictParam(parameter.Name));
-                    if (i != methods.Length - 1) // belong to the other overload methods
-                    {
-                        if (j == 0) ExplanOverloadMethodStart(methodSB);
-                        ExplanOverloadMethodParam(methodSB, parameter);
-                        if (j != parameters.Length - 1)
-                        {
-                            methodSB.Append(", ");
-                        }
-                        else
-                        {
-                            if (method is MethodInfo)
-                            {
-                                ExplanOverloadMethodEnd(methodSB, method as MethodInfo);
-                            }
-                            else
-                            {
-                                ExplanOverloadConstructorEnd(methodSB, clrName);
-                            }
 
+                if ((i < methods.Length - 1) && (methods.Length > 1)) // belong to the other overload methods
+                {
+                    ExplanOverloadMethodStart(methodSB);
+                    for (var j = 0; j < parameters.Length; j++)
+                    {
+                        var parameter = parameters[j];
+                        ExplanOverloadMethodParam(methodSB, parameter);
+                        if (j < parameters.Length - 1) { methodSB.Append(", "); }
+                    }
+                    if (method is MethodInfo) { ExplanOverloadMethodEnd(methodSB, method as MethodInfo); }
+                    else { ExplanOverloadConstructorEnd(methodSB, clrName); }
+                    ExplanNewLine(methodSB);
+                }
+                else
+                {
+                    for (var j = 0; j < parameters.Length; j++)
+                    {
+                        var parameter = parameters[j];
+                        paramList.Add(IsParamsParam(parameter) ? "..." : MakeNonConflictParam(parameter.Name));
+                        ExplanPrimaryMethodParam(methodSB, parameter);
+                        ExplanNewLine(methodSB);
+                    }
+
+                    if (method is MethodInfo)
+                    {
+                        var mi = method as MethodInfo;
+                        if (mi.ReturnType != typeof(void))
+                        {
+                            ExplanPrimaryMethodEnd(methodSB, mi);
                             ExplanNewLine(methodSB);
                         }
                     }
-                    else // the default overload method
+                    else
                     {
-                        ExplanPrimaryMethodParam(methodSB, parameter);
+                        ExplanPrimaryConstructorEnd(methodSB, clrName);
                         ExplanNewLine(methodSB);
-
-                        if (j == parameters.Length - 1)
-                        {
-                            if (method is MethodInfo)
-                            {
-                                var mi = method as MethodInfo;
-                                if (mi.ReturnType != typeof(void))
-                                {
-                                    ExplanPrimaryMethodEnd(methodSB, mi);
-                                    ExplanNewLine(methodSB);
-                                }
-                            }
-                            else
-                            {
-                                ExplanPrimaryConstructorEnd(methodSB, clrName);
-                                ExplanNewLine(methodSB);
-                            }
-                        }
                     }
-                }
 
-                if (i == methods.Length - 1)
-                {
                     builder.Append(methodSB);
                     string methodBaseName = methodName == null ? "" : $".{methodName}";
                     string paramSequence = paramList.ToArray().Aggregate("", (p1, p2) =>
@@ -218,6 +211,20 @@ namespace Barotrauma
                     builder.Append($"{table}{methodBaseName} = function({paramSequence}) end");
                     ExplanNewLine(builder, 2);
                 }
+            }
+        }
+
+        private static StringBuilder ObtainOverloadedOperatorAnnotations(Type type)
+        {
+            if (OverloadedOperatorAnnotations.ContainsKey(type.MetadataToken))
+            {
+                return OverloadedOperatorAnnotations[type.MetadataToken];
+            }
+            else
+            {
+                var opsBuilder = new StringBuilder();
+                OverloadedOperatorAnnotations.Add(type.MetadataToken, opsBuilder);
+                return opsBuilder;
             }
         }
     }

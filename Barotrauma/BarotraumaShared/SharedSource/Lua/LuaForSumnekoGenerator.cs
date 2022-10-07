@@ -19,8 +19,6 @@ namespace Barotrauma
 {
     public static partial class LuaForSumneko
     {
-        private static int FileNo = 0;
-
         public class ClassMetadata
         {
             public readonly static ClassMetadata Empty = new ClassMetadata();
@@ -134,7 +132,7 @@ namespace Barotrauma
                 get
                 {
                     if (_luaClrName != null) { return _luaClrName; }
-                    return _luaClrName = GetLuaClrName(ResolvedType);
+                    return _luaClrName = GetLuaClrName(OriginalType);
                 }
             }
 
@@ -144,7 +142,7 @@ namespace Barotrauma
                 get
                 {
                     if (_luaClrNameWithoutNamespace != null) { return _luaClrNameWithoutNamespace; }
-                    return _luaClrNameWithoutNamespace = GetLuaClrName(ResolvedType, containNamespace: false);
+                    return _luaClrNameWithoutNamespace = GetLuaClrName(OriginalType, containNamespace: false);
                 }
             }
 
@@ -165,8 +163,37 @@ namespace Barotrauma
                             return _luaScriptName = $@"table<{key}, {value}>";
                         }
                     }
+                    else if (IsDelegate)
+                    {
+                        var delegateMethodBuilder = new StringBuilder();
+                        var parameters = DelegateMehtod.GetParameters();
+                        ExplanDelegateMethodStart(delegateMethodBuilder);
+                        for (var i = 0; i < parameters.Length; i++)
+                        {
+                            var parameter = parameters[i];
+                            ExplanDelegateMethodParam(delegateMethodBuilder, parameter);
+                            if ((i < parameters.Length - 1) && parameters.Length > 1) { delegateMethodBuilder.Append(", "); }
+                        }
+                        ExplanDelegateMethodEnd(delegateMethodBuilder, DelegateMehtod);
+                        return _luaScriptName = $"{LuaClrName}|{delegateMethodBuilder}";
+                    }
 
-                    return _luaScriptName = LuaClrName;
+                    return _luaScriptName = ResolvedType switch
+                    {
+                        { Namespace: "System", Name: "String" } => $"string|{LuaClrName}",
+                        { Namespace: "System", Name: "Boolean" } => $"boolean|{LuaClrName}",
+                        { Namespace: "System", Name: "SByte" } => $"integer|{LuaClrName}",
+                        { Namespace: "System", Name: "Byte" } => $"integer|{LuaClrName}",
+                        { Namespace: "System", Name: "Int16" } => $"integer|{LuaClrName}",
+                        { Namespace: "System", Name: "UInt16" } => $"integer|{LuaClrName}",
+                        { Namespace: "System", Name: "Int32" } => $"integer|{LuaClrName}",
+                        { Namespace: "System", Name: "UInt32" } => $"integer|{LuaClrName}",
+                        { Namespace: "System", Name: "Int64" } => $"integer|{LuaClrName}",
+                        { Namespace: "System", Name: "UInt64" } => $"integer|{LuaClrName}",
+                        { Namespace: "System", Name: "Single" } => $"number|{LuaClrName}",
+                        { Namespace: "System", Name: "Double" } => $"number|{LuaClrName}",
+                        _ => LuaClrName,
+                    };
                 }
             }
 
@@ -330,9 +357,11 @@ namespace Barotrauma
             }
 
             int subLen = typeInfo.Name.IndexOf('`'); // removes all trivils from the begining of the generic type symbol
-            // Moonsharp implicit processes ref/out param, remove &
-            // ignore array, remove []
-            name.Append(typeInfo.Name.Substring(0, (subLen > -1) ? subLen : typeInfo.Name.Length).Remove("&").Remove("[]"));
+            // &:ref/out; *:unknown; []:Array
+            name.Append(typeInfo.Name.Substring(0, (subLen > -1) ? subLen : typeInfo.Name.Length)
+                .Replace("&", "-")
+                .Replace("*", "--")
+                .Replace("[]", "---"));
             if (typeInfo.GenericTypeArguments.Length > 0)
             {
                 foreach (var genericTypeArgument in typeInfo.GenericTypeArguments)
@@ -347,7 +376,9 @@ namespace Barotrauma
         public static void Lualy<T>(string[] majorTable = null, string[][] minorTables = null)
         {
             var type = typeof(T);
-            if (LuaClrDefinitions.ContainsKey(type.MetadataToken)) { return; }
+            if (type.IsArray) { return; } // disallow to lualy array
+            var token = type.MetadataToken;
+            if (LuaClrDefinitions.ContainsKey(token)) { return; }
 
             var luaDocBuilder = new StringBuilder();
             var typeInfo = type.GetTypeInfo();
@@ -358,19 +389,41 @@ namespace Barotrauma
             luaDocBuilder.AppendLine($"---@meta");
             luaDocBuilder.Append($"---@class {luaClrName}");
             if (typeInfo.BaseType != null) { luaDocBuilder.Append($" : {ClassMetadata.Obtain(typeInfo.BaseType).LuaClrName}"); }
+            // this[] for indexer
+            foreach (var indexer in (
+                from property in typeInfo.DeclaredProperties
+                where property.GetIndexParameters().Length == 1
+                select property).ToList())
+            {
+                var param = indexer.GetIndexParameters()[0];
+                luaDocBuilder.Append($", {{[{ClassMetadata.Obtain(param.ParameterType).LuaScriptName}]:{ClassMetadata.Obtain(indexer.GetMethod.ReturnType).LuaScriptName}}}");
+            }
             ExplanNewLine(luaDocBuilder);
 
+            // insert ops here:
+            luaDocBuilder.Append("[placeHolder:operators]");
+            ExplanNewLine(luaDocBuilder);
+
+            // excludes BackingField, special name
             foreach (var field in (
                 from field in typeInfo.DeclaredFields
                 where !field.Name.Contains(">k__BackingField")
+                    && !field.IsSpecialName
+                    && !Regex.IsMatch(field.Name, @"<.*?>")
+                    && !Regex.IsMatch(field.Name, @"\.")
                 select field).ToList())
             {
                 ExplanField(luaDocBuilder, field);
                 ExplanNewLine(luaDocBuilder);
             }
 
+            // excludes indexers and special name
             foreach (var property in (
                 from property in typeInfo.DeclaredProperties
+                where property.GetIndexParameters().Length == 0
+                    && !property.IsSpecialName
+                    && !Regex.IsMatch(property.Name, @"<.*?>")
+                    && !Regex.IsMatch(property.Name, @"\.")
                 select property).ToList())
             {
                 ExplanProperty(luaDocBuilder, property);
@@ -380,12 +433,17 @@ namespace Barotrauma
             luaDocBuilder.AppendLine($"{table} = {{}}");
             ExplanNewLine(luaDocBuilder);
 
-            var methods = typeInfo.DeclaredMethods.ToArray();
+            var methods = (
+                from method in typeInfo.DeclaredMethods
+                where !method.IsSpecialName
+                  && !Regex.IsMatch(method.Name, @"<.*?>")
+                  && !Regex.IsMatch(method.Name, @"\.")
+                select method).ToArray();
+
             if (methods.Length > 0)
             {
                 foreach (var groupMethodByName in (
                         from method in methods
-                        where !method.IsSpecialName && method.IsFamily
                         group method by method.Name
                     )
                 )
@@ -401,6 +459,48 @@ namespace Barotrauma
                         ExplanNewLine(luaDocBuilder);
                         ExplanMethods(luaDocBuilder, luaClrName, table, groupMethodByModifers.ToArray(), groupMethodByName.Key);
                     }
+                }
+            }
+
+            MethodInfo[] specialMethods = methods.Where(mi => mi.IsSpecialName).ToArray();
+            for (int i = 0; i < specialMethods.Length; i++)
+            {
+                MethodInfo method = specialMethods[i];
+                if (!IsOverloadedOperatorMethod(method)) { continue; }
+
+                switch (method.Name)
+                {
+                    case "op_UnaryNegation": ExplanUnOps(method, type, "unm"); break;
+                    case "op_Addition": ExplanBinOps(method, type, "add"); break;
+                    case "op_Ssubtraction": ExplanBinOps(method, type, "sub"); break;
+                    case "op_Multiply": ExplanBinOps(method, type, "mul"); break;
+                    case "op_Division": ExplanBinOps(method, type, "div"); break;
+                    default: break;
+                }
+
+                void ExplanBinOps(MethodInfo method, Type type, string op)
+                {
+                    var tgtOps = (method.GetParameters()[0].ParameterType == type)
+                        ? ObtainOverloadedOperatorAnnotations(type)
+                        : ObtainOverloadedOperatorAnnotations(method.GetParameters()[0].ParameterType);
+                    ExplanAnnotationBinOperator(
+                        tgtOps,
+                        op,
+                        ClassMetadata.Obtain(method.GetParameters()[1].ParameterType).LuaScriptName,
+                        ClassMetadata.Obtain(method.ReturnType).LuaScriptName
+                    );
+                    ExplanNewLine(tgtOps);
+                }
+
+                void ExplanUnOps(MethodInfo method, Type type, string op)
+                {
+                    var tgtOps = ObtainOverloadedOperatorAnnotations(type);
+                    ExplanAnnotationUnOperator(
+                        tgtOps,
+                        op,
+                        ClassMetadata.Obtain(method.ReturnType).LuaScriptName
+                    );
+                    ExplanNewLine(tgtOps);
                 }
             }
 
@@ -425,7 +525,7 @@ namespace Barotrauma
                 }
             }
 
-            LuaClrDefinitions.Add(type.MetadataToken, luaDocBuilder);
+            LuaClrDefinitions.Add(token, luaDocBuilder);
             LualyRecorder.Add(metadata);
         }
     }
