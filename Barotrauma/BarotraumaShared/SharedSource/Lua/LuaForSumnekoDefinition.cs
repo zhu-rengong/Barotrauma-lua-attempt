@@ -151,6 +151,13 @@ namespace Barotrauma
             Lualy<Steamworks.Ugc.Item>();
             Lualy<Barotrauma.SteamWorkshopId>();
 
+            Lualy<Barotrauma.Option<Barotrauma.Character>>();
+            Lualy<Barotrauma.Option<Barotrauma.Networking.AccountId>>();
+            Lualy<Barotrauma.Option<Barotrauma.Networking.SteamId>>();
+            Lualy<Barotrauma.Option<Barotrauma.ContentPackageId>>();
+            Lualy<Barotrauma.Option<System.DateTime>>();
+            Lualy<Barotrauma.Option<Barotrauma.Networking.BannedPlayer>>();
+
             LualyBase(typeof(Barotrauma.MathUtils));
             LualyBase(typeof(System.Math));
             LualyBase(typeof(System.MathF));
@@ -216,6 +223,7 @@ namespace Barotrauma
             Lualy<Barotrauma.ContentXElement>();
             Lualy<Barotrauma.ContentPath>();
 
+            LualyBase(typeof(Barotrauma.XMLExtensions));
             Lualy<System.Xml.Linq.XElement>(new string[] { nameof(XElement) });
             Lualy<System.Xml.Linq.XName>(new string[] { nameof(XName) });
             Lualy<System.Xml.Linq.XAttribute>(new string[] { nameof(XAttribute) });
@@ -232,6 +240,7 @@ namespace Barotrauma
             Lualy<Barotrauma.WayPoint>();
 
             Lualy<Barotrauma.Networking.ServerLog>();
+            Lualy<Networking.ServerLog.MessageType>(null, new string[] { "ServerLog_MessageType" }, new string[] { "ServerLogMessageType" });
 
             Lualy<Barotrauma.PropertyConditional>();
             Lualy<Barotrauma.PropertyConditional.Comparison>();
@@ -577,7 +586,7 @@ namespace Barotrauma
             Lualy<Barotrauma.Items.Components.OxygenDetector>(new string[] { "Components", "OxygenDetector" });
             Lualy<Barotrauma.Items.Components.RegExFindComponent>(new string[] { "Components", "RegExFindComponent" });
             Lualy<Barotrauma.Items.Components.RelayComponent>(new string[] { "Components", "RelayComponent" });
-            Lualy<Barotrauma.Items.Components.Signal>(new string[] { "Components", "Signal" });
+            Lualy<Barotrauma.Items.Components.Signal>();
             Lualy<Barotrauma.Items.Components.SignalCheckComponent>(new string[] { "Components", "SignalCheckComponent" });
             Lualy<Barotrauma.Items.Components.SmokeDetector>(new string[] { "Components", "SmokeDetector" });
             Lualy<Barotrauma.Items.Components.StringComponent>(new string[] { "Components", "StringComponent" });
