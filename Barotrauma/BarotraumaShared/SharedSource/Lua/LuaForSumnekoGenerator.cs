@@ -175,7 +175,7 @@ namespace Barotrauma
                             if ((i < parameters.Length - 1) && parameters.Length > 1) { delegateMethodBuilder.Append(", "); }
                         }
                         ExplanDelegateMethodEnd(delegateMethodBuilder, DelegateMehtod);
-                        return _luaScriptName = $"{LuaClrName}|{delegateMethodBuilder}";
+                        return _luaScriptName = $"{LuaClrName}|({delegateMethodBuilder})";
                     }
 
                     return _luaScriptName = ResolvedType switch
@@ -205,7 +205,7 @@ namespace Barotrauma
                 get
                 {
                     if (_defaultTable != null) { return _defaultTable; }
-                    var typeInfo = ResolvedType.GetTypeInfo();
+                    var typeInfo = OriginalType.GetTypeInfo();
                     string[] parts = typeInfo.Namespace.Split('.');
                     if (parts[0] == "Barotrauma") { parts = LuaClrNameWithoutNamespace.Split('.'); }
                     else { parts = parts.Concat(LuaClrNameWithoutNamespace.Split('.')).ToArray(); }
@@ -217,9 +217,9 @@ namespace Barotrauma
             {
                 if (!LuaClrBasePairs.Exists(pair => pair.derivedMetadata == this))
                 {
-                    if (ResolvedType.BaseType != null)
+                    if (OriginalType.BaseType != null)
                     {
-                        var metadata = Obtain(ResolvedType.BaseType);
+                        var metadata = Obtain(OriginalType.BaseType);
                         LuaClrBasePairs.Add((this, metadata));
                         metadata.CollectAllToGlobal();
                     }
@@ -373,16 +373,17 @@ namespace Barotrauma
             return name.ToString();
         }
 
-        public static void Lualy<T>(string[] majorTable = null, string[][] minorTables = null)
+        public static void Lualy<T>(string[] majorTable = null, params string[][] minorTables)
+            => LualyBase(typeof(T), majorTable, minorTables);
+        public static void LualyBase(Type type, string[] majorTable = null, params string[][] minorTables)
         {
-            var type = typeof(T);
             if (type.IsArray) { return; } // disallow to lualy array
-            var token = type.MetadataToken;
-            if (LuaClrDefinitions.ContainsKey(token)) { return; }
+            if (LuaClrDefinitions.ContainsKey(GetToken(type))) { Console.WriteLine($"{type.Name} has defined! token: {GetToken(type)}"); return; }
 
             var luaDocBuilder = new StringBuilder();
             var typeInfo = type.GetTypeInfo();
             var metadata = ClassMetadata.Obtain(type);
+            metadata.CollectAllToGlobal();
             string luaClrName = metadata.LuaClrName;
             string table = (majorTable == null) ? metadata.DefaultTable : ClassMetadata.GloballyTable(majorTable);
 
@@ -431,6 +432,11 @@ namespace Barotrauma
             }
 
             luaDocBuilder.AppendLine($"{table} = {{}}");
+            for (int i = 0; i < minorTables.Length; i++)
+            {
+                string[] minorTable = minorTables[i];
+                luaDocBuilder.AppendLine($"{ClassMetadata.GloballyTable(minorTable)} = {table}");
+            }
             ExplanNewLine(luaDocBuilder);
 
             var methods = (
@@ -462,7 +468,7 @@ namespace Barotrauma
                 }
             }
 
-            MethodInfo[] specialMethods = methods.Where(mi => mi.IsSpecialName).ToArray();
+            MethodInfo[] specialMethods = typeInfo.DeclaredMethods.Where(mi => mi.IsSpecialName).ToArray();
             for (int i = 0; i < specialMethods.Length; i++)
             {
                 MethodInfo method = specialMethods[i];
@@ -525,7 +531,7 @@ namespace Barotrauma
                 }
             }
 
-            LuaClrDefinitions.Add(token, luaDocBuilder);
+            LuaClrDefinitions.Add(GetToken(type), luaDocBuilder);
             LualyRecorder.Add(metadata);
         }
     }

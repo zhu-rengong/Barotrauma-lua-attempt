@@ -19,6 +19,7 @@ namespace Barotrauma
 {
     public static partial class LuaForSumneko
     {
+        private static Int64 GetToken(Type type) => type.TypeHandle.Value.ToInt64();
         private static void ExplanAnnotationPrefix(StringBuilder builder) { builder.Append("---"); }
         private static void ExplanAnnotationField(StringBuilder builder, string fieldName, string scriptName) { ExplanAnnotationPrefix(builder); builder.Append($"@field {fieldName} {scriptName}"); }
         private static void ExplanAnnotationProperty(StringBuilder builder, string propertyName, string scriptName) { ExplanAnnotationPrefix(builder); builder.Append($"@field {propertyName} {scriptName}"); }
@@ -216,14 +217,14 @@ namespace Barotrauma
 
         private static StringBuilder ObtainOverloadedOperatorAnnotations(Type type)
         {
-            if (OverloadedOperatorAnnotations.ContainsKey(type.MetadataToken))
+            if (OverloadedOperatorAnnotations.ContainsKey(GetToken(type)))
             {
-                return OverloadedOperatorAnnotations[type.MetadataToken];
+                return OverloadedOperatorAnnotations[GetToken(type)];
             }
             else
             {
                 var opsBuilder = new StringBuilder();
-                OverloadedOperatorAnnotations.Add(type.MetadataToken, opsBuilder);
+                OverloadedOperatorAnnotations.Add(GetToken(type), opsBuilder);
                 return opsBuilder;
             }
         }
