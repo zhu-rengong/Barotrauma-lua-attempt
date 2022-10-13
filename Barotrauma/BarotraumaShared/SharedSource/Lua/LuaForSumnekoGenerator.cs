@@ -154,8 +154,8 @@ namespace Barotrauma
                     if (_luaScriptName != null) { return _luaScriptName; }
                     if (IsIndexer)
                     {
-                        if (IsArrayIndexer) { return _luaScriptName = Obtain(ArrayElementType).LuaScriptName + @"[]"; }
-                        if (IsValueIndexer) { return _luaScriptName = Obtain(ValueType).LuaScriptName + @"[]"; }
+                        if (IsArrayIndexer) { return _luaScriptName = $@"{Obtain(ArrayElementType).LuaScriptName}[]"; }
+                        if (IsValueIndexer) { return _luaScriptName = $@"{Obtain(ValueType).LuaScriptName}[]"; }
                         if (IsKeyValueIndexer)
                         {
                             var key = Obtain(KeyValueType.Value.Key).LuaScriptName;
@@ -283,7 +283,10 @@ namespace Barotrauma
                         typeof(IReadOnlyList<>),
                         typeof(List<>),
                         typeof(HashSet<>),
-                        typeof(IImmutableList<>)))
+                        typeof(IImmutableList<>),
+                        typeof(ImmutableList<>),
+                        typeof(ImmutableArray<>),
+                        typeof(ImmutableHashSet<>)))
                     {
                         var genericArguments = type.GetGenericArguments();
                         argumentType = genericArguments[0];
@@ -308,7 +311,8 @@ namespace Barotrauma
                         typeof(IDictionary<,>),
                         typeof(IReadOnlyDictionary<,>),
                         typeof(Dictionary<,>),
-                        typeof(IImmutableDictionary<,>)))
+                        typeof(IImmutableDictionary<,>),
+                        typeof(ImmutableDictionary<,>)))
                     {
                         var genericArguments = type.GetGenericArguments();
                         for (int i = 0; i < 2; i++)
@@ -359,9 +363,9 @@ namespace Barotrauma
             int subLen = typeInfo.Name.IndexOf('`'); // removes all trivils from the begining of the generic type symbol
             // &:ref/out; *:unknown; []:Array
             name.Append(typeInfo.Name.Substring(0, (subLen > -1) ? subLen : typeInfo.Name.Length)
-                .Replace("&", "-")
-                .Replace("*", "--")
-                .Replace("[]", "---"));
+                .Replace("&", "-ref")
+                .Replace("*", "-ptr")
+                .Replace("[]", "-arr"));
             if (typeInfo.GenericTypeArguments.Length > 0)
             {
                 foreach (var genericTypeArgument in typeInfo.GenericTypeArguments)
@@ -375,6 +379,7 @@ namespace Barotrauma
 
         public static void Lualy<T>(string[] majorTable = null, params string[][] minorTables)
             => LualyBase(typeof(T), majorTable, minorTables);
+
         public static void LualyBase(Type type, string[] majorTable = null, params string[][] minorTables)
         {
             if (type.IsArray) { return; } // disallow to lualy array
