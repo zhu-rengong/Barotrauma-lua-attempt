@@ -58,17 +58,26 @@ namespace Barotrauma
 
             var _0Global = new StringBuilder();
             ExplanNewLine(_0Global);
-            foreach (var pair in LuaClrBasePairs)
+            while (LuaClrBasePairs.Count > 0)
             {
-                if (pair.baseMetadata == ClassMetadata.Empty)
+                foreach (var pair in LuaClrBasePairs.ToArray())
                 {
-                    _0Global.AppendLine($@"---@class {pair.derivedMetadata.LuaClrName}");
-                }
-                else
-                {
-                    _0Global.AppendLine($@"---@class {pair.derivedMetadata.LuaClrName} : {pair.baseMetadata.LuaClrName}");
+                    var inheritPartial = (pair.baseMetadata == ClassMetadata.Empty)
+                        ? GetLuaInheritPartial(pair.derivedMetadata, null)
+                        : GetLuaInheritPartial(pair.derivedMetadata, pair.baseMetadata.OriginalType);
+                    if (inheritPartial.IsNullOrEmpty())
+                    {
+                        _0Global.AppendLine($@"---@class {pair.derivedMetadata.LuaClrName}");
+                    }
+                    else
+                    {
+                        _0Global.AppendLine($@"---@class {pair.derivedMetadata.LuaClrName} : {inheritPartial}");
+                    }
+
+                    LuaClrBasePairs.RemoveAll(vt => vt.derivedMetadata == pair.derivedMetadata && vt.baseMetadata == pair.baseMetadata);
                 }
             }
+
             _0Global.Insert(0, "---@meta\n");
             File.WriteAllText(Path.Combine(DocumentationRelativePath, $"{nameof(_0Global)}.lua"), _0Global.ToString());
 

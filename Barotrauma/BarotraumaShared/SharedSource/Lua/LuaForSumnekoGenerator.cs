@@ -30,7 +30,8 @@ namespace Barotrauma
             public bool IsArrayIndexer = false;
             public bool IsValueIndexer = false;
             public bool IsKeyValueIndexer = false;
-            public bool IsIndexer => IsArrayIndexer || IsValueIndexer || IsKeyValueIndexer;
+            public bool IsEnumerable = false;
+            public bool IsIndexer => IsArrayIndexer || IsValueIndexer || IsKeyValueIndexer || IsEnumerable;
             public Type ArrayElementType;
             public Type ValueType;
             public (Type Key, Type Value)? KeyValueType;
@@ -107,6 +108,17 @@ namespace Barotrauma
                     }
 
                     {
+                        if (ResolveEnumerableArgumentType(originalType, out Type argumentType))
+                        {
+                            return new ClassMetadata(originalType)
+                            {
+                                IsEnumerable = true,
+                                ValueType = argumentType
+                            };
+                        }
+                    }
+
+                    {
                         if (originalType.IsSubclassOf(typeof(Delegate)))
                         {
                             var delegateMethod = originalType.GetMethod("Invoke");
@@ -146,55 +158,57 @@ namespace Barotrauma
                 }
             }
 
-            private string _luaScriptName;
-            public string LuaScriptName
-            {
-                get
-                {
-                    if (_luaScriptName != null) { return _luaScriptName; }
-                    if (IsIndexer)
-                    {
-                        if (IsArrayIndexer) { return _luaScriptName = $@"{Obtain(ArrayElementType).LuaScriptName}[]"; }
-                        if (IsValueIndexer) { return _luaScriptName = $@"{Obtain(ValueType).LuaScriptName}[]"; }
-                        if (IsKeyValueIndexer)
-                        {
-                            var key = Obtain(KeyValueType.Value.Key).LuaScriptName;
-                            var value = Obtain(KeyValueType.Value.Value).LuaScriptName;
-                            return _luaScriptName = $@"table<{key}, {value}>";
-                        }
-                    }
-                    else if (IsDelegate)
-                    {
-                        var delegateMethodBuilder = new StringBuilder();
-                        var parameters = DelegateMehtod.GetParameters();
-                        ExplanDelegateMethodStart(delegateMethodBuilder);
-                        for (var i = 0; i < parameters.Length; i++)
-                        {
-                            var parameter = parameters[i];
-                            ExplanDelegateMethodParam(delegateMethodBuilder, parameter);
-                            if ((i < parameters.Length - 1) && parameters.Length > 1) { delegateMethodBuilder.Append(", "); }
-                        }
-                        ExplanDelegateMethodEnd(delegateMethodBuilder, DelegateMehtod);
-                        return _luaScriptName = $"{LuaClrName}|({delegateMethodBuilder})";
-                    }
+            private string _luaVariantName;
 
-                    return _luaScriptName = ResolvedType switch
+            public string GetLuaBaseVariantName(bool notFoundVairant = true)
+            {
+                if (_luaVariantName != null) { return _luaVariantName; }
+                if (IsIndexer)
+                {
+                    if (IsArrayIndexer) { return _luaVariantName = $@"{Obtain(ArrayElementType).GetLuaBaseVariantName(false)}[]"; }
+                    if (IsValueIndexer) { return _luaVariantName = $@"{Obtain(ValueType).GetLuaBaseVariantName(false)}[]"; }
+                    if (IsKeyValueIndexer)
                     {
-                        { Namespace: "System", Name: "String" } => $"string|{LuaClrName}",
-                        { Namespace: "System", Name: "Boolean" } => $"boolean|{LuaClrName}",
-                        { Namespace: "System", Name: "SByte" } => $"integer|{LuaClrName}",
-                        { Namespace: "System", Name: "Byte" } => $"integer|{LuaClrName}",
-                        { Namespace: "System", Name: "Int16" } => $"integer|{LuaClrName}",
-                        { Namespace: "System", Name: "UInt16" } => $"integer|{LuaClrName}",
-                        { Namespace: "System", Name: "Int32" } => $"integer|{LuaClrName}",
-                        { Namespace: "System", Name: "UInt32" } => $"integer|{LuaClrName}",
-                        { Namespace: "System", Name: "Int64" } => $"integer|{LuaClrName}",
-                        { Namespace: "System", Name: "UInt64" } => $"integer|{LuaClrName}",
-                        { Namespace: "System", Name: "Single" } => $"number|{LuaClrName}",
-                        { Namespace: "System", Name: "Double" } => $"number|{LuaClrName}",
-                        _ => LuaClrName,
-                    };
+                        var key = Obtain(KeyValueType.Value.Key).GetLuaBaseVariantName(false);
+                        var value = Obtain(KeyValueType.Value.Value).GetLuaBaseVariantName(false);
+                        return _luaVariantName = $@"table<{key}, {value}>";
+                    }
+                    if (IsEnumerable)
+                    {
+                        return _luaVariantName = $@"(fun():{Obtain(ValueType).GetLuaBaseVariantName(false)})";
+                    }
                 }
+                else if (IsDelegate)
+                {
+                    var delegateMethodBuilder = new StringBuilder();
+                    var parameters = DelegateMehtod.GetParameters();
+                    ExplanDelegateMethodStart(delegateMethodBuilder);
+                    for (var i = 0; i < parameters.Length; i++)
+                    {
+                        var parameter = parameters[i];
+                        ExplanDelegateMethodParam(delegateMethodBuilder, parameter);
+                        if ((i < parameters.Length - 1) && parameters.Length > 1) { delegateMethodBuilder.Append(", "); }
+                    }
+                    ExplanDelegateMethodEnd(delegateMethodBuilder, DelegateMehtod);
+                    return _luaVariantName = $"({delegateMethodBuilder})";
+                }
+
+                return _luaVariantName = ResolvedType switch
+                {
+                    { Namespace: "System", Name: "String" } => $"string",
+                    { Namespace: "System", Name: "Boolean" } => $"boolean",
+                    { Namespace: "System", Name: "SByte" } => $"integer",
+                    { Namespace: "System", Name: "Byte" } => $"integer",
+                    { Namespace: "System", Name: "Int16" } => $"integer",
+                    { Namespace: "System", Name: "UInt16" } => $"integer",
+                    { Namespace: "System", Name: "Int32" } => $"integer",
+                    { Namespace: "System", Name: "UInt32" } => $"integer",
+                    { Namespace: "System", Name: "Int64" } => $"integer",
+                    { Namespace: "System", Name: "UInt64" } => $"integer",
+                    { Namespace: "System", Name: "Single" } => $"number",
+                    { Namespace: "System", Name: "Double" } => $"number",
+                    _ => notFoundVairant ? string.Empty : LuaClrName,
+                };
             }
 
             public static string GloballyTable(string[] parts) => parts.Aggregate("_G", (p1, p2) => p1 + $@"['{p2}']");
@@ -237,6 +251,7 @@ namespace Barotrauma
                 if (IsArrayIndexer) { allTypes.Add(ArrayElementType); }
                 if (IsValueIndexer) { allTypes.Add(ValueType); }
                 if (IsKeyValueIndexer) { allTypes.AddRange(new Type[] { KeyValueType.Value.Key, KeyValueType.Value.Value }); }
+                if (IsEnumerable) { allTypes.Add(ValueType); }
                 foreach (var type in allTypes) { Obtain(type).CollectAllToGlobal(); }
             }
 
@@ -278,7 +293,6 @@ namespace Barotrauma
                     var genericTypeDefinition = type.GetGenericTypeDefinition();
                     bool ImplAtLeastOneInterface(params Type[] types) => types.Any(t => genericTypeDefinition == t);
                     if (ImplAtLeastOneInterface(
-                        typeof(IEnumerable<>),
                         typeof(IList<>),
                         typeof(IReadOnlyList<>),
                         typeof(List<>),
@@ -323,6 +337,28 @@ namespace Barotrauma
                             }
                         }
                         argumentTypes = (genericArguments[0], genericArguments[1]);
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            private static bool ResolveEnumerableArgumentType(Type type, out Type argumentType)
+            {
+                argumentType = null;
+
+                if (type.IsGenericType)
+                {
+                    var genericTypeDefinition = type.GetGenericTypeDefinition();
+                    bool ImplAtLeastOneInterface(params Type[] types) => types.Any(t => genericTypeDefinition == t);
+                    if (ImplAtLeastOneInterface(
+                        typeof(IEnumerable<>)))
+                    {
+                        var genericArguments = type.GetGenericArguments();
+                        argumentType = genericArguments[0];
+                        if (ResolveNullableArgumentType(argumentType, out Type nullableArgumentType))
+                        { argumentType = nullableArgumentType; }
                         return true;
                     }
                 }
@@ -394,15 +430,10 @@ namespace Barotrauma
 
             luaDocBuilder.AppendLine($"---@meta");
             luaDocBuilder.Append($"---@class {luaClrName}");
-            if (typeInfo.BaseType != null) { luaDocBuilder.Append($" : {ClassMetadata.Obtain(typeInfo.BaseType).LuaClrName}"); }
-            // this[] for indexer
-            foreach (var indexer in (
-                from property in typeInfo.DeclaredProperties
-                where property.GetIndexParameters().Length == 1
-                select property).ToList())
+            var inheritPartial = GetLuaInheritPartial(metadata, typeInfo.BaseType);
+            if (!inheritPartial.IsNullOrEmpty())
             {
-                var param = indexer.GetIndexParameters()[0];
-                luaDocBuilder.Append($", {{[{ClassMetadata.Obtain(param.ParameterType).LuaScriptName}]:{ClassMetadata.Obtain(indexer.GetMethod.ReturnType).LuaScriptName}}}");
+                luaDocBuilder.Append($" : {inheritPartial}");
             }
             ExplanNewLine(luaDocBuilder);
 
@@ -497,8 +528,8 @@ namespace Barotrauma
                     ExplanAnnotationBinOperator(
                         tgtOps,
                         op,
-                        ClassMetadata.Obtain(method.GetParameters()[1].ParameterType).LuaScriptName,
-                        ClassMetadata.Obtain(method.ReturnType).LuaScriptName
+                        ClassMetadata.Obtain(method.GetParameters()[1].ParameterType).LuaClrName,
+                        ClassMetadata.Obtain(method.ReturnType).LuaClrName
                     );
                     ExplanNewLine(tgtOps);
                 }
@@ -509,7 +540,7 @@ namespace Barotrauma
                     ExplanAnnotationUnOperator(
                         tgtOps,
                         op,
-                        ClassMetadata.Obtain(method.ReturnType).LuaScriptName
+                        ClassMetadata.Obtain(method.ReturnType).LuaClrName
                     );
                     ExplanNewLine(tgtOps);
                 }

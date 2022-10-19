@@ -34,6 +34,43 @@ namespace Barotrauma
         private static string MakeParamsParam(string name) => name.Substring(0, name.Length - 2); // remove the last two chars '[]'
         private static string MakeOverloadMethodParamsParam(string name) => $"...:{MakeParamsParam(name)}";
 
+        private static string GetLuaInheritPartial(ClassMetadata metadata, Type baseType)
+        {
+            var variants = new List<string>();
+
+            var baseMetadata = (baseType == null) ? ClassMetadata.Empty : ClassMetadata.Obtain(baseType);
+
+            if (baseMetadata != ClassMetadata.Empty)
+            {
+                variants.Add(baseMetadata.LuaClrName);
+            }
+
+            foreach (var indexer in (
+                from property in metadata.OriginalType.GetTypeInfo().DeclaredProperties
+                where property.GetIndexParameters().Length == 1
+                select property).ToList())
+            {
+                var param = indexer.GetIndexParameters()[0];
+                variants.Add($"{{[{ClassMetadata.Obtain(param.ParameterType).LuaClrName}]:{ClassMetadata.Obtain(indexer.GetMethod.ReturnType).LuaClrName}}}");
+            }
+
+            variants.Add(metadata.GetLuaBaseVariantName());
+
+            variants.RemoveAll(v => v.IsNullOrEmpty());
+
+            if (variants.Count > 0)
+            {
+                return variants.Aggregate(string.Empty, (v1, v2) =>
+                {
+                    if (v1.IsNullOrEmpty()) return v2;
+                    return $"{v1}, {v2}";
+                });
+
+            }
+
+            return string.Empty;
+        }
+
         private static void ExplanField(StringBuilder builder, FieldInfo field)
         {
             var metadata = ClassMetadata.Obtain(field.FieldType);
@@ -46,7 +83,7 @@ namespace Barotrauma
             tags.Add(field.IsStatic ? "Static" : "Instance");
             builder.Append('`' + tags.Aggregate((tag1, tag2) => $"{tag1} {tag2}") + '`');
             ExplanNewLine(builder);
-            ExplanAnnotationField(builder, field.Name, metadata.LuaScriptName);
+            ExplanAnnotationField(builder, field.Name, metadata.LuaClrName);
         }
 
         private static void ExplanProperty(StringBuilder builder, PropertyInfo property)
@@ -69,7 +106,7 @@ namespace Barotrauma
                 ExplanNewLine(builder);
             }
 
-            ExplanAnnotationProperty(builder, property.Name, metadata.LuaScriptName);
+            ExplanAnnotationProperty(builder, property.Name, metadata.LuaClrName);
         }
 
 
@@ -82,7 +119,7 @@ namespace Barotrauma
             if (IsOptionalParam(parameter)) { paramName += '?'; }
             var metadata = ClassMetadata.Obtain(parameter.ParameterType);
             metadata.CollectAllToGlobal();
-            builder.Append(IsParamsParam(parameter) ? MakeOverloadMethodParamsParam(metadata.LuaScriptName) : $"{paramName}:{metadata.LuaScriptName}");
+            builder.Append(IsParamsParam(parameter) ? MakeOverloadMethodParamsParam(metadata.LuaClrName) : $"{paramName}:{metadata.LuaClrName}");
         }
 
         private static void ExplanOverloadMethodEnd(StringBuilder builder, MethodInfo method)
@@ -91,7 +128,7 @@ namespace Barotrauma
             {
                 var metadata = ClassMetadata.Obtain(method.ReturnType);
                 metadata.CollectAllToGlobal();
-                builder.Append($"):{metadata.LuaScriptName}");
+                builder.Append($"):{metadata.LuaClrName}");
             }
             else
             {
@@ -112,7 +149,7 @@ namespace Barotrauma
         {
             var metadata = ClassMetadata.Obtain(method.ReturnType);
             metadata.CollectAllToGlobal();
-            ExplanAnnotationReturn(builder, metadata.LuaScriptName);
+            ExplanAnnotationReturn(builder, metadata.LuaClrName);
         }
 
         private static void ExplanPrimaryConstructorEnd(StringBuilder builder, string clrName)
@@ -129,7 +166,7 @@ namespace Barotrauma
             metadata.CollectAllToGlobal();
             ExplanAnnotationParam(builder,
                 IsParamsParam(parameter) ? "..." : paramName,
-                IsParamsParam(parameter) ? metadata.LuaScriptName[..^2] : metadata.LuaScriptName);
+                IsParamsParam(parameter) ? ClassMetadata.Obtain(metadata.ArrayElementType).LuaClrName : metadata.LuaClrName);
         }
 
         private static uint GetMethodModifiers(MethodBase methodBase)
