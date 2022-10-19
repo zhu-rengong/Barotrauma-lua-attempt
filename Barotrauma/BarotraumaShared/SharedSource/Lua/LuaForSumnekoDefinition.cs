@@ -54,27 +54,34 @@ namespace Barotrauma
 
             LualyAll();
 
-            LuaClrBasePairs.RemoveAll(pair => LualyRecorder.Contains(pair.derivedMetadata));
-
             var _0Global = new StringBuilder();
             ExplanNewLine(_0Global);
-            while (LuaClrBasePairs.Count > 0)
+
+            int prevCount = -1;
+            while (prevCount < LuaClrBasePairs.Count)
             {
+                prevCount = LuaClrBasePairs.Count;
                 foreach (var pair in LuaClrBasePairs.ToArray())
                 {
-                    var inheritPartial = (pair.baseMetadata == ClassMetadata.Empty)
-                        ? GetLuaInheritPartial(pair.derivedMetadata, null)
-                        : GetLuaInheritPartial(pair.derivedMetadata, pair.baseMetadata.OriginalType);
-                    if (inheritPartial.IsNullOrEmpty())
-                    {
-                        _0Global.AppendLine($@"---@class {pair.derivedMetadata.LuaClrName}");
-                    }
-                    else
-                    {
-                        _0Global.AppendLine($@"---@class {pair.derivedMetadata.LuaClrName} : {inheritPartial}");
-                    }
+                    if (pair.baseMetadata == ClassMetadata.Empty) { GetLuaInheritPartial(pair.derivedMetadata, null); }
+                    else { GetLuaInheritPartial(pair.derivedMetadata, pair.baseMetadata.OriginalType); }
+                }
+            }
 
-                    LuaClrBasePairs.RemoveAll(vt => vt.derivedMetadata == pair.derivedMetadata && vt.baseMetadata == pair.baseMetadata);
+            LuaClrBasePairs.RemoveAll(pair => LualyRecorder.Contains(pair.derivedMetadata));
+
+            foreach (var pair in LuaClrBasePairs.ToArray())
+            {
+                var inheritPartial = (pair.baseMetadata == ClassMetadata.Empty)
+                    ? GetLuaInheritPartial(pair.derivedMetadata, null)
+                    : GetLuaInheritPartial(pair.derivedMetadata, pair.baseMetadata.OriginalType);
+                if (inheritPartial.IsNullOrEmpty())
+                {
+                    _0Global.AppendLine($@"---@class {pair.derivedMetadata.LuaClrName}");
+                }
+                else
+                {
+                    _0Global.AppendLine($@"---@class {pair.derivedMetadata.LuaClrName} : {inheritPartial}");
                 }
             }
 

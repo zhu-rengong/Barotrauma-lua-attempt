@@ -163,52 +163,62 @@ namespace Barotrauma
             public string GetLuaBaseVariantName(bool notFoundVairant = true)
             {
                 if (_luaVariantName != null) { return _luaVariantName; }
+
                 if (IsIndexer)
                 {
-                    if (IsArrayIndexer) { return _luaVariantName = $@"{Obtain(ArrayElementType).GetLuaBaseVariantName(false)}[]"; }
-                    if (IsValueIndexer) { return _luaVariantName = $@"{Obtain(ValueType).GetLuaBaseVariantName(false)}[]"; }
+                    if (IsArrayIndexer)
+                    {
+                        return _luaVariantName = $@"{Obtain(ArrayElementType).GetLuaBaseVariantName(false)}[]";
+                    }
+                    if (IsValueIndexer)
+                    {
+                        return _luaVariantName = $@"{Obtain(ValueType).GetLuaBaseVariantName(false)}[]";
+                    }
                     if (IsKeyValueIndexer)
                     {
                         var key = Obtain(KeyValueType.Value.Key).GetLuaBaseVariantName(false);
                         var value = Obtain(KeyValueType.Value.Value).GetLuaBaseVariantName(false);
-                        return _luaVariantName = $@"table<{key}, {value}>";
+                        return _luaVariantName = $@"{{[{key}]:{value}}}";
                     }
-                    if (IsEnumerable)
-                    {
-                        return _luaVariantName = $@"(fun():{Obtain(ValueType).GetLuaBaseVariantName(false)})";
-                    }
+                    //if (IsEnumerable)
+                    //{
+                    //    return _luaVariantName = $@"(fun():{Obtain(ValueType).GetLuaBaseVariantName(false)})";
+                    //}
                 }
-                else if (IsDelegate)
-                {
-                    var delegateMethodBuilder = new StringBuilder();
-                    var parameters = DelegateMehtod.GetParameters();
-                    ExplanDelegateMethodStart(delegateMethodBuilder);
-                    for (var i = 0; i < parameters.Length; i++)
-                    {
-                        var parameter = parameters[i];
-                        ExplanDelegateMethodParam(delegateMethodBuilder, parameter);
-                        if ((i < parameters.Length - 1) && parameters.Length > 1) { delegateMethodBuilder.Append(", "); }
-                    }
-                    ExplanDelegateMethodEnd(delegateMethodBuilder, DelegateMehtod);
-                    return _luaVariantName = $"({delegateMethodBuilder})";
-                }
+                //else if (IsDelegate)
+                //{
+                //    var delegateMethodBuilder = new StringBuilder();
+                //    var parameters = DelegateMehtod.GetParameters();
+                //    ExplanDelegateMethodStart(delegateMethodBuilder);
+                //    for (var i = 0; i < parameters.Length; i++)
+                //    {
+                //        var parameter = parameters[i];
+                //        ExplanDelegateMethodParam(delegateMethodBuilder, parameter);
+                //        if ((i < parameters.Length - 1) && parameters.Length > 1) { delegateMethodBuilder.Append(", "); }
+                //    }
+                //    ExplanDelegateMethodEnd(delegateMethodBuilder, DelegateMehtod);
+                //    return _luaVariantName = $"({delegateMethodBuilder})";
+                //}
 
-                return _luaVariantName = ResolvedType switch
+                var mapName = ResolvedType switch
                 {
-                    { Namespace: "System", Name: "String" } => $"string",
-                    { Namespace: "System", Name: "Boolean" } => $"boolean",
-                    { Namespace: "System", Name: "SByte" } => $"integer",
-                    { Namespace: "System", Name: "Byte" } => $"integer",
-                    { Namespace: "System", Name: "Int16" } => $"integer",
-                    { Namespace: "System", Name: "UInt16" } => $"integer",
-                    { Namespace: "System", Name: "Int32" } => $"integer",
-                    { Namespace: "System", Name: "UInt32" } => $"integer",
-                    { Namespace: "System", Name: "Int64" } => $"integer",
-                    { Namespace: "System", Name: "UInt64" } => $"integer",
-                    { Namespace: "System", Name: "Single" } => $"number",
-                    { Namespace: "System", Name: "Double" } => $"number",
-                    _ => notFoundVairant ? string.Empty : LuaClrName,
+                    { Namespace: "System", Name: "String" } => "string",
+                    { Namespace: "System", Name: "Boolean" } => "boolean",
+                    { Namespace: "System", Name: "SByte" } => "integer",
+                    { Namespace: "System", Name: "Byte" } => "integer",
+                    { Namespace: "System", Name: "Int16" } => "integer",
+                    { Namespace: "System", Name: "UInt16" } => "integer",
+                    { Namespace: "System", Name: "Int32" } => "integer",
+                    { Namespace: "System", Name: "UInt32" } => "integer",
+                    { Namespace: "System", Name: "Int64" } => "integer",
+                    { Namespace: "System", Name: "UInt64" } => "integer",
+                    { Namespace: "System", Name: "Single" } => "number",
+                    { Namespace: "System", Name: "Double" } => "number",
+                    _ => string.Empty,
                 };
+                if (!mapName.IsNullOrEmpty()) { return _luaVariantName = mapName; }
+
+                return notFoundVairant ? string.Empty : LuaClrName;
             }
 
             public static string GloballyTable(string[] parts) => parts.Aggregate("_G", (p1, p2) => p1 + $@"['{p2}']");

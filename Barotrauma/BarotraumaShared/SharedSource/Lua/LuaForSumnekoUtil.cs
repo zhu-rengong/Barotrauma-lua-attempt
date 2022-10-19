@@ -31,8 +31,6 @@ namespace Barotrauma
         private static bool IsParamsParam(ParameterInfo param) => param.GetCustomAttribute<ParamArrayAttribute>(false) != null;
         private static bool IsOptionalParam(ParameterInfo param) => param.GetCustomAttribute<OptionalAttribute>(false) != null;
         private static string MakeNonConflictParam(string name) { if (LuaKeyWords.Contains(name)) return $"luaKey__{name}"; else return name; }
-        private static string MakeParamsParam(string name) => name.Substring(0, name.Length - 2); // remove the last two chars '[]'
-        private static string MakeOverloadMethodParamsParam(string name) => $"...:{MakeParamsParam(name)}";
 
         private static string GetLuaInheritPartial(ClassMetadata metadata, Type baseType)
         {
@@ -51,7 +49,10 @@ namespace Barotrauma
                 select property).ToList())
             {
                 var param = indexer.GetIndexParameters()[0];
-                variants.Add($"{{[{ClassMetadata.Obtain(param.ParameterType).LuaClrName}]:{ClassMetadata.Obtain(indexer.GetMethod.ReturnType).LuaClrName}}}");
+                var indexMt = ClassMetadata.Obtain(param.ParameterType);
+                var returnMt = ClassMetadata.Obtain(indexer.GetMethod.ReturnType);
+                indexMt.CollectAllToGlobal(); returnMt.CollectAllToGlobal();
+                variants.Add($"{{[{indexMt.LuaClrName}]:{returnMt.LuaClrName}}}");
             }
 
             variants.Add(metadata.GetLuaBaseVariantName());
@@ -119,7 +120,7 @@ namespace Barotrauma
             if (IsOptionalParam(parameter)) { paramName += '?'; }
             var metadata = ClassMetadata.Obtain(parameter.ParameterType);
             metadata.CollectAllToGlobal();
-            builder.Append(IsParamsParam(parameter) ? MakeOverloadMethodParamsParam(metadata.LuaClrName) : $"{paramName}:{metadata.LuaClrName}");
+            builder.Append(IsParamsParam(parameter) ? $"...:{ClassMetadata.Obtain(metadata.ArrayElementType).LuaClrName}" : $"{paramName}:{metadata.LuaClrName}");
         }
 
         private static void ExplanOverloadMethodEnd(StringBuilder builder, MethodInfo method)
