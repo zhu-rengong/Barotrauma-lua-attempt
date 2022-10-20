@@ -52,10 +52,8 @@ namespace Barotrauma
                 var indexMt = ClassMetadata.Obtain(param.ParameterType);
                 var returnMt = ClassMetadata.Obtain(indexer.GetMethod.ReturnType);
                 indexMt.CollectAllToGlobal(); returnMt.CollectAllToGlobal();
-                variants.Add($"{{[{indexMt.LuaClrName}]:{returnMt.LuaClrName}}}");
+                variants.Add($"{{[{indexMt.GetLuaTypeVariant()}]:{returnMt.GetLuaTypeVariant()}}}");
             }
-
-            variants.Add(metadata.GetLuaInheritedVariant());
 
             variants.RemoveAll(v => v.IsNullOrEmpty());
 

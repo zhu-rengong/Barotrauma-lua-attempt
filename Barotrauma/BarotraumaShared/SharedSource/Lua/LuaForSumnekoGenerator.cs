@@ -166,6 +166,20 @@ namespace Barotrauma
 
                 if (IsIndexer)
                 {
+                    if (IsArrayIndexer)
+                    {
+                        return _luaTypeVariant = $@"{LuaClrName}|{Obtain(ArrayElementType).GetLuaTypeVariant()}[]";
+                    }
+                    if (IsValueIndexer)
+                    {
+                        return _luaTypeVariant = $@"{LuaClrName}|{Obtain(ValueType).GetLuaTypeVariant()}[]";
+                    }
+                    if (IsKeyValueIndexer)
+                    {
+                        var key = Obtain(KeyValueType.Value.Key).GetLuaTypeVariant();
+                        var value = Obtain(KeyValueType.Value.Value).GetLuaTypeVariant();
+                        return _luaTypeVariant = $@"{LuaClrName}|{{[{key}]:{value}}}";
+                    }
                     if (IsEnumerable)
                     {
                         return _luaTypeVariant = $@"{LuaClrName}|(fun():{Obtain(ValueType).GetLuaTypeVariant()})";
@@ -186,52 +200,22 @@ namespace Barotrauma
                     return _luaTypeVariant = $"{LuaClrName}|({delegateMethodBuilder})";
                 }
 
-                return _luaTypeVariant = LuaClrName;
-            }
-
-            private string _luaInheritedVariant;
-
-            public string GetLuaInheritedVariant(bool notFoundVairant = true)
-            {
-                if (_luaInheritedVariant != null) { return _luaInheritedVariant; }
-
-                if (IsIndexer)
+                return _luaTypeVariant = ResolvedType switch
                 {
-                    if (IsArrayIndexer)
-                    {
-                        return _luaInheritedVariant = $@"{Obtain(ArrayElementType).GetLuaInheritedVariant(false)}[]";
-                    }
-                    if (IsValueIndexer)
-                    {
-                        return _luaInheritedVariant = $@"{Obtain(ValueType).GetLuaInheritedVariant(false)}[]";
-                    }
-                    if (IsKeyValueIndexer)
-                    {
-                        var key = Obtain(KeyValueType.Value.Key).GetLuaInheritedVariant(false);
-                        var value = Obtain(KeyValueType.Value.Value).GetLuaInheritedVariant(false);
-                        return _luaInheritedVariant = $@"{{[{key}]:{value}}}";
-                    }
-                }
-
-                var mapName = ResolvedType switch
-                {
-                    { Namespace: "System", Name: "String" } => "string",
-                    { Namespace: "System", Name: "Boolean" } => "boolean",
-                    { Namespace: "System", Name: "SByte" } => "integer",
-                    { Namespace: "System", Name: "Byte" } => "integer",
-                    { Namespace: "System", Name: "Int16" } => "integer",
-                    { Namespace: "System", Name: "UInt16" } => "integer",
-                    { Namespace: "System", Name: "Int32" } => "integer",
-                    { Namespace: "System", Name: "UInt32" } => "integer",
-                    { Namespace: "System", Name: "Int64" } => "integer",
-                    { Namespace: "System", Name: "UInt64" } => "integer",
-                    { Namespace: "System", Name: "Single" } => "number",
-                    { Namespace: "System", Name: "Double" } => "number",
-                    _ => string.Empty,
+                    { Namespace: "System", Name: "String" } => $"{LuaClrName}|string",
+                    { Namespace: "System", Name: "Boolean" } => $"{LuaClrName}|boolean",
+                    { Namespace: "System", Name: "SByte" } => $"{LuaClrName}|integer",
+                    { Namespace: "System", Name: "Byte" } => $"{LuaClrName}|integer",
+                    { Namespace: "System", Name: "Int16" } => $"{LuaClrName}|integer",
+                    { Namespace: "System", Name: "UInt16" } => $"{LuaClrName}|integer",
+                    { Namespace: "System", Name: "Int32" } => $"{LuaClrName}|integer",
+                    { Namespace: "System", Name: "UInt32" } => $"{LuaClrName}|integer",
+                    { Namespace: "System", Name: "Int64" } => $"{LuaClrName}|integer",
+                    { Namespace: "System", Name: "UInt64" } => $"{LuaClrName}|integer",
+                    { Namespace: "System", Name: "Single" } => $"{LuaClrName}|number",
+                    { Namespace: "System", Name: "Double" } => $"{LuaClrName}|number",
+                    _ => LuaClrName,
                 };
-                if (!mapName.IsNullOrEmpty()) { return _luaInheritedVariant = mapName; }
-
-                return notFoundVairant ? string.Empty : LuaClrName;
             }
 
             public static string GloballyTable(string[] parts) => parts.Aggregate("_G", (p1, p2) => p1 + $@"['{p2}']");
@@ -551,8 +535,8 @@ namespace Barotrauma
                     ExplanAnnotationBinOperator(
                         tgtOps,
                         op,
-                        ClassMetadata.Obtain(method.GetParameters()[1].ParameterType).LuaClrName,
-                        ClassMetadata.Obtain(method.ReturnType).LuaClrName
+                        ClassMetadata.Obtain(method.GetParameters()[1].ParameterType).GetLuaTypeVariant(),
+                        ClassMetadata.Obtain(method.ReturnType).GetLuaTypeVariant()
                     );
                     ExplanNewLine(tgtOps);
                 }
@@ -563,7 +547,7 @@ namespace Barotrauma
                     ExplanAnnotationUnOperator(
                         tgtOps,
                         op,
-                        ClassMetadata.Obtain(method.ReturnType).LuaClrName
+                        ClassMetadata.Obtain(method.ReturnType).GetLuaTypeVariant()
                     );
                     ExplanNewLine(tgtOps);
                 }
