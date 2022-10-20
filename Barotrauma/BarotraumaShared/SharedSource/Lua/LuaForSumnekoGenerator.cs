@@ -158,47 +158,60 @@ namespace Barotrauma
                 }
             }
 
-            private string _luaVariantName;
+            private string _luaTypeVariant;
 
-            public string GetLuaBaseVariantName(bool notFoundVairant = true)
+            public string GetLuaTypeVariant()
             {
-                if (_luaVariantName != null) { return _luaVariantName; }
+                if (_luaTypeVariant != null) { return _luaTypeVariant; }
+
+                if (IsIndexer)
+                {
+                    if (IsEnumerable)
+                    {
+                        return _luaTypeVariant = $@"{LuaClrName}|(fun():{Obtain(ValueType).GetLuaTypeVariant()})";
+                    }
+                }
+                else if (IsDelegate)
+                {
+                    var delegateMethodBuilder = new StringBuilder();
+                    var parameters = DelegateMehtod.GetParameters();
+                    ExplanDelegateMethodStart(delegateMethodBuilder);
+                    for (var i = 0; i < parameters.Length; i++)
+                    {
+                        var parameter = parameters[i];
+                        ExplanDelegateMethodParam(delegateMethodBuilder, parameter);
+                        if ((i < parameters.Length - 1) && parameters.Length > 1) { delegateMethodBuilder.Append(", "); }
+                    }
+                    ExplanDelegateMethodEnd(delegateMethodBuilder, DelegateMehtod);
+                    return _luaTypeVariant = $"{LuaClrName}|({delegateMethodBuilder})";
+                }
+
+                return _luaTypeVariant = LuaClrName;
+            }
+
+            private string _luaInheritedVariant;
+
+            public string GetLuaInheritedVariant(bool notFoundVairant = true)
+            {
+                if (_luaInheritedVariant != null) { return _luaInheritedVariant; }
 
                 if (IsIndexer)
                 {
                     if (IsArrayIndexer)
                     {
-                        return _luaVariantName = $@"{Obtain(ArrayElementType).GetLuaBaseVariantName(false)}[]";
+                        return _luaInheritedVariant = $@"{Obtain(ArrayElementType).GetLuaInheritedVariant(false)}[]";
                     }
                     if (IsValueIndexer)
                     {
-                        return _luaVariantName = $@"{Obtain(ValueType).GetLuaBaseVariantName(false)}[]";
+                        return _luaInheritedVariant = $@"{Obtain(ValueType).GetLuaInheritedVariant(false)}[]";
                     }
                     if (IsKeyValueIndexer)
                     {
-                        var key = Obtain(KeyValueType.Value.Key).GetLuaBaseVariantName(false);
-                        var value = Obtain(KeyValueType.Value.Value).GetLuaBaseVariantName(false);
-                        return _luaVariantName = $@"{{[{key}]:{value}}}";
+                        var key = Obtain(KeyValueType.Value.Key).GetLuaInheritedVariant(false);
+                        var value = Obtain(KeyValueType.Value.Value).GetLuaInheritedVariant(false);
+                        return _luaInheritedVariant = $@"{{[{key}]:{value}}}";
                     }
-                    //if (IsEnumerable)
-                    //{
-                    //    return _luaVariantName = $@"(fun():{Obtain(ValueType).GetLuaBaseVariantName(false)})";
-                    //}
                 }
-                //else if (IsDelegate)
-                //{
-                //    var delegateMethodBuilder = new StringBuilder();
-                //    var parameters = DelegateMehtod.GetParameters();
-                //    ExplanDelegateMethodStart(delegateMethodBuilder);
-                //    for (var i = 0; i < parameters.Length; i++)
-                //    {
-                //        var parameter = parameters[i];
-                //        ExplanDelegateMethodParam(delegateMethodBuilder, parameter);
-                //        if ((i < parameters.Length - 1) && parameters.Length > 1) { delegateMethodBuilder.Append(", "); }
-                //    }
-                //    ExplanDelegateMethodEnd(delegateMethodBuilder, DelegateMehtod);
-                //    return _luaVariantName = $"({delegateMethodBuilder})";
-                //}
 
                 var mapName = ResolvedType switch
                 {
@@ -216,7 +229,7 @@ namespace Barotrauma
                     { Namespace: "System", Name: "Double" } => "number",
                     _ => string.Empty,
                 };
-                if (!mapName.IsNullOrEmpty()) { return _luaVariantName = mapName; }
+                if (!mapName.IsNullOrEmpty()) { return _luaInheritedVariant = mapName; }
 
                 return notFoundVairant ? string.Empty : LuaClrName;
             }
@@ -360,12 +373,12 @@ namespace Barotrauma
 
                 if (type.IsGenericType)
                 {
-                    var genericTypeDefinition = type.GetGenericTypeDefinition();
-                    bool ImplAtLeastOneInterface(params Type[] types) => types.Any(t => genericTypeDefinition == t);
-                    if (ImplAtLeastOneInterface(
-                        typeof(IEnumerable<>)))
+                    var definitions = type.GetInterfaces().Where(i => i.IsGenericType).Select(i => i).ToList();
+                    var genericType = definitions.FirstOrDefault(i => i.GetGenericTypeDefinition() == typeof(IEnumerable<>), null);
+                    if (genericType == null && type.GetGenericTypeDefinition() == typeof(IEnumerable<>)) { genericType = type; }
+                    if (genericType != null)
                     {
-                        var genericArguments = type.GetGenericArguments();
+                        var genericArguments = genericType.GetGenericArguments();
                         argumentType = genericArguments[0];
                         if (ResolveNullableArgumentType(argumentType, out Type nullableArgumentType))
                         { argumentType = nullableArgumentType; }

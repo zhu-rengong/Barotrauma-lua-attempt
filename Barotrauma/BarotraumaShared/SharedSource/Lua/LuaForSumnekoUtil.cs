@@ -55,7 +55,7 @@ namespace Barotrauma
                 variants.Add($"{{[{indexMt.LuaClrName}]:{returnMt.LuaClrName}}}");
             }
 
-            variants.Add(metadata.GetLuaBaseVariantName());
+            variants.Add(metadata.GetLuaInheritedVariant());
 
             variants.RemoveAll(v => v.IsNullOrEmpty());
 
@@ -84,7 +84,7 @@ namespace Barotrauma
             tags.Add(field.IsStatic ? "Static" : "Instance");
             builder.Append('`' + tags.Aggregate((tag1, tag2) => $"{tag1} {tag2}") + '`');
             ExplanNewLine(builder);
-            ExplanAnnotationField(builder, field.Name, metadata.LuaClrName);
+            ExplanAnnotationField(builder, field.Name, metadata.GetLuaTypeVariant());
         }
 
         private static void ExplanProperty(StringBuilder builder, PropertyInfo property)
@@ -107,7 +107,7 @@ namespace Barotrauma
                 ExplanNewLine(builder);
             }
 
-            ExplanAnnotationProperty(builder, property.Name, metadata.LuaClrName);
+            ExplanAnnotationProperty(builder, property.Name, metadata.GetLuaTypeVariant());
         }
 
 
@@ -120,7 +120,7 @@ namespace Barotrauma
             if (IsOptionalParam(parameter)) { paramName += '?'; }
             var metadata = ClassMetadata.Obtain(parameter.ParameterType);
             metadata.CollectAllToGlobal();
-            builder.Append(IsParamsParam(parameter) ? $"...:{ClassMetadata.Obtain(metadata.ArrayElementType).LuaClrName}" : $"{paramName}:{metadata.LuaClrName}");
+            builder.Append(IsParamsParam(parameter) ? $"...:{ClassMetadata.Obtain(metadata.ArrayElementType).GetLuaTypeVariant()}" : $"{paramName}:{metadata.GetLuaTypeVariant()}");
         }
 
         private static void ExplanOverloadMethodEnd(StringBuilder builder, MethodInfo method)
@@ -129,7 +129,7 @@ namespace Barotrauma
             {
                 var metadata = ClassMetadata.Obtain(method.ReturnType);
                 metadata.CollectAllToGlobal();
-                builder.Append($"):{metadata.LuaClrName}");
+                builder.Append($"):{metadata.GetLuaTypeVariant()}");
             }
             else
             {
@@ -150,7 +150,7 @@ namespace Barotrauma
         {
             var metadata = ClassMetadata.Obtain(method.ReturnType);
             metadata.CollectAllToGlobal();
-            ExplanAnnotationReturn(builder, metadata.LuaClrName);
+            ExplanAnnotationReturn(builder, metadata.GetLuaTypeVariant());
         }
 
         private static void ExplanPrimaryConstructorEnd(StringBuilder builder, string clrName)
@@ -167,7 +167,7 @@ namespace Barotrauma
             metadata.CollectAllToGlobal();
             ExplanAnnotationParam(builder,
                 IsParamsParam(parameter) ? "..." : paramName,
-                IsParamsParam(parameter) ? ClassMetadata.Obtain(metadata.ArrayElementType).LuaClrName : metadata.LuaClrName);
+                IsParamsParam(parameter) ? ClassMetadata.Obtain(metadata.ArrayElementType).GetLuaTypeVariant() : metadata.GetLuaTypeVariant());
         }
 
         private static uint GetMethodModifiers(MethodBase methodBase)
