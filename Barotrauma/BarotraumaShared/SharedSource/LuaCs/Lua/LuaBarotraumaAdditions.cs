@@ -7,19 +7,19 @@ using Barotrauma.Networking;
 
 namespace Barotrauma.Networking
 {
-	partial class Client
-	{
-		public static IReadOnlyList<Client> ClientList
-		{
-			get
-			{
+    partial class Client
+    {
+        public static IReadOnlyList<Client> ClientList
+        {
+            get
+            {
 #if SERVER
-				return GameMain.Server.ConnectedClients;
+                return GameMain.Server.ConnectedClients;
 #else
-				return GameMain.Client.ConnectedClients;
+                return GameMain.Client.ConnectedClients;
 #endif
-			}
-		}
+            }
+        }
 
         public ulong SteamID
         {
@@ -36,71 +36,71 @@ namespace Barotrauma.Networking
             }
         }
 
-	}
+    }
 
 }
 
 namespace Barotrauma 
 {
-	using Barotrauma.Networking;
-	using System.Linq;
-	using System.Reflection;
+    using Barotrauma.Networking;
+    using System.Linq;
+    using System.Reflection;
 
 
 
-	partial class Character
-	{
-		
-	}
+    partial class Character
+    {
+        
+    }
 
-	partial class Item
-	{
-		public object GetComponentString(string component)
-		{
-			Type type = Type.GetType("Barotrauma.Items.Components." + component);
+    partial class Item
+    {
+        public object GetComponentString(string component)
+        {
+            Type type = Type.GetType("Barotrauma.Items.Components." + component);
 
-			if (type == null)
-				return null;
+            if (type == null)
+                return null;
 
-			MethodInfo method = typeof(Item).GetMethod(nameof(Item.GetComponent));
-			MethodInfo generic = method.MakeGenericMethod(type);
-			return generic.Invoke(this, null);
-		}
+            MethodInfo method = typeof(Item).GetMethod(nameof(Item.GetComponent));
+            MethodInfo generic = method.MakeGenericMethod(type);
+            return generic.Invoke(this, null);
+        }
 
-	}
+    }
 
-	partial class ItemPrefab
-	{
+    partial class ItemPrefab
+    {
 
-		public static ItemPrefab GetItemPrefab(string itemNameOrId)
-		{
-			ItemPrefab itemPrefab =
-			(MapEntityPrefab.Find(itemNameOrId, identifier: null, showErrorMessages: false) ??
-			MapEntityPrefab.Find(null, identifier: itemNameOrId, showErrorMessages: false)) as ItemPrefab;
+        public static ItemPrefab GetItemPrefab(string itemNameOrId)
+        {
+            ItemPrefab itemPrefab =
+            (MapEntityPrefab.Find(itemNameOrId, identifier: null, showErrorMessages: false) ??
+            MapEntityPrefab.Find(null, identifier: itemNameOrId, showErrorMessages: false)) as ItemPrefab;
 
-			return itemPrefab;
-		}
-	}
+            return itemPrefab;
+        }
+    }
 
-	abstract partial class MapEntity 
-	{
-		public void AddLinked(MapEntity entity)
-		{
-			linkedTo.Add(entity);
-		}
-	}
+    abstract partial class MapEntity 
+    {
+        public void AddLinked(MapEntity entity)
+        {
+            linkedTo.Add(entity);
+        }
+    }
 
 }
 
 namespace Barotrauma.Items.Components
 {
-	using Barotrauma.Networking;
+    using Barotrauma.Networking;
 
-	partial class CustomInterface
-	{
-	}
+    partial class CustomInterface
+    {
+    }
 
-	partial struct Signal
-	{
-	}
+    partial struct Signal
+    {
+    }
 }

@@ -8,21 +8,21 @@ using System.Linq;
 
 namespace Barotrauma
 {
-	class LuaScriptLoader : ScriptLoaderBase
-	{
+    class LuaScriptLoader : ScriptLoaderBase
+    {
 
-		public override object LoadFile(string file, Table globalContext)
-		{
-			if (!LuaCsFile.IsPathAllowedLuaException(file, false)) return null; 
-				
-			return File.ReadAllText(file);
-		}
+        public override object LoadFile(string file, Table globalContext)
+        {
+            if (!LuaCsFile.IsPathAllowedLuaException(file, false)) return null; 
+                
+            return File.ReadAllText(file);
+        }
 
-		public override bool ScriptFileExists(string file)
-		{
-			if (!LuaCsFile.IsPathAllowedLuaException(file, false)) return false;
+        public override bool ScriptFileExists(string file)
+        {
+            if (!LuaCsFile.IsPathAllowedLuaException(file, false)) return false;
 
-			return File.Exists(file);
-		}
+            return File.Exists(file);
+        }
     }
 }
