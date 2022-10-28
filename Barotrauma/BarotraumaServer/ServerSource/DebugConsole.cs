@@ -1251,7 +1251,7 @@ namespace Barotrauma
             }));
 
 
-            commands.Add(new Command("lua", "lua: runs a string", (string[] args) =>
+            commands.Add(new Command("lua", "lua: Runs a string.", (string[] args) =>
             {
                 try
                 {
@@ -1262,7 +1262,7 @@ namespace Barotrauma
                     GameMain.LuaCs.HandleException(ex, LuaCsMessageOrigin.LuaMod);
                 }
             }));
-            commands.Add(new Command("cs", "cs: Runs a string", (string[] args) =>
+            commands.Add(new Command("cs", "cs: Runs a string.", (string[] args) =>
             {
                 if (LuaCsSetup.GetPackage(LuaCsSetup.CsForBarotraumaId, false, true) == null) { return; }
 

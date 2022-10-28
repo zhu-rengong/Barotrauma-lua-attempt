@@ -220,6 +220,8 @@ namespace Barotrauma
 
         private static bool IsCommandPermitted(string command, GameClient client)
         {
+            if (GameMain.LuaCs.Game.IsCustomCommandPermitted(command)) { return true; }
+
             switch (command)
             {
                 case "kick":
@@ -3256,8 +3258,7 @@ namespace Barotrauma
                 }
             });
 
-            const string CMD_CL_LUA = "cl_lua";
-            commands.Add(new Command(CMD_CL_LUA, $"{CMD_CL_LUA}: runs a string on the client", (string[] args) =>
+            commands.Add(new Command("cl_lua", $"cl_lua: Runs a string on the client.", (string[] args) =>
             {
                 if (GameMain.Client != null && !GameMain.Client.HasPermission(ClientPermissions.ConsoleCommands))
                 {
@@ -3275,8 +3276,7 @@ namespace Barotrauma
                 }
             }));
 
-            const string CMD_CL_CS = "cl_cs";
-            commands.Add(new Command(CMD_CL_CS, $"{CMD_CL_CS}: runs a string on the client", (string[] args) =>
+            commands.Add(new Command("cl_cs", $"cl_cs: Runs a string on the client.", (string[] args) =>
             {
                 if (LuaCsSetup.GetPackage(LuaCsSetup.CsForBarotraumaId, false, true) == null) { return; }
 
@@ -3290,7 +3290,7 @@ namespace Barotrauma
                 GameMain.LuaCs.RecreateCsScript();
             }));
 
-            commands.Add(new Command("cl_reloadlua", "reloads lua on the client", (string[] args) =>
+            commands.Add(new Command("cl_reloadlua|cl_reloadcs|cl_reloadluacs", "Re-initializes the LuaCs environment.", (string[] args) =>
             {
                 GameMain.LuaCs.Initialize();
             }));

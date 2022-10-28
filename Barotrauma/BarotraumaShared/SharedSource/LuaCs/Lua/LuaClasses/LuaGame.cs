@@ -388,6 +388,27 @@ namespace Barotrauma
         }
 
         private List<DebugConsole.Command> luaAddedCommand = new List<DebugConsole.Command>();
+        public IEnumerable<DebugConsole.Command> LuaAddedCommand { get { return luaAddedCommand; } }
+
+        public bool IsCustomCommandPermitted(string command)
+        {
+            DebugConsole.Command[] permitted = new DebugConsole.Command[] 
+            { 
+                DebugConsole.FindCommand("cl_reloadluacs"),
+                DebugConsole.FindCommand("cl_lua"),
+                DebugConsole.FindCommand("cl_cs"),
+            };
+
+            foreach (var consoleCommand in LuaAddedCommand.Concat(permitted.AsEnumerable())) 
+            { 
+                if (consoleCommand.names.Contains(command))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
 
         public void RemoveCommand(string name)
         {
