@@ -38,6 +38,20 @@ require("DefaultHook")
 Descriptors = LuaSetup.LuaUserData.Descriptors
 LuaUserData = LuaSetup.LuaUserData
 
+if CSActive then
+    LuaUserData.RegisterType = function (typeName)
+        local descriptor = Descriptors[typeName]
+
+        print(typeName)
+
+        if descriptor == nil then
+            error("Type '" .. typeName .. "' can't be registered", 2)
+        else
+            return descriptor
+        end
+    end
+end
+
 LuaSetup = nil
 
 require("ModLoader")

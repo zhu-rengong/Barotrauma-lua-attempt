@@ -55,15 +55,14 @@ namespace Barotrauma
 
 			bool pathStartsWith(string prefix) => path.StartsWith(prefix, StringComparison.OrdinalIgnoreCase);
 
-			if (pathStartsWith(getFullPath(ContentPackage.LocalModsDir + "Lua For Barotrauma")))
-				return false;
+            foreach (var package in ContentPackageManager.AllPackages)
+            {
+                if (package.UgcId.ValueEquals(LuaCsSetup.LuaForBarotraumaId) && pathStartsWith(getFullPath(package.Path)))
+                {
+                    return false;
+                }
+            }
 
-			if (pathStartsWith(getFullPath(ContentPackage.WorkshopModsDir + "Lua For Barotrauma")))
-				return false;
-#if CLIENT
-			if (pathStartsWith(getFullPath(ModReceiver.DownloadFolder + "Lua For Barotrauma")))
-				return false;
-#endif
             if (pathStartsWith(getFullPath(SaveUtil.SaveFolder)))
                 return true;
 

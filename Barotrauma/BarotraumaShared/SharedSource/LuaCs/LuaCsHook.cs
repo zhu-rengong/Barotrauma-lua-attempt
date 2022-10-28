@@ -516,7 +516,7 @@ namespace Barotrauma
         {
             "Barotrauma.Lua",
             "Barotrauma.Cs",
-            "ContentPackageManager",
+            "Barotrauma.ContentPackageManager",
         };
 
         private static void ValidatePatchTarget(MethodBase method)

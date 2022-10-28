@@ -9,7 +9,7 @@ namespace Barotrauma
     {
         public static void Install()
         {
-            ContentPackage luaPackage = LuaCsSetup.GetPackage("Lua For Barotrauma");
+            ContentPackage luaPackage = LuaCsSetup.GetPackage(LuaCsSetup.LuaForBarotraumaId);
 
             if (luaPackage == null)
             {
