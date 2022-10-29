@@ -10,10 +10,6 @@ Barotrauma source code: [Item.cs](https://github.com/evilfactory/LuaCsForBarotra
 
 Item = {}
 
---- Adds to remove queue, use this instead of Remove, to prevent desync.
--- @realm server 
-function Item.AddToRemoveQueue(item) end
-
 --- Gets a component from an item by a string name.
 -- @treturn Component component
 -- @realm server 

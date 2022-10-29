@@ -327,3 +327,15 @@ function human.CPRSuccess(animController) end
 --- Called after the CPR skill check fails.
 -- @realm shared
 function human.CPRFailed(animController) end
+
+---
+-- @realm client
+function keyUpdate() end
+
+--- Called after a net message is received
+-- @realm shared
+function netMessageReceived(netMessage, header, client) end
+
+---
+-- @realm shared
+function item.readPropertyChange(item, property, parentObject, allowEditing, client) end

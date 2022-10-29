@@ -3011,7 +3011,7 @@ namespace Barotrauma
                 }
             }
 
-            var result = GameMain.LuaCs.Hook.Call<bool?>("item.readPropertyChange", this, property, parentObject, allowEditing);
+            var result = GameMain.LuaCs.Hook.Call<bool?>("item.readPropertyChange", this, property, parentObject, allowEditing, sender);
             if (result != null && result.Value)
                 return;
 

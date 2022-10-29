@@ -470,11 +470,6 @@ namespace Barotrauma
             GameMain.Server.SendChatMessage(msg, messageType, sender, character);
         }
 
-        public static void SendMessage(string msg, int messageType, Client sender = null, Character character = null)
-        {
-            GameMain.Server.SendChatMessage(msg, (ChatMessageType)messageType, sender, character);
-        }
-
         public static void SendTraitorMessage(Client client, string msg, Identifier missionid, TraitorMessageType type)
         {
             GameMain.Server.SendTraitorMessage(client, msg, missionid, type);
@@ -482,12 +477,9 @@ namespace Barotrauma
 
         public static void SendDirectChatMessage(string sendername, string text, Character sender, ChatMessageType messageType = ChatMessageType.Private, Client client = null, string iconStyle = "")
         {
-
-            ChatMessage cm = ChatMessage.Create(sendername, text, messageType, sender, client);
+            ChatMessage cm = ChatMessage.Create(sendername, text, messageType, sender);
             cm.IconStyle = iconStyle;
-
             GameMain.Server.SendDirectChatMessage(cm, client);
-
         }
 
         public static void SendDirectChatMessage(ChatMessage chatMessage, Client client)
