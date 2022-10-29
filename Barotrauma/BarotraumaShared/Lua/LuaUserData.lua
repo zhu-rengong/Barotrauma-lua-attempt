@@ -53,7 +53,14 @@ luaUserData.AddCallMetaTable = function (userdata)
 				error("userdata was nil.", 2)
 			end
 
-			return userdata.__new(...)
+			local success, result = pcall(userdata.__new, ...)
+
+
+			if not success then
+				error(result, 2)
+			end
+
+			return result
 		end
 	})
 end

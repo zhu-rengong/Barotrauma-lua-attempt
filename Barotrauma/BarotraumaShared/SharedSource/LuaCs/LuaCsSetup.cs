@@ -271,6 +271,7 @@ namespace Barotrauma
             Lua.Options.DebugPrint = PrintMessage;
             Lua.Options.ScriptLoader = LuaScriptLoader;
             Lua.Options.CheckThreadAccess = false;
+            Script.GlobalOptions.ShouldPCallCatchException = (Exception ex) => { return true; };
             CsScript = new CsScriptRunner(this);
 
             require = new LuaRequire(Lua);
