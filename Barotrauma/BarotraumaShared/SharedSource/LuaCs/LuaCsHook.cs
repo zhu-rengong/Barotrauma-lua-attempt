@@ -706,6 +706,22 @@ namespace Barotrauma
             hookFunctions[name][identifier] = (new LuaCsHookCallback(name, identifier, func), owner);
         }
 
+        public bool Exists(string name, string identifier)
+        {
+            if (name == null) throw new ArgumentNullException(nameof(name));
+            if (identifier == null) throw new ArgumentNullException(nameof(identifier));
+
+            name = NormalizeIdentifier(name);
+            identifier = NormalizeIdentifier(identifier);
+
+            if (!hookFunctions.ContainsKey(name))
+            {
+                return false;
+            }
+
+            return hookFunctions[name].ContainsKey(identifier);
+        }
+
         public void Remove(string name, string identifier)
         {
             if (name == null) throw new ArgumentNullException(nameof(name));
