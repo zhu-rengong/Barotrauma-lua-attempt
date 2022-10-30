@@ -124,7 +124,9 @@ namespace Barotrauma
                         GameMain.Server.SendDirectChatMessage(ChatMessage.Create("", subStr, ChatMessageType.Console, null, textColor: Color.MediumPurple), c);
                     }
 
+#if !DEBUG
                     GameServer.Log(prefix + subStr, ServerLog.MessageType.ServerMessage);
+#endif
                 }
 #endif
             }

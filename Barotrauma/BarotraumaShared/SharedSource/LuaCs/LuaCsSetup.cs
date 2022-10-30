@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Linq;
 using System.Threading;
 using LuaCsCompatPatchFunc = Barotrauma.LuaCsPatch;
+using System.Diagnostics;
 
 [assembly: InternalsVisibleTo(Barotrauma.CsScriptBase.CsScriptAssembly, AllInternalsVisible = true)]
 [assembly: InternalsVisibleTo(Barotrauma.CsScriptBase.CsOneTimeScriptAssembly, AllInternalsVisible = true)]
@@ -346,6 +347,8 @@ namespace Barotrauma
                 {
                     try
                     {
+                        Stopwatch compilationTime = new Stopwatch();
+                        compilationTime.Start();
                         var modTypes = CsScriptLoader.Compile();
                         modTypes.ForEach(t =>
                         {
@@ -358,6 +361,8 @@ namespace Barotrauma
                                 HandleException(ex, LuaCsMessageOrigin.CSharpMod);
                             }
                         });
+                        compilationTime.Stop();
+                        PrintCsMessage($"Took {compilationTime.ElapsedMilliseconds}ms to compile and run Cs Scripts.");
                     }
                     catch (Exception ex)
                     {

@@ -52,12 +52,12 @@ namespace Barotrauma
                 {
                     if (rtValue == RunType.Standard && isEnabled)
                     {
-                        LuaCsSetup.PrintCsMessage($"Standard run C# of {cp.Name}");
+                        LuaCsSetup.PrintCsMessage($"Added {cp.Name} {cp.ModVersion} to Cs compilation. (Standard)");
                         return true;
                     }
                     else if (rtValue == RunType.Forced)
                     {
-                        LuaCsSetup.PrintCsMessage($"Forced run C# of {cp.Name}");
+                        LuaCsSetup.PrintCsMessage($"Added {cp.Name} {cp.ModVersion} to Cs compilation. (Forced)");
                         return true;
                     }
                     else if (rtValue == RunType.None)
@@ -71,7 +71,7 @@ namespace Barotrauma
 
             if (isEnabled)
             {
-                LuaCsSetup.PrintCsMessage($"Assumed run C# of {cp.Name}");
+                LuaCsSetup.PrintCsMessage($"Added {cp.Name} {cp.ModVersion} to Cs compilation. (Assumed)");
                 return true;
             }
             else

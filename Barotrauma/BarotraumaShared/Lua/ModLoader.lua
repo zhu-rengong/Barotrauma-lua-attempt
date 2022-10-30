@@ -20,8 +20,11 @@ local function RunFolder(folder, rootFolder, package)
         local s = search[i]:gsub("\\", "/")
 
         if EndsWith(s, ".lua") then
-            print(string.format("%s: Executing %s", package.Name, GetFileName(s)))
+            local time = os.clock()
             local ok, result = pcall(ExecuteProtected, s, rootFolder)
+            local diff = os.clock() - time
+
+            print(string.format(" - %s (Took %.5fms)", GetFileName(s), diff))
             if not ok then
                 printerror(result)
             end
@@ -36,8 +39,7 @@ local function AssertTypes(expectedTypes, ...)
         #args == #expectedTypes,
         string.format(
             "Assertion failed: incorrect number of args\n\texpected = %s\n\tgot = %s",
-            #expectedTypes,
-            #args
+            #expectedTypes, #args
         )
     )
     for i = 1, #args do
@@ -47,9 +49,7 @@ local function AssertTypes(expectedTypes, ...)
             type(arg) == expectedType,
             string.format(
                 "Assertion failed: incorrect argument type (arg #%d)\n\texpected = %s\n\tgot = %s",
-                i,
-                expectedType,
-                type(arg)
+                i, expectedType, type(arg)
             )
         )
     end
@@ -59,30 +59,21 @@ local function ExecutionQueue()
     local queue = {}
     local function processQueueFIFO()
         while queue[1] ~= nil do
-            RunFolder(
-                table.unpack(
-                    table.remove(
-                        queue,
-                        1
-                    )
-                )
-            )
+            local folder, rootFolder, package = table.unpack(table.remove(queue, 1))
+            print(string.format("%s %s", package.Name, package.ModVersion))
+            RunFolder(folder, rootFolder, package)
         end
     end
+
     local function queueExecutionFIFO(...)
-        AssertTypes(
-            { 'string', 'string', 'userdata' },
-            ...
-        )
-        table.insert(
-            queue,
-            table.pack(...)
-        )
+        AssertTypes({ 'string', 'string', 'userdata' }, ...)
+        table.insert(queue, table.pack(...))
     end
+
     return queueExecutionFIFO, processQueueFIFO
 end
 
-local QueueAutorun,       ProcessAutorun       = ExecutionQueue()
+local QueueAutorun, ProcessAutorun             = ExecutionQueue()
 local QueueForcedAutorun, ProcessForcedAutorun = ExecutionQueue()
 
 local function ProcessPackages(packages, fn)
@@ -154,7 +145,7 @@ setmodulepaths = nil
 ProcessAutorun()
 ProcessForcedAutorun()
 
-Hook.Add("stop", "luaSetup.stop", function ()
+Hook.Add("stop", "luaSetup.stop", function()
     print("Stopping Lua...")
 end)
 
