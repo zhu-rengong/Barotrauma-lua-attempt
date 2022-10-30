@@ -38,7 +38,7 @@ require("DefaultHook")
 Descriptors = LuaSetup.LuaUserData.Descriptors
 LuaUserData = LuaSetup.LuaUserData
 
-if CSActive then
+if not CSActive then
     LuaUserData.RegisterType = function (typeName)
         local descriptor = Descriptors[typeName]
 
