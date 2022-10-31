@@ -82,9 +82,12 @@ namespace Barotrauma
 
         public void SearchFolders()
         {
+            var packagesAdded = new HashSet<ContentPackage>();
             var paths = new Dictionary<string, string>();
             foreach (var cp in ContentPackageManager.AllPackages.Concat(ContentPackageManager.EnabledPackages.All))
             {
+                if (packagesAdded.Contains(cp)) { continue; }
+
                 var path = $"{Path.GetFullPath(Path.GetDirectoryName(cp.Path)).Replace('\\', '/')}/";
                 if (ShouldRun(cp, path))
                 {
@@ -99,6 +102,8 @@ namespace Barotrauma
                     {
                         paths.Add(cp.Name, path);
                     }
+
+                    packagesAdded.Add(cp);
                 }
             }
 
