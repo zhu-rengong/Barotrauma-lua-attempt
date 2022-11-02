@@ -57,6 +57,9 @@ RegisterBarotrauma("Lights.LightManager")
 RegisterBarotrauma("Lights.LightSource")
 RegisterBarotrauma("Lights.LightSourceParams")
 
+RegisterBarotrauma("WaterRenderer")
+RegisterBarotrauma("WaterVertexData")
+
 RegisterBarotrauma("ChatBox")
 RegisterBarotrauma("GUICanvas")
 RegisterBarotrauma("Anchor")
