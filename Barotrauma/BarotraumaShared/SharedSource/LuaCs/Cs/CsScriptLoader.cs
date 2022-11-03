@@ -87,7 +87,6 @@ namespace Barotrauma
             foreach (var cp in ContentPackageManager.AllPackages.Concat(ContentPackageManager.EnabledPackages.All))
             {
                 if (packagesAdded.Contains(cp)) { continue; }
-
                 var path = $"{Path.GetFullPath(Path.GetDirectoryName(cp.Path)).Replace('\\', '/')}/";
                 if (ShouldRun(cp, path))
                 {
@@ -102,7 +101,6 @@ namespace Barotrauma
                     {
                         paths.Add(cp.Name, path);
                     }
-
                     packagesAdded.Add(cp);
                 }
             }
@@ -169,14 +167,14 @@ namespace Barotrauma
             return syntaxTrees;
         }
 
-        public List<Type> Compile()
+        public List<Type> Compile() 
         {
             IEnumerable<SyntaxTree> syntaxTrees = ParseSources();
 
             var options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
                 .WithMetadataImportOptions(MetadataImportOptions.All)
                 .WithOptimizationLevel(OptimizationLevel.Release)
-                .WithAllowUnsafe(false);
+                .WithAllowUnsafe(true); 
             var compilation = CSharpCompilation.Create(CsScriptAssembly, syntaxTrees, defaultReferences, options);
 
             using (var mem = new MemoryStream())
@@ -188,7 +186,9 @@ namespace Barotrauma
 
                     string errStr = "CS MODS NOT LOADED | Compilation errors:";
                     foreach (Diagnostic diagnostic in failures)
+                    {
                         errStr += $"\n{diagnostic}";
+                    }
                     LuaCsSetup.PrintCsError(errStr);
                 }
                 else
@@ -200,12 +200,38 @@ namespace Barotrauma
 
             if (Assembly != null)
             {
-                return Assembly.GetTypes().Where(t => t.IsSubclassOf(typeof(ACsMod))).ToList();
+                RegisterAssemblyWithNativeGame(Assembly);
+                try
+                {
+                    return Assembly.GetTypes().Where(t => t.IsSubclassOf(typeof(ACsMod))).ToList();
+                }
+                catch (ReflectionTypeLoadException re)
+                {
+                    LuaCsSetup.PrintCsError($"Unable to load CsMod Types. {re.Message}");
+                    throw re;
+                }
             }
             else
             {
                 throw new Exception("Unable to create cs mods assembly.");
             }
+        }
+
+        /// <summary>
+        /// This function should be used whenever a new assembly is created. Wrapper to allow more complicated setup later if need be.
+        /// </summary>
+        private static void RegisterAssemblyWithNativeGame(Assembly assembly)
+        {
+            Barotrauma.ReflectionUtils.AddNonAbstractAssemblyTypes(assembly);
+        }
+
+        /// <summary>
+        /// This function should be used whenever a new assembly is about to be destroyed/unloaded. Wrapper to allow more complicated setup later if need be.
+        /// </summary>
+        /// <param name="assembly">Assembly to remove</param>
+        private static void UnregisterAssemblyFromNativeGame(Assembly assembly)
+        {
+            Barotrauma.ReflectionUtils.RemoveAssemblyFromCache(assembly);
         }
 
         private static string[] DirSearch(string sDir)
@@ -220,7 +246,11 @@ namespace Barotrauma
 
         public void Clear()
         {
-            Assembly = null;
+            if (Assembly != null)
+            {
+                UnregisterAssemblyFromNativeGame(Assembly);
+                Assembly = null;
+            }
         }
     }
 }
