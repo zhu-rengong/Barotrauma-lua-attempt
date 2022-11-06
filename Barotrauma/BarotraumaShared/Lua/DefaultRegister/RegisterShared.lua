@@ -160,6 +160,7 @@ RegisterBarotrauma("ContentXElement")
 RegisterBarotrauma("ContentPath")
 RegisterBarotrauma("ContentPackageId")
 RegisterBarotrauma("SteamWorkshopId")
+RegisterBarotrauma("Md5Hash")
 
 RegisterBarotrauma("SoundsFile")
 
