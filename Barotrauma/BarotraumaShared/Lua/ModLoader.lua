@@ -166,7 +166,7 @@ if SERVER then
 
         Hook.Call("client.packages", client, packages)
     end)
-else
+elseif Game.IsMultiplayer then
     local message = Networking.Start("_luastart")
 
     message.WriteUInt16(#allExecuted)
