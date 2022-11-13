@@ -1,4 +1,4 @@
-using Barotrauma.IO;
+﻿using Barotrauma.IO;
 using Barotrauma.Media;
 using Barotrauma.Networking;
 using Barotrauma.Particles;
@@ -922,7 +922,6 @@ namespace Barotrauma
                 luaSw.Start();
 
                 GameMain.LuaCs.Update();
-                GameMain.LuaCs.Hook.Call("think");
 
                 luaSw.Stop();
                 PerformanceCounter.AddElapsedTicks("Think Hook", luaSw.ElapsedTicks);

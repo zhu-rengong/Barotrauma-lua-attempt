@@ -760,8 +760,6 @@ namespace Barotrauma
             compatHookPostfixMethods.Clear();
         }
 
-        public void Update() { }
-
         private Stopwatch performanceMeasurement = new Stopwatch();
 
         [MoonSharpHidden]

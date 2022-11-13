@@ -198,9 +198,9 @@ namespace Barotrauma
 
         public void Update()
         {
-            Hook?.Update();
             Timer?.Update();
             Steam?.Update();
+            Hook?.Call("think");
         }
 
         public void Stop()
@@ -249,7 +249,6 @@ namespace Barotrauma
             Stop();
 
             PrintMessage("Lua! Version " + AssemblyInfo.GitRevision);
-
 
             if (File.Exists(configFileName))
             {
