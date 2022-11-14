@@ -88,6 +88,13 @@ namespace Barotrauma
             return type == targetType;
         }
 
+        public static string TypeOf(object obj)
+        {
+            if (obj == null) { throw new ScriptRuntimeException("userdata is nil"); }
+
+            return obj.GetType().FullName;
+        }
+
         public static object CreateStatic(string typeName)
         {
             Type type = GetType(typeName);

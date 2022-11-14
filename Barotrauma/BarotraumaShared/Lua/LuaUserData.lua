@@ -9,6 +9,7 @@ luaUserData.UnregisterType = clrLuaUserData.UnregisterType
 luaUserData.RegisterGenericType = clrLuaUserData.RegisterGenericType
 luaUserData.UnregisterGenericType = clrLuaUserData.UnregisterGenericType
 luaUserData.IsTargetType = clrLuaUserData.IsTargetType
+luaUserData.TypeOf = clrLuaUserData.TypeOf
 luaUserData.GetType = clrLuaUserData.GetType
 luaUserData.CreateEnumTable = clrLuaUserData.CreateEnumTable
 luaUserData.MakeFieldAccessible = clrLuaUserData.MakeFieldAccessible
