@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -11,14 +11,14 @@ namespace Barotrauma
         public static List<ACsMod> LoadedMods { get => mods; }
 
         private const string MOD_STORE = "LocalMods/.modstore";
-        public static string GetSoreFolder<T>() where T : ACsMod
+        public static string GetStoreFolder<T>() where T : ACsMod
         {
             if (!Directory.Exists(MOD_STORE)) Directory.CreateDirectory(MOD_STORE);
             var modFolder = $"{MOD_STORE}/{typeof(T)}";
             if (!Directory.Exists(modFolder)) Directory.CreateDirectory(modFolder);
             return modFolder;
         }
-
+        public static string GetSoreFolder<T>() where T : ACsMod => GetStoreFolder<T>();
 
         public bool IsDisposed { get; private set; }
 
