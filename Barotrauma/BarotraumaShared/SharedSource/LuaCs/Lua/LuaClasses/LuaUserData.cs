@@ -11,7 +11,7 @@ namespace Barotrauma
     {
         public static Type GetType(string typeName)
         {
-            if (typeName == null || typeName.Length == 0) return null;
+            if (typeName == null || typeName.Length == 0) { return null; }
 
             var byRef = false;
             if (typeName.StartsWith("out ") || typeName.StartsWith("ref "))
@@ -21,7 +21,7 @@ namespace Barotrauma
             }
 
             var type = Type.GetType(typeName);
-            if (type != null) return byRef ? type.MakeByRefType() : type;
+            if (type != null) { return byRef ? type.MakeByRefType() : type; }
             foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
             {
                 if (CsScriptBase.LoadedAssemblyName.Contains(a.GetName().Name))
@@ -45,7 +45,7 @@ namespace Barotrauma
 
             if (type == null)
             {
-                throw new ScriptRuntimeException($"Tried to register a type that doesn't exist: {typeName}.");
+                throw new ScriptRuntimeException($"tried to register a type that doesn't exist: {typeName}.");
             }
 
             return UserData.RegisterType(type);
@@ -57,7 +57,7 @@ namespace Barotrauma
 
             if (type == null)
             {
-                throw new ScriptRuntimeException($"Tried to unregister a type that doesn't exist: {typeName}.");
+                throw new ScriptRuntimeException($"tried to unregister a type that doesn't exist: {typeName}.");
             }
 
             UserData.UnregisterType(type, deleteHistory);
@@ -78,14 +78,14 @@ namespace Barotrauma
             UserData.UnregisterType(genericType);
         }
 
-        private static bool IsType<T>(object obj) { return obj is T; }
-
         public static bool IsTargetType(object obj, string typeName)
         {
-            var type = GetType(typeName);
-            MethodInfo method = typeof(LuaUserData).GetMethod(nameof(IsType), BindingFlags.NonPublic | BindingFlags.Static);
-            MethodInfo generic = method.MakeGenericMethod(type);
-            return (bool)generic.Invoke(null, new object[] { obj });
+            if (obj == null) { throw new ScriptRuntimeException("userdata is nil");  }
+            Type targetType = GetType(typeName);
+            if (targetType == null) { throw new ScriptRuntimeException("target type not found"); }
+
+            Type type = obj is Type ? (Type)obj : obj.GetType();
+            return type == targetType;
         }
 
         public static object CreateStatic(string typeName)
@@ -94,7 +94,7 @@ namespace Barotrauma
 
             if (type == null)
             {
-                throw new ScriptRuntimeException($"Tried to create a static userdata of a type that doesn't exist: {typeName}.");
+                throw new ScriptRuntimeException($"tried to create a static userdata of a type that doesn't exist: {typeName}.");
             }
 
             MethodInfo method = typeof(UserData).GetMethod(nameof(UserData.CreateStatic), 1, new Type[0]);
@@ -108,7 +108,7 @@ namespace Barotrauma
 
             if (type == null)
             {
-                throw new ScriptRuntimeException($"Tried to create an enum table with a type that doesn't exist:: {typeName}.");
+                throw new ScriptRuntimeException($"tried to create an enum table with a type that doesn't exist:: {typeName}.");
             }
 
             Dictionary<string, object> result = new Dictionary<string, object>();
@@ -139,59 +139,85 @@ namespace Barotrauma
         {
             if (IUUD == null)
             {
-                throw new ScriptRuntimeException($"Tried to use a UserDataDescriptor that is null to make {fieldName} accessible.");
+                throw new ScriptRuntimeException($"tried to use a UserDataDescriptor that is null to make {fieldName} accessible.");
             }
 
             var descriptor = (StandardUserDataDescriptor)IUUD;
-            var field = IUUD.Type.GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+            FieldInfo field = FindFieldRecursively(IUUD.Type, fieldName);
 
             if (field == null)
             {
-                field = FindFieldRecursively(IUUD.Type, fieldName);
-            }
-
-            if (field == null)
-            {
-                throw new ScriptRuntimeException($"Tried to make field '{fieldName}' accessible, but the field doesn't exist.");
+                throw new ScriptRuntimeException($"tried to make field '{fieldName}' accessible, but the field doesn't exist.");
             }
 
             descriptor.RemoveMember(fieldName);
             descriptor.AddMember(fieldName, new FieldMemberDescriptor(field, InteropAccessMode.Default));
         }
 
-        private static MethodInfo FindMethodRecursively(Type type, string methodName)
+        private static MethodInfo FindMethodRecursively(Type type, string methodName, Type[] types = null)
         {
-            var method = type.GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+            MethodInfo method;
+
+            if (types == null)
+            {
+                method = type.GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+            }
+            else
+            {
+                method = type.GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static, types);
+            }
 
             if (method == null && type.BaseType != null)
             {
-                return FindMethodRecursively(type.BaseType, methodName);
+                return FindMethodRecursively(type.BaseType, methodName, types);
             }
 
             return method;
         }
 
-        public static void MakeMethodAccessible(IUserDataDescriptor IUUD, string methodName)
+        public static void MakeMethodAccessible(IUserDataDescriptor IUUD, string methodName, string[] parameters = null)
         {
             if (IUUD == null)
             {
-                throw new ScriptRuntimeException($"Tried to use a UserDataDescriptor that is null to make {methodName} accessible.");
+                throw new ScriptRuntimeException($"tried to use a UserDataDescriptor that is null to make {methodName} accessible.");
+            }
+
+            Type[] parameterTypes = null;
+
+
+            if (parameters != null)
+            {
+                parameterTypes = new Type[parameters.Length];
+
+                for (int i = 0; i < parameters.Length; i++)
+                {
+                    Type type = LuaUserData.GetType(parameters[i]);
+                    if (type == null)
+                    {
+                        throw new ScriptRuntimeException($"invalid parameter type '{parameters[i]}'");
+                    }
+                    parameterTypes[i] = type;
+                }
             }
 
             var descriptor = (StandardUserDataDescriptor)IUUD;
-            var method = IUUD.Type.GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
 
-            if (method == null)
+            MethodBase method;
+
+            try
             {
-                method = FindMethodRecursively(IUUD.Type, methodName);
+                method = FindMethodRecursively(IUUD.Type, methodName, parameterTypes);
+            }
+            catch (AmbiguousMatchException ex)
+            {
+                throw new ScriptRuntimeException("ambiguous method signature.");
             }
 
             if (method == null)
             {
-                throw new ScriptRuntimeException($"Tried to make method '{methodName}' accessible, but the method doesn't exist.");
+                throw new ScriptRuntimeException($"tried to make method '{methodName}' accessible, but the method doesn't exist.");
             }
 
-            descriptor.RemoveMember(methodName);
             descriptor.AddMember(methodName, new MethodMemberDescriptor(method, InteropAccessMode.Default));
         }
 
@@ -199,7 +225,7 @@ namespace Barotrauma
         {
             if (IUUD == null)
             {
-                throw new ScriptRuntimeException($"Tried to use a UserDataDescriptor that is null to add method {methodName}.");
+                throw new ScriptRuntimeException($"tried to use a UserDataDescriptor that is null to add method {methodName}.");
             }
 
             var descriptor = (StandardUserDataDescriptor)IUUD;
@@ -217,7 +243,7 @@ namespace Barotrauma
         {
             if (IUUD == null)
             {
-                throw new ScriptRuntimeException($"Tried to use a UserDataDescriptor that is null to add field {fieldName}.");
+                throw new ScriptRuntimeException($"tried to use a UserDataDescriptor that is null to add field {fieldName}.");
             }
 
             var descriptor = (StandardUserDataDescriptor)IUUD;
@@ -229,7 +255,7 @@ namespace Barotrauma
         {
             if (IUUD == null)
             {
-                throw new ScriptRuntimeException($"Tried to use a UserDataDescriptor that is null to remove the member {memberName}.");
+                throw new ScriptRuntimeException($"tried to use a UserDataDescriptor that is null to remove the member {memberName}.");
             }
 
             var descriptor = (StandardUserDataDescriptor)IUUD;

@@ -837,7 +837,18 @@ namespace Barotrauma
             {
                 if (parameters != null)
                 {
-                    var parameterTypes = parameters.Select(x => LuaUserData.GetType(x)).ToArray();
+                    Type[] parameterTypes = new Type[parameters.Length];
+
+                    for (int i = 0; i < parameters.Length; i++)
+                    {
+                        Type type = LuaUserData.GetType(parameters[i]);
+                        if (type == null)
+                        {
+                            throw new ScriptRuntimeException($"invalid parameter type '{parameters[i]}'");
+                        }
+                        parameterTypes[i] = type;
+                    }
+
                     method = methodName switch
                     {
                         ".cctor" => classType.TypeInitializer,
