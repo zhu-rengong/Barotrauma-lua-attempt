@@ -192,6 +192,7 @@ namespace Barotrauma
 
             get
             {
+                if (GameMain.IsSingleplayer) { return GameMain.GameSession != null; }
 #if SERVER
                 return GameMain.Server?.GameStarted == true;
 #else
