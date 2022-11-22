@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -22,14 +22,7 @@ namespace Barotrauma
             }
 
             #warning TODO: Add safety checks in case an assembly is unloaded without being removed from the cache.
-            
-            List<Type> types = new List<Type>();
-            foreach (var typearr in cachedNonAbstractTypes)
-            {
-                types = types.Concat(typearr.Value.Where(t => t.IsSubclassOf(typeof(T)))).ToList();
-            }
-            
-            return types;
+            return cachedNonAbstractTypes.Values.SelectMany(s => s.Where(t => t.IsSubclassOf(typeof(T))));
         }
 
         /// <summary>
@@ -53,7 +46,9 @@ namespace Barotrauma
             try
             {
                 if (!cachedNonAbstractTypes.TryAdd(assembly, assembly.GetTypes().Where(t => !t.IsAbstract).ToImmutableArray()))
+                {
                     DebugConsole.LogError($"ReflectionUtils::AddNonAbstractAssemblyTypes() | Unable to add types from Assembly to cache.");
+                }
             }
             catch (ReflectionTypeLoadException e)
             {
