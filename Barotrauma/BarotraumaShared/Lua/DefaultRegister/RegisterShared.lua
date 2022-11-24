@@ -141,9 +141,8 @@ RegisterBarotrauma("ItemPrefab")
 RegisterBarotrauma("InputType")
 
 RegisterBarotrauma("FireSource")
-
 RegisterBarotrauma("SerializableProperty")
-RegisterBarotrauma("StatusEffect")
+LuaUserData.MakeFieldAccessible(RegisterBarotrauma("StatusEffect"), "user")
 RegisterBarotrauma("DurationListElement")
 RegisterBarotrauma("PropertyConditional")
 RegisterBarotrauma("DelayedListElement")
