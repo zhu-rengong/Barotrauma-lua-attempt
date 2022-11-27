@@ -129,62 +129,62 @@ namespace Barotrauma
         public bool disableDisconnectCharacter = false;
         public bool enableControlHusk = false;
 
-        public int mapEntityUpdateInterval
+        public int MapEntityUpdateInterval
         {
             get { return MapEntity.MapEntityUpdateInterval; }
             set { MapEntity.MapEntityUpdateInterval = value; }
         }
 
-        public int gapUpdateInterval
+        public int GapUpdateInterval
         {
             get { return MapEntity.GapUpdateInterval; }
             set { MapEntity.GapUpdateInterval = value; }
         }
 
-        public int poweredUpdateInterval
+        public int PoweredUpdateInterval
         {
             get { return MapEntity.PoweredUpdateInterval; }
             set { MapEntity.PoweredUpdateInterval = value; }
         }
 
-        public int characterUpdateInterval
+        public int CharacterUpdateInterval
         {
             get { return Character.CharacterUpdateInterval; }
             set { Character.CharacterUpdateInterval = value; }
         }
 
 
-        public HashSet<Item> updatePriorityItems = new HashSet<Item>();
-        public HashSet<Character> updatePriorityCharacters = new HashSet<Character>();
+        public HashSet<Item> UpdatePriorityItems = new HashSet<Item>();
+        public HashSet<Character> UpdatePriorityCharacters = new HashSet<Character>();
 
         public void AddPriorityItem(Item item)
         {
-            updatePriorityItems.Add(item);
+            UpdatePriorityItems.Add(item);
         }
 
         public void RemovePriorityItem(Item item)
         {
-            updatePriorityItems.Remove(item);
+            UpdatePriorityItems.Remove(item);
         }
 
         public void ClearPriorityItem()
         {
-            updatePriorityItems.Clear();
+            UpdatePriorityItems.Clear();
         }
 
         public void AddPriorityCharacter(Character character)
         {
-            updatePriorityCharacters.Add(character);
+            UpdatePriorityCharacters.Add(character);
         }
 
         public void RemovePriorityCharacter(Character character)
         {
-            updatePriorityCharacters.Remove(character);
+            UpdatePriorityCharacters.Remove(character);
         }
 
         public void ClearPriorityCharacter()
         {
-            updatePriorityCharacters.Clear();
+            UpdatePriorityCharacters.Clear();
         }
 
         public bool RoundStarted
@@ -514,9 +514,9 @@ namespace Barotrauma
 
         public void Stop()
         {
-            mapEntityUpdateInterval = 1;
-            gapUpdateInterval = 4;
-            characterUpdateInterval = 1;
+            MapEntityUpdateInterval = 1;
+            GapUpdateInterval = 4;
+            CharacterUpdateInterval = 1;
 
             foreach (var cmd in luaAddedCommand)
             {
