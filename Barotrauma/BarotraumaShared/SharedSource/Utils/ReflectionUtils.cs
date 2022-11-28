@@ -16,9 +16,12 @@ namespace Barotrauma
         public static IEnumerable<Type> GetDerivedNonAbstract<T>()
         {
             Assembly assembly = typeof(T).Assembly;
-            if (!cachedNonAbstractTypes.ContainsKey(assembly))
+            lock (cachedNonAbstractTypes) 
             {
-                AddNonAbstractAssemblyTypes(assembly);
+                if (!cachedNonAbstractTypes.ContainsKey(assembly))
+                {
+                    AddNonAbstractAssemblyTypes(assembly);
+                }
             }
 
             #warning TODO: Add safety checks in case an assembly is unloaded without being removed from the cache.
