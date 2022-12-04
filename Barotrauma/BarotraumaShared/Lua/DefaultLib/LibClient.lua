@@ -56,6 +56,7 @@ defaultLib["GUI"] = {
     CustomComponent = CreateStatic("Barotrauma.GUICustomComponent", true),
     ScissorComponent = CreateStatic("Barotrauma.GUIScissorComponent", true),
     VideoPlayer = CreateStatic("Barotrauma.VideoPlayer", true),
+    Graph = CreateStatic("Barotrauma.Graph", true),
 
     Screen = CreateStatic("Barotrauma.Screen"),
 
