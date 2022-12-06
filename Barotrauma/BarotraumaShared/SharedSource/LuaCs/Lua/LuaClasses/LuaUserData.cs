@@ -85,7 +85,7 @@ namespace Barotrauma
             if (targetType == null) { throw new ScriptRuntimeException("target type not found"); }
 
             Type type = obj is Type ? (Type)obj : obj.GetType();
-            return type == targetType;
+            return targetType.IsAssignableFrom(type);
         }
 
         public static string TypeOf(object obj)
