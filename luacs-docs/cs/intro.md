@@ -19,7 +19,6 @@ The main star of the show is Barotrauma::ACsMod class. It is what **all** your m
 - Additionally you can specify what code runs where by either ***filepath*** or ***pre-processor statements***
 - In case of filepath, your files must be located in either `CSharp/Shared/*`, `CSharp/Server/*` or `CSharp/Client/*`, for *shared* code, *server-side* code or *client-side* code respectively (in any other case, the code is assumed to be shared)
 - I case of pre-processor, you can use `SERVER` or `CLIENT` definitions to separate code into *server-side* code and *client-side* code respectively
-- Some classes *(e.g. almost all System.IO)* is prohibited to thwart malicious mods, although current white-listing prohibits reflection, so no mod can be considered inherently safe
 - In above case one must use `LuaCs...` classes to get access to system resources or similar things, if any
 - If you want for your mod to inherently be turned on *client-side* when it is enabled, you must create a dummy `.xml` file.
 
