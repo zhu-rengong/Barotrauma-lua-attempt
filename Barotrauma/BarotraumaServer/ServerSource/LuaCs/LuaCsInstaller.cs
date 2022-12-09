@@ -37,7 +37,7 @@ namespace Barotrauma
                         "System.Runtime.CompilerServices.Unsafe.dll"
                 };
                 filesToCopy = filesToCopy.Concat(Directory.EnumerateFiles(path, "*.dll", SearchOption.AllDirectories)
-                    .Where(s => s.Contains("mscordaccore_amd64_amd64_4.")).Select(s => Path.GetFileName(s))).ToArray();
+                    .Where(s => s.Contains("mscordaccore_amd64_amd64")).Select(s => Path.GetFileName(s))).ToArray();
 
                 CreateMissingDirectory();
 

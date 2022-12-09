@@ -100,7 +100,7 @@ namespace Barotrauma.Networking
 
                 if (canUse != null) 
                 {
-                    return should.Value;
+                    return canUse.Value;
                 }
 
                 if (recipientRadio.CanReceive(senderRadio)) { return true; }

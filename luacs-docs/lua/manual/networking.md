@@ -25,7 +25,7 @@ local item = ...
 item.SpriteColor = Color(0, 0, 255, 255)
 
 local property = item.SerializableProperties[Identifier("SpriteColor")]
-Networking.CreateEntityEvent(item, Item.ChangePropertyEventData(property))
+Networking.CreateEntityEvent(item, Item.ChangePropertyEventData(property, item))
 ```
 
 This is also possible to do with item components:
@@ -36,7 +36,7 @@ local light = item.GetComponentString("LightComponent")
 
 light.LightColor = Color(0, 0, 255, 255)
 local property = light.SerializableProperties[Identifier("LightColor")]
-Networking.CreateEntityEvent(item, Item.ChangePropertyEventData(property))    
+Networking.CreateEntityEvent(item, Item.ChangePropertyEventData(property, light))    
 ```
 
 ## Sending Custom Net Messages

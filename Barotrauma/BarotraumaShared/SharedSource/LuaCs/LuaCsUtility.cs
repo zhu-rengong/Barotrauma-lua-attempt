@@ -28,7 +28,8 @@ namespace Barotrauma
 #if CLIENT
             string tempDownloadDir = getFullPath(ModReceiver.DownloadFolder);
 #endif
-
+            if (pathStartsWith(getFullPath(string.IsNullOrEmpty(GameSettings.CurrentConfig.SavePath) ? SaveUtil.DefaultSaveFolder : GameSettings.CurrentConfig.SavePath)))
+                return true;
 
             if (pathStartsWith(localModsDir))
                 return true;
@@ -63,7 +64,7 @@ namespace Barotrauma
                 }
             }
 
-            if (pathStartsWith(getFullPath(SaveUtil.SaveFolder)))
+            if (pathStartsWith(getFullPath(string.IsNullOrEmpty(GameSettings.CurrentConfig.SavePath) ? SaveUtil.DefaultSaveFolder : GameSettings.CurrentConfig.SavePath)))
                 return true;
 
             if (pathStartsWith(getFullPath(ContentPackage.LocalModsDir)))
