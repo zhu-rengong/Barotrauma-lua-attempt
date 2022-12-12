@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -371,3 +371,7 @@ GenerateDocs(typeof(AfflictionPrefab), "AfflictionPrefab.lua", "AfflictionPrefab
 GenerateDocs(typeof(WayPoint), "WayPoint.lua", "WayPoint");
 GenerateDocs(typeof(ServerSettings), "ServerSettings.lua", "Game.ServerSettings");
 GenerateDocs(typeof(GameSettings), "GameSettings.lua", "Game.Settings");
+GenerateDocs(typeof(Structure), "Structure.lua", "Structure");
+GenerateDocs(typeof(StructurePrefab), "StructurePrefab.lua", "StructurePrefab");
+GenerateDocs(typeof(Limb), "Limb.lua", "Limb");
+GenerateDocs(typeof(PhysicsBody), "PhysicsBody.lua", "PhysicsBody");
