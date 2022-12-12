@@ -106,6 +106,7 @@ defaultLib["DecalManager"] = CreateStatic("Barotrauma.DecalManager", true)
 defaultLib["AutoItemPlacer"] = CreateStatic("Barotrauma.AutoItemPlacer")
 defaultLib["PropertyConditional"] = CreateStatic("Barotrauma.PropertyConditional", true)
 defaultLib["StatusEffect"] = CreateStatic("Barotrauma.StatusEffect", true)
+defaultLib["OutpostGenerator"] = CreateStatic("Barotrauma.OutpostGenerator")
 
 defaultLib["Md5Hash"] = CreateStatic("Barotrauma.Md5Hash", true)
 defaultLib["ContentXElement"] = CreateStatic("Barotrauma.ContentXElement", true)
