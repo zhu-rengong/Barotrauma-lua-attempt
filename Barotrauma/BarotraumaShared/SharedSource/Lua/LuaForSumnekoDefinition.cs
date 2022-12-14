@@ -117,7 +117,10 @@ namespace Barotrauma
             Lualy<System.Single>();
             Lualy<System.Double>();
 
+            Lualy<System.TimeSpan>();
+
 #if CLIENT
+            Lualy<Media.Video>();
             Lualy<Microsoft.Xna.Framework.Graphics.SpriteBatch>();
             Lualy<Microsoft.Xna.Framework.Graphics.Texture2D>();
 #endif
@@ -128,6 +131,11 @@ namespace Barotrauma
             Lualy<Microsoft.Xna.Framework.Color>(new string[] { "Color" });
             Lualy<Microsoft.Xna.Framework.Point>(new string[] { "Point" });
             Lualy<Microsoft.Xna.Framework.Rectangle>(new string[] { "Rectangle" });
+
+#if CLIENT
+            Lualy<Barotrauma.WaterRenderer>();
+            Lualy<Barotrauma.WaterVertexData>();
+#endif
 
             Lualy<Barotrauma.LuaSByte>(new string[] { "SByte" });
             Lualy<Barotrauma.LuaByte>(new string[] { "Byte" });
@@ -228,6 +236,7 @@ namespace Barotrauma
             Lualy<Barotrauma.Networking.SteamP2PEndpoint>();
             Lualy<Barotrauma.Networking.PipeEndpoint>();
 
+            Lualy<Barotrauma.Md5Hash>();
             Lualy<Barotrauma.ContentFile>();
             Lualy<Barotrauma.ContentPackage>();
             Lualy<Barotrauma.ContentPackageId>();
@@ -238,6 +247,55 @@ namespace Barotrauma
             Lualy<Barotrauma.CorePackage>();
             Lualy<Barotrauma.ContentXElement>();
             Lualy<Barotrauma.ContentPath>();
+
+            #region Files
+            Lualy<Barotrauma.AfflictionsFile>();
+            Lualy<Barotrauma.BackgroundCreaturePrefabsFile>();
+            Lualy<Barotrauma.BallastFloraFile>();
+            Lualy<Barotrauma.BeaconStationFile>();
+            Lualy<Barotrauma.CaveGenerationParametersFile>();
+            Lualy<Barotrauma.CharacterFile>();
+            Lualy<Barotrauma.ContentFile>();
+            Lualy<Barotrauma.CorpsesFile>();
+            Lualy<Barotrauma.DecalsFile>();
+            Lualy<Barotrauma.EnemySubmarineFile>();
+            Lualy<Barotrauma.EventManagerSettingsFile>();
+            Lualy<Barotrauma.FactionsFile>();
+            Lualy<Barotrauma.ItemAssemblyFile>();
+            Lualy<Barotrauma.ItemFile>();
+            Lualy<Barotrauma.JobsFile>();
+            Lualy<Barotrauma.LevelGenerationParametersFile>();
+            Lualy<Barotrauma.LevelObjectPrefabsFile>();
+            Lualy<Barotrauma.LocationTypesFile>();
+            Lualy<Barotrauma.MapGenerationParametersFile>();
+            Lualy<Barotrauma.MissionsFile>();
+            Lualy<Barotrauma.NPCConversationsFile>();
+            Lualy<Barotrauma.NPCPersonalityTraitsFile>();
+            Lualy<Barotrauma.NPCSetsFile>();
+            Lualy<Barotrauma.OrdersFile>();
+            Lualy<Barotrauma.OtherFile>();
+            Lualy<Barotrauma.OutpostConfigFile>();
+            Lualy<Barotrauma.OutpostFile>();
+            Lualy<Barotrauma.OutpostModuleFile>();
+            Lualy<Barotrauma.ParticlesFile>();
+            Lualy<Barotrauma.RandomEventsFile>();
+            Lualy<Barotrauma.RuinConfigFile>();
+            Lualy<Barotrauma.ServerExecutableFile>();
+            Lualy<Barotrauma.SkillSettingsFile>();
+            Lualy<Barotrauma.SoundsFile>();
+            Lualy<Barotrauma.StartItemsFile>();
+            Lualy<Barotrauma.StructureFile>();
+            Lualy<Barotrauma.SubmarineFile>();
+            Lualy<Barotrauma.TalentsFile>();
+            Lualy<Barotrauma.TalentTreesFile>();
+            Lualy<Barotrauma.TextFile>();
+            Lualy<Barotrauma.TraitorMissionsFile>();
+            Lualy<Barotrauma.TutorialsFile>();
+            Lualy<Barotrauma.UIStyleFile>();
+            Lualy<Barotrauma.UpgradeModulesFile>();
+            Lualy<Barotrauma.WreckAIConfigFile>();
+            Lualy<Barotrauma.WreckFile>();
+            #endregion
 
             LualyBase(typeof(Barotrauma.XMLExtensions));
             Lualy<System.Xml.Linq.XElement>(new string[] { nameof(XElement) });
@@ -271,6 +329,8 @@ namespace Barotrauma
             Lualy<Barotrauma.DelayedEffect>();
             Lualy<Barotrauma.DelayedListElement>();
             Lualy<Barotrauma.DurationListElement>();
+            LualyBase(typeof(Barotrauma.OutpostGenerator));
+
 
             Lualy<Barotrauma.FireSource>();
             Lualy<Barotrauma.DummyFireSource>();
@@ -293,6 +353,7 @@ namespace Barotrauma
             LualyBase(typeof(Barotrauma.GameSettings));
 #if CLIENT
             Lualy<Barotrauma.SettingsMenu>();
+            Lualy<Barotrauma.TabMenu>();
 #endif
 
             Lualy<GameSession>();
@@ -324,10 +385,29 @@ namespace Barotrauma
             LualyBase(typeof(Barotrauma.AutoItemPlacer));
             Lualy<Barotrauma.CargoManager>();
             Lualy<Barotrauma.CrewManager>();
+            Lualy<Barotrauma.SteeringManager>();
+            Lualy<Barotrauma.IndoorsSteeringManager>();
+            Lualy<Barotrauma.SteeringPath>();
             Lualy<Barotrauma.HireManager>();
             Lualy<Barotrauma.MedicalClinic>();
             Lualy<Barotrauma.ReadyCheck>();
 
+            //Mission
+            Lualy<Barotrauma.Mission>();
+            Lualy<Barotrauma.MissionPrefab>();
+            Lualy<Barotrauma.AbandonedOutpostMission>();
+            Lualy<Barotrauma.AlienRuinMission>();
+            Lualy<Barotrauma.BeaconMission>();
+            Lualy<Barotrauma.CargoMission>();
+            Lualy<Barotrauma.CombatMission>();
+            Lualy<Barotrauma.EscortMission>();
+            Lualy<Barotrauma.GoToMission>();
+            Lualy<Barotrauma.MineralMission>();
+            Lualy<Barotrauma.MonsterMission>();
+            Lualy<Barotrauma.NestMission>();
+            Lualy<Barotrauma.PirateMission>();
+            Lualy<Barotrauma.SalvageMission>();
+            Lualy<Barotrauma.ScanMission>();
             #endregion
 
             Lualy<Barotrauma.GameDifficulty>();
@@ -381,6 +461,8 @@ namespace Barotrauma
             Lualy<Barotrauma.PrefabCollection<Barotrauma.TalentTree>>();
             Lualy<Barotrauma.PrefabCollection<Barotrauma.OrderPrefab>>();
             Lualy<Barotrauma.PrefabCollection<Barotrauma.EventPrefab>>();
+            Lualy<Barotrauma.PrefabCollection<Barotrauma.LevelGenerationParams>>();
+            Lualy<Barotrauma.PrefabCollection<Barotrauma.LocationType>>();
 
 #if CLIENT
             Lualy<Barotrauma.PrefabCollection<Barotrauma.GUIPrefab>>();
@@ -420,6 +502,8 @@ namespace Barotrauma
             Lualy<Barotrauma.MapCreatures.Behavior.BallastFloraBehavior>();
             Lualy<Barotrauma.MapCreatures.Behavior.BallastFloraBranch>();
             Lualy<Barotrauma.PetBehavior>();
+            Lualy<Barotrauma.SwarmBehavior>();
+            Lualy<Barotrauma.LatchOntoAI>();
             #endregion
 
             Lualy<Barotrauma.OrderCategory>();
@@ -540,6 +624,7 @@ namespace Barotrauma
 
             #region Item
             Lualy<Barotrauma.ItemPrefab>();
+            Lualy<Barotrauma.ItemAssemblyPrefab>();
             Lualy<Barotrauma.Item>();
             Lualy<Barotrauma.ItemInventory>();
             Lualy<Barotrauma.RelatedItem>();
@@ -750,6 +835,11 @@ namespace Barotrauma
             Lualy<Barotrauma.FabricationRecipe.RequiredItemByIdentifier>();
             Lualy<Barotrauma.FabricationRecipe.RequiredItemByTag>();
             Lualy<Barotrauma.FabricationRecipe.RequiredItem>();
+            Lualy<Barotrauma.PurchasedItem>();
+            Lualy<Barotrauma.PurchasedItemSwap>();
+            Lualy<Barotrauma.SoldItem>();
+            Lualy<Barotrauma.StartItem>();
+            Lualy<Barotrauma.StartItemSet>();
             #endregion
 
             #region Upgrade
@@ -920,7 +1010,10 @@ namespace Barotrauma
             Lualy<Barotrauma.GUITextBlock>(new string[] { "GUI", "TextBlock" });
             Lualy<Barotrauma.GUITextBox>(new string[] { "GUI", "TextBox" });
             Lualy<Barotrauma.GUITickBox>(new string[] { "GUI", "TickBox" });
+            Lualy<Barotrauma.Graph>(new string[] { "GUI", "Graph" });
+            LualyBase(typeof(Barotrauma.HUD));
             LualyBase(typeof(Barotrauma.HUDLayoutSettings));
+            LualyBase(typeof(Barotrauma.HUDProgressBar));
             Lualy<Barotrauma.LoadingScreen>();
             Lualy<Barotrauma.MedicalClinicUI>();
             Lualy<Barotrauma.ParamsEditor>();
@@ -928,10 +1021,11 @@ namespace Barotrauma
             LualyBase(typeof(Barotrauma.ShapeExtensions));
             Lualy<Barotrauma.Store>();
             Lualy<Barotrauma.SubmarineSelection>();
-            Lualy<Barotrauma.TabMenu>();
             Lualy<Barotrauma.UISprite>();
             Lualy<Barotrauma.UpgradeStore>();
-            Lualy<Barotrauma.VideoPlayer>();
+            Lualy<Barotrauma.VideoPlayer>(new string[] { "GUI", "VideoPlayer" });
+            Lualy<Barotrauma.VideoPlayer.TextSettings>(new string[] { "GUI", "VideoPlayer", "TextSettings" });
+            Lualy<Barotrauma.VideoPlayer.VideoSettings>(new string[] { "GUI", "VideoPlayer", "VideoSettings" });
             Lualy<Barotrauma.VotingInterface>();
             Lualy<Barotrauma.Widget>();
 #endif
@@ -942,8 +1036,6 @@ namespace Barotrauma
             Lualy<Barotrauma.ChatMode>();
             LualyBase(typeof(Barotrauma.Networking.VoipConfig));
             Lualy<Barotrauma.Networking.VoipQueue>();
-
-            Lualy<Barotrauma.SoundsFile>();
 
 #if SERVER
             Lualy<Networking.VoipServer>();
