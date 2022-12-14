@@ -59,7 +59,7 @@ namespace Barotrauma
         {
             if (!File.Exists(LuaCsSetup.VersionFile)) { return; }
 
-            ContentPackage luaPackage = LuaCsSetup.GetPackage("Lua For Barotrauma");
+            ContentPackage luaPackage = LuaCsSetup.GetPackage(LuaCsSetup.LuaForBarotraumaId);
             string luaCsPath = Path.GetDirectoryName(luaPackage.Path);
 
             if (luaPackage == null) { return; }
@@ -69,7 +69,7 @@ namespace Barotrauma
 
             if (clientVersion == workshopVersion) { return; }
 
-            string additional = LuaCsSetup.GetPackage("CsForBarotrauma", false, true) == null ? "" : "Cs";
+            string additional = LuaCsSetup.GetPackage(LuaCsSetup.CsForBarotraumaId, false, true) == null ? "" : "Cs";
 
             var msg = new GUIMessageBox($"Lua{additional} Update", $"Your Lua{additional} client version is different from the version found in the Lua{additional}ForBarotrauma workshop files. Do you want to update?\n\n Client Version: {clientVersion}\n Workshop Version: {workshopVersion}", 
                 new LocalizedString[2] { TextManager.Get("Yes"), TextManager.Get("Cancel") });
@@ -93,7 +93,7 @@ namespace Barotrauma
                 };
 
                 filesToUpdate = filesToUpdate.Concat(Directory.EnumerateFiles(luaCsPath, "*.dll", SearchOption.AllDirectories)
-                        .Where(s => s.Contains("mscordaccore_amd64_amd64_4.")).Select(s => Path.GetFileName(s))).ToArray();
+                        .Where(s => s.Contains("mscordaccore_amd64_amd64")).Select(s => Path.GetFileName(s))).ToArray();
 
                 try
                 {

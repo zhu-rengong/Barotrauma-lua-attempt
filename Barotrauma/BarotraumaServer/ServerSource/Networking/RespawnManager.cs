@@ -47,7 +47,7 @@ namespace Barotrauma.Networking
             }
         }
 
-        private bool IsRespawnPromptPendingForClient(Client c)
+        private static bool IsRespawnPromptPendingForClient(Client c)
         {
             if (!UseRespawnPrompt || !(GameMain.GameSession.GameMode is MultiPlayerCampaign campaign)) { return false; }
 
@@ -70,7 +70,7 @@ namespace Barotrauma.Networking
             return false;
         }
 
-        private List<CharacterInfo> GetBotsToRespawn()
+        private static List<CharacterInfo> GetBotsToRespawn()
         {
             if (GameMain.Server.ServerSettings.BotSpawnMode == BotSpawnMode.Normal)
             {
@@ -113,7 +113,7 @@ namespace Barotrauma.Networking
             return ShouldStartRespawnCountdown(characterToRespawnCount);
         }
 
-        private int GetMinCharactersToRespawn()
+        private static int GetMinCharactersToRespawn()
         {
             return Math.Max((int)(GameMain.Server.ConnectedClients.Count * GameMain.Server.ServerSettings.MinRespawnRatio), 1);
         }
@@ -485,7 +485,7 @@ namespace Barotrauma.Networking
                         }
                     }
 
-                    if (!(GameMain.GameSession.GameMode is CampaignMode))
+                    if (GameMain.GameSession.GameMode is not CampaignMode)
                     {
                         if (scooterPrefab != null)
                         {

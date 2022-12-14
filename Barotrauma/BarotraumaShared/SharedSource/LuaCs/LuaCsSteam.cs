@@ -1,4 +1,4 @@
-using Steamworks;
+﻿using Steamworks;
 using Steamworks.Data;
 using Barotrauma.Steam;
 using System.Threading;
@@ -10,8 +10,8 @@ using System;
 
 namespace Barotrauma
 {
-	partial class LuaCsSteam
-	{
+    partial class LuaCsSteam
+    {
         private struct WorkshopItemDownload
         {
             public ulong ID;
@@ -54,7 +54,7 @@ namespace Barotrauma
             {
                 itemsBeingDownloaded.Add(download);
             }
-		}
+        }
 
 
         public void DownloadWorkshopItem(ulong id, string destination, LuaCsAction callback)

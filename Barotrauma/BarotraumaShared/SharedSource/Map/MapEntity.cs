@@ -610,12 +610,12 @@ namespace Barotrauma
             {
                 foreach (Item item in Item.ItemList)
                 {
-                    if (GameMain.LuaCs.Game.updatePriorityItems.Contains(item)) continue;
+                    if (GameMain.LuaCs.Game.UpdatePriorityItems.Contains(item)) continue;
                     item.Update(deltaTime * MapEntityUpdateInterval, cam);
                 }
             }
 
-            foreach (var item in GameMain.LuaCs.Game.updatePriorityItems)
+            foreach (var item in GameMain.LuaCs.Game.UpdatePriorityItems)
             {
                 if (item.Removed) continue;
 

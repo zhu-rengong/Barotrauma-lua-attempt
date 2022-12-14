@@ -516,7 +516,7 @@ namespace Barotrauma
         {
             "Barotrauma.Lua",
             "Barotrauma.Cs",
-            "ContentPackageManager",
+            "Barotrauma.ContentPackageManager",
         };
 
         private static void ValidatePatchTarget(MethodBase method)
@@ -706,6 +706,22 @@ namespace Barotrauma
             hookFunctions[name][identifier] = (new LuaCsHookCallback(name, identifier, func), owner);
         }
 
+        public bool Exists(string name, string identifier)
+        {
+            if (name == null) throw new ArgumentNullException(nameof(name));
+            if (identifier == null) throw new ArgumentNullException(nameof(identifier));
+
+            name = NormalizeIdentifier(name);
+            identifier = NormalizeIdentifier(identifier);
+
+            if (!hookFunctions.ContainsKey(name))
+            {
+                return false;
+            }
+
+            return hookFunctions[name].ContainsKey(identifier);
+        }
+
         public void Remove(string name, string identifier)
         {
             if (name == null) throw new ArgumentNullException(nameof(name));
@@ -743,8 +759,6 @@ namespace Barotrauma
             compatHookPrefixMethods.Clear();
             compatHookPostfixMethods.Clear();
         }
-
-        public void Update() { }
 
         private Stopwatch performanceMeasurement = new Stopwatch();
 
@@ -823,7 +837,18 @@ namespace Barotrauma
             {
                 if (parameters != null)
                 {
-                    var parameterTypes = parameters.Select(x => LuaUserData.GetType(x)).ToArray();
+                    Type[] parameterTypes = new Type[parameters.Length];
+
+                    for (int i = 0; i < parameters.Length; i++)
+                    {
+                        Type type = LuaUserData.GetType(parameters[i]);
+                        if (type == null)
+                        {
+                            throw new ScriptRuntimeException($"invalid parameter type '{parameters[i]}'");
+                        }
+                        parameterTypes[i] = type;
+                    }
+
                     method = methodName switch
                     {
                         ".cctor" => classType.TypeInitializer,

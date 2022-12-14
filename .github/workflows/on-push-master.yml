@@ -13,5 +13,4 @@ jobs:
       ref: ${{ github.event.ref }}
 
   publish-release:
-    needs: [run-tests]
     uses: ./.github/workflows/publish-release.yml

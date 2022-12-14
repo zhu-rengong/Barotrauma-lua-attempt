@@ -9,6 +9,7 @@ luaUserData.UnregisterType = clrLuaUserData.UnregisterType
 luaUserData.RegisterGenericType = clrLuaUserData.RegisterGenericType
 luaUserData.UnregisterGenericType = clrLuaUserData.UnregisterGenericType
 luaUserData.IsTargetType = clrLuaUserData.IsTargetType
+luaUserData.TypeOf = clrLuaUserData.TypeOf
 luaUserData.GetType = clrLuaUserData.GetType
 luaUserData.CreateEnumTable = clrLuaUserData.CreateEnumTable
 luaUserData.MakeFieldAccessible = clrLuaUserData.MakeFieldAccessible
@@ -53,7 +54,14 @@ luaUserData.AddCallMetaTable = function (userdata)
 				error("userdata was nil.", 2)
 			end
 
-			return userdata.__new(...)
+			local success, result = pcall(userdata.__new, ...)
+
+
+			if not success then
+				error(result, 2)
+			end
+
+			return result
 		end
 	})
 end

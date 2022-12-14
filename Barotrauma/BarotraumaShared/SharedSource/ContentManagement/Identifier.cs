@@ -126,6 +126,10 @@ namespace Barotrauma
         {
             return new Identifier(str);
         }
+        internal int IndexOf(char c) => Value.IndexOf(c);
+
+        internal Identifier this[Range range] => Value[range].ToIdentifier();
+        internal Char this[int i] => Value[i];
     }
 
     public static class IdentifierExtensions

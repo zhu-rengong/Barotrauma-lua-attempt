@@ -67,32 +67,40 @@ namespace Barotrauma
 
         public void Update()
         {
-            List<TimedAction> timedActionsToRemove = new List<TimedAction>();
-            for (int i = 0; i < timedActions.Count; i++)
+            try
             {
-                TimedAction timedAction = timedActions[i];
-                if (Time >= timedAction.ExecutionTime)
+                List<TimedAction> timedActionsToRemove = new List<TimedAction>();
+                for (int i = 0; i < timedActions.Count; i++)
                 {
-                    try
+                    TimedAction timedAction = timedActions[i];
+                    if (Time >= timedAction.ExecutionTime)
                     {
-                        timedAction.Action();
-                    }
-                    catch (Exception e)
-                    {
-                        GameMain.LuaCs.HandleException(e, LuaCsMessageOrigin.CSharpMod);
-                    }
+                        try
+                        {
+                            timedAction.Action();
+                        }
+                        catch (Exception e)
+                        {
+                            GameMain.LuaCs.HandleException(e, LuaCsMessageOrigin.CSharpMod);
+                        }
 
-                    timedActionsToRemove.Add(timedAction);
+                        timedActionsToRemove.Add(timedAction);
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
-                else
+
+                foreach (TimedAction timedAction in timedActionsToRemove)
                 {
-                    break;
+                    timedActions.Remove(timedAction);
                 }
             }
-            
-            foreach (TimedAction timedAction in timedActionsToRemove)
+            catch (NullReferenceException e)
             {
-                timedActions.Remove(timedAction);
+                GameMain.LuaCs.PrintError("Error while executing timers... This shouldn't happen... Why do we a NRE here???", LuaCsMessageOrigin.Unknown);
+                GameMain.LuaCs.HandleException(e, LuaCsMessageOrigin.Unknown);
             }
         }
 

@@ -226,6 +226,14 @@ namespace Barotrauma
                 {
                     foreach (var item in slots[i].Items)
                     {
+                        if (item == null)
+                        {
+#if DEBUG
+                            DebugConsole.ThrowError($"Null item in inventory {Owner.ToString() ?? "null"}, slot {i}!");
+#endif
+                            continue;
+                        }
+
                         bool duplicateFound = false;
                         for (int j = 0; j < i; j++)
                         {
@@ -573,11 +581,13 @@ namespace Barotrauma
                 if (selectedSlot?.Inventory == this) { selectedSlot.ForceTooltipRefresh = true; }
             }
 #endif
+            CharacterHUD.RecreateHudTextsIfControlling(user);
 
             if (item.body != null)
             {
                 item.body.Enabled = false;
                 item.body.BodyType = FarseerPhysics.BodyType.Dynamic;
+                item.SetTransform(item.SimPosition, rotation: 0.0f, findNewHull: false);
             }
             
 #if SERVER
@@ -926,6 +936,7 @@ namespace Barotrauma
                     if (selectedSlot?.Inventory == this) { selectedSlot.ForceTooltipRefresh = true; }
                 }
 #endif
+                CharacterHUD.RecreateHudTextsIfFocused(item);
             }
         }
 
@@ -950,6 +961,12 @@ namespace Barotrauma
         public void ForceRemoveFromSlot(Item item, int index)
         {
             slots[index].RemoveItem(item);
+        }
+
+        public bool IsInSlot(Item item, int index)
+        {
+            if (index < 0 || index >= slots.Length) { return false; }
+            return slots[index].Contains(item);
         }
 
         public void SharedRead(IReadMessage msg, out List<ushort>[] newItemIds)
