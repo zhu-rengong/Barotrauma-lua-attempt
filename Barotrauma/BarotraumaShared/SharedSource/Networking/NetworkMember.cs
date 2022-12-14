@@ -40,15 +40,15 @@ namespace Barotrauma.Networking
         
         LUA_NET_MESSAGE
     }
-    enum ClientNetObject
+
+    enum ClientNetSegment
     {
-        END_OF_MESSAGE, //self-explanatory
-        SYNC_IDS,       //ids of the last changes the client knows about
-        CHAT_MESSAGE,   //also self-explanatory
-        VOTE,           //you get the idea
-        CHARACTER_INPUT,
-        ENTITY_STATE,
-        SPECTATING_POS
+        SyncIds,       //ids of the last changes the client knows about
+        ChatMessage,   //also self-explanatory
+        Vote,          //you get the idea
+        CharacterInput,
+        EntityState,
+        SpectatingPos
     }
 
     enum ClientNetError
@@ -92,16 +92,15 @@ namespace Barotrauma.Networking
         
         LUA_NET_MESSAGE
     }
-    enum ServerNetObject
+    enum ServerNetSegment
     {
-        END_OF_MESSAGE,
-        SYNC_IDS,
-        CHAT_MESSAGE,
-        VOTE,
-        CLIENT_LIST,
-        ENTITY_POSITION,
-        ENTITY_EVENT,
-        ENTITY_EVENT_INITIAL
+        SyncIds,
+        ChatMessage,
+        Vote,
+        ClientList,
+        EntityPosition,
+        EntityEvent,
+        EntityEventInitial
     }
 
     enum TraitorMessageType

@@ -14,7 +14,7 @@ namespace Barotrauma
     {
         public bool IsSingleplayer => GameMain.IsSingleplayer;
         public bool IsMultiplayer => GameMain.IsMultiplayer;
-        public string SaveFolder => SaveUtil.SaveFolder;
+        public string SaveFolder => string.IsNullOrEmpty(GameSettings.CurrentConfig.SavePath) ? SaveUtil.DefaultSaveFolder : GameSettings.CurrentConfig.SavePath;
 
 #if CLIENT
         public GameClient Client
