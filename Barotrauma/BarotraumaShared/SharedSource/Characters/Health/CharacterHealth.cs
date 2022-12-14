@@ -151,12 +151,6 @@ namespace Barotrauma
                 {
                     return minVitality;
                 }
-
-                if (Character.HasAbilityFlag(AbilityFlags.CanNotDieToAfflictions))
-                {
-                    return Math.Max(vitality, MinVitality + 1);
-                }
-
                 return vitality;
 
             }
@@ -598,6 +592,15 @@ namespace Barotrauma
             }            
         }
 
+        private void KillIfOutOfVitality()
+        {
+            if (Vitality <= MinVitality &&
+                !Character.HasAbilityFlag(AbilityFlags.CanNotDieToAfflictions))
+            {
+                Kill();
+            }
+        }
+
         private readonly static List<Affliction> afflictionsToRemove = new List<Affliction>();
         private readonly static List<KeyValuePair<Affliction, LimbHealth>> afflictionsToUpdate = new List<KeyValuePair<Affliction, LimbHealth>>();
         public void SetAllDamage(float damageAmount, float bleedingDamageAmount, float burnDamageAmount)
@@ -622,7 +625,7 @@ namespace Barotrauma
             }
 
             CalculateVitality();
-            if (Vitality <= MinVitality) { Kill(); }
+            KillIfOutOfVitality();
         }
 
         public float GetLimbDamage(Limb limb, string afflictionType = null)
@@ -751,10 +754,7 @@ namespace Barotrauma
                 existingAffliction.Duration = existingAffliction.Prefab.Duration;
                 if (newAffliction.Source != null) { existingAffliction.Source = newAffliction.Source; }
                 CalculateVitality();
-                if (Vitality <= MinVitality)
-                {
-                    Kill();
-                }
+                KillIfOutOfVitality();
                 return;
             }            
 
@@ -768,10 +768,7 @@ namespace Barotrauma
             Character.HealthUpdateInterval = 0.0f;
 
             CalculateVitality();
-            if (Vitality <= MinVitality)
-            {
-                Kill();
-            }
+            KillIfOutOfVitality();
 #if CLIENT
             if (OpenHealthWindow != this && limbHealth != null)
             {
@@ -866,11 +863,7 @@ namespace Barotrauma
                 }
 #endif
                 CalculateVitality();
-
-                if (Vitality <= MinVitality)
-                {
-                    Kill();
-                }
+                KillIfOutOfVitality();
             }
         }
 
