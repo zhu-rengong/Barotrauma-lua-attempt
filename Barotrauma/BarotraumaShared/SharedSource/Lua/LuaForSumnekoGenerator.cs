@@ -182,7 +182,7 @@ namespace Barotrauma
                     }
                     if (IsEnumerable)
                     {
-                        return _luaTypeVariant = $@"({LuaClrName})|(fun():({Obtain(ValueType).GetLuaTypeVariant()})";
+                        return _luaTypeVariant = $@"({LuaClrName})|(fun():({Obtain(ValueType).GetLuaTypeVariant()}))";
                     }
                 }
                 else if (IsDelegate)
