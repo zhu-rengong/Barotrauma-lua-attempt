@@ -255,7 +255,6 @@ namespace Barotrauma
             Lualy<Barotrauma.BeaconStationFile>();
             Lualy<Barotrauma.CaveGenerationParametersFile>();
             Lualy<Barotrauma.CharacterFile>();
-            Lualy<Barotrauma.ContentFile>();
             Lualy<Barotrauma.CorpsesFile>();
             Lualy<Barotrauma.DecalsFile>();
             Lualy<Barotrauma.EnemySubmarineFile>();
