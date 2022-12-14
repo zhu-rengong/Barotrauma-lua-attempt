@@ -168,21 +168,21 @@ namespace Barotrauma
                 {
                     if (IsArrayIndexer)
                     {
-                        return _luaTypeVariant = $@"{LuaClrName}|{Obtain(ArrayElementType).GetLuaTypeVariant()}[]";
+                        return _luaTypeVariant = $@"({LuaClrName})|({Obtain(ArrayElementType).GetLuaTypeVariant()}[])";
                     }
                     if (IsValueIndexer)
                     {
-                        return _luaTypeVariant = $@"{LuaClrName}|{Obtain(ValueType).GetLuaTypeVariant()}[]";
+                        return _luaTypeVariant = $@"({LuaClrName})|({Obtain(ValueType).GetLuaTypeVariant()}[])";
                     }
                     if (IsKeyValueIndexer)
                     {
                         var key = Obtain(KeyValueType.Value.Key).GetLuaTypeVariant();
                         var value = Obtain(KeyValueType.Value.Value).GetLuaTypeVariant();
-                        return _luaTypeVariant = $@"{LuaClrName}|{{[{key}]:{value}}}";
+                        return _luaTypeVariant = $@"({LuaClrName})|({{[{key}]:({value})}})";
                     }
                     if (IsEnumerable)
                     {
-                        return _luaTypeVariant = $@"{LuaClrName}|(fun():{Obtain(ValueType).GetLuaTypeVariant()})";
+                        return _luaTypeVariant = $@"({LuaClrName})|(fun():({Obtain(ValueType).GetLuaTypeVariant()})";
                     }
                 }
                 else if (IsDelegate)
@@ -197,23 +197,23 @@ namespace Barotrauma
                         if ((i < parameters.Length - 1) && parameters.Length > 1) { delegateMethodBuilder.Append(", "); }
                     }
                     ExplanDelegateMethodEnd(delegateMethodBuilder, DelegateMehtod);
-                    return _luaTypeVariant = $"{LuaClrName}|({delegateMethodBuilder})";
+                    return _luaTypeVariant = $"({LuaClrName})|({delegateMethodBuilder})";
                 }
 
                 return _luaTypeVariant = ResolvedType switch
                 {
-                    { Namespace: "System", Name: "String" } => $"{LuaClrName}|string",
-                    { Namespace: "System", Name: "Boolean" } => $"{LuaClrName}|boolean",
-                    { Namespace: "System", Name: "SByte" } => $"{LuaClrName}|integer",
-                    { Namespace: "System", Name: "Byte" } => $"{LuaClrName}|integer",
-                    { Namespace: "System", Name: "Int16" } => $"{LuaClrName}|integer",
-                    { Namespace: "System", Name: "UInt16" } => $"{LuaClrName}|integer",
-                    { Namespace: "System", Name: "Int32" } => $"{LuaClrName}|integer",
-                    { Namespace: "System", Name: "UInt32" } => $"{LuaClrName}|integer",
-                    { Namespace: "System", Name: "Int64" } => $"{LuaClrName}|integer",
-                    { Namespace: "System", Name: "UInt64" } => $"{LuaClrName}|integer",
-                    { Namespace: "System", Name: "Single" } => $"{LuaClrName}|number",
-                    { Namespace: "System", Name: "Double" } => $"{LuaClrName}|number",
+                    { Namespace: "System", Name: "String" } => $"({LuaClrName}|string)",
+                    { Namespace: "System", Name: "Boolean" } => $"({LuaClrName}|boolean)",
+                    { Namespace: "System", Name: "SByte" } => $"({LuaClrName}|integer)",
+                    { Namespace: "System", Name: "Byte" } => $"({LuaClrName}|integer)",
+                    { Namespace: "System", Name: "Int16" } => $"({LuaClrName}|integer)",
+                    { Namespace: "System", Name: "UInt16" } => $"({LuaClrName}|integer)",
+                    { Namespace: "System", Name: "Int32" } => $"({LuaClrName}|integer)",
+                    { Namespace: "System", Name: "UInt32" } => $"({LuaClrName}|integer)",
+                    { Namespace: "System", Name: "Int64" } => $"({LuaClrName}|integer)",
+                    { Namespace: "System", Name: "UInt64" } => $"({LuaClrName}|integer)",
+                    { Namespace: "System", Name: "Single" } => $"({LuaClrName}|number)",
+                    { Namespace: "System", Name: "Double" } => $"({LuaClrName}|number)",
                     _ => LuaClrName,
                 };
             }
@@ -521,7 +521,7 @@ namespace Barotrauma
                 {
                     case "op_UnaryNegation": ExplanUnOps(method, type, "unm"); break;
                     case "op_Addition": ExplanBinOps(method, type, "add"); break;
-                    case "op_Ssubtraction": ExplanBinOps(method, type, "sub"); break;
+                    case "op_Subtraction": ExplanBinOps(method, type, "sub"); break;
                     case "op_Multiply": ExplanBinOps(method, type, "mul"); break;
                     case "op_Division": ExplanBinOps(method, type, "div"); break;
                     default: break;
