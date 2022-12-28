@@ -52,12 +52,12 @@ namespace Barotrauma
                 {
                     if (rtValue == RunType.Standard && isEnabled)
                     {
-                        LuaCsSetup.PrintCsMessage($"Added {cp.Name} {cp.ModVersion} to Cs compilation. (Standard)");
+                        LuaCsLogger.LogMessage($"Added {cp.Name} {cp.ModVersion} to Cs compilation. (Standard)");
                         return true;
                     }
                     else if (rtValue == RunType.Forced)
                     {
-                        LuaCsSetup.PrintCsMessage($"Added {cp.Name} {cp.ModVersion} to Cs compilation. (Forced)");
+                        LuaCsLogger.LogMessage($"Added {cp.Name} {cp.ModVersion} to Cs compilation. (Forced)");
                         return true;
                     }
                     else if (rtValue == RunType.None)
@@ -71,7 +71,7 @@ namespace Barotrauma
 
             if (isEnabled)
             {
-                LuaCsSetup.PrintCsMessage($"Added {cp.Name} {cp.ModVersion} to Cs compilation. (Assumed)");
+                LuaCsLogger.LogMessage($"Added {cp.Name} {cp.ModVersion} to Cs compilation. (Assumed)");
                 return true;
             }
             else
@@ -160,7 +160,7 @@ namespace Barotrauma
                 }
                 catch (Exception ex)
                 {
-                    LuaCsSetup.PrintCsError("Error loading '" + folder + "':\n" + ex.Message + "\n" + ex.StackTrace);
+                    LuaCsLogger.LogError("Error loading '" + folder + "':\n" + ex.Message + "\n" + ex.StackTrace, LuaCsMessageOrigin.CSharpMod);
                 }
             }
 
@@ -189,7 +189,7 @@ namespace Barotrauma
                     {
                         errStr += $"\n{diagnostic}";
                     }
-                    LuaCsSetup.PrintCsError(errStr);
+                    LuaCsLogger.LogError(errStr, LuaCsMessageOrigin.CSharpMod);
                 }
                 else
                 {
@@ -207,7 +207,7 @@ namespace Barotrauma
                 }
                 catch (ReflectionTypeLoadException re)
                 {
-                    LuaCsSetup.PrintCsError($"Unable to load CsMod Types. {re.Message}");
+                    LuaCsLogger.LogError($"Unable to load CsMod Types. {re.Message}", LuaCsMessageOrigin.CSharpMod);
                     throw re;
                 }
             }

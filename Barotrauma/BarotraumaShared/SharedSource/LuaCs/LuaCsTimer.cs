@@ -81,7 +81,7 @@ namespace Barotrauma
                         }
                         catch (Exception e)
                         {
-                            GameMain.LuaCs.HandleException(e, LuaCsMessageOrigin.CSharpMod);
+                            LuaCsLogger.HandleException(e, LuaCsMessageOrigin.CSharpMod);
                         }
 
                         timedActionsToRemove.Add(timedAction);
@@ -99,8 +99,8 @@ namespace Barotrauma
             }
             catch (NullReferenceException e)
             {
-                GameMain.LuaCs.PrintError("Error while executing timers... This shouldn't happen... Why do we a NRE here???", LuaCsMessageOrigin.Unknown);
-                GameMain.LuaCs.HandleException(e, LuaCsMessageOrigin.Unknown);
+                LuaCsLogger.LogError("Error while executing timers... This shouldn't happen... Why do we a NRE here???", LuaCsMessageOrigin.Unknown);
+                LuaCsLogger.HandleException(e, LuaCsMessageOrigin.Unknown);
             }
         }
 

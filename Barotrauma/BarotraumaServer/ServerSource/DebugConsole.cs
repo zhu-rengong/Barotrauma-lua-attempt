@@ -1251,7 +1251,7 @@ namespace Barotrauma
                 }
                 catch (Exception ex)
                 {
-                    GameMain.LuaCs.HandleException(ex, LuaCsMessageOrigin.LuaMod);
+                    LuaCsLogger.HandleException(ex, LuaCsMessageOrigin.LuaMod);
                 }
             }));
             commands.Add(new Command("cs", "cs: Runs a string.", (string[] args) =>

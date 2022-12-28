@@ -18,10 +18,9 @@ namespace TestProject.LuaCs
             // same methods, otherwise we get script ownership exceptions.
             luaCs = luaCsFixture.LuaCs;
 
-            luaCs.MessageLogger = (prefix, o) =>
+            LuaCsLogger.MessageLogger = (o) =>
             {
-                o ??= "null";
-                output?.WriteLine(prefix + o);
+                output?.WriteLine($"{o}");
             };
 
             UserData.RegisterType<TestValueType>();

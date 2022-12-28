@@ -37,7 +37,7 @@ namespace Barotrauma
             }
             catch (Exception e)
             {
-                GameMain.LuaCs.HandleException(e, LuaCsMessageOrigin.CSharpMod);
+                LuaCsLogger.HandleException(e, LuaCsMessageOrigin.CSharpMod);
             }
 
             LoadedMods.Remove(this);

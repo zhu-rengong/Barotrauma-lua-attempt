@@ -84,7 +84,7 @@ namespace Barotrauma
                         {
                             errStr += $"\n{idx}:  {err}";
                         }
-                        LuaCsSetup.PrintCsError(errStr);
+                        LuaCsLogger.LogError(errStr, LuaCsMessageOrigin.CSharpMod);
                     }
                     else
                     {
@@ -102,16 +102,16 @@ namespace Barotrauma
                                     UserData.UnregisterType(type, true);
                                 }
                             }
-                            else { LuaCsSetup.PrintCsError("Script Error - no run method detected"); }
+                            else { LuaCsLogger.LogError("Script Error - no run method detected", LuaCsMessageOrigin.CSharpMod); }
                         }
-                        else { LuaCsSetup.PrintCsError("Script Error - no runner class detected"); }
+                        else { LuaCsLogger.LogError("Script Error - no runner class detected", LuaCsMessageOrigin.CSharpMod); }
                     }
                 }
                 Unload();
             }
             catch (Exception ex)
             {
-                LuaCsSetup.PrintCsError("Error running script:\n" + ex.Message + "\n" + ex.StackTrace);
+                LuaCsLogger.LogError("Error running script:\n" + ex.Message + "\n" + ex.StackTrace, LuaCsMessageOrigin.CSharpMod);
             }
 
             return scriptResilt;

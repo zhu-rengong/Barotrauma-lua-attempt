@@ -21,6 +21,10 @@ namespace Barotrauma
         public LuaCsSetupConfig() { }
     }
 
+    internal delegate void LuaCsMessageLogger(string message);
+    internal delegate void LuaCsErrorHandler(Exception ex, LuaCsMessageOrigin origin);
+    internal delegate void LuaCsExceptionHandler(Exception ex, LuaCsMessageOrigin origin);
+
     partial class LuaCsSetup
     {
         public const string LuaSetupFile = "Lua/LuaSetup.lua";
@@ -59,14 +63,8 @@ namespace Barotrauma
         public CsScriptLoader CsScriptLoader { get; private set; }
         public LuaCsSetupConfig Config { get; private set; }
 
-        internal LuaCsExceptionHandler ExceptionHandler { get; set; }
-        internal LuaCsMessageLogger MessageLogger { get; set; }
-
         public LuaCsSetup()
         {
-            MessageLogger = DefaultMessageLogger;
-            ExceptionHandler = DefaultExceptionHandler;
-
             Hook = new LuaCsHook(this);
             ModStore = new LuaCsModStore();
 
@@ -136,11 +134,6 @@ namespace Barotrauma
             return null;
         }
 
-        internal void HandleException(Exception ex, LuaCsMessageOrigin origin)
-        {
-            this.ExceptionHandler?.Invoke(ex, origin);
-        }
-
         private DynValue DoFile(string file, Table globalContext = null, string codeStringFriendly = null)
         {
             if (!LuaCsFile.CanReadFromPath(file))
@@ -185,7 +178,7 @@ namespace Barotrauma
                 }
                 catch (Exception e)
                 {
-                    HandleException(e, LuaCsMessageOrigin.LuaMod);
+                    LuaCsLogger.HandleException(e, LuaCsMessageOrigin.LuaMod);
                 }
                 return null;
             }
@@ -257,7 +250,7 @@ namespace Barotrauma
         {
             Stop();
 
-            PrintMessage("Lua! Version " + AssemblyInfo.GitRevision);
+            LuaCsLogger.LogMessage("Lua! Version " + AssemblyInfo.GitRevision);
 
             if (File.Exists(configFileName))
             {
@@ -277,7 +270,7 @@ namespace Barotrauma
             RegisterLuaConverters();
 
             Lua = new Script(CoreModules.Preset_SoftSandbox | CoreModules.Debug);
-            Lua.Options.DebugPrint = PrintMessage;
+            Lua.Options.DebugPrint = (o) => { LuaCsLogger.LogMessage(o); };
             Lua.Options.ScriptLoader = LuaScriptLoader;
             Lua.Options.CheckThreadAccess = false;
             Script.GlobalOptions.ShouldPCallCatchException = (Exception ex) => { return true; };
@@ -309,7 +302,7 @@ namespace Barotrauma
             UserData.RegisterType<LuaCsPerformanceCounter>();
             UserData.RegisterType<IUserDataDescriptor>();
 
-            Lua.Globals["printerror"] = (Action<object>)PrintLuaError;
+            Lua.Globals["printerror"] = (DynValue o) => { LuaCsLogger.LogError(o.ToString(), LuaCsMessageOrigin.LuaMod); };
 
             Lua.Globals["setmodulepaths"] = (Action<string[]>)SetModulePaths;
 
@@ -339,7 +332,7 @@ namespace Barotrauma
 
             if (csActive)
             {
-                PrintMessage("Cs! Version " + AssemblyInfo.GitRevision);
+                LuaCsLogger.LogMessage("Cs! Version " + AssemblyInfo.GitRevision);
 
                 if (Config.FirstTimeCsWarning)
                 {
@@ -366,15 +359,15 @@ namespace Barotrauma
                             }
                             catch (Exception ex)
                             {
-                                HandleException(ex, LuaCsMessageOrigin.CSharpMod);
+                                LuaCsLogger.HandleException(ex, LuaCsMessageOrigin.CSharpMod);
                             }
                         });
                         compilationTime.Stop();
-                        PrintCsMessage($"Took {compilationTime.ElapsedMilliseconds}ms to compile and run Cs Scripts.");
+                        LuaCsLogger.LogMessage($"Took {compilationTime.ElapsedMilliseconds}ms to compile and run Cs Scripts.");
                     }
                     catch (Exception ex)
                     {
-                        HandleException(ex, LuaCsMessageOrigin.CSharpMod);
+                        LuaCsLogger.HandleException(ex, LuaCsMessageOrigin.CSharpMod);
                     }
                 }
 
@@ -385,7 +378,7 @@ namespace Barotrauma
 
             if (File.Exists(LuaSetupFile))
             {
-                PrintMessage("Using LuaSetup.lua from the Barotrauma Lua/ folder.");
+                LuaCsLogger.LogMessage("Using LuaSetup.lua from the Barotrauma Lua/ folder.");
 
                 try
                 {
@@ -394,12 +387,12 @@ namespace Barotrauma
                 }
                 catch (Exception e)
                 {
-                    HandleException(e, LuaCsMessageOrigin.LuaMod);
+                    LuaCsLogger.HandleException(e, LuaCsMessageOrigin.LuaMod);
                 }
             }
             else if (luaPackage != null)
             {
-                PrintMessage("Using LuaSetup.lua from the content package.");
+                LuaCsLogger.LogMessage("Using LuaSetup.lua from the content package.");
 
                 string path = Path.GetDirectoryName(luaPackage.Path);
 
@@ -410,12 +403,12 @@ namespace Barotrauma
                 }
                 catch (Exception e)
                 {
-                    HandleException(e, LuaCsMessageOrigin.LuaMod);
+                    LuaCsLogger.HandleException(e, LuaCsMessageOrigin.LuaMod);
                 }
             }
             else
             {
-                PrintLuaError("LuaSetup.lua not found! Lua/LuaSetup.lua, no Lua scripts will be executed or work.");
+                LuaCsLogger.LogError("LuaSetup.lua not found! Lua/LuaSetup.lua, no Lua scripts will be executed or work.", LuaCsMessageOrigin.LuaMod);
             }
 
             executionNumber++;
