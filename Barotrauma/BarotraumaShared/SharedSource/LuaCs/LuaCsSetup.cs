@@ -1,8 +1,7 @@
 ﻿using System;
 using System.IO;
-using Barotrauma.Networking;
+using System.Collections.Generic;
 using MoonSharp.Interpreter;
-using Microsoft.Xna.Framework;
 using MoonSharp.Interpreter.Interop;
 using System.Runtime.CompilerServices;
 using System.Linq;
@@ -17,6 +16,9 @@ namespace Barotrauma
     class LuaCsSetupConfig
     {
         public bool FirstTimeCsWarning = true;
+        public bool ForceCsScripting = false;
+        public bool TreatForcedModsAsNormal = false;
+        public bool PreferToUseWorkshopLuaSetup = false;
 
         public LuaCsSetupConfig() { }
     }
@@ -70,6 +72,19 @@ namespace Barotrauma
 
             Game = new LuaGame();
             Networking = new LuaCsNetworking();
+
+            if (File.Exists(configFileName))
+            {
+                using (var file = File.Open(configFileName, FileMode.Open, FileAccess.Read))
+                {
+                    Config = LuaCsConfig.Load<LuaCsSetupConfig>(file);
+                }
+            }
+            else
+            {
+                Config = new LuaCsSetupConfig();
+            }
+
         }
 
         public void UpdateConfig()
@@ -236,7 +251,6 @@ namespace Barotrauma
             LuaScriptLoader = null;
             Lua = null;
             CsScript = null;
-            Config = null;
 
             if (CsScriptLoader != null)
             {
@@ -252,17 +266,7 @@ namespace Barotrauma
 
             LuaCsLogger.LogMessage("Lua! Version " + AssemblyInfo.GitRevision);
 
-            if (File.Exists(configFileName))
-            {
-                using (var file = File.Open(configFileName, FileMode.Open, FileAccess.Read))
-                    Config = LuaCsConfig.Load<LuaCsSetupConfig>(file);
-            }
-            else
-            {
-                Config = new LuaCsSetupConfig();
-            }
-
-            bool csActive = GetPackage(CsForBarotraumaId, false, true) != null;
+            bool csActive = GetPackage(CsForBarotraumaId, false, true) != null || Config.ForceCsScripting;
 
             LuaScriptLoader = new LuaScriptLoader();
             LuaScriptLoader.ModulePaths = new string[] { };
@@ -287,11 +291,11 @@ namespace Barotrauma
             ModStore.Initialize();
 
             UserData.RegisterType<LuaCsConfig>();
+            UserData.RegisterType<LuaCsSetupConfig>();
             UserData.RegisterType<LuaCsAction>();
             UserData.RegisterType<LuaCsFile>();
             UserData.RegisterType<LuaCsCompatPatchFunc>();
             UserData.RegisterType<LuaCsPatchFunc>();
-            UserData.RegisterType<LuaCsConfig>();
             UserData.RegisterType<CsScriptRunner>();
             UserData.RegisterType<LuaGame>();
             UserData.RegisterType<LuaCsTimer>();
@@ -323,6 +327,7 @@ namespace Barotrauma
             Lua.Globals["Networking"] = Networking;
             Lua.Globals["Steam"] = Steam;
             Lua.Globals["PerformanceCounter"] = PerformanceCounter;
+            Lua.Globals["LuaCsConfig"] = Config;
 
             Lua.Globals["ExecutionNumber"] = executionNumber;
             Lua.Globals["CSActive"] = csActive;
@@ -376,39 +381,36 @@ namespace Barotrauma
 
             ContentPackage luaPackage = GetPackage(LuaForBarotraumaId);
 
-            if (File.Exists(LuaSetupFile))
+            void runLocal()
             {
                 LuaCsLogger.LogMessage("Using LuaSetup.lua from the Barotrauma Lua/ folder.");
-
-                try
-                {
-                    DynValue function = Lua.LoadFile(LuaSetupFile);
-                    CallLuaFunction(function, Path.GetDirectoryName(Path.GetFullPath(LuaSetupFile)));
-                }
-                catch (Exception e)
-                {
-                    LuaCsLogger.HandleException(e, LuaCsMessageOrigin.LuaMod);
-                }
+                string luaPath = LuaSetupFile;
+                CallLuaFunction(Lua.LoadFile(luaPath), Path.GetDirectoryName(Path.GetFullPath(luaPath)));
             }
-            else if (luaPackage != null)
+
+            void runWorkshop()
             {
                 LuaCsLogger.LogMessage("Using LuaSetup.lua from the content package.");
+                string luaPath = Path.Combine(Path.GetDirectoryName(luaPackage.Path), "Binary/Lua/LuaSetup.lua");
+                CallLuaFunction(Lua.LoadFile(luaPath), Path.GetDirectoryName(Path.GetFullPath(luaPath)));
+            }
 
-                string path = Path.GetDirectoryName(luaPackage.Path);
+            void runNone()
+            {
+                LuaCsLogger.LogError("LuaSetup.lua not found! Lua/LuaSetup.lua, no Lua scripts will be executed or work.", LuaCsMessageOrigin.LuaMod);
+            }
 
-                try
-                {
-                    string luaPath = Path.Combine(path, "Binary/Lua/LuaSetup.lua");
-                    CallLuaFunction(Lua.LoadFile(luaPath), Path.GetDirectoryName(Path.GetFullPath(luaPath)));
-                }
-                catch (Exception e)
-                {
-                    LuaCsLogger.HandleException(e, LuaCsMessageOrigin.LuaMod);
-                }
+            if (Config.PreferToUseWorkshopLuaSetup)
+            {
+                if (luaPackage != null) { runWorkshop(); }
+                else if (File.Exists(LuaSetupFile)) { runLocal(); }
+                else { runNone(); }
             }
             else
             {
-                LuaCsLogger.LogError("LuaSetup.lua not found! Lua/LuaSetup.lua, no Lua scripts will be executed or work.", LuaCsMessageOrigin.LuaMod);
+                if (File.Exists(LuaSetupFile)) { runLocal(); }
+                else if (luaPackage != null) { runWorkshop(); }
+                else { runNone(); }
             }
 
             executionNumber++;

@@ -55,7 +55,7 @@ namespace Barotrauma
                         LuaCsLogger.LogMessage($"Added {cp.Name} {cp.ModVersion} to Cs compilation. (Standard)");
                         return true;
                     }
-                    else if (rtValue == RunType.Forced)
+                    else if (rtValue == RunType.Forced && (isEnabled || !GameMain.LuaCs.Config.TreatForcedModsAsNormal))
                     {
                         LuaCsLogger.LogMessage($"Added {cp.Name} {cp.ModVersion} to Cs compilation. (Forced)");
                         return true;
