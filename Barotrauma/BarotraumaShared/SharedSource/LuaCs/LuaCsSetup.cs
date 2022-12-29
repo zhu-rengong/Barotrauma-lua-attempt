@@ -297,6 +297,7 @@ namespace Barotrauma
             Hook.Initialize();
             ModStore.Initialize();
 
+            UserData.RegisterType<LuaCsLogger>();
             UserData.RegisterType<LuaCsConfig>();
             UserData.RegisterType<LuaCsSetupConfig>();
             UserData.RegisterType<LuaCsAction>();
@@ -324,6 +325,7 @@ namespace Barotrauma
             Lua.Globals["dostring"] = (Func<string, Table, string, DynValue>)Lua.DoString;
             Lua.Globals["load"] = (Func<string, Table, string, DynValue>)Lua.LoadString;
 
+            Lua.Globals["Logger"] = UserData.CreateStatic<LuaCsLogger>();
             Lua.Globals["CsScript"] = CsScript;
             Lua.Globals["LuaUserData"] = UserData.CreateStatic<LuaUserData>();
             Lua.Globals["Game"] = Game;
