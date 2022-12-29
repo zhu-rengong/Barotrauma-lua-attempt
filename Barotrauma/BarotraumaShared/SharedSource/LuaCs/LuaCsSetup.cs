@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Collections.Generic;
 using MoonSharp.Interpreter;
 using MoonSharp.Interpreter.Interop;
 using System.Runtime.CompilerServices;
@@ -64,6 +63,14 @@ namespace Barotrauma
 
         public CsScriptLoader CsScriptLoader { get; private set; }
         public LuaCsSetupConfig Config { get; private set; }
+
+        private bool ShouldRunCs
+        {
+            get
+            {
+                return GetPackage(CsForBarotraumaId, false, true) != null || Config.ForceCsScripting;
+            }
+        }
 
         public LuaCsSetup()
         {
@@ -260,13 +267,13 @@ namespace Barotrauma
             }
         }
 
-        public void Initialize()
+        public void Initialize(bool forceEnableCs = false)
         {
             Stop();
 
             LuaCsLogger.LogMessage("Lua! Version " + AssemblyInfo.GitRevision);
 
-            bool csActive = GetPackage(CsForBarotraumaId, false, true) != null || Config.ForceCsScripting;
+            bool csActive = ShouldRunCs || forceEnableCs;
 
             LuaScriptLoader = new LuaScriptLoader();
             LuaScriptLoader.ModulePaths = new string[] { };

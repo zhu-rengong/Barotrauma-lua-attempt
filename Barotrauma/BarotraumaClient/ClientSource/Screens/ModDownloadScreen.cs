@@ -116,7 +116,7 @@ namespace Barotrauma
                     ContentPackageManager.EnabledPackages.SetRegular(regularPackages);
                 }
                 GameMain.NetLobbyScreen.Select();
-                GameMain.LuaCs.Initialize();
+                GameMain.LuaCs.CheckInitialize();
                 return;
             }
 
