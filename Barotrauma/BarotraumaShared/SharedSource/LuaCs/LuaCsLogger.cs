@@ -153,19 +153,19 @@ namespace Barotrauma
             }
 #endif
         }
+    }
 
-        partial class LuaCsSetup
-        {
-            // Compatibility with cs mods that use this method.
-            public void PrintLuaError(string message) => LuaCsLogger.LogError(message, LuaCsMessageOrigin.LuaMod);
-            public void PrintCsError(string message) => LuaCsLogger.LogError(message, LuaCsMessageOrigin.CSharpMod);
-            public void PrintGenericError(string message) => LuaCsLogger.LogError(message, LuaCsMessageOrigin.LuaCs);
+    partial class LuaCsSetup
+    {
+        // Compatibility with cs mods that use this method.
+        public void PrintLuaError(string message) => LuaCsLogger.LogError(message, LuaCsMessageOrigin.LuaMod);
+        public void PrintCsError(string message) => LuaCsLogger.LogError(message, LuaCsMessageOrigin.CSharpMod);
+        public void PrintGenericError(string message) => LuaCsLogger.LogError(message, LuaCsMessageOrigin.LuaCs);
 
-            internal void PrintMessage(string message) => LuaCsLogger.LogMessage(message);
+        internal void PrintMessage(string message) => LuaCsLogger.LogMessage(message);
 
-            public static void PrintCsMessage(string message) => LuaCsLogger.LogMessage(message);
+        public static void PrintCsMessage(string message) => LuaCsLogger.LogMessage(message);
 
-            internal void HandleException(Exception ex, LuaCsMessageOrigin origin) => LuaCsLogger.HandleException(ex, origin);
-        }
+        internal void HandleException(Exception ex, LuaCsMessageOrigin origin) => LuaCsLogger.HandleException(ex, origin);
     }
 }
