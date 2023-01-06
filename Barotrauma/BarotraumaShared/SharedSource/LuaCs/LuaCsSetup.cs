@@ -18,6 +18,7 @@ namespace Barotrauma
         public bool ForceCsScripting = false;
         public bool TreatForcedModsAsNormal = false;
         public bool PreferToUseWorkshopLuaSetup = false;
+        public bool DisableErrorGUIOverlay = false;
 
         public LuaCsSetupConfig() { }
     }
@@ -91,14 +92,13 @@ namespace Barotrauma
             {
                 Config = new LuaCsSetupConfig();
             }
-
         }
 
         public void UpdateConfig()
         {
             FileStream file;
-            if (!File.Exists(configFileName)) file = File.Create(configFileName);
-            else file = File.Open(configFileName, FileMode.Truncate, FileAccess.Write);
+            if (!File.Exists(configFileName)) { file = File.Create(configFileName); }
+            else { file = File.Open(configFileName, FileMode.Truncate, FileAccess.Write); }
             LuaCsConfig.Save(file, Config);
             file.Close();
         }
@@ -365,17 +365,12 @@ namespace Barotrauma
                         Stopwatch compilationTime = new Stopwatch();
                         compilationTime.Start();
                         var modTypes = CsScriptLoader.Compile();
+
                         modTypes.ForEach(t =>
                         {
-                            try
-                            {
-                                t.GetConstructor(new Type[] { })?.Invoke(null);
-                            }
-                            catch (Exception ex)
-                            {
-                                LuaCsLogger.HandleException(ex, LuaCsMessageOrigin.CSharpMod);
-                            }
+                            t.GetConstructor(new Type[] { })?.Invoke(null);
                         });
+
                         compilationTime.Stop();
                         LuaCsLogger.LogMessage($"Took {compilationTime.ElapsedMilliseconds}ms to compile and run Cs Scripts.");
                     }

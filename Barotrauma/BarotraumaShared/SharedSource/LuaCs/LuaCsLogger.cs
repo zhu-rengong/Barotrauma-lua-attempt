@@ -13,12 +13,16 @@ namespace Barotrauma
         CSharpMod,
     }
 
-    class LuaCsLogger
+    partial class LuaCsLogger
     {
 #if SERVER
         private const string LogPrefix = "SV";
         private const int NetMaxLength = 1024;
         private const int NetMaxMessages = 60;
+
+        // This is used so its possible to call logging functions inside the serverLog
+        // hook without creating an infinite loop
+        private static bool lockLog = false;
 #else
         private const string LogPrefix = "CL";
 #endif
@@ -93,10 +97,6 @@ namespace Barotrauma
             Log(message, clientColor);
 #endif
         }
-
-        // This is used so its possible to call logging functions inside the serverLog
-        // hook without creating an infinite loop
-        private static bool lockLog = false;
 
         public static void Log(string message, Color? color = null, ServerLog.MessageType messageType = ServerLog.MessageType.ServerMessage)
         {

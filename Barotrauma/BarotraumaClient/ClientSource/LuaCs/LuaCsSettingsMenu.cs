@@ -56,6 +56,19 @@ namespace Barotrauma
                 }
             };
 
+            new GUITickBox(new RectTransform(new Vector2(0.8f, 0.1f), list.Content.RectTransform), "Disalbe Error GUI Overlay")
+            {
+                Selected = GameMain.LuaCs.Config.DisableErrorGUIOverlay,
+                ToolTip = "",
+                OnSelected = (GUITickBox tick) =>
+                {
+                    GameMain.LuaCs.Config.DisableErrorGUIOverlay = tick.Selected;
+                    GameMain.LuaCs.UpdateConfig();
+
+                    return true;
+                }
+            };
+
             new GUIButton(new RectTransform(new Vector2(1f, 0.1f), list.Content.RectTransform), $"Remove Client-Side LuaCs", style: "GUIButtonSmall")
             {
                 ToolTip = "Remove Client-Side LuaCs.",

@@ -167,6 +167,25 @@ namespace Barotrauma
             return syntaxTrees;
         }
 
+        private ContentPackage FindSourcePackage(Diagnostic diagnostic)
+        {
+            if (diagnostic.Location.SourceTree == null)
+            {
+                return null;
+            }
+
+            string path = diagnostic.Location.SourceTree.FilePath;
+            foreach (var package in ContentPackageManager.AllPackages)
+            {
+                if (Path.GetFullPath(path).StartsWith(Path.GetFullPath(package.Dir)))
+                {
+                    return package;
+                }
+            }
+
+            return null;
+        }
+
         public List<Type> Compile() 
         {
             IEnumerable<SyntaxTree> syntaxTrees = ParseSources();
@@ -188,6 +207,13 @@ namespace Barotrauma
                     foreach (Diagnostic diagnostic in failures)
                     {
                         errStr += $"\n{diagnostic}";
+#if CLIENT
+                        ContentPackage package = FindSourcePackage(diagnostic);
+                        if (package != null)
+                        {
+                            LuaCsLogger.ShowErrorOverlay($"{package.Name} {package.ModVersion} is causing compilation errors. Check debug console for more details.", 7f, 7f);
+                        }
+#endif
                     }
                     LuaCsLogger.LogError(errStr, LuaCsMessageOrigin.CSharpMod);
                 }

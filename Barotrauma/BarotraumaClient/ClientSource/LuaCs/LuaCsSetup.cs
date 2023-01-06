@@ -6,6 +6,14 @@ namespace Barotrauma
 {
     partial class LuaCsSetup
     {
+        public void AddToGUIUpdateList()
+        {
+            if (!GameMain.LuaCs.Config.DisableErrorGUIOverlay)
+            {
+                LuaCsLogger.AddToGUIUpdateList();
+            }
+        }
+
         public void CheckInitialize()
         {
             List<ContentPackage> csharpMods = new List<ContentPackage>();

@@ -862,6 +862,8 @@ namespace Barotrauma
 
                     Screen.Selected.AddToGUIUpdateList();
 
+                    LuaCsLogger.AddToGUIUpdateList();
+
                     Client?.AddToGUIUpdateList();
 
                     SubmarinePreview.AddToGUIUpdateList();
