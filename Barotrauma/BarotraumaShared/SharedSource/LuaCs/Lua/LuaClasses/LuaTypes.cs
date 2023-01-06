@@ -9,181 +9,231 @@ namespace Barotrauma
 
     public struct LuaSByte
     {
-        private readonly sbyte value;
+        public readonly sbyte Value;
 
         public LuaSByte(double v)
         {
-            value = (sbyte)v;
+            Value = (sbyte)v;
         }
 
         public LuaSByte(string v, int radix = 10)
         {
-            value = Convert.ToSByte(v, radix);
+            Value = Convert.ToSByte(v, radix);
         }
 
-        public static implicit operator sbyte(LuaSByte luaValue) => luaValue.value;
+        public static implicit operator sbyte(LuaSByte luaValue) => luaValue.Value;
+
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
     }
 
     public struct LuaByte
     {
-        private readonly byte value;
+        public readonly byte Value;
 
         public LuaByte(double v)
         {
-            value = (byte)v;
+            Value = (byte)v;
         }
 
         public LuaByte(string v, int radix = 10)
         {
-            value = Convert.ToByte(v, radix);
+            Value = Convert.ToByte(v, radix);
         }
 
-        public static implicit operator byte(LuaByte luaValue) => luaValue.value;
+        public static implicit operator byte(LuaByte luaValue) => luaValue.Value;
+
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
     }
 
     public struct LuaInt16
     {
-        private readonly short value;
+        public readonly short Value;
 
         public LuaInt16(double v)
         {
-            value = (short)v;
+            Value = (short)v;
         }
 
         public LuaInt16(string v, int radix = 10)
         {
-            value = Convert.ToInt16(v, radix);
+            Value = Convert.ToInt16(v, radix);
         }
 
-        public static implicit operator short(LuaInt16 luaValue) => luaValue.value;
+        public static implicit operator short(LuaInt16 luaValue) => luaValue.Value;
+
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
     }
 
     public struct LuaUInt16
     {
-        private readonly ushort value;
+        public readonly ushort Value;
 
         public LuaUInt16(double v)
         {
-            value = (ushort)v;
+            Value = (ushort)v;
         }
 
         public LuaUInt16(string v, int radix = 10)
         {
-            value = Convert.ToUInt16(v, radix);
+            Value = Convert.ToUInt16(v, radix);
         }
 
-        public static implicit operator ushort(LuaUInt16 luaValue) => luaValue.value;
+        public static implicit operator ushort(LuaUInt16 luaValue) => luaValue.Value;
+
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
     }
 
     public struct LuaInt32
     {
-        private readonly int value;
+        public readonly int Value;
 
         public LuaInt32(double v)
         {
-            value = (int)v;
+            Value = (int)v;
         }
 
         public LuaInt32(string v, int radix = 10)
         {
-            value = Convert.ToInt32(v, radix);
+            Value = Convert.ToInt32(v, radix);
         }
 
-        public static implicit operator int(LuaInt32 luaValue) => luaValue.value;
+        public static implicit operator int(LuaInt32 luaValue) => luaValue.Value;
+
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
     }
 
     public struct LuaUInt32
     {
-        private readonly uint value;
+        public readonly uint Value;
 
         public LuaUInt32(double v)
         {
-            value = (uint)v;
+            Value = (uint)v;
         }
 
         public LuaUInt32(string v, int radix = 10)
         {
-            value = Convert.ToUInt32(v, radix);
+            Value = Convert.ToUInt32(v, radix);
         }
 
-        public static implicit operator uint(LuaUInt32 luaValue) => luaValue.value;
+        public static implicit operator uint(LuaUInt32 luaValue) => luaValue.Value;
+
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
     }
 
     public struct LuaInt64
     {
-        private readonly long value;
+        public readonly long Value;
 
         public LuaInt64(double v)
         {
-            value = (long)v;
+            Value = (long)v;
         }
 
         public LuaInt64(double lo, double hi)
         {
-            value = Convert.ToUInt32(lo) | (long)Convert.ToInt32(hi) << 32;
+            Value = Convert.ToUInt32(lo) | (long)Convert.ToInt32(hi) << 32;
         }
 
         public LuaInt64(string v, int radix = 10)
         {
-            value = Convert.ToInt64(v, radix);
+            Value = Convert.ToInt64(v, radix);
         }
 
-        public static implicit operator long(LuaInt64 luaValue) => luaValue.value;
+        public static implicit operator long(LuaInt64 luaValue) => luaValue.Value;
+
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
     }
 
     public struct LuaUInt64
     {
-        private readonly ulong value;
+        public readonly ulong Value;
 
         public LuaUInt64(double v)
         {
-            value = (ulong)v;
+            Value = (ulong)v;
         }
 
         public LuaUInt64(double lo, double hi)
         {
-            value = Convert.ToUInt32(lo) | (ulong)Convert.ToUInt32(hi) << 32;
+            Value = Convert.ToUInt32(lo) | (ulong)Convert.ToUInt32(hi) << 32;
         }
 
         public LuaUInt64(string v, int radix = 10)
         {
-            value = Convert.ToUInt64(v, radix);
+            Value = Convert.ToUInt64(v, radix);
         }
 
-        public static implicit operator ulong(LuaUInt64 luaValue) => luaValue.value;
+        public static implicit operator ulong(LuaUInt64 luaValue) => luaValue.Value;
+
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
     }
 
     public struct LuaSingle
     {
-        private readonly float value;
+        public readonly float Value;
 
         public LuaSingle(double v)
         {
-            value = (float)v;
+            Value = (float)v;
         }
 
         public LuaSingle(string v)
         {
-            value = float.Parse(v);
+            Value = float.Parse(v);
         }
 
-        public static implicit operator float(LuaSingle luaValue) => luaValue.value;
+        public static implicit operator float(LuaSingle luaValue) => luaValue.Value;
+
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
     }
 
     public struct LuaDouble
     {
-        private readonly double value;
+        public readonly double Value;
 
         public LuaDouble(double v)
         {
-            value = v;
+            Value = v;
         }
 
         public LuaDouble(string v)
         {
-            value = double.Parse(v);
+            Value = double.Parse(v);
         }
 
-        public static implicit operator double(LuaDouble luaValue) => luaValue.value;
+        public static implicit operator double(LuaDouble luaValue) => luaValue.Value;
+
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
     }
 }
