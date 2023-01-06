@@ -67,40 +67,28 @@ namespace Barotrauma
 
         public void Update()
         {
-            try
+            List<TimedAction> timedActionsToRemove = new List<TimedAction>();
+            TimedAction[] timedCopy = timedActions.ToArray();
+            for (int i = 0; i < timedCopy.Length; i++)
             {
-                List<TimedAction> timedActionsToRemove = new List<TimedAction>();
-                for (int i = 0; i < timedActions.Count; i++)
+                TimedAction timedAction = timedCopy[i];
+                if (Time >= timedAction.ExecutionTime)
                 {
-                    TimedAction timedAction = timedActions[i];
-                    if (Time >= timedAction.ExecutionTime)
+                    try
                     {
-                        try
-                        {
-                            timedAction.Action();
-                        }
-                        catch (Exception e)
-                        {
-                            LuaCsLogger.HandleException(e, LuaCsMessageOrigin.CSharpMod);
-                        }
-
-                        timedActionsToRemove.Add(timedAction);
+                        timedAction.Action();
                     }
-                    else
+                    catch (Exception e)
                     {
-                        break;
+                        LuaCsLogger.HandleException(e, LuaCsMessageOrigin.CSharpMod);
                     }
-                }
 
-                foreach (TimedAction timedAction in timedActionsToRemove)
-                {
                     timedActions.Remove(timedAction);
                 }
-            }
-            catch (NullReferenceException e)
-            {
-                LuaCsLogger.LogError("Error while executing timers... This shouldn't happen... Why do we a NRE here???", LuaCsMessageOrigin.Unknown);
-                LuaCsLogger.HandleException(e, LuaCsMessageOrigin.Unknown);
+                else
+                {
+                    break;
+                }
             }
         }
 

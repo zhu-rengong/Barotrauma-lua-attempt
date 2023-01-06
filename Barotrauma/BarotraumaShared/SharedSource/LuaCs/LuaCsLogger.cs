@@ -65,6 +65,7 @@ namespace Barotrauma
             switch (origin)
             {
                 case LuaCsMessageOrigin.LuaCs:
+                case LuaCsMessageOrigin.Unknown:
                     LogError($"[{LogPrefix} ERROR] {message}");
                     break;
                 case LuaCsMessageOrigin.LuaMod:
