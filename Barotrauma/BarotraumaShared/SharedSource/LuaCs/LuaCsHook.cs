@@ -790,10 +790,22 @@ namespace Barotrauma
                     }
 
                     var result = tuple.Item1.func(args);
-                    // TODO(BREAKING): change this to !result.IsVoid()
-                    if (result is DynValue luaResult && !luaResult.IsNil())
+
+                    if (result is DynValue luaResult)
                     {
-                        lastResult = luaResult.ToObject<T>();
+                        if (luaResult.Type == DataType.Tuple)
+                        {
+                            bool replaceNil = luaResult.Tuple.Length > 1 && luaResult.Tuple[1].CastToBool();
+
+                            if (!luaResult.Tuple[0].IsNil() || replaceNil)
+                            {
+                                lastResult = luaResult.ToObject<T>();
+                            }
+                        }
+                        else if (!luaResult.IsNil())
+                        {
+                            lastResult = luaResult.ToObject<T>();
+                        }
                     }
                     else
                     {
