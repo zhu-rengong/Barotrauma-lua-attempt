@@ -56,7 +56,7 @@ namespace Barotrauma
                 }
             };
 
-            new GUITickBox(new RectTransform(new Vector2(0.8f, 0.1f), list.Content.RectTransform), "Disalbe Error GUI Overlay")
+            new GUITickBox(new RectTransform(new Vector2(0.8f, 0.1f), list.Content.RectTransform), "Disable Error GUI Overlay")
             {
                 Selected = GameMain.LuaCs.Config.DisableErrorGUIOverlay,
                 ToolTip = "",
