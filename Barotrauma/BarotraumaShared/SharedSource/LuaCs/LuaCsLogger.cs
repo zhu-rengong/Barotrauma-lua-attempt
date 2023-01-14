@@ -159,13 +159,13 @@ namespace Barotrauma
     partial class LuaCsSetup
     {
         // Compatibility with cs mods that use this method.
-        public void PrintLuaError(string message) => LuaCsLogger.LogError(message, LuaCsMessageOrigin.LuaMod);
-        public void PrintCsError(string message) => LuaCsLogger.LogError(message, LuaCsMessageOrigin.CSharpMod);
-        public void PrintGenericError(string message) => LuaCsLogger.LogError(message, LuaCsMessageOrigin.LuaCs);
+        public static void PrintLuaError(object message) => LuaCsLogger.LogError($"{message}", LuaCsMessageOrigin.LuaMod);
+        public static void PrintCsError(object message) => LuaCsLogger.LogError($"{message}", LuaCsMessageOrigin.CSharpMod);
+        public static void PrintGenericError(object message) => LuaCsLogger.LogError($"{message}", LuaCsMessageOrigin.LuaCs);
 
-        internal void PrintMessage(string message) => LuaCsLogger.LogMessage(message);
+        internal void PrintMessage(object message) => LuaCsLogger.LogMessage($"{message}");
 
-        public static void PrintCsMessage(string message) => LuaCsLogger.LogMessage(message);
+        public static void PrintCsMessage(object message) => LuaCsLogger.LogMessage($"{message}");
 
         internal void HandleException(Exception ex, LuaCsMessageOrigin origin) => LuaCsLogger.HandleException(ex, origin);
     }
