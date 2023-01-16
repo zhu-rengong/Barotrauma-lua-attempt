@@ -55,6 +55,11 @@ namespace Barotrauma
 
         private void AddTimer(TimedAction timedAction)
         {
+            if (timedAction == null)
+            {
+                throw new ArgumentNullException(nameof(timedAction));
+            }
+
             int insertionPoint = timedActions.BinarySearch(timedAction, new TimerComparer());
             
             if (insertionPoint < 0)
@@ -67,7 +72,6 @@ namespace Barotrauma
 
         public void Update()
         {
-            List<TimedAction> timedActionsToRemove = new List<TimedAction>();
             TimedAction[] timedCopy = timedActions.ToArray();
             for (int i = 0; i < timedCopy.Length; i++)
             {
