@@ -60,38 +60,44 @@ namespace Barotrauma
                 throw new ArgumentNullException(nameof(timedAction));
             }
 
-            int insertionPoint = timedActions.BinarySearch(timedAction, new TimerComparer());
-            
-            if (insertionPoint < 0)
+            lock (timedActions)
             {
-                insertionPoint = ~insertionPoint;
+                int insertionPoint = timedActions.BinarySearch(timedAction, new TimerComparer());
+
+                if (insertionPoint < 0)
+                {
+                    insertionPoint = ~insertionPoint;
+                }
+
+                timedActions.Insert(insertionPoint, timedAction);
             }
-            
-            timedActions.Insert(insertionPoint, timedAction);
         }
 
         public void Update()
         {
-            TimedAction[] timedCopy = timedActions.ToArray();
-            for (int i = 0; i < timedCopy.Length; i++)
+            lock (timedActions)
             {
-                TimedAction timedAction = timedCopy[i];
-                if (Time >= timedAction.ExecutionTime)
+                TimedAction[] timedCopy = timedActions.ToArray();
+                for (int i = 0; i < timedCopy.Length; i++)
                 {
-                    try
+                    TimedAction timedAction = timedCopy[i];
+                    if (Time >= timedAction.ExecutionTime)
                     {
-                        timedAction.Action();
-                    }
-                    catch (Exception e)
-                    {
-                        LuaCsLogger.HandleException(e, LuaCsMessageOrigin.CSharpMod);
-                    }
+                        try
+                        {
+                            timedAction.Action();
+                        }
+                        catch (Exception e)
+                        {
+                            LuaCsLogger.HandleException(e, LuaCsMessageOrigin.CSharpMod);
+                        }
 
-                    timedActions.Remove(timedAction);
-                }
-                else
-                {
-                    break;
+                        timedActions.Remove(timedAction);
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
             }
         }
