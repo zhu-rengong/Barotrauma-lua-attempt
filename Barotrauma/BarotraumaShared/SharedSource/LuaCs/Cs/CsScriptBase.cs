@@ -17,18 +17,15 @@ namespace Barotrauma
     class CsScriptBase : AssemblyLoadContext
     {
 
-        public const string CsOneTimeScriptAssembly = "NetOneTimeScriptAssembly";
         public const string CsScriptAssembly = "NetScriptAssembly";
 
         public static readonly string[] LoadedAssemblyName = {
-            CsScriptBase.CsScriptAssembly,
-            CsScriptBase.CsOneTimeScriptAssembly
+            CsScriptBase.CsScriptAssembly
         };
 
         public static Dictionary<string, object> Revision = new Dictionary<string, object>()
         {
-            { CsScriptAssembly, 0},
-            { CsOneTimeScriptAssembly, 0}
+            { CsScriptAssembly, 0}
         };
 
         public CSharpParseOptions ParseOptions { get; protected set; }

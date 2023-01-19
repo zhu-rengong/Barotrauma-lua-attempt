@@ -9,7 +9,6 @@ using LuaCsCompatPatchFunc = Barotrauma.LuaCsPatch;
 using System.Diagnostics;
 
 [assembly: InternalsVisibleTo(Barotrauma.CsScriptBase.CsScriptAssembly, AllInternalsVisible = true)]
-[assembly: InternalsVisibleTo(Barotrauma.CsScriptBase.CsOneTimeScriptAssembly, AllInternalsVisible = true)]
 namespace Barotrauma
 {
     class LuaCsSetupConfig
@@ -49,7 +48,6 @@ namespace Barotrauma
 
 
         public Script Lua { get; private set; }
-        public CsScriptRunner CsScript { get; private set; }
         public LuaScriptLoader LuaScriptLoader { get; private set; }
 
         public LuaGame Game { get; private set; }
@@ -101,16 +99,6 @@ namespace Barotrauma
             else { file = File.Open(configFileName, FileMode.Truncate, FileAccess.Write); }
             LuaCsConfig.Save(file, Config);
             file.Close();
-        }
-
-        /// <summary>
-        /// due to there's a race on the process and the unloaded AssemblyLoadContexts,
-        /// should recreate runner after the script runs
-        /// </summary>
-        public void RecreateCsScript()
-        {
-            CsScript = new CsScriptRunner(CsScript.setup);
-            Lua.Globals["CsScript"] = CsScript;
         }
 
         public static ContentPackage GetPackage(ContentPackageId id, bool fallbackToAll = true, bool useBackup = false)
@@ -257,7 +245,6 @@ namespace Barotrauma
             PerformanceCounter = new LuaCsPerformanceCounter();
             LuaScriptLoader = null;
             Lua = null;
-            CsScript = null;
 
             if (CsScriptLoader != null)
             {
@@ -285,7 +272,6 @@ namespace Barotrauma
             Lua.Options.ScriptLoader = LuaScriptLoader;
             Lua.Options.CheckThreadAccess = false;
             Script.GlobalOptions.ShouldPCallCatchException = (Exception ex) => { return true; };
-            CsScript = new CsScriptRunner(this);
 
             require = new LuaRequire(Lua);
 
@@ -304,7 +290,6 @@ namespace Barotrauma
             UserData.RegisterType<LuaCsFile>();
             UserData.RegisterType<LuaCsCompatPatchFunc>();
             UserData.RegisterType<LuaCsPatchFunc>();
-            UserData.RegisterType<CsScriptRunner>();
             UserData.RegisterType<LuaGame>();
             UserData.RegisterType<LuaCsTimer>();
             UserData.RegisterType<LuaCsFile>();
@@ -326,7 +311,6 @@ namespace Barotrauma
             Lua.Globals["load"] = (Func<string, Table, string, DynValue>)Lua.LoadString;
 
             Lua.Globals["Logger"] = UserData.CreateStatic<LuaCsLogger>();
-            Lua.Globals["CsScript"] = CsScript;
             Lua.Globals["LuaUserData"] = UserData.CreateStatic<LuaUserData>();
             Lua.Globals["Game"] = Game;
             Lua.Globals["Hook"] = Hook;

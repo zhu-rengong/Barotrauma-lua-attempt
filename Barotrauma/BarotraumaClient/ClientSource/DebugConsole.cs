@@ -3318,20 +3318,6 @@ namespace Barotrauma
                 }
             }));
 
-            commands.Add(new Command("cl_cs", $"cl_cs: Runs a string on the client.", (string[] args) =>
-            {
-                if (LuaCsSetup.GetPackage(LuaCsSetup.CsForBarotraumaId, false, true) == null) { return; }
-
-                if (GameMain.Client != null && !GameMain.Client.HasPermission(ClientPermissions.ConsoleCommands))
-                {
-                    ThrowError("Command not permitted.");
-                    return;
-                }
-
-                GameMain.LuaCs.CsScript.Run(string.Join(" ", args));
-                GameMain.LuaCs.RecreateCsScript();
-            }));
-
             commands.Add(new Command("cl_reloadlua|cl_reloadcs|cl_reloadluacs", "Re-initializes the LuaCs environment.", (string[] args) =>
             {
                 GameMain.LuaCs.Initialize();

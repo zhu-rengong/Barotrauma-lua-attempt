@@ -1254,13 +1254,6 @@ namespace Barotrauma
                     LuaCsLogger.HandleException(ex, LuaCsMessageOrigin.LuaMod);
                 }
             }));
-            commands.Add(new Command("cs", "cs: Runs a string.", (string[] args) =>
-            {
-                if (LuaCsSetup.GetPackage(LuaCsSetup.CsForBarotraumaId, false, true) == null) { return; }
-
-                GameMain.LuaCs.CsScript.Run(string.Join(" ", args));
-                GameMain.LuaCs.RecreateCsScript();
-            }));
 
             commands.Add(new Command("reloadlua|reloadcs|reloadluacs", "Re-initializes the LuaCs environment.", (string[] args) =>
             {
