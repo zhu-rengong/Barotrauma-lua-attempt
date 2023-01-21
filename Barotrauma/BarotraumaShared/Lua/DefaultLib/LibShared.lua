@@ -157,6 +157,7 @@ defaultLib["AIObjectiveRepairItems"] = CreateStatic("Barotrauma.AIObjectiveRepai
 defaultLib["AIObjectiveRescue"] = CreateStatic("Barotrauma.AIObjectiveRescue", true)
 defaultLib["AIObjectiveRescueAll"] = CreateStatic("Barotrauma.AIObjectiveRescueAll", true)
 defaultLib["AIObjectiveReturn"] = CreateStatic("Barotrauma.AIObjectiveReturn", true)
+defaultLib["AITarget"] = CreateStatic("Barotrauma.AITarget", true)
 
 defaultLib["Order"] = CreateStatic("Barotrauma.Order", true)
 defaultLib["OrderPrefab"] = CreateStatic("Barotrauma.OrderPrefab", true)
