@@ -282,6 +282,7 @@ namespace Barotrauma
             PerformanceCounter = new LuaCsPerformanceCounter();
             Hook.Initialize();
             ModStore.Initialize();
+            Networking.Initialize();
 
             UserData.RegisterType<LuaCsLogger>();
             UserData.RegisterType<LuaCsConfig>();
