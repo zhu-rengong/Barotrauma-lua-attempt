@@ -36,6 +36,11 @@ namespace Barotrauma
 #endif
         }
 
+        public void Remove(string netMessageName)
+        {
+            netReceives.Remove(netMessageName);
+        }
+
         public IWriteMessage Start()
         {
             return new WriteOnlyMessage();
