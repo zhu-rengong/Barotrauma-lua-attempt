@@ -168,6 +168,9 @@ namespace Barotrauma
             LualyBase(typeof(LuaCsSetup.LuaCsModStore.LuaModStore), new string[] { "ModStore", "LuaModStore" });
             Lualy<MoonSharp.Interpreter.Interop.IUserDataDescriptor>();
 
+            LualyBase(typeof(Barotrauma.ToolBox));
+            LualyBase(typeof(FarseerPhysics.ConvertUnits), new string[] { "ConvertUnits" });
+
             LualyBase(typeof(Barotrauma.Rand));
             Lualy<Barotrauma.Rand.RandSync>(null, new string[] { "RandSync" });
 
