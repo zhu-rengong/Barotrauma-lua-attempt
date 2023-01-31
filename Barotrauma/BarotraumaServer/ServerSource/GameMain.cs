@@ -70,6 +70,7 @@ namespace Barotrauma
         
         public static ContentPackage VanillaContent => ContentPackageManager.VanillaCorePackage;
 
+
         public readonly string[] CommandLineArgs;
 
         public GameMain(string[] args)

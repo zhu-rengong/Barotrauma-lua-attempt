@@ -251,7 +251,7 @@ namespace Barotrauma.Networking
             {
                 case ConnectionInitialization.ContentPackageOrder:
 
-                    DateTime timeNow = DateTime.UtcNow;
+                    SerializableDateTime timeNow = SerializableDateTime.UtcNow;
                     structToSend = new ServerPeerContentPackageOrderPacket
                     {
                         ServerName = GameMain.Server.ServerName,

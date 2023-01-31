@@ -268,6 +268,8 @@ namespace Barotrauma
             get { return capacity; }
         }
 
+        public int EmptySlotCount => slots.Count(i => !i.Empty());
+
         public bool AllowSwappingContainedItems = true;
 
         public Inventory(Entity owner, int capacity, int slotsPerRow = 5)
@@ -588,6 +590,8 @@ namespace Barotrauma
                 item.body.Enabled = false;
                 item.body.BodyType = FarseerPhysics.BodyType.Dynamic;
                 item.SetTransform(item.SimPosition, rotation: 0.0f, findNewHull: false);
+                //update to refresh the interpolated draw rotation and position (update doesn't run on disabled bodies)
+                item.body.Update();
             }
             
 #if SERVER
@@ -897,10 +901,7 @@ namespace Barotrauma
                 }
                 if (recursive)
                 {
-                    if (item.OwnInventory != null)
-                    {
-                        item.OwnInventory.FindAllItems(predicate, recursive: true, list);
-                    }
+                    item.OwnInventory?.FindAllItems(predicate, recursive: true, list);
                 }
             }
             return list;
