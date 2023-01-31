@@ -497,9 +497,9 @@ namespace Barotrauma
             GameMain.Server.RespawnManager.DispatchShuttle();
         }
 
-        public static void StartGame()
+        public static bool StartGame()
         {
-            GameMain.Server.StartGame();
+            return GameMain.Server.TryStartGame();
         }
 
         public static void EndGame()
