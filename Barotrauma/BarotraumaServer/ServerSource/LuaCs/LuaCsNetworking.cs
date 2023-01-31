@@ -54,7 +54,10 @@ namespace Barotrauma
             }
             else
             {
-                LuaCsLogger.LogError($"Received NetMessage for unknown id {id} from {GameServer.ClientLogName(client)}.");
+                if (GameSettings.CurrentConfig.VerboseLogging)
+                {
+                    LuaCsLogger.LogError($"Received NetMessage for unknown id {id} from {GameServer.ClientLogName(client)}.");
+                }
             }
         }
 

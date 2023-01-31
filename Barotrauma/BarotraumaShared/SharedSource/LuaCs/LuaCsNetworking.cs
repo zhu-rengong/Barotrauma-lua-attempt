@@ -71,11 +71,14 @@ namespace Barotrauma
             }
             else
             {
+                if (GameSettings.CurrentConfig.VerboseLogging)
+                {
 #if SERVER
-                LuaCsLogger.LogError($"Received NetMessage for unknown name {name} from {GameServer.ClientLogName(client)}.");
+                    LuaCsLogger.LogError($"Received NetMessage for unknown name {name} from {GameServer.ClientLogName(client)}.");
 #else
-                LuaCsLogger.LogError($"Received NetMessage for unknown name {name} from server.");
+                    LuaCsLogger.LogError($"Received NetMessage for unknown name {name} from server.");
 #endif
+                }
             }
         }
 

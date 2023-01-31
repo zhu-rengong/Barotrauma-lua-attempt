@@ -102,9 +102,11 @@ namespace Barotrauma
             {
                 if (!receiveQueue.ContainsKey(id)) { receiveQueue[id] = new Queue<IReadMessage>(); }
                 receiveQueue[id].Enqueue(netMessage);
-#if DEBUG
-                LuaCsLogger.LogMessage($"Received NetMessage with unknown id {id} from server, storing in queue in case we receive the id later.");
-#endif
+
+                if (GameSettings.CurrentConfig.VerboseLogging)
+                {
+                    LuaCsLogger.LogMessage($"Received NetMessage with unknown id {id} from server, storing in queue in case we receive the id later.");
+                }
             }
         }
 
