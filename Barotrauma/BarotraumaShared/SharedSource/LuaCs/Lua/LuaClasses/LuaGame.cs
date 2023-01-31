@@ -192,7 +192,7 @@ namespace Barotrauma
 
             get
             {
-                if (GameMain.IsSingleplayer) { return GameMain.GameSession != null; }
+                if (GameMain.IsSingleplayer) { return GameMain.GameSession != null && GameMain.GameSession.IsRunning; }
 #if SERVER
                 return GameMain.Server?.GameStarted == true;
 #else
@@ -397,7 +397,6 @@ namespace Barotrauma
             { 
                 DebugConsole.FindCommand("cl_reloadluacs"),
                 DebugConsole.FindCommand("cl_lua"),
-                DebugConsole.FindCommand("cl_cs"),
             };
 
             foreach (var consoleCommand in LuaAddedCommand.Concat(permitted.AsEnumerable())) 
@@ -498,9 +497,9 @@ namespace Barotrauma
             GameMain.Server.RespawnManager.DispatchShuttle();
         }
 
-        public static void StartGame()
+        public static bool StartGame()
         {
-            GameMain.Server.StartGame();
+            return GameMain.Server.TryStartGame();
         }
 
         public static void EndGame()

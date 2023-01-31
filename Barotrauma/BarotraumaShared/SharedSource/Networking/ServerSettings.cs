@@ -1097,7 +1097,7 @@ namespace Barotrauma.Networking
             for (int i = 0; i < count; i++)
             {
                 int index = msg.ReadUInt16();
-                if (index < 0 || index >= subList.Count) { continue; }
+                if (index >= subList.Count) { continue; }
                 string submarineName = subList[index].Name;
                 HiddenSubs.Add(submarineName);
             }

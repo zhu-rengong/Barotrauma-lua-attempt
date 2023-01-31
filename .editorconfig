@@ -16,6 +16,9 @@ csharp_prefer_braces = when_multiline:warning
 csharp_indent_case_contents_when_block = false
 # CS1591: Missing XML comment for publicly visible type or member
 dotnet_diagnostic.CS1591.severity = none
+# IDE0090: Use 'new(...)'
+csharp_style_implicit_object_creation_when_type_is_apparent = false
+dotnet_diagnostic.CA1806.severity = silent
 
 [*.{html,xml,csproj}]
 indent_style = space

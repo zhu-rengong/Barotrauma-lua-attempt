@@ -55,24 +55,32 @@ namespace Barotrauma
 
         private void AddTimer(TimedAction timedAction)
         {
-            int insertionPoint = timedActions.BinarySearch(timedAction, new TimerComparer());
-            
-            if (insertionPoint < 0)
+            if (timedAction == null)
             {
-                insertionPoint = ~insertionPoint;
+                throw new ArgumentNullException(nameof(timedAction));
             }
-            
-            timedActions.Insert(insertionPoint, timedAction);
+
+            lock (timedActions)
+            {
+                int insertionPoint = timedActions.BinarySearch(timedAction, new TimerComparer());
+
+                if (insertionPoint < 0)
+                {
+                    insertionPoint = ~insertionPoint;
+                }
+
+                timedActions.Insert(insertionPoint, timedAction);
+            }
         }
 
         public void Update()
         {
-            try
+            lock (timedActions)
             {
-                List<TimedAction> timedActionsToRemove = new List<TimedAction>();
-                for (int i = 0; i < timedActions.Count; i++)
+                TimedAction[] timedCopy = timedActions.ToArray();
+                for (int i = 0; i < timedCopy.Length; i++)
                 {
-                    TimedAction timedAction = timedActions[i];
+                    TimedAction timedAction = timedCopy[i];
                     if (Time >= timedAction.ExecutionTime)
                     {
                         try
@@ -81,26 +89,16 @@ namespace Barotrauma
                         }
                         catch (Exception e)
                         {
-                            GameMain.LuaCs.HandleException(e, LuaCsMessageOrigin.CSharpMod);
+                            LuaCsLogger.HandleException(e, LuaCsMessageOrigin.CSharpMod);
                         }
 
-                        timedActionsToRemove.Add(timedAction);
+                        timedActions.Remove(timedAction);
                     }
                     else
                     {
                         break;
                     }
                 }
-
-                foreach (TimedAction timedAction in timedActionsToRemove)
-                {
-                    timedActions.Remove(timedAction);
-                }
-            }
-            catch (NullReferenceException e)
-            {
-                GameMain.LuaCs.PrintError("Error while executing timers... This shouldn't happen... Why do we a NRE here???", LuaCsMessageOrigin.Unknown);
-                GameMain.LuaCs.HandleException(e, LuaCsMessageOrigin.Unknown);
             }
         }
 

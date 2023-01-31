@@ -1130,6 +1130,28 @@ namespace Barotrauma
             });
             AssignRelayToServer("debugdraw", false);
 
+            AssignOnExecute("devmode", (string[] args) =>
+            {
+                if (args.None() || !bool.TryParse(args[0], out bool state))
+                {
+                    state = !GameMain.DevMode;
+                }
+                GameMain.DevMode = state;
+                if (GameMain.DevMode)
+                {
+                    GameMain.LightManager.LightingEnabled = false;
+                    GameMain.LightManager.LosEnabled = false;
+                }
+                else
+                {
+                    GameMain.LightManager.LightingEnabled = true;
+                    GameMain.LightManager.LosEnabled = true;
+                    GameMain.LightManager.LosAlpha = 1f;
+                }
+                NewMessage("Dev mode " + (GameMain.DevMode ? "enabled" : "disabled"), Color.White);
+            });
+            AssignRelayToServer("devmode", false);
+
             AssignOnExecute("debugdrawlocalization", (string[] args) =>
             {
                 if (args.None() || !bool.TryParse(args[0], out bool state))
@@ -1231,12 +1253,14 @@ namespace Barotrauma
                 HumanAIController.debugai = !HumanAIController.debugai;
                 if (HumanAIController.debugai)
                 {
+                    GameMain.DevMode = true;
                     GameMain.DebugDraw = true;
                     GameMain.LightManager.LightingEnabled = false;
                     GameMain.LightManager.LosEnabled = false;
                 }
                 else
                 {
+                    GameMain.DevMode = false;
                     GameMain.DebugDraw = false;
                     GameMain.LightManager.LightingEnabled = true;
                     GameMain.LightManager.LosEnabled = true;
@@ -3314,22 +3338,8 @@ namespace Barotrauma
                 }
                 catch(Exception ex)
                 {
-                    GameMain.LuaCs.HandleException(ex, LuaCsMessageOrigin.LuaMod);
+                    LuaCsLogger.HandleException(ex, LuaCsMessageOrigin.LuaMod);
                 }
-            }));
-
-            commands.Add(new Command("cl_cs", $"cl_cs: Runs a string on the client.", (string[] args) =>
-            {
-                if (LuaCsSetup.GetPackage(LuaCsSetup.CsForBarotraumaId, false, true) == null) { return; }
-
-                if (GameMain.Client != null && !GameMain.Client.HasPermission(ClientPermissions.ConsoleCommands))
-                {
-                    ThrowError("Command not permitted.");
-                    return;
-                }
-
-                GameMain.LuaCs.CsScript.Run(string.Join(" ", args));
-                GameMain.LuaCs.RecreateCsScript();
             }));
 
             commands.Add(new Command("cl_reloadlua|cl_reloadcs|cl_reloadluacs", "Re-initializes the LuaCs environment.", (string[] args) =>

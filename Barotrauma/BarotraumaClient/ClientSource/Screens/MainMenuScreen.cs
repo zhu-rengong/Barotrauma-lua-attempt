@@ -51,9 +51,8 @@ namespace Barotrauma
 
         private readonly GUIFrame modsButtonContainer;
         private readonly GUIButton modsButton, modUpdatesButton;
-        private Task<IReadOnlyList<Steamworks.Ugc.Item>> modUpdateTask;
-        private float modUpdateTimer = 0.0f;
-        private const float ModUpdateInterval = 60.0f;
+        private (DateTime WhenToRefresh, int Count) modUpdateStatus = (DateTime.Now, 0);
+        private static readonly TimeSpan ModUpdateInterval = TimeSpan.FromSeconds(60.0f);
         
         private readonly GameMain game;
 
@@ -421,24 +420,20 @@ namespace Barotrauma
                 }
             };
 #endif
-            string additional = LuaCsSetup.GetPackage(LuaCsSetup.CsForBarotraumaId, false, true) == null ? "" : "Cs";
-
-            new GUIButton(new RectTransform(new Point(300, 30), Frame.RectTransform, Anchor.TopLeft) { AbsoluteOffset = new Point(20, 50) },
-    $"Remove Client-Side Lua{additional}", style: "MainMenuGUIButton", color: GUIStyle.Red)
+            new GUIButton(new RectTransform(new Point(300, 30), Frame.RectTransform, Anchor.TopLeft) { AbsoluteOffset = new Point(40, 50) },
+    $"Open LuaCs Settings", style: "MainMenuGUIButton", color: GUIStyle.Red)
             {
                 IgnoreLayoutGroups = true,
-                UserData = Tab.Empty,
-                ToolTip = "Remove Client-Side LuaCs.",
                 OnClicked = (tb, userdata) =>
                 {
-                    LuaCsInstaller.Uninstall();
+                    LuaCsSettingsMenu.Open(Frame.RectTransform);
                     return true;
                 }
             };
 
             string version = File.Exists(LuaCsSetup.VersionFile) ? File.ReadAllText(LuaCsSetup.VersionFile) : "Github";
 
-            new GUITextBlock(new RectTransform(new Point(300, 30), Frame.RectTransform, Anchor.TopLeft) { AbsoluteOffset = new Point(10, 10) }, $"Using Lua{additional}ForBarotrauma revision {AssemblyInfo.GitRevision} version {version}", Color.Red)
+            new GUITextBlock(new RectTransform(new Point(300, 30), Frame.RectTransform, Anchor.TopLeft) { AbsoluteOffset = new Point(10, 10) }, $"Using LuaCsForBarotrauma revision {AssemblyInfo.GitRevision} version {version}", Color.Red)
             {
                 IgnoreLayoutGroups = false
             };
@@ -760,8 +755,7 @@ namespace Barotrauma
 
         public void ResetModUpdateButton()
         {
-            modUpdateTask = null;
-            modUpdateTimer = 0;
+            modUpdateStatus = (DateTime.Now, 0);
             modUpdatesButton.Visible = false;
         }
 
@@ -899,7 +893,25 @@ namespace Barotrauma
             GameMain.ResetNetLobbyScreen();
             try
             {
-                string exeName = serverExecutableDropdown.SelectedComponent?.UserData is ServerExecutableFile f ? f.Path.Value : "DedicatedServer";
+                string fileName;
+                if (serverExecutableDropdown.SelectedComponent?.UserData is ServerExecutableFile f && 
+                    f.ContentPackage != GameMain.VanillaContent)
+                {
+                    fileName = Path.Combine(
+                        Path.GetDirectoryName(f.Path.Value),
+                        Path.GetFileNameWithoutExtension(f.Path.Value));
+#if WINDOWS
+                    fileName += ".exe";
+#endif
+                }
+                else
+                {
+#if WINDOWS
+                    fileName = "DedicatedServer.exe";
+#else
+                    fileName = "./DedicatedServer";
+#endif
+                }
 
                 string arguments = "-name \"" + ToolBox.EscapeCharacters(name) + "\"" +
                                    " -public " + isPublicBox.Selected.ToString() +
@@ -923,19 +935,10 @@ namespace Barotrauma
                 }
                 int ownerKey = Math.Max(CryptoRandom.Instance.Next(), 1);
                 arguments += " -ownerkey " + ownerKey;
-
-                string filename = Path.Combine(
-                    Path.GetDirectoryName(exeName),
-                    Path.GetFileNameWithoutExtension(exeName));
-#if WINDOWS
-                filename += ".exe";
-#else
-                filename = "./" + exeName;
-#endif
-                
+                                
                 var processInfo = new ProcessStartInfo
                 {
-                    FileName = filename,
+                    FileName = fileName,
                     Arguments = arguments,
                     WorkingDirectory = Directory.GetCurrentDirectory(),
 #if !DEBUG
@@ -982,15 +985,42 @@ namespace Barotrauma
             }
         }
 
+        private void UpdateOutOfDateWorkshopItemCount()
+        {
+            if (DateTime.Now < modUpdateStatus.WhenToRefresh) { return; }
+            if (!SteamManager.IsInitialized) { return; }
+
+            var installedPackages = ContentPackageManager.WorkshopPackages;
+
+            var ids = SteamManager.Workshop.GetSubscribedItemIds()
+                .Select(id => id.Value)
+                .Union(installedPackages
+                    .Select(pkg => pkg.UgcId)
+                    .NotNone()
+                    .OfType<SteamWorkshopId>()
+                    .Select(id => id.Value));
+            var count = ids
+                // Deliberately construct Steamworks.Ugc.Item directly
+                // to not immediately generate a Workshop data request
+                .Select(id => new Steamworks.Ugc.Item(id))
+                .Count(item =>
+                    installedPackages.FirstOrDefault(p
+                        => p.UgcId.TryUnwrap(out SteamWorkshopId id) && id.Value == item.Id)
+                        is { } pkg
+                    // Checking that this item is downloading, waiting to be downloaded
+                    // or is newer than the currently installed copy should be good enough,
+                    // and should still not make a Workshop data request
+                    && (item.IsDownloading
+                        || item.IsDownloadPending
+                        || (item.InstallTime.TryGetValue(out var workshopInstallTime)
+                            && pkg.InstallTime.TryUnwrap(out var localInstallTime)
+                            && localInstallTime.ToUtcValue() < workshopInstallTime)));
+
+            modUpdateStatus = (DateTime.Now + ModUpdateInterval, count);
+        }
+
         public override void Update(double deltaTime)
         {
-            modUpdateTimer -= (float)deltaTime;
-            if (modUpdateTimer <= 0.0f && modUpdateTask is not { IsCompleted: false })
-            {
-                modUpdateTask = BulkDownloader.GetItemsThatNeedUpdating();
-                modUpdateTimer = ModUpdateInterval;
-            }
-
 #if DEBUG
             hostServerButton.Enabled = true;
 #else
@@ -1000,10 +1030,8 @@ namespace Barotrauma
             }
 #endif
 
-            if (modUpdateTask is { IsCompletedSuccessfully: true })
-            {
-                modUpdatesButton.Visible = modUpdateTask.Result.Count > 0;
-            }
+            UpdateOutOfDateWorkshopItemCount();
+            modUpdatesButton.Visible = modUpdateStatus.Count > 0;
 
             if (modUpdatesButton.Visible)
             {

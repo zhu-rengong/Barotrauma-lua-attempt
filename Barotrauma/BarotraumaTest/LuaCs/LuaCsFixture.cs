@@ -15,7 +15,7 @@ namespace TestProject.LuaCs
     {
         public LuaCsFixture()
         {
-            LuaCs.ExceptionHandler = (ex, _) =>
+            LuaCsLogger.ExceptionHandler = (ex, _) =>
             {
                 // Pretend we never caught the exception in the first place
                 // (this allows us to preserve the stack trace)

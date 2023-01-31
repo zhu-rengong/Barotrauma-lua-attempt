@@ -790,10 +790,22 @@ namespace Barotrauma
                     }
 
                     var result = tuple.Item1.func(args);
-                    // TODO(BREAKING): change this to !result.IsVoid()
-                    if (result is DynValue luaResult && !luaResult.IsNil())
+
+                    if (result is DynValue luaResult)
                     {
-                        lastResult = luaResult.ToObject<T>();
+                        if (luaResult.Type == DataType.Tuple)
+                        {
+                            bool replaceNil = luaResult.Tuple.Length > 1 && luaResult.Tuple[1].CastToBool();
+
+                            if (!luaResult.Tuple[0].IsNil() || replaceNil)
+                            {
+                                lastResult = luaResult.ToObject<T>();
+                            }
+                        }
+                        else if (!luaResult.IsNil())
+                        {
+                            lastResult = luaResult.ToObject<T>();
+                        }
                     }
                     else
                     {
@@ -814,8 +826,8 @@ namespace Barotrauma
                     {
                         argsSb.Append(arg + " ");
                     }
-                    luaCs.PrintError($"Error in Hook '{name}'->'{key}', with args '{argsSb}':\n{e}", LuaCsMessageOrigin.Unknown);
-                    luaCs.HandleException(e, LuaCsMessageOrigin.Unknown);
+                    LuaCsLogger.LogError($"Error in Hook '{name}'->'{key}', with args '{argsSb}':\n{e}", LuaCsMessageOrigin.Unknown);
+                    LuaCsLogger.HandleException(e, LuaCsMessageOrigin.Unknown);
                 }
             }
 
@@ -1177,10 +1189,9 @@ namespace Barotrauma
             il.If((il) =>
             {
                 // IL: LuaCs.HandleException(exception, LuaCsMessageOrigin.LuaMod);
-                il.LoadField(luaCsField);
                 il.LoadLocal(exception);
                 il.LoadConstant((int)LuaCsMessageOrigin.LuaMod); // underlying enum type is int
-                il.Call(typeof(LuaCsSetup).GetMethod(nameof(LuaCsSetup.HandleException), BindingFlags.NonPublic | BindingFlags.Instance));
+                il.Call(typeof(LuaCsLogger).GetMethod(nameof(LuaCsLogger.HandleException), BindingFlags.Public | BindingFlags.Static));
             });
 
             il.EndCatchBlock(catchBlock);
@@ -1227,7 +1238,7 @@ namespace Barotrauma
             {
                 if (methodPatches.Prefixes.Remove(identifier))
                 {
-                    luaCs.PrintMessage($"Replacing existing prefix: {identifier}");
+                    LuaCsLogger.LogMessage($"Replacing existing prefix: {identifier}");
                 }
 
                 methodPatches.Prefixes.Add(identifier, new LuaCsPatch
@@ -1240,7 +1251,7 @@ namespace Barotrauma
             {
                 if (methodPatches.Postfixes.Remove(identifier))
                 {
-                    luaCs.PrintMessage($"Replacing existing postfix: {identifier}");
+                    LuaCsLogger.LogMessage($"Replacing existing postfix: {identifier}");
                 }
 
                 methodPatches.Postfixes.Add(identifier, new LuaCsPatch

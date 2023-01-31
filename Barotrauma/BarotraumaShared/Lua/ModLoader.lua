@@ -89,35 +89,28 @@ local function ProcessPackages(packages, fn)
     end
 end
 
-ProcessPackages(
-    ContentPackageManager.EnabledPackages.All,
-    function(pkg, pkgPath)
-        table.insert(package.path, pkgPath .. LUA_MOD_REQUIRE_PATH)
-        local autorunPath = pkgPath .. LUA_MOD_AUTORUN_PATH
-        if File.DirectoryExists(autorunPath) then
-            QueueAutorun.Add(autorunPath, pkgPath, pkg)
-        end
+ProcessPackages(ContentPackageManager.EnabledPackages.All, function(pkg, pkgPath)
+    table.insert(package.path, pkgPath .. LUA_MOD_REQUIRE_PATH)
+    local autorunPath = pkgPath .. LUA_MOD_AUTORUN_PATH
+    if File.DirectoryExists(autorunPath) then
+        QueueAutorun.Add(autorunPath, pkgPath, pkg)
     end
-)
+end)
 
 -- we don't want to execute workshop ForcedAutorun if we have a local Package
 local executedLocalPackages = {}
 
-ProcessPackages(
-    ContentPackageManager.EnabledPackages.All,
-    function(pkg, pkgPath)
-        table.insert(package.path, pkgPath .. LUA_MOD_REQUIRE_PATH)
-        local forcedAutorunPath = pkgPath .. LUA_MOD_FORCEDAUTORUN_PATH
-        if File.DirectoryExists(forcedAutorunPath) then
-            QueueForcedAutorun.Add(forcedAutorunPath, pkgPath, pkg)
-            executedLocalPackages[pkg.Name] = true
-        end
+ProcessPackages(ContentPackageManager.EnabledPackages.All, function(pkg, pkgPath)
+    table.insert(package.path, pkgPath .. LUA_MOD_REQUIRE_PATH)
+    local forcedAutorunPath = pkgPath .. LUA_MOD_FORCEDAUTORUN_PATH
+    if File.DirectoryExists(forcedAutorunPath) then
+        QueueForcedAutorun.Add(forcedAutorunPath, pkgPath, pkg)
+        executedLocalPackages[pkg.Name] = true
     end
-)
+end)
 
-ProcessPackages(
-    ContentPackageManager.LocalPackages,
-    function(pkg, pkgPath)
+if not LuaCsConfig.TreatForcedModsAsNormal then
+    ProcessPackages(ContentPackageManager.LocalPackages, function(pkg, pkgPath)
         if not executedLocalPackages[pkg.Name] then
             table.insert(package.path, pkgPath .. LUA_MOD_REQUIRE_PATH)
             local forcedAutorunPath = pkgPath .. LUA_MOD_FORCEDAUTORUN_PATH
@@ -126,12 +119,9 @@ ProcessPackages(
                 executedLocalPackages[pkg.Name] = true
             end
         end
-    end
-)
+    end)
 
-ProcessPackages(
-    ContentPackageManager.AllPackages,
-    function(pkg, pkgPath)
+    ProcessPackages(ContentPackageManager.AllPackages, function(pkg, pkgPath)
         if not executedLocalPackages[pkg.Name] then
             table.insert(package.path, pkgPath .. LUA_MOD_REQUIRE_PATH)
             local forcedAutorunPath = pkgPath .. LUA_MOD_FORCEDAUTORUN_PATH
@@ -139,8 +129,8 @@ ProcessPackages(
                 QueueForcedAutorun.Add(forcedAutorunPath, pkgPath, pkg)
             end
         end
-    end
-)
+    end)
+end
 
 setmodulepaths(package.path)
 setmodulepaths = nil

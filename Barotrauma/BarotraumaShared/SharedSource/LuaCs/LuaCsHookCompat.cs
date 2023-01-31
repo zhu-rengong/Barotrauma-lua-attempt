@@ -83,8 +83,8 @@ namespace Barotrauma
             }
             catch (Exception ex)
             {
-                GameMain.LuaCs.PrintError($"Error in {__originalMethod.Name}:", LuaCsMessageOrigin.Unknown);
-                GameMain.LuaCs.HandleException(ex, LuaCsMessageOrigin.Unknown);
+                LuaCsLogger.LogError($"Error in {__originalMethod.Name}:", LuaCsMessageOrigin.Unknown);
+                LuaCsLogger.HandleException(ex, LuaCsMessageOrigin.Unknown);
             }
         }
 
@@ -125,7 +125,7 @@ namespace Barotrauma
         {
             if (identifier == null || method == null || patch == null)
             {
-                luaCs.HandleException(new ArgumentNullException("Identifier, Method and Patch arguments must not be null."), LuaCsMessageOrigin.Unknown);
+                LuaCsLogger.HandleException(new ArgumentNullException("Identifier, Method and Patch arguments must not be null."), LuaCsMessageOrigin.Unknown);
                 return;
             }
             ValidatePatchTarget(method);

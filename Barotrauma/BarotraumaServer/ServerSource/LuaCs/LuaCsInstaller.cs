@@ -62,13 +62,13 @@ namespace Barotrauma
             }
             catch (UnauthorizedAccessException e)
             {
-                GameMain.LuaCs.PrintError("You seem to already have Client Side Lua installed, if you are trying to reinstall, make sure uninstall it first (mainmenu button located top left).", LuaCsMessageOrigin.LuaCs);
+                LuaCsLogger.LogError("You seem to already have Client Side Lua installed, if you are trying to reinstall, make sure uninstall it first (mainmenu button located top left).", LuaCsMessageOrigin.LuaCs);
 
                 return;
             }
             catch (Exception e)
             {
-                GameMain.LuaCs.HandleException(e, LuaCsMessageOrigin.LuaCs);
+                LuaCsLogger.HandleException(e, LuaCsMessageOrigin.LuaCs);
 
                 return;
             }

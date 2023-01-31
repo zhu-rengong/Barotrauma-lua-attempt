@@ -70,6 +70,7 @@ namespace Barotrauma
         
         public static ContentPackage VanillaContent => ContentPackageManager.VanillaCorePackage;
 
+
         public readonly string[] CommandLineArgs;
 
         public GameMain(string[] args)
@@ -349,7 +350,6 @@ namespace Barotrauma
                     CoroutineManager.Update(paused: false, (float)Timing.Step);
 
                     GameMain.LuaCs.Update();
-                    GameMain.LuaCs.Hook.Call("think", new object[] { });
                     performanceCounterTimer.Stop();
                     if (GameMain.LuaCs.PerformanceCounter.EnablePerformanceCounter)
                     {

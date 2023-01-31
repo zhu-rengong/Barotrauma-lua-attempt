@@ -128,6 +128,9 @@ defaultLib["Endpoint"] = CreateStatic("Barotrauma.Networking.Endpoint")
 
 defaultLib["Explosion"] = CreateStatic("Barotrauma.Explosion", true)
 
+defaultLib["ConvertUnits"] = CreateStatic("FarseerPhysics.ConvertUnits")
+defaultLib["ToolBox"] = CreateStatic("Barotrauma.ToolBox")
+
 defaultLib["AIObjective"] = CreateStatic("Barotrauma.AIObjective", true)
 defaultLib["AIObjectiveChargeBatteries"] = CreateStatic("Barotrauma.AIObjectiveChargeBatteries", true)
 defaultLib["AIObjectiveCleanupItem"] = CreateStatic("Barotrauma.AIObjectiveCleanupItem", true)
@@ -154,6 +157,7 @@ defaultLib["AIObjectiveRepairItems"] = CreateStatic("Barotrauma.AIObjectiveRepai
 defaultLib["AIObjectiveRescue"] = CreateStatic("Barotrauma.AIObjectiveRescue", true)
 defaultLib["AIObjectiveRescueAll"] = CreateStatic("Barotrauma.AIObjectiveRescueAll", true)
 defaultLib["AIObjectiveReturn"] = CreateStatic("Barotrauma.AIObjectiveReturn", true)
+defaultLib["AITarget"] = CreateStatic("Barotrauma.AITarget", true)
 
 defaultLib["Order"] = CreateStatic("Barotrauma.Order", true)
 defaultLib["OrderPrefab"] = CreateStatic("Barotrauma.OrderPrefab", true)

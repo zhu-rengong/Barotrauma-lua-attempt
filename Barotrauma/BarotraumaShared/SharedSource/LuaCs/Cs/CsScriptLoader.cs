@@ -52,12 +52,12 @@ namespace Barotrauma
                 {
                     if (rtValue == RunType.Standard && isEnabled)
                     {
-                        LuaCsSetup.PrintCsMessage($"Added {cp.Name} {cp.ModVersion} to Cs compilation. (Standard)");
+                        LuaCsLogger.LogMessage($"Added {cp.Name} {cp.ModVersion} to Cs compilation. (Standard)");
                         return true;
                     }
-                    else if (rtValue == RunType.Forced)
+                    else if (rtValue == RunType.Forced && (isEnabled || !GameMain.LuaCs.Config.TreatForcedModsAsNormal))
                     {
-                        LuaCsSetup.PrintCsMessage($"Added {cp.Name} {cp.ModVersion} to Cs compilation. (Forced)");
+                        LuaCsLogger.LogMessage($"Added {cp.Name} {cp.ModVersion} to Cs compilation. (Forced)");
                         return true;
                     }
                     else if (rtValue == RunType.None)
@@ -71,7 +71,7 @@ namespace Barotrauma
 
             if (isEnabled)
             {
-                LuaCsSetup.PrintCsMessage($"Added {cp.Name} {cp.ModVersion} to Cs compilation. (Assumed)");
+                LuaCsLogger.LogMessage($"Added {cp.Name} {cp.ModVersion} to Cs compilation. (Assumed)");
                 return true;
             }
             else
@@ -160,11 +160,30 @@ namespace Barotrauma
                 }
                 catch (Exception ex)
                 {
-                    LuaCsSetup.PrintCsError("Error loading '" + folder + "':\n" + ex.Message + "\n" + ex.StackTrace);
+                    LuaCsLogger.LogError("Error loading '" + folder + "':\n" + ex.Message + "\n" + ex.StackTrace, LuaCsMessageOrigin.CSharpMod);
                 }
             }
 
             return syntaxTrees;
+        }
+
+        private ContentPackage FindSourcePackage(Diagnostic diagnostic)
+        {
+            if (diagnostic.Location.SourceTree == null)
+            {
+                return null;
+            }
+
+            string path = diagnostic.Location.SourceTree.FilePath;
+            foreach (var package in ContentPackageManager.AllPackages)
+            {
+                if (Path.GetFullPath(path).StartsWith(Path.GetFullPath(package.Dir)))
+                {
+                    return package;
+                }
+            }
+
+            return null;
         }
 
         public List<Type> Compile() 
@@ -188,8 +207,15 @@ namespace Barotrauma
                     foreach (Diagnostic diagnostic in failures)
                     {
                         errStr += $"\n{diagnostic}";
+#if CLIENT
+                        ContentPackage package = FindSourcePackage(diagnostic);
+                        if (package != null)
+                        {
+                            LuaCsLogger.ShowErrorOverlay($"{package.Name} {package.ModVersion} is causing compilation errors. Check debug console for more details.", 7f, 7f);
+                        }
+#endif
                     }
-                    LuaCsSetup.PrintCsError(errStr);
+                    LuaCsLogger.LogError(errStr, LuaCsMessageOrigin.CSharpMod);
                 }
                 else
                 {
@@ -207,7 +233,7 @@ namespace Barotrauma
                 }
                 catch (ReflectionTypeLoadException re)
                 {
-                    LuaCsSetup.PrintCsError($"Unable to load CsMod Types. {re.Message}");
+                    LuaCsLogger.LogError($"Unable to load CsMod Types. {re.Message}", LuaCsMessageOrigin.CSharpMod);
                     throw re;
                 }
             }

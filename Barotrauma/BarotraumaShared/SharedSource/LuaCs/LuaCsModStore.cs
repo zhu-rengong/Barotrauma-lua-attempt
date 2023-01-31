@@ -1,4 +1,4 @@
-using MoonSharp.Interpreter;
+﻿using MoonSharp.Interpreter;
 using MoonSharp.Interpreter.Interop;
 using System;
 using System.Collections.Generic;
@@ -73,7 +73,7 @@ namespace Barotrauma
             {
                 if (luaModInterface.Any(i => i.Equals(modName)))
                 {
-                    GameMain.LuaCs.HandleException(new ArgumentException($"'{modName}' entry already registered"), LuaCsMessageOrigin.LuaMod);
+                    LuaCsLogger.HandleException(new ArgumentException($"'{modName}' entry already registered"), LuaCsMessageOrigin.LuaMod);
                     return null;
                 }
 
@@ -86,7 +86,7 @@ namespace Barotrauma
             {
                 if (csModInterface.Any(i => i.Equals(mod)))
                 {
-                    GameMain.LuaCs.HandleException(new ArgumentException($"'{mod.GetType().FullName}' entry already registered"), LuaCsMessageOrigin.CSharpMod);
+                    LuaCsLogger.HandleException(new ArgumentException($"'{mod.GetType().FullName}' entry already registered"), LuaCsMessageOrigin.CSharpMod);
                     return null;
                 }
 
