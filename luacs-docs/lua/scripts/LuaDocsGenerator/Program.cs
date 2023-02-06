@@ -70,11 +70,11 @@ string TypeToString(Type type, bool useLuaTypes = true)
     }
 
     var nsToRemove = new[] {
-    "Barotrauma",
-    "System",
-    "System.Collections",
-    "System.Collections.Generic",
-  };
+        "Barotrauma",
+        "System",
+        "System.Collections",
+        "System.Collections.Generic",
+    };
 
     string Namespaced(string typeName)
     {
@@ -265,121 +265,121 @@ local {type.Name} = {{}}".ReplaceLineEndings("\n");
         switch (member.MemberType)
         {
             case MemberTypes.Method:
+            {
+                var method = (MethodInfo)member;
+
+                // Exclude property getters/setters
+                if (method.IsSpecialName)
                 {
-                    var method = (MethodInfo)member;
-
-                    // Exclude property getters/setters
-                    if (method.IsSpecialName)
-                    {
-                        continue;
-                    }
-
-                    var paramNames = new StringBuilder();
-                    foreach (var parameter in method.GetParameters())
-                    {
-                        paramNames.Append(EscapeName(parameter.Name!));
-                        paramNames.Append(", ");
-                    }
-                    if (paramNames.Length > 0)
-                    {
-                        // Remove the last separator
-                        paramNames.Length -= 2;
-                    }
-
-                    string functionDecoration;
-                    if (method.IsStatic)
-                    {
-                        functionDecoration = $"function {type.Name}.{method.Name}({paramNames}) end";
-                    }
-                    else
-                    {
-                        functionDecoration = $"function {method.Name}({paramNames}) end";
-                    }
-
-                    if (removed.Contains(functionDecoration))
-                    {
-                        continue;
-                    }
-
-                    Console.WriteLine($"  - METHOD: {method}");
-
-                    sb.AppendLine($"--- {method.Name}");
-                    sb.AppendLine("-- @realm shared");
-
-                    foreach (var parameter in method.GetParameters())
-                    {
-                        sb.AppendLine($"-- @tparam {TypeToString(parameter.ParameterType)} {EscapeName(parameter.Name!)}");
-                    }
-
-                    if (method.ReturnType != typeof(void))
-                    {
-                        sb.AppendLine($"-- @treturn {TypeToString(method.ReturnType)}");
-                    }
-
-                    sb.AppendLine(functionDecoration);
-                    sb.AppendLine();
-                    break;
+                    continue;
                 }
+
+                var paramNames = new StringBuilder();
+                foreach (var parameter in method.GetParameters())
+                {
+                    paramNames.Append(EscapeName(parameter.Name!));
+                    paramNames.Append(", ");
+                }
+                if (paramNames.Length > 0)
+                {
+                    // Remove the last separator
+                    paramNames.Length -= 2;
+                }
+
+                string functionDecoration;
+                if (method.IsStatic)
+                {
+                    functionDecoration = $"function {type.Name}.{method.Name}({paramNames}) end";
+                }
+                else
+                {
+                    functionDecoration = $"function {method.Name}({paramNames}) end";
+                }
+
+                if (removed.Contains(functionDecoration))
+                {
+                    continue;
+                }
+
+                Console.WriteLine($"  - METHOD: {method}");
+
+                sb.AppendLine($"--- {method.Name}");
+                sb.AppendLine("-- @realm shared");
+
+                foreach (var parameter in method.GetParameters())
+                {
+                    sb.AppendLine($"-- @tparam {TypeToString(parameter.ParameterType)} {EscapeName(parameter.Name!)}");
+                }
+
+                if (method.ReturnType != typeof(void))
+                {
+                    sb.AppendLine($"-- @treturn {TypeToString(method.ReturnType)}");
+                }
+
+                sb.AppendLine(functionDecoration);
+                sb.AppendLine();
+                break;
+            }
 
             case MemberTypes.Field:
+            {
+                var field = (FieldInfo)member;
+
+                var name = EscapeName(field.Name);
+                var returnName = TypeToString(field.FieldType);
+
+                if (field.IsStatic)
                 {
-                    var field = (FieldInfo)member;
-
-                    var name = EscapeName(field.Name);
-                    var returnName = TypeToString(field.FieldType);
-
-                    if (field.IsStatic)
-                    {
-                        name = type.Name + "." + field.Name;
-                    }
-
-                    if (removed.Contains(name))
-                    {
-                        continue;
-                    }
-
-                    Console.WriteLine($"  - FIELD: {name}");
-
-                    sb.AppendLine("---");
-                    sb.Append("-- ");
-                    sb.Append(name);
-                    sb.AppendLine($", field of type {returnName}");
-                    sb.AppendLine("-- @realm shared");
-                    sb.AppendLine($"-- @field {name}");
-
-                    sb.AppendLine();
-                    break;
+                    name = type.Name + "." + field.Name;
                 }
+
+                if (removed.Contains(name))
+                {
+                    continue;
+                }
+
+                Console.WriteLine($"  - FIELD: {name}");
+
+                sb.AppendLine("---");
+                sb.Append("-- ");
+                sb.Append(name);
+                sb.AppendLine($", field of type {returnName}");
+                sb.AppendLine("-- @realm shared");
+                sb.AppendLine($"-- @field {name}");
+
+                sb.AppendLine();
+                break;
+            }
 
             case MemberTypes.Property:
+            {
+                var property = (PropertyInfo)member;
+
+                var name = EscapeName(property.Name);
+                var returnName = TypeToString(property.PropertyType);
+
+                if (property.GetGetMethod()?.IsStatic == true || property.GetSetMethod()?.IsStatic == true)
                 {
-                    var property = (PropertyInfo)member;
-
-                    var name = EscapeName(property.Name);
-                    var returnName = TypeToString(property.PropertyType);
-
-                    if (property.GetGetMethod()?.IsStatic == true || property.GetSetMethod()?.IsStatic == true)
-                    {
-                        name = type.Name + "." + property.Name;
-                    }
-
-                    if (removed.Contains(name))
-                    {
-                        continue;
-                    }
-
-                    Console.WriteLine($"  - PROPERTY: {name}");
-
-                    sb.AppendLine("---");
-                    sb.Append("-- ");
-                    sb.Append(name);
-                    sb.AppendLine($", field of type {returnName}");
-                    sb.AppendLine("-- @realm shared");
-                    sb.AppendLine($"-- @field {name}");
-
-                    sb.AppendLine();
-                    break;
+                    name = type.Name + "." + property.Name;
                 }
+
+                if (removed.Contains(name))
+                {
+                    continue;
+                }
+
+                Console.WriteLine($"  - PROPERTY: {name}");
+
+                sb.AppendLine("---");
+                sb.Append("-- ");
+                sb.Append(name);
+                sb.AppendLine($", field of type {returnName}");
+                sb.AppendLine("-- @realm shared");
+                sb.AppendLine($"-- @field {name}");
+
+                sb.AppendLine();
+                break;
+            }
         }
     }
 
