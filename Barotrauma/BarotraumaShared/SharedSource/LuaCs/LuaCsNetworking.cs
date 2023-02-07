@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Net;
+using System.Net.Http;
+using System.Text;
 using Barotrauma.Networking;
 
 namespace Barotrauma
 {
     partial class LuaCsNetworking
     {
+        private static readonly HttpClient client = new HttpClient();
+
         private enum LuaCsClientToServer
         {
             NetMessageId,
@@ -94,53 +96,53 @@ namespace Barotrauma
             HandleNetMessage(netMessage, name, client);
         }
 
-        public void HttpRequest(string url, LuaCsAction callback, string data = null, string method = "POST", string contentType = "application/json")
+        public async void HttpRequest(string url, LuaCsAction callback, string data = null, string method = "POST", string contentType = "application/json", Dictionary<string, string> headers = null)
         {
             try
             {
-                var httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
-                httpWebRequest.ContentType = contentType;
-                httpWebRequest.Method = method;
+                HttpRequestMessage request = new HttpRequestMessage(new HttpMethod(method), url);
+
+                if (headers != null)
+                {
+                    foreach (var header in headers)
+                    {
+                        request.Headers.Add(header.Key, header.Value);
+                    }
+                }
 
                 if (data != null)
                 {
-                    using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
-                        streamWriter.Write(data);
+                    request.Content = new StringContent(data, Encoding.UTF8, contentType);
                 }
 
-                httpWebRequest.BeginGetResponse(new AsyncCallback((IAsyncResult result) =>
-                {
-                    try
-                    {
-                        var httpResponse = httpWebRequest.EndGetResponse(result);
-                        using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
-                        {
-                            string responseResult = streamReader.ReadToEnd();
-                            GameMain.LuaCs.Timer.Wait((object[] par) => { callback(responseResult); }, 0);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        GameMain.LuaCs.Timer.Wait((object[] par) => { callback(e.Message); }, 0);
-                    }
-                }), null);
+                HttpResponseMessage response = await client.SendAsync(request);
 
+                string responseBody = await response.Content.ReadAsStringAsync();
+
+                GameMain.LuaCs.Timer.Wait((object[] par) => 
+                { 
+                    callback(responseBody, (int)response.StatusCode, response.Headers); 
+                }, 0);
+            }
+            catch (HttpRequestException e)
+            {
+                GameMain.LuaCs.Timer.Wait((object[] par) => { callback(e.Message, e.StatusCode, null); }, 0);
             }
             catch (Exception e)
             {
-                GameMain.LuaCs.Timer.Wait((object[] par) => { callback(e.Message); }, 0);
+                GameMain.LuaCs.Timer.Wait((object[] par) => { callback(e.Message, null, null); }, 0);
             }
         }
 
-        public void HttpPost(string url, LuaCsAction callback, string data, string contentType = "application/json")
+        public void HttpPost(string url, LuaCsAction callback, string data, string contentType = "application/json", Dictionary<string, string> headers = null)
         {
-            HttpRequest(url, callback, data, "POST", contentType);
+            HttpRequest(url, callback, data, "POST", contentType, headers);
         }
 
 
-        public void HttpGet(string url, LuaCsAction callback)
+        public void HttpGet(string url, LuaCsAction callback, Dictionary<string, string> headers = null)
         {
-            HttpRequest(url, callback, null, "GET");
+            HttpRequest(url, callback, null, "GET", null, headers);
         }
 
         public void CreateEntityEvent(INetSerializable entity, NetEntityEvent.IData extraData)
