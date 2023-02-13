@@ -68,6 +68,10 @@ RegisterBarotrauma("Key")
 RegisterBarotrauma("PlayerInput")
 RegisterBarotrauma("ScalableFont")
 
+Register("Microsoft.Xna.Framework.Graphics.Effect")
+Register("Microsoft.Xna.Framework.Graphics.EffectParameterCollection")
+Register("Microsoft.Xna.Framework.Graphics.EffectParameter")
+
 Register("Microsoft.Xna.Framework.Graphics.SpriteBatch")
 Register("Microsoft.Xna.Framework.Graphics.Texture2D")
 Register("EventInput.KeyboardDispatcher")

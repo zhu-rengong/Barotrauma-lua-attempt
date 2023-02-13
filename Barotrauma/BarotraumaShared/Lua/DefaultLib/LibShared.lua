@@ -56,6 +56,8 @@ defaultLib["InputType"] = CreateStatic("Barotrauma.InputType")
 
 
 defaultLib["Inventory"] = CreateStatic("Barotrauma.Inventory")
+defaultLib["CharacterInventory"] = CreateStatic("Barotrauma.CharacterInventory")
+defaultLib["ItemInventory"] = CreateStatic("Barotrauma.ItemInventory")
 defaultLib["ContentPackageManager"] = CreateStatic("Barotrauma.ContentPackageManager")
 defaultLib["GameSettings"] = CreateStatic("Barotrauma.GameSettings")
 defaultLib["RichString"] = CreateStatic("Barotrauma.RichString", true)
