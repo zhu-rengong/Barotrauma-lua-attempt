@@ -528,6 +528,34 @@ local {type.Name} = {{}}".ReplaceLineEndings("\n");
             File.WriteAllText(outFile, sb.ToString());
         }
 
+        public static void GenerateEnum(Type enumType, string outFile, string realm = "shared")
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendLine($@"--[[--
+{enumType.Name} enum.
+]]
+-- @enum {enumType.Name}");
+
+            sb.AppendLine();
+
+            FieldInfo[] fields = enumType.GetFields();
+
+            for (int i = 0; i < fields.Length; i++)
+            {
+                if (fields[i].Name.Equals("value__")) { continue; }
+
+                sb.AppendLine("---");
+                sb.AppendLine($"-- {enumType.Name}.{fields[i].Name} = {fields[i].GetRawConstantValue()}");
+                sb.AppendLine($"-- @realm {realm}");
+                sb.AppendLine($"-- @number {enumType.Name}.{fields[i].Name}");
+                sb.AppendLine();
+            }
+
+            new FileInfo(outFile).Directory.Create();
+            File.WriteAllText(outFile, sb.ToString());
+        }
+
         public static void GenerateDocs(Type clientType, Type serverType, string baseFile, string outFile, string? categoryName = null)
         {
             categoryName ??= clientType.Name;

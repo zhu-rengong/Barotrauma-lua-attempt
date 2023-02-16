@@ -24,6 +24,11 @@ namespace LuaDocsGenerator
         {
             DocsGenerator.GenerateDocs(clientType, serverType, $"{baseLuaDir}/{file}", $"{generatedDir}/{file}", categoryName);
         }
+        private static void GenerateEnum<T>(string file, string realm = "shared")
+        {
+            DocsGenerator.GenerateEnum(typeof(T), $"{generatedDir}/{file}", realm);
+        }
+
 
         static void Main(string[] args)
         {
@@ -82,6 +87,18 @@ namespace LuaDocsGenerator
             GenerateDocs<BarotraumaClient::Barotrauma.StructurePrefab, BarotraumaServer::Barotrauma.StructurePrefab>("StructurePrefab.lua");
             GenerateDocs<BarotraumaClient::Barotrauma.PhysicsBody, BarotraumaServer::Barotrauma.PhysicsBody>("PhysicsBody.lua");
             GenerateDocs<BarotraumaClient::Barotrauma.Limb, BarotraumaServer::Barotrauma.Limb>("Limb.lua");
+
+            GenerateEnum<BarotraumaClient.Barotrauma.CauseOfDeathType>("CauseOfDeathType.lua");
+            GenerateEnum<BarotraumaClient.Barotrauma.CharacterTeamType>("CharacterTeamType.lua");
+            GenerateEnum<BarotraumaClient.Barotrauma.Networking.ClientPermissions>("ClientPermissions.lua");
+            GenerateEnum<BarotraumaClient.Barotrauma.Networking.ChatMessageType>("ChatMessageType.lua");
+            GenerateEnum<BarotraumaClient.Barotrauma.InvSlotType>("InvSlotType.lua");
+            GenerateEnum<BarotraumaClient.Barotrauma.LimbType>("LimbType.lua");
+            GenerateEnum<BarotraumaClient.Barotrauma.Rand.RandSync>("RandSync.lua");
+            GenerateEnum<BarotraumaClient.Barotrauma.Networking.ServerLog.MessageType>("ServerLogMessageType.lua");
+            GenerateEnum<BarotraumaClient.Barotrauma.SpawnType>("SpawnType.lua");
+            GenerateEnum<BarotraumaClient.Barotrauma.Networking.DisconnectReason>("DisconnectReason.lua");
+
         }
     }
 }
