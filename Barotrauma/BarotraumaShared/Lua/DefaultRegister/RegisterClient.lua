@@ -52,10 +52,19 @@ RegisterBarotrauma("Sounds.LowShelfFilter")
 RegisterBarotrauma("Sounds.HighShelfFilter")
 RegisterBarotrauma("Sounds.PeakFilter")
 
+RegisterBarotrauma("Particles.ParticleManager")
+RegisterBarotrauma("Particles.Particle")
+RegisterBarotrauma("Particles.ParticleEmitterProperties")
+RegisterBarotrauma("Particles.ParticleEmitter")
+RegisterBarotrauma("Particles.ParticlePrefab")
+RegisterBarotrauma("PrefabCollection`1[[Barotrauma.Particles.ParticlePrefab]]")
+
 RegisterBarotrauma("Lights.LightManager")
 RegisterBarotrauma("Lights.LightSource")
 RegisterBarotrauma("Lights.LightSourceParams")
 
+RegisterBarotrauma("LevelWallVertexBuffer")
+RegisterBarotrauma("LevelRenderer")
 RegisterBarotrauma("WaterRenderer")
 RegisterBarotrauma("WaterVertexData")
 
