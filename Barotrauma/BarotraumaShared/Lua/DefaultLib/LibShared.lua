@@ -4,6 +4,7 @@ local AddCallMetaTable = LuaSetup.LuaUserData.AddCallMetaTable
 local CreateStatic = LuaSetup.LuaUserData.CreateStatic
 local CreateEnum = LuaSetup.LuaUserData.CreateEnumTable
 
+require("DefaultLib/Utils/Math")
 require("DefaultLib/Utils/SteamApi")
 
 defaultLib["SByte"] = CreateStatic("Barotrauma.LuaSByte", true)
