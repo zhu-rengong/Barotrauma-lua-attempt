@@ -112,5 +112,11 @@ namespace Barotrauma
             TimedAction timedAction = new TimedAction(action, millisecondDelay);
             AddTimer(timedAction);
         }
+
+        public void NextFrame(LuaCsAction action)
+        {
+            TimedAction timedAction = new TimedAction(action, 0);
+            AddTimer(timedAction);
+        }
     }
 }
