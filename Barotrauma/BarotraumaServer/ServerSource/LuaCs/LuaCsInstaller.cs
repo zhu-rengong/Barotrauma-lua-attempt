@@ -13,7 +13,7 @@ namespace Barotrauma
 
             if (luaPackage == null)
             {
-                GameMain.Server.SendChatMessage("Couldn't find the Lua For Barotrauma package.", ChatMessageType.ServerMessageBox);
+                GameMain.Server.SendChatMessage("Couldn't find the LuaCs For Barotrauma package.", ChatMessageType.ServerMessageBox);
                 return;
             }
 
@@ -23,18 +23,18 @@ namespace Barotrauma
 
                 string[] filesToCopy = new string[]
                 {
-                        "Barotrauma.dll", "Barotrauma.deps.json",
-                        "0harmony.dll", "Mono.Cecil.dll",
-                        "Sigil.dll",
-                        "Mono.Cecil.Mdb.dll", "Mono.Cecil.Pdb.dll",
-                        "Mono.Cecil.Rocks.dll", "MonoMod.Common.dll",
-                        "MoonSharp.Interpreter.dll",
+                    "Barotrauma.dll", "Barotrauma.deps.json", "Barotrauma.pdb",
+                    "0harmony.dll", "Mono.Cecil.dll",
+                    "Sigil.dll",
+                    "Mono.Cecil.Mdb.dll", "Mono.Cecil.Pdb.dll",
+                    "Mono.Cecil.Rocks.dll", "MonoMod.Common.dll",
+                    "MoonSharp.Interpreter.dll",
 
-                        "Microsoft.CodeAnalysis.dll", "Microsoft.CodeAnalysis.CSharp.dll",
-                        "Microsoft.CodeAnalysis.CSharp.Scripting.dll", "Microsoft.CodeAnalysis.Scripting.dll",
+                    "Microsoft.CodeAnalysis.dll", "Microsoft.CodeAnalysis.CSharp.dll",
+                    "Microsoft.CodeAnalysis.CSharp.Scripting.dll", "Microsoft.CodeAnalysis.Scripting.dll",
 
-                        "System.Reflection.Metadata.dll", "System.Collections.Immutable.dll",
-                        "System.Runtime.CompilerServices.Unsafe.dll"
+                    "System.Reflection.Metadata.dll", "System.Collections.Immutable.dll",
+                    "System.Runtime.CompilerServices.Unsafe.dll"
                 };
                 filesToCopy = filesToCopy.Concat(Directory.EnumerateFiles(path, "*.dll", SearchOption.AllDirectories)
                     .Where(s => s.Contains("mscordaccore_amd64_amd64")).Select(s => Path.GetFileName(s))).ToArray();
@@ -43,6 +43,7 @@ namespace Barotrauma
 
                 File.Move("Barotrauma.dll", "Temp/Original/Barotrauma.dll", true);
                 File.Move("Barotrauma.deps.json", "Temp/Original/Barotrauma.deps.json", true);
+                File.Move("Barotrauma.pdb", "Temp/Original/Barotrauma.pdb", true);
 
                 File.Move("System.Reflection.Metadata.dll", "Temp/Original/System.Reflection.Metadata.dll", true);
                 File.Move("System.Collections.Immutable.dll", "Temp/Original/System.Collections.Immutable.dll", true);
@@ -62,7 +63,7 @@ namespace Barotrauma
             }
             catch (UnauthorizedAccessException e)
             {
-                LuaCsLogger.LogError("You seem to already have Client Side Lua installed, if you are trying to reinstall, make sure uninstall it first (mainmenu button located top left).", LuaCsMessageOrigin.LuaCs);
+                LuaCsLogger.LogError("You seem to already have Client Side LuaCs installed, if you are trying to reinstall, make sure uninstall it first (mainmenu button located top left).", LuaCsMessageOrigin.LuaCs);
 
                 return;
             }
@@ -73,7 +74,7 @@ namespace Barotrauma
                 return;
             }
 
-            GameMain.Server.SendChatMessage("Client-Side Lua installed, restart your game to apply changes.", ChatMessageType.ServerMessageBox);
+            GameMain.Server.SendChatMessage("Client-Side LuaCs installed, restart your game to apply changes.", ChatMessageType.ServerMessageBox);
         }
     }
 }
