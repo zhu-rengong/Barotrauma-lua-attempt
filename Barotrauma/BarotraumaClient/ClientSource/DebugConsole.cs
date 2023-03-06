@@ -532,6 +532,14 @@ namespace Barotrauma
                     return;
                 }
 
+                bool luaCsEnabled = true;
+                if (args.Length > 3)
+                {
+                    bool.TryParse(args[3], out luaCsEnabled);
+                }
+
+                if (luaCsEnabled) { GameMain.LuaCs.Initialize(); }
+
                 GameMain.MainMenuScreen.QuickStart(fixedSeed: false, subName, difficulty, levelGenerationParams);
 
             }, getValidArgs: () => new[] { SubmarineInfo.SavedSubmarines.Select(s => s.Name).Distinct().OrderBy(s => s).ToArray() }));
