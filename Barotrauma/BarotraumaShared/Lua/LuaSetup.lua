@@ -61,6 +61,11 @@ if false then
     end
 end
 
+require("DefaultLib/Utils/Math")
+require("DefaultLib/Utils/String")
+require("DefaultLib/Utils/Util")
+require("DefaultLib/Utils/SteamApi")
+
 LuaSetup = nil
 
 require("ModLoader")
