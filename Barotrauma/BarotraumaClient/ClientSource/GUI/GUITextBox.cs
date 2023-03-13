@@ -448,7 +448,7 @@ namespace Barotrauma
             }
             else
             {
-                if ((PlayerInput.LeftButtonClicked() || PlayerInput.RightButtonClicked()) && selected) 
+                if ((PlayerInput.PrimaryMouseButtonClicked() || PlayerInput.SecondaryMouseButtonClicked()) && selected)
                 {
                     if (!mouseHeldInside) { Deselect(); }
                     mouseHeldInside = false;
