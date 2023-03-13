@@ -251,7 +251,7 @@ namespace Barotrauma
                     }
                 }
 
-                return null;
+                return DynValue.Nil;
             });
 
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(dataType, typeof(Option<T>), v =>
