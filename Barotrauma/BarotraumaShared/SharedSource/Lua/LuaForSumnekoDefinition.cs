@@ -395,6 +395,7 @@ namespace Barotrauma
             Lualy<Barotrauma.ReadyCheck>();
 
             //Mission
+            Lualy<Barotrauma.MissionType>();
             Lualy<Barotrauma.Mission>();
             Lualy<Barotrauma.MissionPrefab>();
             Lualy<Barotrauma.AbandonedOutpostMission>();
@@ -427,6 +428,10 @@ namespace Barotrauma
             Lualy<Barotrauma.LevelTrigger>();
             Lualy<Barotrauma.LevelWall>();
             Lualy<Barotrauma.DestructibleLevelWall>();
+#if CLIENT
+            Lualy<Barotrauma.LevelWallVertexBuffer>();
+            Lualy<Barotrauma.LevelRenderer>();
+#endif
             Lualy<Barotrauma.Biome>();
             Lualy<Barotrauma.Map>();
             Lualy<Barotrauma.Radiation>();
@@ -441,6 +446,17 @@ namespace Barotrauma
             Lualy<Barotrauma.LocationTypeChange>();
             #endregion
 
+            #region Event
+            Lualy<Barotrauma.EventManager>();
+            Lualy<Barotrauma.EventManagerSettings>();
+            Lualy<Barotrauma.EventPrefab>();
+            Lualy<Barotrauma.EventSet>();
+            Lualy<Barotrauma.Event>();
+            Lualy<Barotrauma.ArtifactEvent>();
+            Lualy<Barotrauma.MonsterEvent>();
+            Lualy<Barotrauma.ScriptedEvent>();
+            Lualy<Barotrauma.MalfunctionEvent>();
+            #endregion
 
             #region Entity
             Lualy<Barotrauma.Entity>();
@@ -462,9 +478,11 @@ namespace Barotrauma
             Lualy<Barotrauma.PrefabCollection<Barotrauma.TalentPrefab>>();
             Lualy<Barotrauma.PrefabCollection<Barotrauma.TalentTree>>();
             Lualy<Barotrauma.PrefabCollection<Barotrauma.OrderPrefab>>();
-            Lualy<Barotrauma.PrefabCollection<Barotrauma.EventPrefab>>();
             Lualy<Barotrauma.PrefabCollection<Barotrauma.LevelGenerationParams>>();
             Lualy<Barotrauma.PrefabCollection<Barotrauma.LocationType>>();
+            Lualy<Barotrauma.PrefabCollection<Barotrauma.EventPrefab>>();
+            Lualy<Barotrauma.PrefabCollection<Barotrauma.EventSet>>();
+            Lualy<Barotrauma.PrefabCollection<Barotrauma.EventManagerSettings>>();
 
 #if CLIENT
             Lualy<Barotrauma.PrefabCollection<Barotrauma.GUIPrefab>>();
@@ -473,6 +491,8 @@ namespace Barotrauma
             Lualy<Barotrauma.PrefabCollection<Barotrauma.GUISound>>();
             Lualy<Barotrauma.PrefabCollection<Barotrauma.DamageSound>>();
             Lualy<Barotrauma.PrefabSelector<Barotrauma.SoundPrefab>>();
+
+            Lualy<Barotrauma.PrefabCollection<Barotrauma.Particles.ParticlePrefab>>();
 #endif
             #endregion
 
@@ -853,11 +873,6 @@ namespace Barotrauma
             Lualy<Barotrauma.PurchasedUpgrade>();
             #endregion
 
-            Lualy<Barotrauma.Event>();
-            Lualy<Barotrauma.EventPrefab>();
-            Lualy<Barotrauma.EventManager>();
-            Lualy<Barotrauma.EventManagerSettings>();
-
             #region Networking
             Lualy<Barotrauma.Item.EventType>();
             Lualy<Barotrauma.Item.ComponentStateEventData>();
@@ -943,9 +958,10 @@ namespace Barotrauma
 
             #region Particles
 #if CLIENT
-            Lualy<Barotrauma.Particles.Particle>();
-            Lualy<Barotrauma.Particles.ParticleEmitter>();
             Lualy<Barotrauma.Particles.ParticleManager>();
+            Lualy<Barotrauma.Particles.Particle>();
+            Lualy<Barotrauma.Particles.ParticleEmitterProperties>();
+            Lualy<Barotrauma.Particles.ParticleEmitter>();
             Lualy<Barotrauma.Particles.ParticlePrefab>();
 #endif
             #endregion
