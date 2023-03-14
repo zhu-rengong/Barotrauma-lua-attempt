@@ -88,9 +88,6 @@ namespace Barotrauma
             Console.WriteLine("Loading game settings");
             GameSettings.Init();
 
-            Console.WriteLine("Loading MD5 hash cache");
-            Md5Hash.Cache.Load();
-
             Console.WriteLine("Initializing SteamManager");
             SteamManager.Initialize();
 
@@ -189,7 +186,7 @@ namespace Barotrauma
 
             for (int i = 0; i < CommandLineArgs.Length; i++)
             {
-                switch (CommandLineArgs[i].Trim())
+                switch (CommandLineArgs[i].Trim().ToLowerInvariant())
                 {
                     case "-name":
                         name = CommandLineArgs[i + 1];
@@ -262,7 +259,7 @@ namespace Barotrauma
 
             for (int i = 0; i < CommandLineArgs.Length; i++)
             {
-                switch (CommandLineArgs[i].Trim())
+                switch (CommandLineArgs[i].Trim().ToLowerInvariant())
                 {
                     case "-playstyle":
                         Enum.TryParse(CommandLineArgs[i + 1], out PlayStyle playStyle);
@@ -282,6 +279,14 @@ namespace Barotrauma
                     case "-karmapreset":
                         string karmaPresetName = CommandLineArgs[i + 1];
                         Server.ServerSettings.KarmaPreset = karmaPresetName;
+                        i++;
+                        break;
+                    case "-language":
+                        LanguageIdentifier language = CommandLineArgs[i + 1].ToLanguageIdentifier();
+                        if (ServerLanguageOptions.Options.Any(o => o.Identifier == language))
+                        {
+                            Server.ServerSettings.Language = language;
+                        }
                         i++;
                         break;
                 }

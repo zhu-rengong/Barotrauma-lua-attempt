@@ -74,6 +74,8 @@ namespace Barotrauma
         {
             if (stringToId.ContainsKey(netMessageName)) { return; }
 
+            if (GameMain.Client == null) { return; }
+
             WriteOnlyMessage message = new WriteOnlyMessage();
             message.WriteByte((byte)ClientPacketHeader.LUA_NET_MESSAGE);
             message.WriteByte((byte)LuaCsClientToServer.RequestSingleId);

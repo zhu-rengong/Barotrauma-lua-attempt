@@ -65,7 +65,7 @@ namespace Barotrauma
         /// <param name="assembly">Assembly to remove.</param>
         public static void RemoveAssemblyFromCache(Assembly assembly) => cachedNonAbstractTypes.Remove(assembly);
 
-        public static Option<TBase> ParseDerived<TBase, TInput>(TInput input) where TInput : notnull
+        public static Option<TBase> ParseDerived<TBase, TInput>(TInput input) where TInput : notnull where TBase : notnull
         {
             static Option<TBase> none() => Option<TBase>.None();
             
@@ -96,10 +96,10 @@ namespace Barotrauma
                     f.Method.GetGenericMethodDefinition().MakeGenericMethod(genericArgs);
 
                 return constructedConverter.Invoke(null, new[] { parseFunc.Invoke(null, new object[] { input }) })
-                    as Option<TBase> ?? none();
+                    as Option<TBase>? ?? none();
             }
 
-            return derivedTypes.Select(parseOfType).FirstOrDefault(t => t.IsSome()) ?? none();
+            return derivedTypes.Select(parseOfType).FirstOrDefault(t => t.IsSome());
         }
 
         public static string NameWithGenerics(this Type t)

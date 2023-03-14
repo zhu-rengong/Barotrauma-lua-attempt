@@ -4,6 +4,9 @@ local RegisterBarotrauma = LuaSetup.LuaUserData.RegisterTypeBarotrauma
 Register("System.TimeSpan")
 Register("System.Exception")
 
+RegisterBarotrauma("Success`2[[Barotrauma.ContentPackage],[System.Exception]]")
+RegisterBarotrauma("Failure`2[[Barotrauma.ContentPackage],[System.Exception]]")
+
 RegisterBarotrauma("LuaSByte")
 RegisterBarotrauma("LuaByte")
 RegisterBarotrauma("LuaInt16")
@@ -353,6 +356,13 @@ end
 
 RegisterBarotrauma("EventManager")
 RegisterBarotrauma("EventManagerSettings")
+RegisterBarotrauma("Event")
+RegisterBarotrauma("ArtifactEvent")
+RegisterBarotrauma("MonsterEvent")
+RegisterBarotrauma("ScriptedEvent")
+RegisterBarotrauma("MalfunctionEvent")
+RegisterBarotrauma("EventSet")
+RegisterBarotrauma("EventPrefab")
 
 RegisterBarotrauma("Networking.IWriteMessage")
 RegisterBarotrauma("Networking.IReadMessage")
@@ -396,6 +406,9 @@ RegisterBarotrauma("PrefabCollection`1[[Barotrauma.OutpostGenerationParams]]")
 RegisterBarotrauma("PrefabCollection`1[[Barotrauma.RuinGeneration.RuinGenerationParams]]")
 RegisterBarotrauma("PrefabCollection`1[[Barotrauma.LevelGenerationParams]]")
 RegisterBarotrauma("PrefabCollection`1[[Barotrauma.LocationType]]")
+RegisterBarotrauma("PrefabCollection`1[[Barotrauma.EventPrefab]]")
+RegisterBarotrauma("PrefabCollection`1[[Barotrauma.EventSet]]")
+RegisterBarotrauma("PrefabCollection`1[[Barotrauma.EventManagerSettings]]")
 
 RegisterBarotrauma("PrefabSelector`1[[Barotrauma.SkillSettings]]")
 

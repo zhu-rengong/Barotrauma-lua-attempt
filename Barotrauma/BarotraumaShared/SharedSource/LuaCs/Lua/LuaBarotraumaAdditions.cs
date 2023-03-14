@@ -57,10 +57,12 @@ namespace Barotrauma
     {
         public object GetComponentString(string component)
         {
-            Type type = Type.GetType("Barotrauma.Items.Components." + component);
+            Type type = LuaUserData.GetType("Barotrauma.Items.Components." + component);
 
             if (type == null)
+            {
                 return null;
+            }
 
             MethodInfo method = typeof(Item).GetMethod(nameof(Item.GetComponent));
             MethodInfo generic = method.MakeGenericMethod(type);

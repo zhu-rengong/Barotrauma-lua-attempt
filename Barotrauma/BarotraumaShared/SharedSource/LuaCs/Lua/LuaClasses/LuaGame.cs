@@ -66,6 +66,22 @@ namespace Barotrauma
             }
         }
 
+        public MainMenuScreen MainMenuScreen
+        {
+            get
+            {
+                return GameMain.MainMenuScreen;
+            }
+        }
+
+        public Particles.ParticleManager ParticleManager
+        {
+            get
+            {
+                return GameMain.ParticleManager;
+            }
+        }
+
         public bool IsSubEditor
         {
             get
@@ -90,6 +106,8 @@ namespace Barotrauma
                 return GameMain.Server.ServerPeer is LidgrenServerPeer;
             }
         }
+
+        public bool Paused => false;
 #endif
 
         public ServerSettings ServerSettings

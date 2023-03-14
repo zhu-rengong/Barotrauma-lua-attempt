@@ -4,8 +4,6 @@ local AddCallMetaTable = LuaSetup.LuaUserData.AddCallMetaTable
 local CreateStatic = LuaSetup.LuaUserData.CreateStatic
 local CreateEnum = LuaSetup.LuaUserData.CreateEnumTable
 
-require("DefaultLib/Utils/SteamApi")
-
 defaultLib["SByte"] = CreateStatic("Barotrauma.LuaSByte", true)
 defaultLib["Byte"] = CreateStatic("Barotrauma.LuaByte", true)
 defaultLib["Int16"] = CreateStatic("Barotrauma.LuaInt16", true)
@@ -51,10 +49,16 @@ defaultLib["GameDifficulty"] = CreateEnum("Barotrauma.GameDifficulty")
 defaultLib["StartingBalanceAmount"] = CreateEnum("Barotrauma.StartingBalanceAmount")
 defaultLib["ChatMode"] = CreateEnum("Barotrauma.ChatMode")
 defaultLib["CharacterType"] = CreateEnum("Barotrauma.CharacterType")
+defaultLib["MissionType"] = CreateEnum("Barotrauma.MissionType")
 defaultLib["InputType"] = CreateStatic("Barotrauma.InputType")
 
+defaultLib["EventPrefab"] = CreateStatic("Barotrauma.EventPrefab", true)
+defaultLib["EventSet"] = CreateStatic("Barotrauma.EventSet", true)
+defaultLib["EventManagerSettings"] = CreateStatic("Barotrauma.EventManagerSettings", true)
 
-defaultLib["Inventory"] = CreateStatic("Barotrauma.Inventory")
+defaultLib["Inventory"] = CreateStatic("Barotrauma.Inventory", true)
+defaultLib["CharacterInventory"] = CreateStatic("Barotrauma.CharacterInventory", true)
+defaultLib["ItemInventory"] = CreateStatic("Barotrauma.ItemInventory", true)
 defaultLib["ContentPackageManager"] = CreateStatic("Barotrauma.ContentPackageManager")
 defaultLib["GameSettings"] = CreateStatic("Barotrauma.GameSettings")
 defaultLib["RichString"] = CreateStatic("Barotrauma.RichString", true)
@@ -77,6 +81,8 @@ defaultLib["ItemPrefab"] = CreateStatic("Barotrauma.ItemPrefab", true)
 defaultLib["TalentTree"] = CreateStatic("Barotrauma.TalentTree", true)
 defaultLib["TalentPrefab"] = CreateStatic("Barotrauma.TalentPrefab", true)
 defaultLib["FactionPrefab"] = CreateStatic("Barotrauma.FactionPrefab", true)
+defaultLib["MissionPrefab"] = CreateStatic("Barotrauma.MissionPrefab", true)
+defaultLib["Mission"] = CreateStatic("Barotrauma.Mission", true)
 defaultLib["Level"] = CreateStatic("Barotrauma.Level")
 defaultLib["LevelGenerationParams"] = CreateStatic("Barotrauma.LevelGenerationParams", true)
 defaultLib["OutpostGenerationParams"] = CreateStatic("Barotrauma.OutpostGenerationParams", true)

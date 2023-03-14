@@ -251,22 +251,7 @@ namespace Barotrauma
                     }
                 }
 
-                return null;
-            });
-
-            Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion(typeof(None<T>), (Script v, object obj) =>
-            {
-                return UserData.Create(default(LuaNone));
-            });
-
-            Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion(typeof(Some<T>), (Script v, object obj) =>
-            {
-                if (obj is Some<T> some)
-                {
-                    return UserData.Create(some.Value);
-                }
-
-                return null;
+                return DynValue.Nil;
             });
 
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(dataType, typeof(Option<T>), v =>
