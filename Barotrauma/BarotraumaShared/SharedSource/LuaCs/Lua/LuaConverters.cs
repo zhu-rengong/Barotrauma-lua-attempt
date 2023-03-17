@@ -256,14 +256,12 @@ namespace Barotrauma
 
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(dataType, typeof(Option<T>), v =>
             {
-                if (v.UserData.Object is LuaNone)
-                {
-                    return Option<T>.None();
-                }
-                else
-                {
-                    return Option<T>.Some(v.ToObject<T>());
-                }
+                return Option<T>.Some(v.ToObject<T>());
+            });
+
+            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Nil, typeof(Option<T>), v =>
+            {
+                return Option<T>.None();
             });
         }
 

@@ -38,6 +38,11 @@ require("DefaultHook")
 Descriptors = LuaSetup.LuaUserData.Descriptors
 LuaUserData = LuaSetup.LuaUserData
 
+require("DefaultLib/Utils/Math")
+require("DefaultLib/Utils/String")
+require("DefaultLib/Utils/Util")
+require("DefaultLib/Utils/SteamApi")
+
 if false then
     LuaUserData.RegisterType = function (typeName)
         local descriptor = Descriptors[typeName]
@@ -61,10 +66,6 @@ if false then
     end
 end
 
-require("DefaultLib/Utils/Math")
-require("DefaultLib/Utils/String")
-require("DefaultLib/Utils/Util")
-require("DefaultLib/Utils/SteamApi")
 
 LuaSetup = nil
 

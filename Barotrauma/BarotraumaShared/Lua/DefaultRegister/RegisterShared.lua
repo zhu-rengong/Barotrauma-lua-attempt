@@ -3,6 +3,7 @@ local RegisterBarotrauma = LuaSetup.LuaUserData.RegisterTypeBarotrauma
 
 Register("System.TimeSpan")
 Register("System.Exception")
+Register("System.Console")
 
 RegisterBarotrauma("Success`2[[Barotrauma.ContentPackage],[System.Exception]]")
 RegisterBarotrauma("Failure`2[[Barotrauma.ContentPackage],[System.Exception]]")
@@ -17,7 +18,6 @@ RegisterBarotrauma("LuaInt64")
 RegisterBarotrauma("LuaUInt64")
 RegisterBarotrauma("LuaSingle")
 RegisterBarotrauma("LuaDouble")
-RegisterBarotrauma("LuaNone")
 
 RegisterBarotrauma("GameMain")
 RegisterBarotrauma("Networking.BanList")
