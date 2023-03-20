@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using FarseerPhysics.Dynamics;
 using LuaCsCompatPatchFunc = Barotrauma.LuaCsPatch;
 using Barotrauma.Networking;
+using System.Collections.Immutable;
 
 namespace Barotrauma
 {
@@ -199,6 +200,16 @@ namespace Barotrauma
             RegisterOption<int>(DataType.Number);
 
             RegisterEither<Address, AccountId>();
+
+            RegisterImmutableArray<FactionPrefab.HireableCharacter>();
+        }
+
+        private void RegisterImmutableArray<T>()
+        {
+            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(ImmutableArray<T>), v =>
+            {
+                return v.ToObject<T[]>().ToImmutableArray();
+            });
         }
 
         private void RegisterEither<T1, T2>()
@@ -315,13 +326,13 @@ namespace Barotrauma
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(Func<T1>), v =>
             {
                 var function = v.Function;
-                return (Func<T1>)(() => function.Call().ToObject<T1>());
+                return () => function.Call().ToObject<T1>();
             });
 
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.ClrFunction, typeof(Func<T1>), v =>
             {
                 var function = v.Function;
-                return (Func<T1>)(() => function.Call().ToObject<T1>());
+                return () => function.Call().ToObject<T1>();
             });
         }
 
@@ -330,13 +341,13 @@ namespace Barotrauma
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(Func<T1, T2>), v =>
             {
                 var function = v.Function;
-                return (Func<T1, T2>)((T1 a) => function.Call(a).ToObject<T2>());
+                return (T1 a) => function.Call(a).ToObject<T2>();
             });
 
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.ClrFunction, typeof(Func<T1, T2>), v =>
             {
                 var function = v.Function;
-                return (Func<T1, T2>)((T1 a) => function.Call(a).ToObject<T2>());
+                return (T1 a) => function.Call(a).ToObject<T2>();
             });
         }
 
@@ -345,13 +356,13 @@ namespace Barotrauma
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(Func<T1, T2, T3, T4, T5>), v =>
             {
                 var function = v.Function;
-                return (Func<T1, T2, T3, T4, T5>)((T1 a, T2 b, T3 c, T4 d) => function.Call(a, b, c, d).ToObject<T5>());
+                return (T1 a, T2 b, T3 c, T4 d) => function.Call(a, b, c, d).ToObject<T5>();
             });
 
             Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(Func<T1, T2, T3, T4, T5>), v =>
             {
                 var function = v.Function;
-                return (Func<T1, T2, T3, T4, T5>)((T1 a, T2 b, T3 c, T4 d) => function.Call(a, b, c, d).ToObject<T5>());
+                return (T1 a, T2 b, T3 c, T4 d) => function.Call(a, b, c, d).ToObject<T5>();
             });
         }
     }
