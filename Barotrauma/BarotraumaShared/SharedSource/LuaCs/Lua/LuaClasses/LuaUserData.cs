@@ -228,6 +228,37 @@ namespace Barotrauma
             descriptor.AddMember(methodName, new MethodMemberDescriptor(method, InteropAccessMode.Default));
         }
 
+        private static PropertyInfo FindPropertyRecursively(Type type, string propertyName)
+        {
+            var property = type.GetProperty(propertyName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+
+            if (property == null && type.BaseType != null)
+            {
+                return FindPropertyRecursively(type.BaseType, propertyName);
+            }
+
+            return property;
+        }
+
+        public static void MakePropertyAccessible(IUserDataDescriptor IUUD, string propertyName)
+        {
+            if (IUUD == null)
+            {
+                throw new ScriptRuntimeException($"tried to use a UserDataDescriptor that is null to make {propertyName} accessible.");
+            }
+
+            var descriptor = (StandardUserDataDescriptor)IUUD;
+            PropertyInfo property = FindPropertyRecursively(IUUD.Type, propertyName);
+
+            if (property == null)
+            {
+                throw new ScriptRuntimeException($"tried to make property '{propertyName}' accessible, but the property doesn't exist.");
+            }
+
+            descriptor.RemoveMember(propertyName);
+            descriptor.AddMember(propertyName, new PropertyMemberDescriptor(property, InteropAccessMode.Default, property.GetGetMethod(true), property.GetSetMethod(true)));
+        }
+
         public static void AddMethod(IUserDataDescriptor IUUD, string methodName, object function)
         {
             if (IUUD == null)
