@@ -21,22 +21,40 @@ namespace Barotrauma
             RegisterFunc<Fixture, Vector2, Vector2, float, float>();
             RegisterFunc<AIObjective, bool>();
 
-            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(
-                DataType.Function,
-                typeof(LuaCsAction),
-                v => (LuaCsAction)(args => CallLuaFunction(v.Function, args)));
-            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(
-                DataType.Function,
-                typeof(LuaCsFunc),
-                v => (LuaCsFunc)(args => CallLuaFunction(v.Function, args)));
-            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(
-                DataType.Function,
-                typeof(LuaCsCompatPatchFunc),
-                v => (LuaCsCompatPatchFunc)((self, args) => CallLuaFunction(v.Function, self, args)));
-            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(
-                DataType.Function,
-                typeof(LuaCsPatchFunc),
-                v => (LuaCsPatchFunc)((self, args) => CallLuaFunction(v.Function, self, args)));
+            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(LuaCsAction), v => (LuaCsAction)(args =>
+            {
+                if (v.Function.OwnerScript == Lua)
+                {
+                    CallLuaFunction(v.Function, args);
+                }
+            }));
+
+            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(LuaCsFunc), v => (LuaCsFunc)(args =>
+            {
+                if (v.Function.OwnerScript == Lua)
+                {
+                    return CallLuaFunction(v.Function, args);
+                }
+                return default;
+            }));
+
+            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(LuaCsCompatPatchFunc), v => (LuaCsCompatPatchFunc)((self, args) =>
+            {
+                if (v.Function.OwnerScript == Lua)
+                {
+                    return CallLuaFunction(v.Function, self, args);
+                }
+                return default;
+            }));
+
+            Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(LuaCsPatchFunc), v => (LuaCsPatchFunc)((self, args) =>
+            {
+                if (v.Function.OwnerScript == Lua)
+                {
+                    return CallLuaFunction(v.Function, self, args);
+                }
+                return default;
+            }));
 
 #if CLIENT
             RegisterAction<Microsoft.Xna.Framework.Graphics.SpriteBatch, GUICustomComponent>();

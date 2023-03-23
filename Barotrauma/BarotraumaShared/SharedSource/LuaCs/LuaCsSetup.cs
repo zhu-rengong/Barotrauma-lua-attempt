@@ -178,7 +178,7 @@ namespace Barotrauma
         {
             // XXX: `lua` might be null if `LuaCsSetup.Stop()` is called while
             // a patched function is still running.
-            if (Lua == null) return null;
+            if (Lua == null) { return null; }
 
             lock (Lua)
             {
