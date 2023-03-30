@@ -4535,6 +4535,7 @@ namespace Barotrauma
                 SteamAchievementManager.OnCharacterKilled(this, CauseOfDeath);
             }
 
+            GameMain.LuaCs.Hook.Call("character.death", this, causeOfDeathAffliction);
             KillProjSpecific(causeOfDeath, causeOfDeathAffliction, log);
 
             if (info != null)
