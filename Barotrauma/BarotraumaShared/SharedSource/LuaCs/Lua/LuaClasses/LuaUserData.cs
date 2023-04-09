@@ -51,6 +51,18 @@ namespace Barotrauma
             return UserData.RegisterType(type);
         }
 
+        public static IUserDataDescriptor IsRegistered(string typeName)
+        {
+            Type type = GetType(typeName);
+
+            if (type == null)
+            {
+                return null;
+            }
+
+            return UserData.GetDescriptorForType(type, true);
+        }
+
         public static void UnregisterType(string typeName, bool deleteHistory = false)
         {
             Type type = GetType(typeName);

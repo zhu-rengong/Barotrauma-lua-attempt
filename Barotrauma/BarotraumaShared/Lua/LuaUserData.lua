@@ -5,6 +5,7 @@ luaUserData.Descriptors = {}
 
 LuaSetup.LuaUserData = luaUserData
 
+luaUserData.IsRegistered = clrLuaUserData.IsRegistered
 luaUserData.UnregisterType = clrLuaUserData.UnregisterType
 luaUserData.RegisterGenericType = clrLuaUserData.RegisterGenericType
 luaUserData.UnregisterGenericType = clrLuaUserData.UnregisterGenericType
