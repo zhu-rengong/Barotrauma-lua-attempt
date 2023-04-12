@@ -4,6 +4,7 @@ local RegisterBarotrauma = LuaSetup.LuaUserData.RegisterTypeBarotrauma
 Register("System.TimeSpan")
 Register("System.Exception")
 Register("System.Console")
+Register("System.Exception")
 
 RegisterBarotrauma("Success`2[[Barotrauma.ContentPackage],[System.Exception]]")
 RegisterBarotrauma("Failure`2[[Barotrauma.ContentPackage],[System.Exception]]")
