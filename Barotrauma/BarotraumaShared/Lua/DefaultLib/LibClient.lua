@@ -58,6 +58,10 @@ defaultLib["GUI"] = {
     ScissorComponent = CreateStatic("Barotrauma.GUIScissorComponent", true),
     VideoPlayer = CreateStatic("Barotrauma.VideoPlayer", true),
     Graph = CreateStatic("Barotrauma.Graph", true),
+    SerializableEntityEditor = CreateStatic("Barotrauma.SerializableEntityEditor", true),
+    SlideshowPlayer = CreateStatic("Barotrauma.SlideshowPlayer", true),
+    CreditsPlayer = CreateStatic("Barotrauma.CreditsPlayer", true),
+    DragHandle = CreateStatic("Barotrauma.GUIDragHandle", true),
 
     Screen = CreateStatic("Barotrauma.Screen"),
 
