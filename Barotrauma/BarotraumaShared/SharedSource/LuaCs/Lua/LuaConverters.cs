@@ -56,16 +56,19 @@ namespace Barotrauma
                 return default;
             }));
 
+
+            DynValue Call(object function, params object[] arguments) => CallLuaFunction(function, arguments);
+            void RegisterHandler<T>(Func<Closure, T> converter) => Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(T), v => converter(v.Function));
+
+            RegisterHandler(f => (Character.OnDeathHandler)((a1, a2) => Call(f, a1, a2)));
+            RegisterHandler(f => (Character.OnAttackedHandler)((a1, a2) => Call(f, a1, a2)));
+
 #if CLIENT
             RegisterAction<Microsoft.Xna.Framework.Graphics.SpriteBatch, GUICustomComponent>();
             RegisterAction<float, Microsoft.Xna.Framework.Graphics.SpriteBatch>();
             RegisterAction<Microsoft.Xna.Framework.Graphics.SpriteBatch, float>();
 
             {
-                DynValue Call(object function, params object[] arguments) => CallLuaFunction(function, arguments);
-                void RegisterHandler<T>(Func<Closure, T> converter)
-                    => Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Function, typeof(T), v => converter(v.Function));
-
                 RegisterHandler(f => (GUIComponent.SecondaryButtonDownHandler)(
                 (a1, a2) => Call(f, a1, a2)?.CastToBool() ?? default));
 

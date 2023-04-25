@@ -86,6 +86,7 @@ RegisterBarotrauma("CharacterParams+SoundParams")
 RegisterBarotrauma("SteeringManager")
 RegisterBarotrauma("IndoorsSteeringManager")
 RegisterBarotrauma("SteeringPath")
+RegisterBarotrauma("CreatureMetrics")
 
 RegisterBarotrauma("Item")
 RegisterBarotrauma("DeconstructItem")
