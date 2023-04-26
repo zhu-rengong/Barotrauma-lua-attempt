@@ -22,6 +22,8 @@ sounds.HighShelfFilter = CreateStatic("Barotrauma.Sounds.HighShelfFilter")
 sounds.PeakFilter = CreateStatic("Barotrauma.Sounds.PeakFilter")
 defaultLib["Sounds"] = sounds
 
+defaultLib["SpriteEffects"] = CreateStatic("Microsoft.Xna.Framework.Graphics.SpriteEffects")
+
 defaultLib["SoundPlayer"] = CreateStatic("Barotrauma.SoundPlayer")
 defaultLib["SoundPrefab"] = CreateStatic("Barotrauma.SoundPrefab", true)
 defaultLib["BackgroundMusic"] = CreateStatic("Barotrauma.BackgroundMusic", true)

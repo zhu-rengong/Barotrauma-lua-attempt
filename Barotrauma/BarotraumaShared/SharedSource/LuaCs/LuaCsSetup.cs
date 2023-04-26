@@ -8,6 +8,7 @@ using System.Threading;
 using LuaCsCompatPatchFunc = Barotrauma.LuaCsPatch;
 using System.Diagnostics;
 using MoonSharp.VsCodeDebugger;
+using System.Reflection;
 
 [assembly: InternalsVisibleTo(Barotrauma.CsScriptBase.CsScriptAssembly, AllInternalsVisible = true)]
 namespace Barotrauma
@@ -94,6 +95,36 @@ namespace Barotrauma
             {
                 Config = new LuaCsSetupConfig();
             }
+        }
+
+        public static Type GetType(string typeName, bool throwOnError = false, bool ignoreCase = false)
+        {
+            if (typeName == null || typeName.Length == 0) { return null; }
+
+            var byRef = false;
+            if (typeName.StartsWith("out ") || typeName.StartsWith("ref "))
+            {
+                typeName = typeName.Remove(0, 4);
+                byRef = true;
+            }
+
+            var type = Type.GetType(typeName, throwOnError, ignoreCase);
+            if (type != null) { return byRef ? type.MakeByRefType() : type; }
+            foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                if (CsScriptBase.LoadedAssemblyName.Contains(a.GetName().Name))
+                {
+                    var attrs = a.GetCustomAttributes<AssemblyMetadataAttribute>();
+                    var revision = attrs.FirstOrDefault(attr => attr.Key == "Revision")?.Value;
+                    if (revision != null && int.Parse(revision) != (int)CsScriptBase.Revision[a.GetName().Name]) { continue; }
+                }
+                type = a.GetType(typeName, throwOnError, ignoreCase);
+                if (type != null)
+                {
+                    return byRef ? type.MakeByRefType() : type;
+                }
+            }
+            return null;
         }
 
         public void ToggleDebugger(int port = 41912)
@@ -340,6 +371,9 @@ namespace Barotrauma
             UserData.RegisterType<LuaUserData>();
             UserData.RegisterType<LuaCsPerformanceCounter>();
             UserData.RegisterType<IUserDataDescriptor>();
+
+            UserData.RegisterExtensionType(typeof(MathUtils));
+            UserData.RegisterExtensionType(typeof(XMLExtensions));
 
             Lua.Globals["printerror"] = (DynValue o) => { LuaCsLogger.LogError(o.ToString(), LuaCsMessageOrigin.LuaMod); };
 
