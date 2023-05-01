@@ -76,6 +76,8 @@ namespace Barotrauma
 
         public LuaCsSetup()
         {
+            Script.GlobalOptions.Platform = new LuaPlatformAccessor();
+
             Hook = new LuaCsHook(this);
             ModStore = new LuaCsModStore();
 
@@ -339,7 +341,7 @@ namespace Barotrauma
 
             RegisterLuaConverters();
 
-            Lua = new Script(CoreModules.Preset_SoftSandbox | CoreModules.Debug);
+            Lua = new Script(CoreModules.Preset_SoftSandbox | CoreModules.Debug | CoreModules.IO | CoreModules.OS_System);
             Lua.Options.DebugPrint = (o) => { LuaCsLogger.LogMessage(o); };
             Lua.Options.ScriptLoader = LuaScriptLoader;
             Lua.Options.CheckThreadAccess = false;
