@@ -24,6 +24,10 @@ for _, item in pairs(Item.ItemList) do
 end
 
 Util.GetItemsById = function(id)
+    if id == nil then
+        error(string.format("bad argument #1 to 'GetItemsById' (string expected, got %s)", type(id)), 2)
+    end
+
     return itemDictionary[id]
 end
 
