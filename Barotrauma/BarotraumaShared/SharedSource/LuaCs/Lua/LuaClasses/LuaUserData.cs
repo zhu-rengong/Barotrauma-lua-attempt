@@ -23,16 +23,16 @@ namespace Barotrauma
             return UserData.RegisterType(type);
         }
 
-        public static IUserDataDescriptor IsRegistered(string typeName)
+        public static bool IsRegistered(string typeName)
         {
             Type type = GetType(typeName);
 
             if (type == null)
             {
-                return null;
+                return false;
             }
 
-            return UserData.GetDescriptorForType(type, true);
+            return UserData.GetDescriptorForType(type, true) != null;
         }
 
         public static void UnregisterType(string typeName, bool deleteHistory = false)

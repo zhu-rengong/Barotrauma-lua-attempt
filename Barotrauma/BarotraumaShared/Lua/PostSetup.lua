@@ -21,9 +21,17 @@ local function IsAllowed(typeName)
     return false
 end
 
+local function CanBeReRegistered(typeName)
+    if string.startsWith(typeName, "Barotrauma.Lua") or string.startsWith(typeName, "Barotrauma.Cs") or string.startsWith(typeName, "Barotrauma.LuaCs") then
+        return false
+    end
+
+    return true
+end
+
 local originalRegisterType = LuaUserData.RegisterType
 LuaUserData.RegisterType = function (typeName)
-    if not LuaUserData.IsRegistered(typeName) and not IsAllowed(typeName) then
+    if not (CanBeReRegistered(typeName) and LuaUserData.IsRegistered(typeName)) and not IsAllowed(typeName) then
         error("Couldn't register type " .. typeName .. ".", 2)
     end
 
@@ -38,7 +46,7 @@ end
 
 local originalCreateStatic = LuaUserData.CreateStatic
 LuaUserData.CreateStatic = function (typeName, addCallMethod)
-    if not LuaUserData.IsRegistered(typeName) and not IsAllowed(typeName) then
+    if not (CanBeReRegistered(typeName) and LuaUserData.IsRegistered(typeName)) and not IsAllowed(typeName) then
         error("Couldn't create static type " .. typeName .. ".", 2)
     end
 
