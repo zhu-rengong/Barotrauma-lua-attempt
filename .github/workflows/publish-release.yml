@@ -23,6 +23,9 @@ env:
     Barotrauma.deps.json
     Barotrauma.dll
     Barotrauma.pdb
+    DedicatedServer.deps.json
+    DedicatedServer.dll
+    DedicatedServer.pdb
   ARCHIVE_FILES_SHARED: |
     0Harmony.dll
     Sigil.dll
