@@ -8,6 +8,10 @@ on:
 
 env:
   ARTIFACTS_DIR: 2049ef39-42a2-46d2-b513-ee6d2e3a7b15
+  RELEASES: |
+    windows:Barotrauma/bin/ReleaseWindows/net6.0/win-x64/publish
+    linux:Barotrauma/bin/ReleaseLinux/net6.0/linux-x64/publish
+    mac:Barotrauma/bin/ReleaseMac/net6.0/osx-x64/publish
   ARCHIVE_BASE_NAME: luacsforbarotrauma
   # XXX: these file names are subject to shell expansion.
   # Be careful when using special characters.
@@ -77,28 +81,25 @@ jobs:
           shopt -s globstar nullglob
           shopt -u dotglob
 
-          IFS=$'\n' readarray -td $'\n' ARCHIVE_FILES_SHARED <<< "$ARCHIVE_FILES_SHARED"
-          IFS=$'\n' readarray -td $'\n' ARCHIVE_FILES_CLIENT <<< "$ARCHIVE_FILES_CLIENT"
-          IFS=$'\n' readarray -td $'\n' ARCHIVE_FILES_SERVER <<< "$ARCHIVE_FILES_SERVER"
+          # This converts a newline-separated (LF) list into a Bash array
+          # NOTE: this doesn't discard the trailing LF that GitHub actions
+          # append (which results in an extra entry in the array).
+          lines_to_array() {
+            IFS=$'\n' readarray -td $'\n' "$1" <<< "${!1}"
+          }
 
-          platforms=(
-            "windows"
-            "linux"
-            "mac"
-          )
-          publish_dirs=(
-            "Barotrauma/bin/ReleaseWindows/net6.0/win-x64/publish"
-            "Barotrauma/bin/ReleaseLinux/net6.0/linux-x64/publish"
-            "Barotrauma/bin/ReleaseMac/net6.0/osx-x64/publish"
-          )
+          lines_to_array ARCHIVE_FILES_SHARED
+          lines_to_array ARCHIVE_FILES_CLIENT
+          lines_to_array ARCHIVE_FILES_SERVER
+          lines_to_array RELEASES
 
           mkdir -p "$ARTIFACTS_DIR"
           artifacts_dir="$(realpath "$ARTIFACTS_DIR")"
 
-          for i in "${!platforms[@]}"; do
+          for i in "${!RELEASES[@]}"; do
+            [[ -z "${RELEASES[i]}" ]] && continue
             (
-              platform="${platforms[i]}"
-              publish_dir="${publish_dirs[i]}"
+              IFS=':' read platform publish_dir _rest <<< "${RELEASES[i]}"
               cd "$publish_dir"
               echo "Creating build_${platform}.zip"
               zip -qr "${artifacts_dir}/${ARCHIVE_BASE_NAME}_build_${platform}.zip" *
@@ -113,10 +114,10 @@ jobs:
             )
           done
 
-          for i in "${!platforms[@]}"; do
+          for i in "${!RELEASES[@]}"; do
+            [[ -z "${RELEASES[i]}" ]] && continue
             (
-              platform="${platforms[i]}"
-              publish_dir="${publish_dirs[i]}"
+              IFS=':' read platform publish_dir _rest <<< "${RELEASES[i]}"
               cd "$publish_dir"
               echo "Creating build_${platform}.tar.gz"
               tar -czf "${artifacts_dir}/${ARCHIVE_BASE_NAME}_build_${platform}.tar.gz" \
