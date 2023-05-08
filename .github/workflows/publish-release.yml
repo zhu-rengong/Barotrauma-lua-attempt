@@ -139,12 +139,10 @@ jobs:
           done
 
       - name: Publish release
-        uses: marvinpinto/action-automatic-releases@v1.2.1
+        uses: ./.github/actions/github-release
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          automatic_release_tag: latest
-          prerelease: false
-          title: Automatic Build
+          type: latest
+          token: ${{ github.token }}
           files: |
             ${{ env.ARTIFACTS_DIR }}/${{ env.ARCHIVE_BASE_NAME }}_build_windows.zip
             ${{ env.ARTIFACTS_DIR }}/${{ env.ARCHIVE_BASE_NAME }}_patch_windows_client.zip
