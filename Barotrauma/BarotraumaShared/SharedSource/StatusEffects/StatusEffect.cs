@@ -904,7 +904,8 @@ namespace Barotrauma
             if (HasTargetType(TargetType.NearbyItems))
             {
                 //optimization for powered components that can be easily fetched from Powered.PoweredList
-                if (TargetIdentifiers.Count == 1 &&
+                if (TargetIdentifiers != null && 
+                    TargetIdentifiers.Count == 1 &&
                     (TargetIdentifiers.Contains("powered") || TargetIdentifiers.Contains("junctionbox") || TargetIdentifiers.Contains("relaycomponent")))
                 {
                     foreach (Powered powered in Powered.PoweredList)
@@ -1539,7 +1540,7 @@ namespace Barotrauma
                             {
                                 targetCharacter.TryAdjustHealerSkill(user, healthChange);
 #if SERVER
-                                GameMain.Server.KarmaManager.OnCharacterHealthChanged(targetCharacter, user, healthChange, 0.0f);
+                                GameMain.Server.KarmaManager.OnCharacterHealthChanged(targetCharacter, user, -healthChange, 0.0f);
 #endif
                             }
                         }
@@ -2168,7 +2169,7 @@ namespace Barotrauma
                                 {
                                     targetCharacter.TryAdjustHealerSkill(element.User, healthChange);
 #if SERVER
-                                    GameMain.Server.KarmaManager.OnCharacterHealthChanged(targetCharacter, element.User, healthChange, 0.0f);
+                                    GameMain.Server.KarmaManager.OnCharacterHealthChanged(targetCharacter, element.User, -healthChange, 0.0f);
 #endif
                                 }
                             }
@@ -2222,7 +2223,7 @@ namespace Barotrauma
             {
                 if (affliction.Prefab.IsBuff)
                 {
-                    afflictionMultiplier *= 1 + user.GetStatValue(StatTypes.MedicalItemDurationMultiplier);
+                    afflictionMultiplier *= 1 + user.GetStatValue(StatTypes.BuffItemApplyingMultiplier);
                 }
                 else if (affliction.Prefab.Identifier == "organdamage" && targetCharacter.CharacterHealth.GetActiveAfflictionTags().Any(t => t == "poisoned"))
                 {
