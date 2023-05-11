@@ -118,11 +118,14 @@ namespace Barotrauma
             Lualy<System.Double>();
 
             Lualy<System.TimeSpan>();
+            LualyBase(typeof(System.Console));
+            Lualy<System.Exception>();
 
 #if CLIENT
             Lualy<Media.Video>();
             Lualy<Microsoft.Xna.Framework.Graphics.SpriteBatch>();
             Lualy<Microsoft.Xna.Framework.Graphics.Texture2D>();
+            Lualy<Microsoft.Xna.Framework.Graphics.SpriteEffects>(new string[] { "SpriteEffects" });
 #endif
             Lualy<Microsoft.Xna.Framework.Matrix>(new string[] { "Matrix" });
             Lualy<Microsoft.Xna.Framework.Vector2>(new string[] { "Vector2" });
@@ -147,7 +150,6 @@ namespace Barotrauma
             Lualy<Barotrauma.LuaUInt64>(new string[] { "UInt64" });
             Lualy<Barotrauma.LuaSingle>(new string[] { "Single" }, new string[] { "Float" });
             Lualy<Barotrauma.LuaDouble>(new string[] { "Double" });
-            Lualy<Barotrauma.LuaNone>(new string[] { "none" });
 
             LualyBase(typeof(LuaUserData), new string[] { "LuaUserData" });
             LualyBase(typeof(LuaGame), new string[] { "Game" });
@@ -174,6 +176,7 @@ namespace Barotrauma
             LualyBase(typeof(Barotrauma.Rand));
             Lualy<Barotrauma.Rand.RandSync>(null, new string[] { "RandSync" });
 
+            Lualy<Steamworks.SteamServer>();
             Lualy<Steamworks.Friend>();
             Lualy<Steamworks.Ugc.Item>();
             Lualy<Barotrauma.SteamWorkshopId>();
@@ -194,6 +197,9 @@ namespace Barotrauma
 
             Lualy<Barotrauma.GameMain>();
 
+#if CLIENT
+            Lualy<Barotrauma.SerializableEntityEditor>();
+#endif
             Lualy<Barotrauma.SerializableProperty>();
 
             #region String
@@ -521,6 +527,7 @@ namespace Barotrauma
             Lualy<Barotrauma.CharacterParams.SubParam>();
             Lualy<Barotrauma.CharacterParams.TargetParams>();
 
+            LualyBase(typeof(Barotrauma.CreatureMetrics));
             Lualy<Barotrauma.MapCreatures.Behavior.BallastFloraBehavior>();
             Lualy<Barotrauma.MapCreatures.Behavior.BallastFloraBranch>();
             Lualy<Barotrauma.PetBehavior>();
@@ -757,6 +764,7 @@ namespace Barotrauma
             #endregion
 
             #region Structure
+            Lualy<Barotrauma.WallSection>();
             Lualy<Barotrauma.Structure>();
             Lualy<Barotrauma.StructurePrefab>();
             #endregion
@@ -777,6 +785,7 @@ namespace Barotrauma
             Lualy<Barotrauma.AttackTarget>();
             Lualy<Barotrauma.Attack>();
             Lualy<Barotrauma.AttackResult>();
+            Lualy<Barotrauma.DamageModifier>();
             #endregion
 
             #region Inventroy and slot
@@ -987,8 +996,8 @@ namespace Barotrauma
 
             Lualy<Barotrauma.SpriteFallBackState>();
 
-            Lualy<Barotrauma.GUISoundType>();
-            Lualy<Barotrauma.CursorState>();
+            Lualy<Barotrauma.GUISoundType>(new string[] { "GUI", "SoundType" });
+            Lualy<Barotrauma.CursorState>(new string[] { "GUI", "CursorState" });
 
             Lualy<Barotrauma.PlayerInput>();
 
@@ -1021,7 +1030,8 @@ namespace Barotrauma
             Lualy<Barotrauma.GUINumberInput>(new string[] { "GUI", "NumberInput" });
 
             Lualy<Barotrauma.GUIProgressBar>(new string[] { "GUI", "ProgressBar" });
-            Lualy<Barotrauma.GUIRadioButtonGroup>();
+            Lualy<Barotrauma.GUIRadioButtonGroup>(new string[] { "GUI", "RadioButtonGroup" }); // NON-EXIST
+            Lualy<Barotrauma.GUIDragHandle>(new string[] { "GUI", "DragHandle" });
             Lualy<Barotrauma.GUIScissorComponent>(new string[] { "GUI", "ScissorComponent" });
             Lualy<Barotrauma.GUIScrollBar>(new string[] { "GUI", "ScrollBar" });
             LualyBase(typeof(Barotrauma.GUIStyle), new string[] { "GUI", "GUIStyle" });
@@ -1041,6 +1051,8 @@ namespace Barotrauma
             Lualy<Barotrauma.SubmarineSelection>();
             Lualy<Barotrauma.UISprite>();
             Lualy<Barotrauma.UpgradeStore>();
+            Lualy<Barotrauma.CreditsPlayer>(new string[] { "GUI", "CreditsPlayer" });
+            Lualy<Barotrauma.SlideshowPlayer>(new string[] { "GUI", "SlideshowPlayer" });
             Lualy<Barotrauma.VideoPlayer>(new string[] { "GUI", "VideoPlayer" });
             Lualy<Barotrauma.VideoPlayer.TextSettings>(new string[] { "GUI", "VideoPlayer", "TextSettings" });
             Lualy<Barotrauma.VideoPlayer.VideoSettings>(new string[] { "GUI", "VideoPlayer", "VideoSettings" });
