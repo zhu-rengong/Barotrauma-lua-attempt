@@ -6,4 +6,8 @@
     <ProjectReference Include="$(MSBuildThisFileDirectory)..\..\Libraries\moonsharp\MoonSharp.Interpreter\MoonSharp.Interpreter.csproj" />
     <ProjectReference Include="$(MSBuildThisFileDirectory)..\..\Libraries\moonsharp\MoonSharp.VsCodeDebugger\MoonSharp.VsCodeDebugger.csproj" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>      
+  </PropertyGroup>
 </Project>

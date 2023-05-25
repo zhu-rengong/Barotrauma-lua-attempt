@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="..\BarotraumaShared\LuaCsDependencies.props" />
+  <Import Project="..\BarotraumaShared\Luatrauma.props" />
   <ItemGroup>
-    <None Include="..\BarotraumaShared\LuaCsDependencies.props" />
+    <None Include="..\BarotraumaShared\Luatrauma.props" />
   </ItemGroup>
 
   <PropertyGroup>
