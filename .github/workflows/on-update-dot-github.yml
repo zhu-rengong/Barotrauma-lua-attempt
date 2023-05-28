@@ -1,16 +1,14 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
 
-name: On push to a secondary branch
+name: On changes to .github
 
 on:
   push:
-    branches-ignore: [master]
     paths-ignore:
-      - ".github/**"
-      - "*.md"
+      - "./.github/**"
 
 jobs:
-  run-tests:
-    uses: ./.github/workflows/run-tests.yml
+  harden-ci-security:
+    uses: ./.github/workflows/harden-ci-security.yml
     with:
       target: ${{ github.event.ref }}
