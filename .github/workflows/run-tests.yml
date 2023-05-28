@@ -5,7 +5,7 @@ name: Run tests
 on:
   workflow_call:
     inputs:
-      ref:
+      target:
         required: true
         type: string
 
@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
         with:
           repository: ${{ inputs.repository }}
-          ref: ${{ inputs.ref }}
+          target: ${{ inputs.target }}
           submodules: recursive
 
       - name: Setup .NET

@@ -13,10 +13,10 @@ jobs:
   run-tests:
     uses: ./.github/workflows/run-tests.yml
     with:
-      ref: ${{ github.event.ref }}
+      target: ${{ github.event.ref }}
 
   publish-release:
     uses: ./.github/workflows/publish-release.yml
     with:
-      ref: ${{ github.event.ref }}
+      target: ${{ github.event.ref }}
       tag: latest

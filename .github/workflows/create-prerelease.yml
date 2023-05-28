@@ -81,6 +81,6 @@ jobs:
     if: ${{ needs.check-if-release-needed.outputs.has-new-commits == 'true' }}
     uses: ./.github/workflows/publish-release.yml
     with:
-      ref: ${{ github.event.ref }}
+      target: ${{ github.event.ref }}
       tag: nightly
       prerelease: true

@@ -13,4 +13,4 @@ jobs:
   run-tests:
     uses: ./.github/workflows/run-tests.yml
     with:
-      ref: ${{ github.event.ref }}
+      target: ${{ github.event.ref }}
