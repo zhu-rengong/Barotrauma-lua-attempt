@@ -438,6 +438,8 @@ RegisterBarotrauma("DecalManager")
 
 RegisterBarotrauma("PriceInfo")
 
+RegisterBarotrauma("Voting")
+
 Register("Microsoft.Xna.Framework.Vector2")
 Register("Microsoft.Xna.Framework.Vector3")
 Register("Microsoft.Xna.Framework.Vector4")
