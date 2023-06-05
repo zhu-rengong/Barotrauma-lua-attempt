@@ -127,7 +127,7 @@ defaultLib["XDocument"] = CreateStatic("System.Xml.Linq.XDocument", true)
 defaultLib["XNode"] = CreateStatic("System.Xml.Linq.XNode", true)
 defaultLib["SoundsFile"] = CreateStatic("Barotrauma.SoundsFile", true)
 
-defaultLib["Voting"] = CreateStatic("System.Voting")
+defaultLib["Voting"] = CreateStatic("Barotrauma.Voting")
 defaultLib["TimeSpan"] = CreateStatic("System.TimeSpan")
 defaultLib["IPAddress"] = CreateStatic("System.Net.IPAddress")
 defaultLib["ContentPackageId"] = CreateStatic("Barotrauma.ContentPackageId")
