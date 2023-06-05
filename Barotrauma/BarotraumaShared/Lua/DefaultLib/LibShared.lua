@@ -49,7 +49,7 @@ defaultLib["StartingBalanceAmount"] = CreateEnum("Barotrauma.StartingBalanceAmou
 defaultLib["ChatMode"] = CreateEnum("Barotrauma.ChatMode")
 defaultLib["CharacterType"] = CreateEnum("Barotrauma.CharacterType")
 defaultLib["MissionType"] = CreateEnum("Barotrauma.MissionType")
-defaultLib["VoteType"] = CreateEnum("Barotrauma.VoteType")
+defaultLib["VoteType"] = CreateEnum("Barotrauma.Networking.VoteType")
 defaultLib["InputType"] = CreateStatic("Barotrauma.InputType")
 
 defaultLib["EventPrefab"] = CreateStatic("Barotrauma.EventPrefab", true)
