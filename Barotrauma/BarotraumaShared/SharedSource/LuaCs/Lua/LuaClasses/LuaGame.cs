@@ -415,6 +415,7 @@ namespace Barotrauma
             { 
                 DebugConsole.FindCommand("cl_reloadluacs"),
                 DebugConsole.FindCommand("cl_lua"),
+                DebugConsole.FindCommand("cl_toggleluadebug"),
             };
 
             foreach (var consoleCommand in LuaAddedCommand.Concat(permitted.AsEnumerable())) 
