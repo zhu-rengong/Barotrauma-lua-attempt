@@ -20,7 +20,6 @@ namespace Barotrauma
         public List<ushort> unresolvedLinkedToID;
 
         public static int MapEntityUpdateInterval = 1;
-        public static int GapUpdateInterval = 1;
         public static int PoweredUpdateInterval = 1;
         private static int mapEntityUpdateTick;
 
@@ -638,12 +637,9 @@ namespace Barotrauma
             //the water/air will always tend to flow through the first gap in the list,
             //which may lead to weird behavior like water draining down only through
             //one gap in a room even if there are several
-            if (mapEntityUpdateTick % GapUpdateInterval == 0)
+            foreach (Gap gap in Gap.GapList.OrderBy(g => Rand.Int(int.MaxValue)))
             {
-                foreach (Gap gap in Gap.GapList.OrderBy(g => Rand.Int(int.MaxValue)))
-                {
-                    gap.Update(deltaTime * GapUpdateInterval, cam);
-                }
+                gap.Update(deltaTime, cam);
             }
 
             if (mapEntityUpdateTick % PoweredUpdateInterval == 0)
