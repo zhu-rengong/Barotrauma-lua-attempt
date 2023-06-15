@@ -20,7 +20,7 @@ namespace Barotrauma
         public List<ushort> unresolvedLinkedToID;
 
         public static int MapEntityUpdateInterval = 1;
-        public static int GapUpdateInterval = 4;
+        public static int GapUpdateInterval = 1;
         public static int PoweredUpdateInterval = 1;
         private static int mapEntityUpdateTick;
 
@@ -317,7 +317,7 @@ namespace Barotrauma
             }
         }
 
-        public virtual void Move(Vector2 amount, bool ignoreContacts = false)
+        public virtual void Move(Vector2 amount, bool ignoreContacts = true)
         {
             rect.X += (int)amount.X;
             rect.Y += (int)amount.Y;
@@ -454,7 +454,7 @@ namespace Barotrauma
             List<Wire> orphanedWires = new List<Wire>();
             for (int i = 0; i < clones.Count; i++)
             {
-                if (!(clones[i] is Item cloneItem)) { continue; }
+                if (clones[i] is not Item cloneItem) { continue; }
 
                 var door = cloneItem.GetComponent<Door>();
                 door?.RefreshLinkedGap();
@@ -509,10 +509,12 @@ namespace Barotrauma
                     }
 
                     (clones[itemIndex] as Item).Connections[connectionIndex].TryAddLink(cloneWire);
-                    cloneWire.Connect((clones[itemIndex] as Item).Connections[connectionIndex], false);
+                    cloneWire.Connect((clones[itemIndex] as Item).Connections[connectionIndex], n, addNode: false);
                 }
 
-                if ((cloneWire.Connections[0] == null || cloneWire.Connections[1] == null) && cloneItem.GetComponent<DockingPort>() == null)
+                if (originalWire.Connections.Any(c => c != null) &&
+                    (cloneWire.Connections[0] == null || cloneWire.Connections[1] == null) && 
+                    cloneItem.GetComponent<DockingPort>() == null)
                 {
                     if (!clones.Any(c => (c as Item)?.GetComponent<ConnectionPanel>()?.DisconnectedWires.Contains(cloneWire) ?? false))
                     {
