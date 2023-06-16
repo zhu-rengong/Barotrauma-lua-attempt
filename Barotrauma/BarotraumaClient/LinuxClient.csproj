@@ -1,17 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="..\BarotraumaShared\LuaCsDependencies.props" />
-  <ItemGroup>
-    <None Include="..\BarotraumaShared\LuaCsDependencies.props" />
-  </ItemGroup>
-
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>Barotrauma</RootNamespace>
     <Authors>FakeFish, Undertow Games</Authors>
     <Product>Barotrauma</Product>
-    <Version>1.0.13.1</Version>
+    <Version>1.0.20.1</Version>
     <Copyright>Copyright © FakeFish 2018-2023</Copyright>
     <Platforms>AnyCPU;x64</Platforms>
     <AssemblyName>Barotrauma</AssemblyName>
@@ -208,5 +203,10 @@
     <GARuntime>linux-x64</GARuntime>
   </PropertyGroup>
   <Import Project="../BarotraumaShared/DeployGameAnalytics.props" />
+
+  <Import Project="../BarotraumaShared/Luatrauma.props" />
+  <ItemGroup>
+    <None Include="../BarotraumaShared/Luatrauma.props" />
+  </ItemGroup>
 
 </Project>

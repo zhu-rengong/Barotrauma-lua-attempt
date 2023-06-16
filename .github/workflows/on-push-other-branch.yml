@@ -5,14 +5,12 @@ name: On push to a secondary branch
 on:
   push:
     branches-ignore: [master]
+    paths-ignore:
+      - ".github/**"
+      - "*.md"
 
 jobs:
-  harden-ci-security:
-    uses: ./.github/workflows/harden-ci-security.yml
-    with:
-      ref: ${{ github.event.ref }}
-
   run-tests:
     uses: ./.github/workflows/run-tests.yml
     with:
-      ref: ${{ github.event.ref }}
+      target: ${{ github.event.ref }}
