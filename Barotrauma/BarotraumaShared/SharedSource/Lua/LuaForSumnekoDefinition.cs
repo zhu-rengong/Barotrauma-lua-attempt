@@ -117,7 +117,7 @@ namespace Barotrauma
             Lualy<System.Single>();
             Lualy<System.Double>();
 
-            Lualy<System.TimeSpan>();
+            Lualy<System.TimeSpan>(new string[] { "TimeSpan" });
             LualyBase(typeof(System.Console));
             Lualy<System.Exception>();
 
@@ -552,7 +552,6 @@ namespace Barotrauma
 
             Lualy<Barotrauma.AIChatMessage>();
             Lualy<Barotrauma.AIObjectiveManager>();
-            Lualy<Barotrauma.AITrigger>();
 
             Lualy<Barotrauma.AIObjective>();
             Lualy<Barotrauma.AIObjectiveChargeBatteries>();
@@ -1016,7 +1015,7 @@ namespace Barotrauma
             Lualy<Barotrauma.GUIColor>();
             Lualy<Barotrauma.GUIColorPrefab>();
             Lualy<Barotrauma.GUIColorPicker>(new string[] { "GUI", "ColorPicker" });
-            Lualy<Barotrauma.GUIComponent>();
+            Lualy<Barotrauma.GUIComponent>(new string[] { "GUI", "Component" });
             Lualy<Barotrauma.GUIComponent.ComponentState>();
             Lualy<Barotrauma.GUIContextMenu>();
             Lualy<Barotrauma.GUICustomComponent>(new string[] { "GUI", "CustomComponent" });
@@ -1123,6 +1122,9 @@ namespace Barotrauma
 
             Lualy<Barotrauma.KarmaManager>();
             LualyBase(typeof(Barotrauma.Networking.RespawnManager));
+
+            Lualy<Barotrauma.Voting>();
+            Lualy<Barotrauma.Networking.VoteType>(new string[] { "VoteType" });
 
             LualyBase(typeof(Barotrauma.DebugConsole));
             Lualy<Barotrauma.DebugConsole.Command>();
