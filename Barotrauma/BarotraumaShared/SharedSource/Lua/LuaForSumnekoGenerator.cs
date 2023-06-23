@@ -200,22 +200,7 @@ namespace Barotrauma
                     return _luaTypeVariant = $"({LuaClrName})|({delegateMethodBuilder})";
                 }
 
-                return _luaTypeVariant = ResolvedType switch
-                {
-                    { Namespace: "System", Name: "String" } => $"({LuaClrName}|string)",
-                    { Namespace: "System", Name: "Boolean" } => $"({LuaClrName}|boolean)",
-                    { Namespace: "System", Name: "SByte" } => $"({LuaClrName}|integer)",
-                    { Namespace: "System", Name: "Byte" } => $"({LuaClrName}|integer)",
-                    { Namespace: "System", Name: "Int16" } => $"({LuaClrName}|integer)",
-                    { Namespace: "System", Name: "UInt16" } => $"({LuaClrName}|integer)",
-                    { Namespace: "System", Name: "Int32" } => $"({LuaClrName}|integer)",
-                    { Namespace: "System", Name: "UInt32" } => $"({LuaClrName}|integer)",
-                    { Namespace: "System", Name: "Int64" } => $"({LuaClrName}|integer)",
-                    { Namespace: "System", Name: "UInt64" } => $"({LuaClrName}|integer)",
-                    { Namespace: "System", Name: "Single" } => $"({LuaClrName}|number)",
-                    { Namespace: "System", Name: "Double" } => $"({LuaClrName}|number)",
-                    _ => LuaClrName,
-                };
+                return _luaTypeVariant = LuaClrName;
             }
 
             public static string GloballyTable(string[] parts) => parts.Aggregate("_G", (p1, p2) => p1 + $@"['{p2}']");

@@ -55,6 +55,23 @@ namespace Barotrauma
                 variants.Add($"{{[{indexMt.GetLuaTypeVariant()}]:{returnMt.GetLuaTypeVariant()}}}");
             }
 
+            variants.Add(metadata.ResolvedType switch
+            {
+                { Namespace: "System", Name: "String" } => "string",
+                { Namespace: "System", Name: "Boolean" } => "boolean",
+                { Namespace: "System", Name: "SByte" } or
+                { Namespace: "System", Name: "Byte" } or
+                { Namespace: "System", Name: "Int16" } or
+                { Namespace: "System", Name: "UInt16" } or
+                { Namespace: "System", Name: "Int32" } or
+                { Namespace: "System", Name: "UInt32" } or
+                { Namespace: "System", Name: "Int64" } or
+                { Namespace: "System", Name: "UInt64" } => "integer",
+                { Namespace: "System", Name: "Single" } or
+                { Namespace: "System", Name: "Double" } => "number",
+                _ => string.Empty
+            });
+
             variants.RemoveAll(v => v.IsNullOrEmpty());
 
             if (variants.Count > 0)
