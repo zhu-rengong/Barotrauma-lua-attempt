@@ -151,6 +151,7 @@ namespace Barotrauma
             Lualy<Barotrauma.LuaSingle>(new string[] { "Single" }, new string[] { "Float" });
             Lualy<Barotrauma.LuaDouble>(new string[] { "Double" });
 
+            LualyBase(typeof(LuaCsLogger), new string[] { "Logger" });
             LualyBase(typeof(LuaUserData), new string[] { "LuaUserData" });
             LualyBase(typeof(LuaGame), new string[] { "Game" });
             Lualy<Barotrauma.LuaCsPatch>();
@@ -165,6 +166,7 @@ namespace Barotrauma
             LualyBase(typeof(LuaCsNetworking), new string[] { "Networking" });
             LualyBase(typeof(LuaCsSteam), new string[] { "Steam" });
             LualyBase(typeof(LuaCsPerformanceCounter), new string[] { "PerformanceCounter" });
+            LualyBase(typeof(LuaCsConfig), new string[] { "LuaCsConfig" });
             LualyBase(typeof(LuaCsSetup.LuaCsModStore), new string[] { "ModStore" });
             LualyBase(typeof(LuaCsSetup.LuaCsModStore.CsModStore), new string[] { "ModStore", "CsModStore" });
             LualyBase(typeof(LuaCsSetup.LuaCsModStore.LuaModStore), new string[] { "ModStore", "LuaModStore" });
