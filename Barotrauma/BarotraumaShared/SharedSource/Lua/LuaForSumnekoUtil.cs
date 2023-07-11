@@ -144,7 +144,7 @@ namespace Barotrauma
             {
                 var metadata = ClassMetadata.Obtain(method.ReturnType);
                 metadata.CollectAllToGlobal();
-                builder.Append($"):{metadata.GetLuaTypeVariant()}");
+                builder.Append($"):({metadata.GetLuaTypeVariant()})");
             }
             else
             {
