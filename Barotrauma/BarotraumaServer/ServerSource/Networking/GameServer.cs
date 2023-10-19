@@ -2561,7 +2561,7 @@ namespace Barotrauma.Networking
             }
 
             TraitorManager.Initialize(GameMain.GameSession.EventManager, Level.Loaded);
-            if (!GameMain.LuaCs.Game.overrideTraitors)
+            if (GameMain.LuaCs.Game.overrideTraitors)
             {
                 TraitorManager.Enabled = false;
             }
