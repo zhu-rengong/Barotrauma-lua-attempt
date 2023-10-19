@@ -323,14 +323,15 @@ namespace Barotrauma.Items.Components
                 wire.RegisterSignal(signal, source: this);
 #endif
                 SendSignalIntoConnection(signal, recipient);
+                GameMain.LuaCs.Hook.Call("signalReceived", signal, recipient);
+                GameMain.LuaCs.Hook.Call("signalReceived." + recipient.item.Prefab.Identifier, signal, recipient);
             }
-
-            GameMain.LuaCs.Hook.Call("signalReceived", signal, connection);
-            GameMain.LuaCs.Hook.Call("signalReceived." + recipient.item.Prefab.Identifier, signal, connection);
 
             foreach (CircuitBoxConnection connection in CircuitBoxConnections)
             {
                 connection.ReceiveSignal(signal);
+                GameMain.LuaCs.Hook.Call("signalReceived", signal, connection.Connection);
+                GameMain.LuaCs.Hook.Call("signalReceived." + connection.Connection.Item.Prefab.Identifier, signal, connection);
             }
             enumeratingWires = false;
             foreach (var removedWire in removedWires)

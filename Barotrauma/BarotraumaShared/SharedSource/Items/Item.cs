@@ -2968,7 +2968,7 @@ namespace Barotrauma
 
             if (condition <= 0.0f) { return; }
 
-            var should = GameMain.LuaCs.Hook.Call<bool?>("item.use", new object[] { this, character, targetLimb });
+            var should = GameMain.LuaCs.Hook.Call<bool?>("item.use", new object[] { this, user, targetLimb, useTarget });
 
             if (should != null && should.Value) { return; }
         

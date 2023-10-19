@@ -216,7 +216,6 @@ RegisterBarotrauma("SubmarineFile")
 RegisterBarotrauma("TalentsFile")
 RegisterBarotrauma("TalentTreesFile")
 RegisterBarotrauma("TextFile")
-RegisterBarotrauma("TraitorMissionsFile")
 RegisterBarotrauma("TutorialsFile")
 RegisterBarotrauma("UIStyleFile")
 RegisterBarotrauma("UpgradeModulesFile")
@@ -240,8 +239,15 @@ RegisterBarotrauma("ItemInventory")
 RegisterBarotrauma("Inventory+ItemSlot")
 RegisterBarotrauma("FireSource")
 RegisterBarotrauma("AutoItemPlacer")
+RegisterBarotrauma("CircuitBoxConnection")
+RegisterBarotrauma("CircuitBoxComponent")
+RegisterBarotrauma("CircuitBoxNode")
+RegisterBarotrauma("CircuitBoxWire")
+RegisterBarotrauma("CircuitBoxInputOutputNode")
+RegisterBarotrauma("CircuitBoxSelectable")
+RegisterBarotrauma("CircuitBoxSizes")
 
-local componentsToRegister = { "DockingPort", "Door", "GeneticMaterial", "Growable", "Holdable", "LevelResource", "ItemComponent", "ItemLabel", "LightComponent", "Controller", "Deconstructor", "Engine", "Fabricator", "OutpostTerminal", "Pump", "Reactor", "Steering", "PowerContainer", "Projectile", "Repairable", "Rope", "Scanner", "ButtonTerminal", "ConnectionPanel", "CustomInterface", "MemoryComponent", "Terminal", "WifiComponent", "Wire", "TriggerComponent", "ElectricalDischarger", "EntitySpawnerComponent", "ProducedItem", "VineTile", "GrowthSideExtension", "IdCard", "MeleeWeapon", "Pickable", "AbilityItemPickingTime", "Propulsion", "RangedWeapon", "AbilityRangedWeapon", "RepairTool", "Sprayer", "Throwable", "ItemContainer", "AbilityItemContainer", "Ladder", "LimbPos", "AbilityDeconstructedItem", "AbilityItemCreationMultiplier", "AbilityItemDeconstructedInventory", "MiniMap", "OxygenGenerator", "Sonar", "SonarTransducer", "Vent", "NameTag", "Planter", "Powered", "PowerTransfer", "Quality", "RemoteController", "AdderComponent", "AndComponent", "ArithmeticComponent", "ColorComponent", "ConcatComponent", "Connection", "DelayComponent", "DivideComponent", "EqualsComponent", "ExponentiationComponent", "FunctionComponent", "GreaterComponent", "ModuloComponent", "MotionSensor", "MultiplyComponent", "NotComponent", "OrComponent", "OscillatorComponent", "OxygenDetector", "RegExFindComponent", "RelayComponent", "SignalCheckComponent", "SmokeDetector", "StringComponent", "SubtractComponent", "TrigonometricFunctionComponent", "WaterDetector", "XorComponent", "StatusHUD", "Turret", "Wearable",
+local componentsToRegister = { "DockingPort", "Door", "GeneticMaterial", "Growable", "Holdable", "LevelResource", "ItemComponent", "ItemLabel", "LightComponent", "Controller", "Deconstructor", "Engine", "Fabricator", "OutpostTerminal", "Pump", "Reactor", "Steering", "PowerContainer", "Projectile", "Repairable", "Rope", "Scanner", "ButtonTerminal", "ConnectionPanel", "CustomInterface", "MemoryComponent", "Terminal", "WifiComponent", "Wire", "TriggerComponent", "ElectricalDischarger", "EntitySpawnerComponent", "ProducedItem", "VineTile", "GrowthSideExtension", "IdCard", "MeleeWeapon", "Pickable", "AbilityItemPickingTime", "Propulsion", "RangedWeapon", "AbilityRangedWeapon", "RepairTool", "Sprayer", "Throwable", "ItemContainer", "AbilityItemContainer", "Ladder", "LimbPos", "AbilityDeconstructedItem", "AbilityItemCreationMultiplier", "AbilityItemDeconstructedInventory", "MiniMap", "OxygenGenerator", "Sonar", "SonarTransducer", "Vent", "NameTag", "Planter", "Powered", "PowerTransfer", "Quality", "RemoteController", "AdderComponent", "AndComponent", "ArithmeticComponent", "ColorComponent", "ConcatComponent", "Connection", "CircuitBox", "DelayComponent", "DivideComponent", "EqualsComponent", "ExponentiationComponent", "FunctionComponent", "GreaterComponent", "ModuloComponent", "MotionSensor", "MultiplyComponent", "NotComponent", "OrComponent", "OscillatorComponent", "OxygenDetector", "RegExFindComponent", "RelayComponent", "SignalCheckComponent", "SmokeDetector", "StringComponent", "SubtractComponent", "TrigonometricFunctionComponent", "WaterDetector", "XorComponent", "StatusHUD", "Turret", "Wearable",
 "GridInfo", "PowerSourceGroup"
 }
 
@@ -381,8 +387,7 @@ RegisterBarotrauma("Skill")
 RegisterBarotrauma("SkillPrefab")
 RegisterBarotrauma("SkillSettings")
 
-RegisterBarotrauma("TraitorMissionPrefab")
-RegisterBarotrauma("TraitorMissionResult")
+RegisterBarotrauma("TraitorManager")
 
 Register("FarseerPhysics.Dynamics.Body")
 Register("FarseerPhysics.Dynamics.World")
