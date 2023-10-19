@@ -52,6 +52,8 @@ defaultLib["VoteType"] = CreateEnum("Barotrauma.Networking.VoteType")
 defaultLib["InputType"] = CreateStatic("Barotrauma.InputType")
 
 defaultLib["EventPrefab"] = CreateStatic("Barotrauma.EventPrefab", true)
+defaultLib["TraitorEventPrefab"] = CreateStatic("Barotrauma.TraitorEventPrefab", true)
+defaultLib["TraitorEvent"] = CreateStatic("Barotrauma.TraitorEvent", true)
 defaultLib["EventSet"] = CreateStatic("Barotrauma.EventSet", true)
 defaultLib["EventManagerSettings"] = CreateStatic("Barotrauma.EventManagerSettings", true)
 
@@ -113,6 +115,8 @@ defaultLib["PropertyConditional"] = CreateStatic("Barotrauma.PropertyConditional
 defaultLib["StatusEffect"] = CreateStatic("Barotrauma.StatusEffect", true)
 defaultLib["OutpostGenerator"] = CreateStatic("Barotrauma.OutpostGenerator")
 defaultLib["DamageModifier"] = CreateStatic("Barotrauma.DamageModifier", true)
+defaultLib["TraitorManager"] = CreateStatic("Barotrauma.TraitorManager", true)
+AddCallMetaTable(defaultLib["TraitorManager"].TraitorResults)
 
 defaultLib["Md5Hash"] = CreateStatic("Barotrauma.Md5Hash", true)
 defaultLib["ContentXElement"] = CreateStatic("Barotrauma.ContentXElement", true)

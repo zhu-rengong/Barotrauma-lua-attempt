@@ -388,6 +388,9 @@ RegisterBarotrauma("SkillPrefab")
 RegisterBarotrauma("SkillSettings")
 
 RegisterBarotrauma("TraitorManager")
+RegisterBarotrauma("TraitorEvent")
+RegisterBarotrauma("TraitorEventPrefab")
+RegisterBarotrauma("TraitorManager+TraitorResults")
 
 Register("FarseerPhysics.Dynamics.Body")
 Register("FarseerPhysics.Dynamics.World")
