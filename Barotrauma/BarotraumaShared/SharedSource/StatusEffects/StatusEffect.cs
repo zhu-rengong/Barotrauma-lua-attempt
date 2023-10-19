@@ -1565,12 +1565,15 @@ namespace Barotrauma
                 }
             }
 
-            foreach (string luaHooks in luaHook)
+            if (luaHook != null)
             {
-                var result = GameMain.LuaCs.Hook.Call<bool?>(luaHooks, this, deltaTime, entity, targets, worldPosition);
+                foreach (string luaHooks in luaHook)
+                {
+                    var result = GameMain.LuaCs.Hook.Call<bool?>(luaHooks, this, deltaTime, entity, targets, worldPosition);
 
-                if (result != null && result.Value)
-                    return;
+                    if (result != null && result.Value)
+                        return;
+                }
             }
 
             Hull hull = GetHull(entity);
