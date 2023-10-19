@@ -2742,6 +2742,15 @@ namespace Barotrauma.Networking
                 GameMain.GameSession.EndRound(endMessage);
             }
             TraitorManager.TraitorResults? traitorResults = traitorManager?.GetEndResults() ?? null;
+            var result = GameMain.LuaCs.Hook.Call<List<object>>("roundEnd");
+            if (result != null)
+            {
+                foreach (var data in result)
+                {
+                    if (data is TraitorManager.TraitorResults traitorResultData) { traitorResults = traitorResultData; }
+                    if (data is string endMessageData) { endMessage = endMessageData; }
+                }
+            }
 
             endRoundTimer = 0.0f;
 
