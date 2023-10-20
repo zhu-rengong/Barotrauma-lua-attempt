@@ -91,18 +91,18 @@ public sealed class RunConfig
     public bool IsForced()
     {
 #if CLIENT
-        return this.Client.Equals("Forced");
+        return this.Client == "Forced";
 #elif SERVER
-        return this.Server.Equals("Forced");
+        return this.Server == "Forced";
 #endif
     }
     
     public bool IsStandard()
     {
 #if CLIENT
-        return this.Client.Equals("Standard");
+        return this.Client == "Standard";
 #elif SERVER
-        return this.Server.Equals("Standard");
+        return this.Server == "Standard";
 #endif
     }
 
