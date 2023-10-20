@@ -14,6 +14,7 @@ using System.Text.RegularExpressions;
 using System.Collections.Immutable;
 using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
+using HarmonyLib;
 
 namespace Barotrauma
 {
@@ -204,6 +205,9 @@ namespace Barotrauma
 #endif
             Lualy<Barotrauma.SerializableProperty>();
 
+            Lualy<Barotrauma.Range<System.Single>>();
+            Lualy<Barotrauma.Range<System.Int32>>();
+
             #region String
             Lualy<AddedPunctuationLString>();
             Lualy<CapitalizeLString>();
@@ -258,6 +262,7 @@ namespace Barotrauma
             Lualy<Barotrauma.CorePackage>();
             Lualy<Barotrauma.ContentXElement>();
             Lualy<Barotrauma.ContentPath>();
+            Lualy<Barotrauma.Success<Barotrauma.ContentPackage, System.Exception>>();
 
             #region Files
             Lualy<Barotrauma.AfflictionsFile>();
@@ -299,7 +304,6 @@ namespace Barotrauma
             Lualy<Barotrauma.TalentsFile>();
             Lualy<Barotrauma.TalentTreesFile>();
             Lualy<Barotrauma.TextFile>();
-            Lualy<Barotrauma.TraitorMissionsFile>();
             Lualy<Barotrauma.TutorialsFile>();
             Lualy<Barotrauma.UIStyleFile>();
             Lualy<Barotrauma.UpgradeModulesFile>();
@@ -327,9 +331,8 @@ namespace Barotrauma
             Lualy<Networking.ServerLog.MessageType>(null, new string[] { "ServerLog_MessageType" }, new string[] { "ServerLogMessageType" });
 
             Lualy<Barotrauma.PropertyConditional>();
-            Lualy<Barotrauma.PropertyConditional.Comparison>();
+            Lualy<Barotrauma.PropertyConditional.ComparisonOperatorType>();
             Lualy<Barotrauma.PropertyConditional.ConditionType>();
-            Lualy<Barotrauma.PropertyConditional.OperatorType>();
             Lualy<Barotrauma.StatusEffect>();
             Lualy<Barotrauma.StatusEffect.TargetType>();
             Lualy<Barotrauma.StatusEffect.AbilityStatusEffectIdentifier>();
@@ -502,6 +505,8 @@ namespace Barotrauma
 
             Lualy<Barotrauma.PrefabCollection<Barotrauma.Particles.ParticlePrefab>>();
 #endif
+
+            Lualy<Barotrauma.PrefabSelector<Barotrauma.SkillSettings>>();
             #endregion
 
 
@@ -757,6 +762,22 @@ namespace Barotrauma
 
             #endregion
 
+            #region Circuit Box
+            Lualy<Barotrauma.Items.Components.CircuitBox>();
+            Lualy<Barotrauma.CircuitBoxConnection>();
+            Lualy<Barotrauma.CircuitBoxComponent>();
+            Lualy<Barotrauma.CircuitBoxNode>();
+            Lualy<Barotrauma.CircuitBoxWire>();
+            Lualy<Barotrauma.CircuitBoxInputOutputNode>();
+            Lualy<Barotrauma.CircuitBoxSelectable>();
+            LualyBase(typeof(Barotrauma.CircuitBoxSizes));
+#if CLIENT
+            Lualy<Barotrauma.CircuitBoxWireRenderer>();
+            Lualy<Barotrauma.CircuitBoxLabel>();
+            Lualy<Barotrauma.CircuitBoxMouseDragSnapshotHandler>();
+            Lualy<Barotrauma.CircuitBoxUI>();
+#endif
+            #endregion
 
             #region Submarine
             Lualy<Barotrauma.SubmarineInfo>();
@@ -810,15 +831,12 @@ namespace Barotrauma
             #endregion
 
             #region Traitor
-            Lualy<Barotrauma.TraitorMissionPrefab>();
-            Lualy<Barotrauma.TraitorMissionResult>();
-#if SERVER
-            Lualy<Barotrauma.Networking.TraitorMessageType>();
+            Lualy<Barotrauma.TraitorEvent>();
+            Lualy<Barotrauma.TraitorEventPrefab>();
             Lualy<Barotrauma.TraitorManager>();
-            Lualy<Barotrauma.Traitor>();
-            Lualy<Barotrauma.Traitor.TraitorMission>();
-            Lualy<Barotrauma.Traitor.Objective>();
-            Lualy<Barotrauma.Traitor.Goal>();
+            Lualy<Barotrauma.TraitorManager.TraitorResults>();
+#if SERVER
+            Lualy<Barotrauma.TraitorManager.ActiveTraitorEvent>();
 #endif
             #endregion
 
