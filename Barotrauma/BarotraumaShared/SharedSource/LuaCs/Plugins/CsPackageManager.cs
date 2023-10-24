@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using Barotrauma.Steam;
@@ -73,7 +74,7 @@ public sealed class CsPackageManager : IDisposable
     private const string SCRIPT_FILE_REGEX = "*.cs";
     private const string ASSEMBLY_FILE_REGEX = "*.dll";
 
-    private readonly float _assemblyUnloadTimeoutSeconds = 4f;
+    private readonly float _assemblyUnloadTimeoutSeconds = 6f;
     private Guid _publicizedAssemblyLoader;
     private readonly List<ContentPackage> _currentPackagesByLoadOrder = new();
     private readonly Dictionary<ContentPackage, ImmutableList<ContentPackage>> _packagesDependencies = new();
@@ -203,10 +204,19 @@ public sealed class CsPackageManager : IDisposable
     /// </summary>
     public event Action OnDispose; 
 
+    [MethodImpl(MethodImplOptions.Synchronized)]
     public void Dispose()
     {
         // send events for cleanup
-        OnDispose?.Invoke();
+        try
+        {
+            OnDispose?.Invoke();
+        }
+        catch (Exception e)
+        {
+            ModUtils.Logging.PrintError($"Error while executing Dispose event: {e.Message}");
+        }
+        
         // cleanup events
         if (OnDispose is not null)
         {
@@ -219,10 +229,15 @@ public sealed class CsPackageManager : IDisposable
         // cleanup plugins and assemblies
         ReflectionUtils.ResetCache();
         UnloadPlugins();
-
         // try cleaning up the assemblies
         _pluginTypes.Clear();   // remove assembly references
         _loadedPlugins.Clear();
+        _publicizedAssemblyLoader = Guid.Empty;
+        _packagesDependencies.Clear();
+        _loadedCompiledPackageAssemblies.Clear();
+        _reverseLookupGuidList.Clear();
+        _packageRunConfigs.Clear();
+        _currentPackagesByLoadOrder.Clear();
 
         // lua cleanup
         foreach (var kvp in _luaRegisteredTypes)
@@ -240,6 +255,7 @@ public sealed class CsPackageManager : IDisposable
         // we can't wait forever or app dies but we can try to be graceful
         while (!_assemblyManager.TryBeginDispose())
         {
+            Thread.Sleep(20);   // give the assembly context unloader time to run (async)
             if (_assemblyUnloadStartTime.AddSeconds(_assemblyUnloadTimeoutSeconds) > DateTime.Now)
             {
                 break;
@@ -247,8 +263,10 @@ public sealed class CsPackageManager : IDisposable
         }
         
         _assemblyUnloadStartTime = DateTime.Now;
+        Thread.Sleep(100);  // give the garbage collector time to finalize the disposed assemblies.
         while (!_assemblyManager.FinalizeDispose())
         {
+            Thread.Sleep(100);  // give the garbage collector time to finalize the disposed assemblies.
             if (_assemblyUnloadStartTime.AddSeconds(_assemblyUnloadTimeoutSeconds) > DateTime.Now)
             {
                 break;
@@ -258,17 +276,8 @@ public sealed class CsPackageManager : IDisposable
         _assemblyManager.OnAssemblyLoaded -= AssemblyManagerOnAssemblyLoaded;
         _assemblyManager.OnAssemblyUnloading -= AssemblyManagerOnAssemblyUnloading;
 
-        _publicizedAssemblyLoader = Guid.Empty;
-            
-        // clear lists after cleaning up
-        _packagesDependencies.Clear();
-        _loadedCompiledPackageAssemblies.Clear();
-        _reverseLookupGuidList.Clear();
-        _packageRunConfigs.Clear();
-        _currentPackagesByLoadOrder.Clear();
-
         AssembliesLoaded = false;
-        GC.SuppressFinalize(this);  
+        GC.SuppressFinalize(this);
     }
 
     /// <summary>
@@ -288,16 +297,16 @@ public sealed class CsPackageManager : IDisposable
         // log error if some ACLs are still unloading (some assembly is still in use)
         if (_assemblyManager.IsCurrentlyUnloading)
         {
-            ModUtils.Logging.PrintError($"WARNING: Some mods from a previous session (lobby) are still loaded! This may result in undefined behaviour! Please restart your game. \nIf you wish to avoid this issue in the future, please disable the below mods and report the error to the mod author.");
+            ModUtils.Logging.PrintWarning($"WARNING: Some mods from a previous session (lobby) are still loaded! This may result in undefined behaviour!\nIf you notice any odd behaviour that only occurs after multiple lobbies, please restart your game.");
             foreach (var wkref in _assemblyManager.StillUnloadingACLs)
             {
-                ModUtils.Logging.PrintError($"The below ACL is still unloading:");
+                ModUtils.Logging.PrintWarning($"The below ACL is still unloading:");
                 if (wkref.TryGetTarget(out var tgt))
                 {
-                    ModUtils.Logging.PrintError($"ACL Name: {tgt.Name}");
+                    ModUtils.Logging.PrintWarning($"ACL Name: {tgt.Name}");
                     foreach (Assembly assembly in tgt.Assemblies)
                     {
-                        ModUtils.Logging.PrintError($"-- Assembly: {assembly.GetName()}");
+                        ModUtils.Logging.PrintWarning($"-- Assembly: {assembly.GetName()}");
                     }
                 }
             }
@@ -480,7 +489,8 @@ public sealed class CsPackageManager : IDisposable
                 cp,
                 new LoadableData(
                     TryScanPackagesForAssemblies(cp, out var list1) ? list1 : null,
-                    TryScanPackageForScripts(cp, out var list2) ? list2 : null)))
+                    TryScanPackageForScripts(cp, out var list2) ? list2 : null,
+                    GetRunConfigForPackage(cp))))
             .ToImmutableDictionary();
         
         HashSet<ContentPackage> badPackages = new();
@@ -568,7 +578,7 @@ public sealed class CsPackageManager : IDisposable
                     syntaxTrees, 
                     null, 
                     CompilationOptions, 
-                     pair.Key.Name, ref id, publicizedAssemblies);
+                     pair.Key.Name, ref id, pair.Value.config.UseNonPublicizedAssemblies ? null : publicizedAssemblies);
 
                 if (successState is not AssemblyLoadingSuccessState.Success)
                 {
@@ -1077,7 +1087,7 @@ public sealed class CsPackageManager : IDisposable
         BadPackage
     }
 
-    private record LoadableData(ImmutableList<string> AssembliesFilePaths, ImmutableList<string> ScriptsFilePaths);
+    private record LoadableData(ImmutableList<string> AssembliesFilePaths, ImmutableList<string> ScriptsFilePaths, RunConfig config);
 
     #endregion
 }
