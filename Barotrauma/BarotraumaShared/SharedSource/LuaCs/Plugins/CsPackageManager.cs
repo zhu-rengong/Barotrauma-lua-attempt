@@ -941,14 +941,10 @@ public sealed class CsPackageManager : IDisposable
                     }
                     else
                     {
-                        ModUtils.Logging.PrintError($"Warning! The ContentPackage {package.Name} lists a dependency of (STEAMID: {dependency.SteamWorkshopId}, PackageName: {dependency.PackageName}) but it could not be found in the to-be-loaded CSharp packages list!");
+                        ModUtils.Logging.PrintWarning($"Warning: The ContentPackage {package.Name} lists a dependency of (STEAMID: {dependency.SteamWorkshopId}, PackageName: {dependency.PackageName}) but it could not be found in the to-be-loaded CSharp packages list!");
                         reliableMap = false;
                     }
                 }    
-            }
-            else
-            {
-                ModUtils.Logging.PrintMessage($"Warning! Could not retrieve RunConfig for ContentPackage {package.Name}!");
             }
         }
         
@@ -1039,7 +1035,7 @@ public sealed class CsPackageManager : IDisposable
                         if (!ContentPackageManager.EnabledPackages.All.Contains(dependency))
                         {
                             // present warning but allow loading anyways, better to let the user just disable the package if it's really an issue.
-                            ModUtils.Logging.PrintError(
+                            ModUtils.Logging.PrintWarning(
                                 $"Warning: the ContentPackage of {packageToProcess.Name} requires the Dependency {dependency.Name} but this package wasn't found in the enabled mods list!");
                         }
 
