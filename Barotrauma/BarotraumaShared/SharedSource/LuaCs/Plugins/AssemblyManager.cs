@@ -537,7 +537,6 @@ public class AssemblyManager
         try
         {
             GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced); // force the gc to collect unloaded acls.
-            GC.WaitForPendingFinalizers();
             List<WeakReference<MemoryFileAssemblyContextLoader>> toRemove = new();
             foreach (WeakReference<MemoryFileAssemblyContextLoader> weakReference in UnloadingACLs)
             {
