@@ -12,6 +12,7 @@ using Barotrauma.Steam;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using MonoMod.Utils;
+
 // ReSharper disable InconsistentNaming
 
 namespace Barotrauma;
@@ -70,6 +71,16 @@ public sealed class CsPackageManager : IDisposable
 #endif
             .ToString(),
         ScriptParseOptions);
+
+    private readonly string[] _publicizedAssembliesToLoad =
+    {
+#if CLIENT
+        "Barotrauma.dll"
+#elif SERVER
+        "DedicatedServer.dll"
+#endif
+    };
+    
 
     private const string SCRIPT_FILE_REGEX = "*.cs";
     private const string ASSEMBLY_FILE_REGEX = "*.dll";
@@ -312,48 +323,22 @@ public sealed class CsPackageManager : IDisposable
                 }
             }
         }
-        
-        // load publicized assemblies
-        var publicizedDir = Path.Combine(Environment.CurrentDirectory, "Publicized");
-        
-        // if using workshop lua setup is checked, try to use the publicized assemblies in the content package there instead.
-        if (_luaCsSetup.Config.PreferToUseWorkshopLuaSetup)
-        {
-            var pck = LuaCsSetup.GetPackage(LuaCsSetup.LuaForBarotraumaId);
-            if (pck is not null)
-            {
-                publicizedDir = Path.Combine(pck.Dir, "Binary", "Publicized");
-            }
-        }
-        
-        ImmutableList<Assembly> publicizedAssemblies = ImmutableList<Assembly>.Empty;
-        ImmutableList<string> list;
-        
-        try
-        {
-            // search for assemblies
-            list = Directory.GetFiles(publicizedDir, "*.dll")
-#if CLIENT
-                .Where(s => !s.ToLowerInvariant().EndsWith("dedicatedserver.dll"))
-#elif SERVER
-                .Where(s => !s.ToLowerInvariant().EndsWith("barotrauma.dll"))
-#endif
-                .ToImmutableList();
 
-            if (list.Count < 1)
-                throw new DirectoryNotFoundException("No publicized assemblies found.");
-        }
-        // no directory found, use the other one
-        catch (DirectoryNotFoundException)
+        ImmutableList<Assembly> publicizedAssemblies = ImmutableList<Assembly>.Empty;
+        List<string> publicizedAssembliesLocList = new();
+
+        foreach (string dllName in _publicizedAssembliesToLoad)
         {
+            GetFiles(publicizedAssembliesLocList, dllName);
+        }
+        
+        void GetFiles(List<string> list, string searchQuery)
+        {
+            var publicizedDir = Path.Combine(Environment.CurrentDirectory, "Publicized");
+            
+            // if using workshop lua setup is checked, try to use the publicized assemblies in the content package there instead.
             if (_luaCsSetup.Config.PreferToUseWorkshopLuaSetup)
             {
-                ModUtils.Logging.PrintError($"Unable to find <LuaCsPackage>/Binary/Publicized/ . Using Game folder instead.");
-                publicizedDir = Path.Combine(Environment.CurrentDirectory, "Publicized");
-            }
-            else
-            {
-                ModUtils.Logging.PrintError($"Unable to find <GameFolder>/Publicized/ . Using LuaCsPackage folder instead.");
                 var pck = LuaCsSetup.GetPackage(LuaCsSetup.LuaForBarotraumaId);
                 if (pck is not null)
                 {
@@ -361,18 +346,35 @@ public sealed class CsPackageManager : IDisposable
                 }
             }
             
-            // search for assemblies
-            list = Directory.GetFiles(publicizedDir, "*.dll")
-#if CLIENT
-                .Where(s => !s.ToLowerInvariant().EndsWith("dedicatedserver.dll"))
-#elif SERVER
-                .Where(s => !s.ToLowerInvariant().EndsWith("barotrauma.dll"))
-#endif
-                .ToImmutableList();
+            try
+            {
+                list.AddRange(Directory.GetFiles(publicizedDir, searchQuery));
+            }
+            // no directory found, use the other one
+            catch (DirectoryNotFoundException)
+            {
+                if (_luaCsSetup.Config.PreferToUseWorkshopLuaSetup)
+                {
+                    ModUtils.Logging.PrintError($"Unable to find <LuaCsPackage>/Binary/Publicized/ . Using Game folder instead.");
+                    publicizedDir = Path.Combine(Environment.CurrentDirectory, "Publicized");
+                }
+                else
+                {
+                    ModUtils.Logging.PrintError($"Unable to find <GameFolder>/Publicized/ . Using LuaCsPackage folder instead.");
+                    var pck = LuaCsSetup.GetPackage(LuaCsSetup.LuaForBarotraumaId);
+                    if (pck is not null)
+                    {
+                        publicizedDir = Path.Combine(pck.Dir, "Binary", "Publicized");
+                    }
+                }
+            
+                // search for assemblies
+                list.AddRange(Directory.GetFiles(publicizedDir, searchQuery));
+            }
         }
 
         // try load them into an acl
-        var loadState = _assemblyManager.LoadAssembliesFromLocations(list, "luacs_publicized_assemblies", ref _publicizedAssemblyLoader);
+        var loadState = _assemblyManager.LoadAssembliesFromLocations(publicizedAssembliesLocList, "luacs_publicized_assemblies", ref _publicizedAssemblyLoader);
 
         // loaded
         if (loadState is AssemblyLoadingSuccessState.Success)
