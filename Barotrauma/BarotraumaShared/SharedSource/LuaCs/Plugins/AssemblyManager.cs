@@ -798,7 +798,7 @@ public class AssemblyManager
                 FriendlyName = friendlyName
             };
         }
-        public ImmutableDictionary<string, Type> AssembliesTypes => _assembliesTypes;
+        public ref readonly ImmutableDictionary<string, Type> AssembliesTypes => ref _assembliesTypes;
 
         /// <summary>
         /// Warning: For use by the Assembly Manager only! Do not call this method otherwise.
@@ -813,6 +813,12 @@ public class AssemblyManager
         /// </summary>
         internal void RebuildTypesList()
         {
+            if (this.Acl is null)
+            {
+                ModUtils.Logging.PrintWarning($"{nameof(RebuildTypesList)}() | ACL with GUID {Id.ToString()} is null, cannot rebuild.");
+                return;
+            }
+            
             ClearTypesList();
             try
             {
