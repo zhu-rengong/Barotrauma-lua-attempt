@@ -274,7 +274,8 @@ namespace Barotrauma
 
         public void Stop()
         {
-
+            PluginPackageManager.UnloadPlugins();            
+            
             // unregister types
             foreach (Type type in AssemblyManager.GetAllLoadedACLs().SelectMany(
                          acl => acl.AssembliesTypes.Select(kvp => kvp.Value)))

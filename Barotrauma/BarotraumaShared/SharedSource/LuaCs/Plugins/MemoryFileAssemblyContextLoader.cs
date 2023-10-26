@@ -76,24 +76,29 @@ public class MemoryFileAssemblyContextLoader : AssemblyLoadContext
                 LoadFromAssemblyPath(sanitizedFilePath);
             }
             // on fail of any we're done because we assume that loaded files are related. This ACL needs to be unloaded and collected.
-            catch (ArgumentNullException)
+            catch (ArgumentNullException ane)
             {
+                ModUtils.Logging.PrintError($"MemFileACL::{nameof(LoadFromFiles)}() | Error loading file path {sanitizedFilePath}. Details: {ane.Message} | {ane.StackTrace}");
                 return AssemblyLoadingSuccessState.BadFilePath;
             }
-            catch (ArgumentException)
+            catch (ArgumentException ae)
             {
+                ModUtils.Logging.PrintError($"MemFileACL::{nameof(LoadFromFiles)}() | Error loading file path {sanitizedFilePath}. Details: {ae.Message} | {ae.StackTrace}");
                 return AssemblyLoadingSuccessState.BadFilePath;
             }
-            catch (FileLoadException)
+            catch (FileLoadException fle)
             {
+                ModUtils.Logging.PrintError($"MemFileACL::{nameof(LoadFromFiles)}() | Error loading file path {sanitizedFilePath}. Details: {fle.Message} | {fle.StackTrace}");
                 return AssemblyLoadingSuccessState.CannotLoadFile;
             }
-            catch (FileNotFoundException)
+            catch (FileNotFoundException fnfe)
             {
+                ModUtils.Logging.PrintError($"MemFileACL::{nameof(LoadFromFiles)}() | Error loading file path {sanitizedFilePath}. Details: {fnfe.Message} | {fnfe.StackTrace}");
                 return AssemblyLoadingSuccessState.NoAssemblyFound;
             }
-            catch (BadImageFormatException)
+            catch (BadImageFormatException bife)
             {
+                ModUtils.Logging.PrintError($"MemFileACL::{nameof(LoadFromFiles)}() | Error loading file path {sanitizedFilePath}. Details: {bife.Message} | {bife.StackTrace}");
                 return AssemblyLoadingSuccessState.InvalidAssembly;
             }
             catch (Exception e)
@@ -143,7 +148,7 @@ public class MemoryFileAssemblyContextLoader : AssemblyLoadContext
         }
 
         var externAssemblyRefs = externFileAssemblyReferences is not null ? externFileAssemblyReferences.ToImmutableList() : ImmutableList<Assembly>.Empty;
-        var externAssemblyNames = !externAssemblyRefs.IsEmpty ? externAssemblyRefs
+        var externAssemblyNames = externAssemblyRefs.Any() ? externAssemblyRefs
                 .Where(a => a.FullName is not null)
                 .Select(a => a.FullName).ToImmutableHashSet() 
             : ImmutableHashSet<string>.Empty;
@@ -179,7 +184,7 @@ public class MemoryFileAssemblyContextLoader : AssemblyLoadContext
             ).ToList());
 
         ImmutableList<AssemblyManager.LoadedACL> loadedAcls = _assemblyManager.GetAllLoadedACLs().ToImmutableList();
-        if (!loadedAcls.IsEmpty)
+        if (loadedAcls.Any())
         {
             // build metadata refs from ACL assemblies from files/disk.
             foreach (AssemblyManager.LoadedACL loadedAcl in loadedAcls)
@@ -205,7 +210,7 @@ public class MemoryFileAssemblyContextLoader : AssemblyLoadContext
             // build metadata refs from in-memory images
             foreach (var loadedAcl in loadedAcls)
             {
-                if (loadedAcl.Acl.CompiledAssemblyImage is null || loadedAcl.Acl.CompiledAssemblyImage.Length == 0)
+                if (loadedAcl?.Acl?.CompiledAssemblyImage is null || loadedAcl.Acl.CompiledAssemblyImage.Length == 0)
                     continue;
                 metadataReferences.Add(MetadataReference.CreateFromImage(loadedAcl.Acl.CompiledAssemblyImage));
             }

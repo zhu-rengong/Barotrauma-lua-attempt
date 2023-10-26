@@ -337,7 +337,7 @@ public class AssemblyManager
         OpsLockLoaded.EnterReadLock();
         try
         {
-            if (LoadedACLs.IsEmpty)
+            if (!LoadedACLs.Any())
             {
                 return ImmutableList<LoadedACL>.Empty;
             }
@@ -422,7 +422,7 @@ public class AssemblyManager
         }
         catch (Exception e)
         {
-            ModUtils.Logging.PrintError($"{nameof(AssemblyManager)}::{nameof(LoadAssemblyFromMemory)}() | Failed to compile and load assemblies for [ {compiledAssemblyName} / {friendlyName} ]! Details: {e.Message}");
+            ModUtils.Logging.PrintError($"{nameof(AssemblyManager)}::{nameof(LoadAssemblyFromMemory)}() | Failed to compile and load assemblies for [ {compiledAssemblyName} / {friendlyName} ]! Details: {e.Message} | {e.StackTrace}");
             return AssemblyLoadingSuccessState.InvalidAssembly;
         }
 
