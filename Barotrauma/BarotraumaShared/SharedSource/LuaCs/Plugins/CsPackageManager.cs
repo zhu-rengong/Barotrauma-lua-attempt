@@ -295,15 +295,16 @@ public sealed class CsPackageManager : IDisposable
         _assemblyManager.OnAssemblyUnloading += AssemblyManagerOnAssemblyUnloading;
 
         // log error if some ACLs are still unloading (some assembly is still in use)
+        _assemblyManager.FinalizeDispose(); //Update lists
         if (_assemblyManager.IsCurrentlyUnloading)
         {
             ModUtils.Logging.PrintWarning($"WARNING: Some mods from a previous session (lobby) are still loaded! This may result in undefined behaviour!\nIf you notice any odd behaviour that only occurs after multiple lobbies, please restart your game.");
+            ModUtils.Logging.PrintWarning($"The below ACLs are still unloading:");
             foreach (var wkref in _assemblyManager.StillUnloadingACLs)
             {
-                ModUtils.Logging.PrintWarning($"The below ACL is still unloading:");
                 if (wkref.TryGetTarget(out var tgt))
                 {
-                    ModUtils.Logging.PrintWarning($"ACL Name: {tgt.Name}");
+                    ModUtils.Logging.PrintWarning($"ACL Name: {tgt.FriendlyName}");
                     foreach (Assembly assembly in tgt.Assemblies)
                     {
                         ModUtils.Logging.PrintWarning($"-- Assembly: {assembly.GetName()}");

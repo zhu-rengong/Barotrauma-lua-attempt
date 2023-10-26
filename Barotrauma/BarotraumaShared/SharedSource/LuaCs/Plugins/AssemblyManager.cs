@@ -352,12 +352,24 @@ public class AssemblyManager
         {
             OpsLockLoaded.ExitReadLock();
         }
-        
     }
 
     #endregion
 
     #region InternalAPI
+
+    /// <summary>
+    /// [Unsafe] Warning: only for use in nested threading functions. Requires care to manage access.
+    /// Does not make any guarantees about the state of the ACL after the list has been returned.
+    /// </summary>
+    /// <returns></returns>
+    [MethodImpl(MethodImplOptions.Synchronized | MethodImplOptions.NoInlining)]
+    internal ImmutableList<LoadedACL> UnsafeGetAllLoadedACLs()
+    {
+        if (LoadedACLs.IsEmpty)
+            return ImmutableList<LoadedACL>.Empty;
+        return LoadedACLs.Select(kvp => kvp.Value).ToImmutableList();
+    }
 
     /// <summary>
     /// Used by content package and plugin management to stop unloading of a given ACL until all plugins have gracefully closed.

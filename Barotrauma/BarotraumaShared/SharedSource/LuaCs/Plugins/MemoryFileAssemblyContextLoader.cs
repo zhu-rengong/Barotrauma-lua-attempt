@@ -280,20 +280,33 @@ public class MemoryFileAssemblyContextLoader : AssemblyLoadContext
             }
 
             //try resolve against other loaded alcs
-            foreach (var loadedAcL in _assemblyManager.GetAllLoadedACLs())
+            ImmutableList<AssemblyManager.LoadedACL> list;
+            try
             {
-                if (loadedAcL.Acl is null || loadedAcL.Acl.IsTemplateMode || loadedAcL.Acl.IsDisposed) 
-                    continue;
+                list = _assemblyManager.UnsafeGetAllLoadedACLs();
+            }
+            catch
+            {
+                list = ImmutableList<AssemblyManager.LoadedACL>.Empty;
+            }
+
+            if (!list.IsEmpty)
+            {
+                foreach (var loadedAcL in list)
+                {
+                    if (loadedAcL.Acl is null || loadedAcL.Acl.IsTemplateMode || loadedAcL.Acl.IsDisposed) 
+                        continue;
                 
-                try
-                {
-                    ass = loadedAcL.Acl.LoadFromAssemblyName(assemblyName);
-                    if (ass is not null)
-                        return ass;
-                }
-                catch
-                {
-                    // LoadFromAssemblyName throws, no need to propagate
+                    try
+                    {
+                        ass = loadedAcL.Acl.LoadFromAssemblyName(assemblyName);
+                        if (ass is not null)
+                            return ass;
+                    }
+                    catch
+                    {
+                        // LoadFromAssemblyName throws, no need to propagate
+                    }
                 }
             }
             
@@ -315,6 +328,7 @@ public class MemoryFileAssemblyContextLoader : AssemblyLoadContext
         CompiledAssembly = null;
         CompiledAssemblyImage = null;
         _dependencyResolvers.Clear();
+        _assemblyManager = null;
         base.Unloading -= OnUnload;
         this.IsDisposed = true;
     }
