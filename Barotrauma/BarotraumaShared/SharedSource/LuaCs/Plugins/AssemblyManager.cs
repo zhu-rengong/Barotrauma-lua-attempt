@@ -260,7 +260,8 @@ public class AssemblyManager
                 }
                 catch (Exception e)
                 {
-                    this.OnException?.Invoke($"{nameof(AssemblyManager)}::{nameof(GetTypesByName)}() | Error: {e.Message}", e);
+                    this.OnException?.Invoke(
+                        $"{nameof(AssemblyManager)}::{nameof(GetTypesByName)}() | Error: {e.Message}", e);
                 }
             }
         }
@@ -309,11 +310,15 @@ public class AssemblyManager
         OpsLockLoaded.EnterReadLock();
         try
         {
-            return AssemblyLoadContext.Default.Assemblies
-                .SelectMany(a => a.GetSafeTypes())
+            return _defaultContextTypes
+                .Select(kvp => kvp.Value)
                 .Concat(LoadedACLs
-                    .SelectMany(kvp => kvp.Value.AssembliesTypes.Select(kv => kv.Value)))
+                    .SelectMany(kvp => kvp.Value?.AssembliesTypes.Select(kv => kv.Value)))
                 .ToImmutableList();
+        }
+        catch
+        {
+            return ImmutableList<Type>.Empty;
         }
         finally
         {
@@ -332,7 +337,16 @@ public class AssemblyManager
         OpsLockLoaded.EnterReadLock();
         try
         {
+            if (LoadedACLs.IsEmpty)
+            {
+                return ImmutableList<LoadedACL>.Empty;
+            }
+
             return LoadedACLs.Select(kvp => kvp.Value).ToImmutableList();
+        }
+        catch
+        {
+            return ImmutableList<LoadedACL>.Empty;
         }
         finally
         {
@@ -387,8 +401,18 @@ public class AssemblyManager
             return AssemblyLoadingSuccessState.AlreadyLoaded;
 
         // compile
-        var state = acl.Acl.CompileAndLoadScriptAssembly(compiledAssemblyName, syntaxTree, externalMetadataReferences,
-            compilationOptions, out var messages, externFileAssemblyRefs);
+        AssemblyLoadingSuccessState state;
+        string messages;
+        try
+        {
+            state = acl.Acl.CompileAndLoadScriptAssembly(compiledAssemblyName, syntaxTree, externalMetadataReferences,
+                compilationOptions, out messages, externFileAssemblyRefs);
+        }
+        catch (Exception e)
+        {
+            ModUtils.Logging.PrintError($"{nameof(AssemblyManager)}::{nameof(LoadAssemblyFromMemory)}() | Failed to compile and load assemblies for [ {compiledAssemblyName} / {friendlyName} ]! Details: {e.Message}");
+            return AssemblyLoadingSuccessState.InvalidAssembly;
+        }
 
         // get types
         if (state is AssemblyLoadingSuccessState.Success)
@@ -654,7 +678,15 @@ public class AssemblyManager
         OpsLockUnloaded.EnterWriteLock();
         try
         {
-            if (id.Equals(Guid.Empty) || !LoadedACLs.ContainsKey(id) || LoadedACLs[id] is null)
+            if (LoadedACLs.ContainsKey(id) && LoadedACLs[id] == null)
+            {
+                if (!LoadedACLs.TryRemove(id, out _))
+                {
+                    ModUtils.Logging.PrintWarning($"An ACL with the GUID {id.ToString()} was found as null. Unable to remove null ACL entry.");
+                }
+            }
+            
+            if (id.Equals(Guid.Empty) || !LoadedACLs.ContainsKey(id))
             {
                 return false; // nothing to dispose of
             }

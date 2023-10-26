@@ -143,7 +143,7 @@ public class MemoryFileAssemblyContextLoader : AssemblyLoadContext
         }
 
         var externAssemblyRefs = externFileAssemblyReferences is not null ? externFileAssemblyReferences.ToImmutableList() : ImmutableList<Assembly>.Empty;
-        var externAssemblyNames = externAssemblyRefs.Any() ? externAssemblyRefs
+        var externAssemblyNames = !externAssemblyRefs.IsEmpty ? externAssemblyRefs
                 .Where(a => a.FullName is not null)
                 .Select(a => a.FullName).ToImmutableHashSet() 
             : ImmutableHashSet<string>.Empty;
@@ -178,35 +178,39 @@ public class MemoryFileAssemblyContextLoader : AssemblyLoadContext
                 .Select(a => MetadataReference.CreateFromFile(a.Location) as MetadataReference)
             ).ToList());
 
-        // build metadata refs from ACL assemblies from files/disk.
-        foreach (AssemblyManager.LoadedACL loadedAcl in _assemblyManager.GetAllLoadedACLs())
+        ImmutableList<AssemblyManager.LoadedACL> loadedAcls = _assemblyManager.GetAllLoadedACLs().ToImmutableList();
+        if (!loadedAcls.IsEmpty)
         {
-            if(loadedAcl.Acl.IsTemplateMode || loadedAcl.Acl.IsDisposed)
-                continue;
-            metadataReferences.AddRange(loadedAcl.Acl.Assemblies
-                .Where(a =>
-                {
-                    if (a.IsDynamic || string.IsNullOrWhiteSpace(a.Location) || a.Location.Contains("xunit"))
-                        return false;
-                    if (a.FullName is null)
-                        return true;
-                    return !externAssemblyNames.Contains(a.FullName);    // exclude duplicates
-                })
-                .Select(a => MetadataReference.CreateFromFile(a.Location) as MetadataReference)
-                .Union(externAssemblyRefs   // add custom supplied assemblies
-                    .Where(a => !(a.IsDynamic || string.IsNullOrEmpty(a.Location) || a.Location.Contains("xunit")))
+            // build metadata refs from ACL assemblies from files/disk.
+            foreach (AssemblyManager.LoadedACL loadedAcl in loadedAcls)
+            {
+                if(loadedAcl?.Acl is null || loadedAcl.Acl.IsTemplateMode || loadedAcl.Acl.IsDisposed)
+                    continue;
+                metadataReferences.AddRange(loadedAcl.Acl.Assemblies
+                    .Where(a =>
+                    {
+                        if (a.IsDynamic || string.IsNullOrWhiteSpace(a.Location) || a.Location.Contains("xunit"))
+                            return false;
+                        if (a.FullName is null)
+                            return true;
+                        return !externAssemblyNames.Contains(a.FullName);    // exclude duplicates
+                    })
                     .Select(a => MetadataReference.CreateFromFile(a.Location) as MetadataReference)
-                ).ToList());
-        }
+                    .Union(externAssemblyRefs   // add custom supplied assemblies
+                        .Where(a => !(a.IsDynamic || string.IsNullOrEmpty(a.Location) || a.Location.Contains("xunit")))
+                        .Select(a => MetadataReference.CreateFromFile(a.Location) as MetadataReference)
+                    ).ToList());
+            }
         
-        // build metadata refs from in-memory images
-        foreach (var loadedAcl in _assemblyManager.GetAllLoadedACLs())
-        {
-            if (loadedAcl.Acl.CompiledAssemblyImage is null || loadedAcl.Acl.CompiledAssemblyImage.Length == 0)
-                continue;
-            metadataReferences.Add(MetadataReference.CreateFromImage(loadedAcl.Acl.CompiledAssemblyImage));
+            // build metadata refs from in-memory images
+            foreach (var loadedAcl in loadedAcls)
+            {
+                if (loadedAcl.Acl.CompiledAssemblyImage is null || loadedAcl.Acl.CompiledAssemblyImage.Length == 0)
+                    continue;
+                metadataReferences.Add(MetadataReference.CreateFromImage(loadedAcl.Acl.CompiledAssemblyImage));
+            }
         }
-        
+
         // Change inaccessible options to allow public access to restricted members
         var topLevelBinderFlagsProperty = typeof(CSharpCompilationOptions).GetProperty("TopLevelBinderFlags", BindingFlags.Instance | BindingFlags.NonPublic);
         topLevelBinderFlagsProperty?.SetValue(compilationOptions, (uint)1 << 22);
