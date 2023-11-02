@@ -334,10 +334,12 @@ public sealed class CsPackageManager : IDisposable
         
         void GetFiles(List<string> list, string searchQuery)
         {
+            bool workshopFirst = _luaCsSetup.Config.PreferToUseWorkshopLuaSetup || LuaCsSetup.IsRunningInsideWorkshop;
+
             var publicizedDir = Path.Combine(Environment.CurrentDirectory, "Publicized");
             
             // if using workshop lua setup is checked, try to use the publicized assemblies in the content package there instead.
-            if (_luaCsSetup.Config.PreferToUseWorkshopLuaSetup)
+            if (workshopFirst)
             {
                 var pck = LuaCsSetup.GetPackage(LuaCsSetup.LuaForBarotraumaId);
                 if (pck is not null)
@@ -353,7 +355,7 @@ public sealed class CsPackageManager : IDisposable
             // no directory found, use the other one
             catch (DirectoryNotFoundException)
             {
-                if (_luaCsSetup.Config.PreferToUseWorkshopLuaSetup)
+                if (workshopFirst)
                 {
                     ModUtils.Logging.PrintError($"Unable to find <LuaCsPackage>/Binary/Publicized/ . Using Game folder instead.");
                     publicizedDir = Path.Combine(Environment.CurrentDirectory, "Publicized");
