@@ -508,6 +508,10 @@ namespace Barotrauma
                 else { RunNone(); }
             }
 
+#if SERVER
+            GameMain.Server.ServerSettings.LoadClientPermissions();
+#endif
+
             executionNumber++;
         }
     }
