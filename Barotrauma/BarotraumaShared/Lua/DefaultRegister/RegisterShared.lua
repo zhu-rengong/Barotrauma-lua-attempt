@@ -5,6 +5,7 @@ Register("System.TimeSpan")
 Register("System.Exception")
 Register("System.Console")
 Register("System.Exception")
+Register("System.ValueType`2")
 
 RegisterBarotrauma("Success`2")
 RegisterBarotrauma("Failure`2")
