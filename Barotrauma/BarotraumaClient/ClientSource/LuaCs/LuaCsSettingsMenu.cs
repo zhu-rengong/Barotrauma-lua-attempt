@@ -69,10 +69,10 @@ namespace Barotrauma
                 }
             };
 
-            new GUITickBox(new RectTransform(new Vector2(0.8f, 0.1f), list.Content.RectTransform), "Hide UserNames In Error Logs")
+            new GUITickBox(new RectTransform(new Vector2(0.8f, 0.1f), list.Content.RectTransform), "Hide usernames In Error Logs")
             {
-                Selected = GameMain.LuaCs.Config.DisableErrorGUIOverlay,
-                ToolTip = "",
+                Selected = GameMain.LuaCs.Config.HideUserNames,
+                ToolTip = "Hides the operating system username when displaying error logs (eg your username on windows).",
                 OnSelected = (GUITickBox tick) =>
                 {
                     GameMain.LuaCs.Config.HideUserNames = tick.Selected;
