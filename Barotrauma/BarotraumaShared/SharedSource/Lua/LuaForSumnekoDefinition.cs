@@ -962,6 +962,7 @@ namespace Barotrauma
             Lualy<Barotrauma.Networking.ServerPeer>();
             Lualy<Barotrauma.Networking.LidgrenServerPeer>();
             Lualy<Barotrauma.Networking.SteamP2PServerPeer>();
+            Lualy<Barotrauma.Networking.FileSender>();
 #endif
 
 #if CLIENT
