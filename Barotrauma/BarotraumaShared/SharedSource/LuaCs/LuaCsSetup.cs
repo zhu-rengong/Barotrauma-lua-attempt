@@ -17,7 +17,7 @@ namespace Barotrauma
     {
         public bool FirstTimeCsWarning = true;
         public bool ForceCsScripting = false;
-        public bool TreatForcedModsAsNormal = false;
+        public bool TreatForcedModsAsNormal = true;
         public bool PreferToUseWorkshopLuaSetup = false;
         public bool DisableErrorGUIOverlay = false;
         public bool HideUserNames = true;
