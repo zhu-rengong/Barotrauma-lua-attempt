@@ -346,7 +346,11 @@ namespace Barotrauma
         public void Initialize(bool forceEnableCs = false)
         {
             if (IsInitialized)
+            {
                 Stop();
+            }
+
+            IsInitialized = true;
 
             LuaCsLogger.LogMessage("Lua! Version " + AssemblyInfo.GitRevision);
 
@@ -479,8 +483,6 @@ namespace Barotrauma
                 {
                     ModUtils.Logging.PrintError($"{nameof(LuaCsSetup)}::{nameof(Initialize)}() | Error while loading assemblies! Details: {e.Message} | {e.StackTrace}");
                 }
-
-                IsInitialized = true;
             }
 
 
