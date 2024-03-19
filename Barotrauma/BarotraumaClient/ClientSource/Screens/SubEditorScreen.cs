@@ -1345,7 +1345,7 @@ namespace Barotrauma
         {
             Select(enableAutoSave: true);
 
-            GameMain.LuaCs.Initialize();
+            GameMain.LuaCs.CheckInitialize();
         }
 
         public void Select(bool enableAutoSave = true)

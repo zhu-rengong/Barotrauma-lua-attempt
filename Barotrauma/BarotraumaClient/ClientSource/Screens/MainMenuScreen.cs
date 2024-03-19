@@ -1235,7 +1235,7 @@ namespace Barotrauma
                 return;
             }
 
-            GameMain.LuaCs.Initialize();
+            GameMain.LuaCs.CheckInitialize();
 
             selectedSub = new SubmarineInfo(Path.Combine(SaveUtil.TempPath, selectedSub.Name + ".sub"));
             
@@ -1252,7 +1252,7 @@ namespace Barotrauma
         {
             if (string.IsNullOrWhiteSpace(saveFile)) return;
 
-            GameMain.LuaCs.Initialize();
+            GameMain.LuaCs.CheckInitialize();
 
             try
             {
