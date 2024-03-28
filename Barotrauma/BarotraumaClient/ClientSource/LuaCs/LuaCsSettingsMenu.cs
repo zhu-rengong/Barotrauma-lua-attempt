@@ -17,7 +17,7 @@ namespace Barotrauma
             new GUITextBlock(new RectTransform(new Vector2(1f, 0.1f), list.Content.RectTransform), "LuaCs Settings", textAlignment: Alignment.Center);
 
 
-            new GUITickBox(new RectTransform(new Vector2(0.8f, 0.1f), list.Content.RectTransform), "Force Enable CSharp")
+            new GUITickBox(new RectTransform(new Vector2(0.8f, 0.1f), list.Content.RectTransform), "Enable CSharp Scripting")
             {
                 Selected = GameMain.LuaCs.Config.EnableCsScripting,
                 ToolTip = "This enables CSharp Scripting for mods to use, WARNING: CSharp is NOT sandboxed, be careful with what mods you download.",
