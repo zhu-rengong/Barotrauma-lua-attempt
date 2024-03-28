@@ -172,11 +172,11 @@ namespace Barotrauma
                     using (var file = File.Open(configFileName, FileMode.Open, FileAccess.Read))
                     {
                         XDocument document = XDocument.Load(file);
-                        Config.EnableCsScripting = bool.Parse(document.Root.Element("ForceCsScripting").Value);
-                        Config.TreatForcedModsAsNormal = bool.Parse(document.Root.Element("TreatForcedModsAsNormal").Value);
-                        Config.PreferToUseWorkshopLuaSetup = bool.Parse(document.Root.Element("PreferToUseWorkshopLuaSetup").Value);
-                        Config.DisableErrorGUIOverlay = bool.Parse(document.Root.Element("DisableErrorGUIOverlay").Value);
-                        Config.HideUserNames = bool.Parse(document.Root.Element("HideUserNames").Value);
+                        Config.EnableCsScripting = document.Root.GetAttributeBool("EnableCsScripting", Config.EnableCsScripting);
+                        Config.TreatForcedModsAsNormal = document.Root.GetAttributeBool("TreatForcedModsAsNormal", Config.TreatForcedModsAsNormal);
+                        Config.PreferToUseWorkshopLuaSetup = document.Root.GetAttributeBool("PreferToUseWorkshopLuaSetup", Config.PreferToUseWorkshopLuaSetup);
+                        Config.DisableErrorGUIOverlay = document.Root.GetAttributeBool("DisableErrorGUIOverlay", Config.DisableErrorGUIOverlay);
+                        Config.HideUserNames = document.Root.GetAttributeBool("HideUserNames", Config.HideUserNames);
                     }
                 }
                 catch (Exception e)

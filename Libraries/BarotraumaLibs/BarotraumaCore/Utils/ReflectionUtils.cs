@@ -56,11 +56,6 @@ namespace Barotrauma
             {
                 return ImmutableArray<Type>.Empty;    // No types, don't add to cache
             }            
-            
-            if (!TypeSearchCache.TryAdd(typeName, list))
-            {
-                DebugConsole.LogError($"ReflectionUtils::AddNonAbstractAssemblyTypes() | Error while adding to quick lookup cache.");
-            }
             return list;
         }
 
@@ -75,8 +70,6 @@ namespace Barotrauma
             {
                 if (!overwrite)
                 {
-                    DebugConsole.LogError(
-                        $"ReflectionUtils::AddNonAbstractAssemblyTypes() | The assembly [{assembly.GetName()}] already exists in the cache.");
                     return;
                 }
 
@@ -85,18 +78,16 @@ namespace Barotrauma
 
             try
             {
-                if (!CachedNonAbstractTypes.TryAdd(assembly, assembly.GetSafeTypes().Where(t => !t.IsAbstract).ToImmutableArray()))
+                if (!CachedNonAbstractTypes.TryAdd(assembly, assembly.GetTypes().Where(t => !t.IsAbstract).ToImmutableArray()))
                 {
-                    DebugConsole.LogError($"ReflectionUtils::AddNonAbstractAssemblyTypes() | Unable to add types from Assembly to cache.");
                 }
                 else
                 {
                     TypeSearchCache.Clear();    // Needs to be rebuilt to include potential new types
                 }
             }
-            catch (ReflectionTypeLoadException e)
+            catch (ReflectionTypeLoadException)
             {
-                DebugConsole.LogError($"ReflectionUtils::AddNonAbstractAssemblyTypes() | RTFException: Unable to load Assembly Types from {assembly.GetName()}.");
             }
         }
 
@@ -113,10 +104,10 @@ namespace Barotrauma
         /// <summary>
         /// Clears all cached assembly data and rebuilds types list only to include base Barotrauma types. 
         /// </summary>
-        internal static void ResetCache()
+        public static void ResetCache()
         {
             CachedNonAbstractTypes.Clear();
-            CachedNonAbstractTypes.TryAdd(typeof(ReflectionUtils).Assembly, typeof(ReflectionUtils).Assembly.GetSafeTypes().ToImmutableArray());
+            CachedNonAbstractTypes.TryAdd(typeof(ReflectionUtils).Assembly, typeof(ReflectionUtils).Assembly.GetTypes().ToImmutableArray());
             TypeSearchCache.Clear();
         }
         
@@ -130,7 +121,7 @@ namespace Barotrauma
             return null;
         }
 
-        public static Option<TBase> ParseDerived<TBase, TInput>(TInput input) where TInput : notnull where TBase : notnull
+        public static Option<TBase> ParseDerived<TBase, TInput>(TInput input)
             where TBase : notnull
             where TInput : notnull
         {
