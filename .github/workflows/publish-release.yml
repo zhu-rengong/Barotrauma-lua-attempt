@@ -124,10 +124,13 @@ jobs:
           # Archive Refs, used by mod developers
           cp "${artifacts_dir}/Windows/Client/Publicized/Barotrauma.dll" "${refs_dir}/Windows/Barotrauma.dll"
           cp "${artifacts_dir}/Windows/Client/Publicized/DedicatedServer.dll" "${refs_dir}/Windows/DedicatedServer.dll"
+          cp "${artifacts_dir}/Windows/Client/Publicized/BarotraumaCore.dll" "${refs_dir}/Windows/BarotraumaCore.dll"
           cp "${artifacts_dir}/Linux/Client/Publicized/Barotrauma.dll" "${refs_dir}/Linux/Barotrauma.dll"
           cp "${artifacts_dir}/Linux/Client/Publicized/DedicatedServer.dll" "${refs_dir}/Linux/DedicatedServer.dll"
+          cp "${artifacts_dir}/Linux/Client/Publicized/BarotraumaCore.dll" "${refs_dir}/Linux/BarotraumaCore.dll"
           cp "${artifacts_dir}/Mac/Client/Barotrauma.app/Contents/MacOS/Publicized/Barotrauma.dll" "${refs_dir}/OSX/Barotrauma.dll"
           cp "${artifacts_dir}/Mac/Client/Barotrauma.app/Contents/MacOS/Publicized/DedicatedServer.dll" "${refs_dir}/OSX/DedicatedServer.dll"
+          cp "${artifacts_dir}/Mac/Client/Barotrauma.app/Contents/MacOS/Publicized/BarotraumaCore.dll" "${refs_dir}/OSX/BarotraumaCore.dll"
           cp "${artifacts_dir}/Windows/Client/Publicized/MonoGame.Framework.Windows.NetStandard.dll" "${refs_dir}/MonoGame.Framework.Windows.NetStandard.dll"
           cp "${artifacts_dir}/Linux/Client/Publicized/MonoGame.Framework.Linux.NetStandard.dll" "${refs_dir}/MonoGame.Framework.Linux.NetStandard.dll"
           cp "${artifacts_dir}/Mac/Client/Barotrauma.app/Contents/MacOS/Publicized/MonoGame.Framework.MacOS.NetStandard.dll" "${refs_dir}/MonoGame.Framework.MacOS.NetStandard.dll"
