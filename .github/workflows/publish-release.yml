@@ -46,6 +46,9 @@ env:
     Publicized/Barotrauma.dll
     Publicized/DedicatedServer.dll
   ARCHIVE_FILES_SHARED: |
+    BarotraumaCore.dll
+    BarotraumaCore.pdb
+    Publicized/BarotraumaCore.dll
     0Harmony.dll
     Sigil.dll
     MoonSharp.Interpreter.dll
