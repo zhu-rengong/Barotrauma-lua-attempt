@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using Barotrauma.Debugging;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -55,7 +56,13 @@ namespace Barotrauma
             if (list.Length == 0)
             {
                 return ImmutableArray<Type>.Empty;    // No types, don't add to cache
-            }            
+            }
+
+            if (!TypeSearchCache.TryAdd(typeName, list))
+            {
+                DebugConsoleCore.Log($"ReflectionUtils.AddNonAbstractAssemblyTypes(): Error while adding to quick lookup cache.");
+            }
+
             return list;
         }
 
@@ -107,7 +114,7 @@ namespace Barotrauma
         public static void ResetCache()
         {
             CachedNonAbstractTypes.Clear();
-            CachedNonAbstractTypes.TryAdd(typeof(ReflectionUtils).Assembly, typeof(ReflectionUtils).Assembly.GetTypes().ToImmutableArray());
+            CachedNonAbstractTypes.TryAdd(typeof(ReflectionUtils).Assembly, typeof(ReflectionUtils).Assembly.GetTypes().Where(t => !t.IsAbstract).ToImmutableArray());
             TypeSearchCache.Clear();
         }
         
