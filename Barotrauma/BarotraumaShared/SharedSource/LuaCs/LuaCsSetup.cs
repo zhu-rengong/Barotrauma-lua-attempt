@@ -190,7 +190,7 @@ namespace Barotrauma
         {
             XDocument document = new XDocument();
             document.Add(new XElement("LuaCsSetupConfig"));
-            document.Root.Add(new XElement("ForceCsScripting", Config.EnableCsScripting));
+            document.Root.Add(new XElement("EnableCsScripting", Config.EnableCsScripting));
             document.Root.Add(new XElement("TreatForcedModsAsNormal", Config.TreatForcedModsAsNormal));
             document.Root.Add(new XElement("PreferToUseWorkshopLuaSetup", Config.PreferToUseWorkshopLuaSetup));
             document.Root.Add(new XElement("DisableErrorGUIOverlay", Config.DisableErrorGUIOverlay));
