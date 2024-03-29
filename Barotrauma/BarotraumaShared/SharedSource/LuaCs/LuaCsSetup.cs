@@ -190,11 +190,12 @@ namespace Barotrauma
         {
             XDocument document = new XDocument();
             document.Add(new XElement("LuaCsSetupConfig"));
-            document.Root.Add(new XElement("EnableCsScripting", Config.EnableCsScripting));
-            document.Root.Add(new XElement("TreatForcedModsAsNormal", Config.TreatForcedModsAsNormal));
-            document.Root.Add(new XElement("PreferToUseWorkshopLuaSetup", Config.PreferToUseWorkshopLuaSetup));
-            document.Root.Add(new XElement("DisableErrorGUIOverlay", Config.DisableErrorGUIOverlay));
-            document.Root.Add(new XElement("HideUserNames", Config.HideUserNames));
+            document.Root.SetAttributeValue("EnableCsScripting", Config.EnableCsScripting);
+            document.Root.SetAttributeValue("EnableCsScripting", Config.EnableCsScripting);
+            document.Root.SetAttributeValue("TreatForcedModsAsNormal", Config.TreatForcedModsAsNormal);
+            document.Root.SetAttributeValue("PreferToUseWorkshopLuaSetup", Config.PreferToUseWorkshopLuaSetup);
+            document.Root.SetAttributeValue("DisableErrorGUIOverlay", Config.DisableErrorGUIOverlay);
+            document.Root.SetAttributeValue("HideUserNames", Config.HideUserNames);
             document.Save(configFileName);
         }
 
