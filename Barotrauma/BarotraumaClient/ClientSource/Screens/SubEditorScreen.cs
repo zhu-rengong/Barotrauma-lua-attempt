@@ -80,7 +80,8 @@ namespace Barotrauma
             WallCount,
             ItemCount,
             LightCount,
-            ShadowCastingLightCount
+            ShadowCastingLightCount,
+            WaterInHulls
         }
 
         public static Vector2 MouseDragStart = Vector2.Zero;
@@ -1320,7 +1321,7 @@ namespace Barotrauma
                                 }
                                 catch (Exception e)
                                 {
-                                    DebugConsole.ThrowError(TextManager.GetWithVariable("DeleteFileError", "[file]", assemblyPrefab.Name), e);
+                                    DebugConsole.ThrowErrorLocalized(TextManager.GetWithVariable("DeleteFileError", "[file]", assemblyPrefab.Name), e);
                                 }
                                 return true;
                             };
@@ -1344,7 +1345,7 @@ namespace Barotrauma
         {
             Select(enableAutoSave: true);
 
-            GameMain.LuaCs.Initialize();
+            GameMain.LuaCs.CheckInitialize();
         }
 
         public void Select(bool enableAutoSave = true)
@@ -1556,11 +1557,12 @@ namespace Barotrauma
             autoSaveLabel?.Parent?.RemoveChild(autoSaveLabel);
             autoSaveLabel = null;
 
-#if USE_STEAM
             if (editorSelectedTime.TryUnwrap(out DateTime selectedTime))
             {
                 TimeSpan timeInEditor = DateTime.Now - selectedTime;
-                if (timeInEditor.TotalSeconds > Timing.TotalTime)
+                //this is intended for diagnosing why the "x hours in editor" achievement seems to sometimes trigger too soon
+                //require the time in editor to be x1.5 higher to disregard any rounding errors or discrepancies in Datetime.Now and the game's own timekeeping
+                if (timeInEditor.TotalSeconds > Timing.TotalTime * 1.5)
                 {
                     DebugConsole.ThrowErrorAndLogToGA(
                         "SubEditorScreen.DeselectEditorSpecific:InvalidTimeInEditor",
@@ -1568,11 +1570,10 @@ namespace Barotrauma
                 }
                 else
                 {
-                    SteamAchievementManager.IncrementStat("hoursineditor".ToIdentifier(), (float)timeInEditor.TotalHours);
+                    AchievementManager.IncrementStat(AchievementStat.HoursInEditor, (float)timeInEditor.TotalHours);
                     editorSelectedTime = Option<DateTime>.None();
                 }
             }
-#endif
 
             GUI.ForceMouseOn(null);
 
@@ -3714,7 +3715,7 @@ namespace Barotrauma
                 }
                 catch (Exception e)
                 {
-                    DebugConsole.ThrowError(TextManager.GetWithVariable("DeleteFileError", "[file]", sub.FilePath), e);
+                    DebugConsole.ThrowErrorLocalized(TextManager.GetWithVariable("DeleteFileError", "[file]", sub.FilePath), e);
                 }
                 return true;
             };
@@ -4173,7 +4174,7 @@ namespace Barotrauma
                 Rectangle newColorRect = new Rectangle(rect.Location, areaSize);
                 Rectangle oldColorRect = new Rectangle(new Point(newColorRect.Left, newColorRect.Bottom), areaSize);
 
-                GUI.DrawRectangle(batch, newColorRect, ToolBox.HSVToRGB(colorPicker.SelectedHue, colorPicker.SelectedSaturation, colorPicker.SelectedValue), isFilled: true);
+                GUI.DrawRectangle(batch, newColorRect, ToolBoxCore.HSVToRGB(colorPicker.SelectedHue, colorPicker.SelectedSaturation, colorPicker.SelectedValue), isFilled: true);
                 GUI.DrawRectangle(batch, oldColorRect, originalColor, isFilled: true);
                 GUI.DrawRectangle(batch, rect, Color.Black, isFilled: false);
             });
@@ -4293,7 +4294,7 @@ namespace Barotrauma
                     setValues = true;
                 }
 
-                Color color = ToolBox.HSVToRGB(colorPicker.SelectedHue, colorPicker.SelectedSaturation, colorPicker.SelectedValue);
+                Color color = ToolBoxCore.HSVToRGB(colorPicker.SelectedHue, colorPicker.SelectedSaturation, colorPicker.SelectedValue);
                 foreach (var (e, origColor, prop) in entities)
                 {
                     if (e is MapEntity { Removed: true }) { continue; }
@@ -4327,7 +4328,7 @@ namespace Barotrauma
 
                 void SetHex(Vector3 hsv)
                 {
-                    Color hexColor = ToolBox.HSVToRGB(hsv.X, hsv.Y, hsv.Z);
+                    Color hexColor = ToolBoxCore.HSVToRGB(hsv.X, hsv.Y, hsv.Z);
                     hexValueBox!.Text = ColorToHex(hexColor);
                 }
             }
@@ -5202,9 +5203,7 @@ namespace Barotrauma
             SkipInventorySlotUpdate = false;
             ImageManager.Update((float)deltaTime);
 
-#if DEBUG
             Hull.UpdateCheats((float)deltaTime, cam);
-#endif
 
             if (GameMain.GraphicsWidth != screenResolution.X || GameMain.GraphicsHeight != screenResolution.Y)
             {
