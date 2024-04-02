@@ -961,7 +961,7 @@ namespace Barotrauma
 
             Lualy<Barotrauma.Networking.ServerPeer>();
             Lualy<Barotrauma.Networking.LidgrenServerPeer>();
-            Lualy<Barotrauma.Networking.SteamP2PServerPeer>();
+            Lualy<Barotrauma.Networking.P2PServerPeer>();
             Lualy<Barotrauma.Networking.FileSender>();
 #endif
 
@@ -970,8 +970,6 @@ namespace Barotrauma
 
             Lualy<Barotrauma.Networking.ClientPeer>();
             Lualy<Barotrauma.Networking.LidgrenClientPeer>();
-            Lualy<Barotrauma.Networking.SteamP2PClientPeer>();
-            Lualy<Barotrauma.Networking.SteamP2POwnerPeer>();
 #endif
             #endregion
 
