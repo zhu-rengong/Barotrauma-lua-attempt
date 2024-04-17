@@ -319,6 +319,7 @@ RegisterBarotrauma("GameScreen")
 RegisterBarotrauma("GameSession")
 RegisterBarotrauma("GameSettings")
 RegisterBarotrauma("CrewManager")
+RegisterBarotrauma("KarmaManager")
 
 RegisterBarotrauma("GameMode")
 RegisterBarotrauma("MissionMode")
