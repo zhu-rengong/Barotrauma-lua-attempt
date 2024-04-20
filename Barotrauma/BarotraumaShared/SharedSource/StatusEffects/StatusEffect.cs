@@ -704,7 +704,7 @@ namespace Barotrauma
         private readonly List<Identifier> talentTriggers;
         private readonly List<int> giveExperiences;
         private readonly List<GiveSkill> giveSkills;
-        private readonly List<string> luaHook;
+        private readonly List<(string, ContentXElement)> luaHook;
 
         /// <summary>
         /// How long the effect runs (in seconds). Note that if <see cref="Stackable"/> is true, 
@@ -1085,8 +1085,9 @@ namespace Barotrauma
                         giveSkills.Add(new GiveSkill(subElement, parentDebugName));
                         break;
                     case "luahook":
-                        luaHook ??= new List<string>();
-                        luaHook.Add(subElement.GetAttributeString("name", ""));
+                    case "hook":
+                        luaHook ??= new List<(string, ContentXElement)>();
+                        luaHook.Add((subElement.GetAttributeString("name", ""), subElement));
                         break;
                 }
             }
@@ -1571,12 +1572,11 @@ namespace Barotrauma
 
             if (luaHook != null)
             {
-                foreach (string luaHooks in luaHook)
+                foreach ((string hookName, ContentXElement element) in luaHook)
                 {
-                    var result = GameMain.LuaCs.Hook.Call<bool?>(luaHooks, this, deltaTime, entity, targets, worldPosition);
+                    var result = GameMain.LuaCs.Hook.Call<bool?>(hookName, this, deltaTime, entity, targets, worldPosition, element);
 
-                    if (result != null && result.Value)
-                        return;
+                    if (result != null && result.Value) { return; }
                 }
             }
 
