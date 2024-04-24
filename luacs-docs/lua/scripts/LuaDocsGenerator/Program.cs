@@ -108,7 +108,6 @@ namespace LuaDocsGenerator
             GenerateEnum<BarotraumaClient.Barotrauma.InputType>("InputType.lua");
             GenerateEnum<Barotrauma.Networking.DeliveryMethod>("DeliveryMethod.lua");
             GenerateEnum<BarotraumaClient.Barotrauma.NumberType>("NumberType.lua");
-            GenerateEnum<BarotraumaClient.Barotrauma.GameDifficulty>("GameDifficulty.lua");
             GenerateEnum<BarotraumaClient.Barotrauma.Level.PositionType>("PositionType.lua");
             GenerateEnum<BarotraumaClient.Barotrauma.AbilityFlags>("AbilityFlags.lua");
 

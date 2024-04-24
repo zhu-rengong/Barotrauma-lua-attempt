@@ -1120,6 +1120,7 @@ namespace Barotrauma
                     case "hook":
                         luaHook ??= new List<(string, ContentXElement)>();
                         luaHook.Add((subElement.GetAttributeString("name", ""), subElement));
+                        break;
                     case "triggeranimation":
                         AnimationType animType = subElement.GetAttributeEnum("type", def: AnimationType.NotDefined);
                         string fileName = subElement.GetAttributeString("filename", def: null) ?? subElement.GetAttributeString("file", def: null);
