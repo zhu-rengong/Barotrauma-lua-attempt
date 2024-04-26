@@ -1822,7 +1822,7 @@ namespace Barotrauma.Networking
                 if (Screen.Selected != GameMain.GameScreen)
                 {
                     new GUIMessageBox(TextManager.Get("PleaseWait"), TextManager.Get(allowSpectating ? "RoundRunningSpectateEnabled" : "RoundRunningSpectateDisabled"));
-                    if (!(Screen.Selected is ModDownloadScreen)) { GameMain.NetLobbyScreen.Select(); }
+                    if (Screen.Selected is not ModDownloadScreen) { GameMain.NetLobbyScreen.Select(); }
                 }
             }
         }
