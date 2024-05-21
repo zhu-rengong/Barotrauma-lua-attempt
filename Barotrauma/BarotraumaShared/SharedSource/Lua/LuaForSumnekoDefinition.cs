@@ -187,6 +187,7 @@ namespace Barotrauma
             Lualy<Barotrauma.Option<Barotrauma.Character>>();
             Lualy<Barotrauma.Option<Barotrauma.Networking.AccountId>>();
             Lualy<Barotrauma.Option<Barotrauma.Networking.SteamId>>();
+            Lualy<Barotrauma.Option<Barotrauma.Networking.EpicAccountId>>();
             Lualy<Barotrauma.Option<Barotrauma.ContentPackageId>>();
             Lualy<Barotrauma.Option<System.DateTime>>();
             Lualy<Barotrauma.Option<Barotrauma.Networking.BannedPlayer>>();
@@ -240,12 +241,15 @@ namespace Barotrauma
             Lualy<Barotrauma.Networking.AccountInfo>();
             Lualy<Barotrauma.Networking.AccountId>();
             Lualy<Barotrauma.Networking.SteamId>();
+            Lualy<Barotrauma.Networking.EpicAccountId>();
             Lualy<System.Net.IPAddress>(new string[] { "IPAddress" });
             Lualy<Barotrauma.Networking.Address>();
             Lualy<Barotrauma.Networking.LidgrenAddress>();
             Lualy<Barotrauma.Networking.SteamP2PAddress>();
             Lualy<Barotrauma.Networking.PipeAddress>();
             Lualy<Barotrauma.Networking.UnknownAddress>();
+            Lualy<Barotrauma.Networking.P2PAddress>();
+            Lualy<Barotrauma.Networking.EosP2PAddress>();
             Lualy<Barotrauma.Networking.Endpoint>();
             Lualy<Barotrauma.Networking.LidgrenEndpoint>();
             Lualy<Barotrauma.Networking.SteamP2PEndpoint>();
@@ -424,8 +428,6 @@ namespace Barotrauma
             Lualy<Barotrauma.ScanMission>();
             #endregion
 
-            Lualy<Barotrauma.GameDifficulty>();
-            Lualy<Barotrauma.StartingBalanceAmount>();
 
             #region Level
             Lualy<Barotrauma.Level.InterestingPosition>();
@@ -782,6 +784,7 @@ namespace Barotrauma
             #region Submarine
             Lualy<Barotrauma.SubmarineInfo>();
             Lualy<Barotrauma.Submarine>();
+            Lualy<Barotrauma.CanEnterSubmarine>();
             Lualy<Barotrauma.SubmarineBody>();
             #endregion
 
@@ -1052,7 +1055,7 @@ namespace Barotrauma
             Lualy<Barotrauma.GUIDragHandle>(new string[] { "GUI", "DragHandle" });
             Lualy<Barotrauma.GUIScissorComponent>(new string[] { "GUI", "ScissorComponent" });
             Lualy<Barotrauma.GUIScrollBar>(new string[] { "GUI", "ScrollBar" });
-            LualyBase(typeof(Barotrauma.GUIStyle), new string[] { "GUI", "GUIStyle" });
+            LualyBase(typeof(Barotrauma.GUIStyle), new string[] { "GUI", "GUIStyle" }, new string[] { "GUI", "Style" });
             Lualy<Barotrauma.GUITextBlock>(new string[] { "GUI", "TextBlock" });
             Lualy<Barotrauma.GUITextBox>(new string[] { "GUI", "TextBox" });
             Lualy<Barotrauma.GUITickBox>(new string[] { "GUI", "TickBox" });
