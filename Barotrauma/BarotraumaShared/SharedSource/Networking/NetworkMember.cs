@@ -39,7 +39,7 @@ namespace Barotrauma.Networking
         CIRCUITBOX,
         READY_CHECK,
         READY_TO_SPAWN,        
-        TAKEOVERBOT
+        TAKEOVERBOT,
         LUA_NET_MESSAGE
     }
 

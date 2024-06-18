@@ -211,9 +211,10 @@ namespace Barotrauma.Networking
                 }
 
                 Vector2 spawnPos = FindSpawnPos();
+                bool anyCharacterSpawnedInShuttle = false;
                 if (!GameMain.LuaCs.Game.overrideRespawnSub)
                 {
-                    RespawnCharacters(spawnPos, out bool anyCharacterSpawnedInShuttle);
+                    RespawnCharacters(spawnPos, out anyCharacterSpawnedInShuttle);
                 }
                 if (anyCharacterSpawnedInShuttle)
                 {
