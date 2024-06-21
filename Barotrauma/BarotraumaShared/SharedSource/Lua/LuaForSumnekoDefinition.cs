@@ -414,7 +414,8 @@ namespace Barotrauma
             Lualy<Barotrauma.Mission>();
             Lualy<Barotrauma.MissionPrefab>();
             Lualy<Barotrauma.AbandonedOutpostMission>();
-            Lualy<Barotrauma.AlienRuinMission>();
+            Lualy<Barotrauma.EliminateTargetsMission>();
+            Lualy<Barotrauma.EndMission>();
             Lualy<Barotrauma.BeaconMission>();
             Lualy<Barotrauma.CargoMission>();
             Lualy<Barotrauma.CombatMission>();
