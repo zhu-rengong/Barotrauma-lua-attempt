@@ -394,9 +394,10 @@ public sealed class CsPackageManager : IDisposable
         IEnumerable<ContentPackage> packages = BuildPackagesList();
         
         // check and load config
-        _packageRunConfigs.AddRange(packages
-            .Select(p => new KeyValuePair<ContentPackage, RunConfig>(p, GetRunConfigForPackage(p)))
-            .ToDictionary(p => p.Key, p=> p.Value));
+        foreach (var package in packages.Select(p => new KeyValuePair<ContentPackage, RunConfig>(p, GetRunConfigForPackage(p))))
+        {
+            _packageRunConfigs.Add(package.Key, package.Value);
+        }
         
         // filter not to be loaded
         var cpToRunA = _packageRunConfigs
@@ -458,11 +459,11 @@ public sealed class CsPackageManager : IDisposable
         {
             ModUtils.Logging.PrintMessage($"{nameof(CsPackageManager)}: Unable to create reliable dependencies map.");
         }
-        
-        _packagesDependencies.AddRange(packDeps.ToDictionary(
-            kvp => kvp.Key, 
-            kvp => kvp.Value.ToImmutableList())
-        );
+
+        foreach (var packDep in packDeps)
+        {
+            _packagesDependencies.Add(packDep.Key, packDep.Value.ToImmutableList());
+        }
 
         List<ContentPackage> packagesToLoadInOrder = new();
 

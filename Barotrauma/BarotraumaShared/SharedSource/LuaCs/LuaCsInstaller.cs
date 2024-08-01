@@ -10,10 +10,8 @@ namespace Barotrauma
         private static string[] trackingFiles = new string[]
         {
             "Barotrauma.dll", "Barotrauma.deps.json", "Barotrauma.pdb", "BarotraumaCore.dll", "BarotraumaCore.pdb",
-            "0Harmony.dll", "Mono.Cecil.dll",
+            "0Harmony.dll",
             "Sigil.dll",
-            "Mono.Cecil.Mdb.dll", "Mono.Cecil.Pdb.dll",
-            "Mono.Cecil.Rocks.dll", "MonoMod.Common.dll",
             "MoonSharp.Interpreter.dll", "MoonSharp.VsCodeDebugger.dll",
 
             "Microsoft.CodeAnalysis.dll", "Microsoft.CodeAnalysis.CSharp.dll",
