@@ -1,5 +1,4 @@
 # In-memory CSharp Mod
----
 
 One type of CSharp mod that can be created is an in-memory mod. This type of mod is compiled in memory and does not require the distribution of dll files. This type of mod is relatively easy to create and is useful for small mods that do not require a lot of complexity.
 
