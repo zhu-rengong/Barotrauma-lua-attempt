@@ -224,6 +224,8 @@ namespace LuaDocsGenerator
         {
             switch (member.MemberType)
             {
+                case MemberTypes.Constructor:
+                    return ConvertAnnotation(type, (ConstructorInfo)member, realm);
                 case MemberTypes.Method:
                     return ConvertAnnotation(type, (MethodInfo)member, realm);
                 case MemberTypes.Field:
@@ -233,6 +235,46 @@ namespace LuaDocsGenerator
             }
 
             return null;
+        }
+
+        private static string? ConvertAnnotation(Type type, ConstructorInfo method, string realm)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            var paramNames = new StringBuilder();
+            foreach (var parameter in method.GetParameters())
+            {
+                paramNames.Append(EscapeName(parameter.Name!));
+                paramNames.Append(", ");
+            }
+            if (paramNames.Length > 0)
+            {
+                // Remove the last separator
+                paramNames.Length -= 2;
+            }
+
+            string functionDecoration = $"function {type.Name}({paramNames}) end";
+
+
+            if (removed.Contains("-- @remove " + functionDecoration))
+            {
+                Console.WriteLine($"removed {functionDecoration}");
+                return null;
+            }
+
+            Console.WriteLine($"  - CONSTRUCTOR: {method}");
+
+            sb.AppendLine($"--- {type.Name}");
+            sb.AppendLine($"-- @realm {realm}");
+
+            foreach (var parameter in method.GetParameters())
+            {
+                sb.AppendLine($"-- @tparam {TypeToString(parameter.ParameterType)} {EscapeName(parameter.Name!)}");
+            }
+
+            sb.AppendLine(functionDecoration);
+
+            return sb.ToString();
         }
 
         private static string? ConvertAnnotation(Type type, MethodInfo method, string realm)
@@ -501,6 +543,13 @@ local {type.Name} = {{}}".ReplaceLineEndings("\n");
             {
                 switch (member.MemberType)
                 {
+                    case MemberTypes.Constructor:
+                    {
+                        sb.Append(ConvertAnnotation(type, (ConstructorInfo)member, realm));
+                        sb.AppendLine();
+                        break;
+                    }
+
                     case MemberTypes.Method:
                     {
                         sb.Append(ConvertAnnotation(type, (MethodInfo)member, realm));
