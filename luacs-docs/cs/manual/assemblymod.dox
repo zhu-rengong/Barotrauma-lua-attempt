@@ -29,9 +29,11 @@ After downloading the zip file, extract the contents to the `Refs` folder in pro
 ./Refs
 ----/Linux/Barotrauma.dll
 ----/Linux/DedicatedServer.dll
+----/Linux/BarotraumaCore.dll
 ----/Windows/Barotrauma.dll
 ----/Windows/DedicatedServer.dll
-...
+----/Windows/BarotraumaCore.dll
+...other files
 ```
 
 ### 4. Setup the project

@@ -528,14 +528,16 @@ local {type.Name} = {{}}".ReplaceLineEndings("\n");
             File.WriteAllText(outFile, sb.ToString());
         }
 
-        public static void GenerateEnum(Type enumType, string outFile, string realm = "shared")
+        public static void GenerateEnum(Type enumType, string outFile, string categoryName = null, string realm = "shared")
         {
             StringBuilder sb = new StringBuilder();
+
+            categoryName = categoryName ?? enumType.Name;
 
             sb.AppendLine($@"--[[--
 {enumType.Name} enum.
 ]]
--- @enum {enumType.Name}");
+-- @enum {categoryName}");
 
             sb.AppendLine();
 
@@ -546,9 +548,9 @@ local {type.Name} = {{}}".ReplaceLineEndings("\n");
                 if (fields[i].Name.Equals("value__")) { continue; }
 
                 sb.AppendLine("---");
-                sb.AppendLine($"-- {enumType.Name}.{fields[i].Name} = {fields[i].GetRawConstantValue()}");
+                sb.AppendLine($"-- {categoryName}.{fields[i].Name} = {fields[i].GetRawConstantValue()}");
                 sb.AppendLine($"-- @realm {realm}");
-                sb.AppendLine($"-- @number {enumType.Name}.{fields[i].Name}");
+                sb.AppendLine($"-- @number {categoryName}.{fields[i].Name}");
                 sb.AppendLine();
             }
 

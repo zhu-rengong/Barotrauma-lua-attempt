@@ -17,7 +17,7 @@ Source files inside the CSharp/Server and CSharp/Client folders will only be com
 ____
 `<mod_root>/CSharp/Shared/ExampleMod.cs`
 
-```csharp
+```cs
 using System;
 using Barotrauma;
 
