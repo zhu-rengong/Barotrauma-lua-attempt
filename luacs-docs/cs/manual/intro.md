@@ -16,7 +16,7 @@ You can also enable by setting the `EnableCSharp` option in the `LuaCsConfig.xml
 
 ## Development
 
-- [In-memory CSharp Mod](/md_manual_2inmemorymod.html)
-- [Assembly CSharp Mod](/md_manual_2assemblymod.html)
-- [Using Harmony](/md_manual_2harmony.html)
+- [In-memory CSharp Mod](/md_manual_inmemorymod.html)
+- [Assembly CSharp Mod](/md_setting_up_assembly_mod.html)
+- [Using Harmony](/md_manual_2md_manual_harmony.html)
 
