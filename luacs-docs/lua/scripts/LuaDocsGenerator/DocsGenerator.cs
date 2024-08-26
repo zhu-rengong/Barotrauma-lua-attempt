@@ -389,7 +389,7 @@ namespace LuaDocsGenerator
             sb.Append("-- ");
             sb.Append(name);
             sb.AppendLine($", field of type {returnName}");
-            sb.AppendLine("-- @realm shared");
+            sb.AppendLine($"-- @realm {realm}");
             sb.AppendLine($"-- @field {name}");
 
             return sb.ToString();
