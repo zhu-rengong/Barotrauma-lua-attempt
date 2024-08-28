@@ -5,8 +5,8 @@ namespace Barotrauma.Networking
 {
     static class NetConfig
     {
-        public static int DefaultPort = 27015;
-        public static int DefaultQueryPort = 27016;
+        public const int DefaultPort = 27015;
+        public const int DefaultQueryPort = 27016;
 
         public static int MaxPlayers = 256;
 
