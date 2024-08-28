@@ -379,6 +379,7 @@ RegisterBarotrauma("MalfunctionEvent")
 RegisterBarotrauma("EventSet")
 RegisterBarotrauma("EventPrefab")
 
+RegisterBarotrauma("Networking.NetConfig")
 RegisterBarotrauma("Networking.IWriteMessage")
 RegisterBarotrauma("Networking.IReadMessage")
 RegisterBarotrauma("Networking.NetEntityEvent")
