@@ -4468,6 +4468,12 @@ namespace Barotrauma
         {
             if (Removed) { return new AttackResult(); }
 
+            AttackResult? retAttackResult = GameMain.LuaCs.Hook.Call<AttackResult?>("character.damageLimb", this, worldPosition, hitLimb, afflictions, stun, playSound, attackImpulse, attacker, damageMultiplier, allowStacking, penetration, shouldImplode);
+            if (retAttackResult != null)
+            {
+                return retAttackResult.Value;
+            }
+
             //character inside the sub received damage from a monster outside the sub
             //can happen during normal gameplay if someone for example fires a ranged weapon from outside, 
             //the intention of this error message is to diagnose an issue with monsters being able to damage characters from outside
