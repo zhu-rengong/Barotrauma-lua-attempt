@@ -845,6 +845,18 @@ namespace Barotrauma
             #endregion
 
             #region Physic
+            Lualy<FarseerPhysics.Collision.AABB>();
+            Lualy<FarseerPhysics.Collision.ContactFeature>();
+            Lualy<FarseerPhysics.Collision.ManifoldPoint>();
+            Lualy<FarseerPhysics.Collision.ContactID>();
+            Lualy<FarseerPhysics.Collision.Manifold>();
+            Lualy<FarseerPhysics.Collision.RayCastInput>();
+            Lualy<FarseerPhysics.Collision.ClipVertex>();
+            Lualy<FarseerPhysics.Collision.RayCastOutput>();
+            Lualy<FarseerPhysics.Collision.EPAxis>();
+            Lualy<FarseerPhysics.Collision.ReferenceFace>();
+            LualyBase(typeof(FarseerPhysics.Collision.Collision));
+
             Lualy<FarseerPhysics.Dynamics.World>();
             Lualy<FarseerPhysics.Dynamics.Fixture>();
             LualyBase(typeof(Barotrauma.Physics));
@@ -1008,9 +1020,9 @@ namespace Barotrauma
             Lualy<Barotrauma.ScaleBasis>();
 
             Lualy<Barotrauma.ChatBox>();
-            Lualy<Barotrauma.CrewManagement>();
             LualyBase(typeof(Barotrauma.FileSelection));
             Lualy<Barotrauma.Graph>();
+            Lualy<Barotrauma.HRManagerUI>();
 
             LualyBase(typeof(Barotrauma.GUI), new string[] { "GUI", "GUI" });
             Lualy<Barotrauma.GUIPrefab>();
@@ -1040,7 +1052,8 @@ namespace Barotrauma
             Lualy<Barotrauma.GUIColorPicker>(new string[] { "GUI", "ColorPicker" });
             Lualy<Barotrauma.GUIComponent>(new string[] { "GUI", "Component" });
             Lualy<Barotrauma.GUIComponent.ComponentState>();
-            Lualy<Barotrauma.GUIContextMenu>();
+            Lualy<Barotrauma.GUIContextMenu>(new string[] { "GUI", "ContextMenu" });
+            Lualy<Barotrauma.ContextMenuOption>(new string[] { "GUI", "ContextMenuOption" });
             Lualy<Barotrauma.GUICustomComponent>(new string[] { "GUI", "CustomComponent" });
             Lualy<Barotrauma.GUIDropDown>(new string[] { "GUI", "DropDown" });
             Lualy<Barotrauma.GUIFrame>(new string[] { "GUI", "Frame" });
