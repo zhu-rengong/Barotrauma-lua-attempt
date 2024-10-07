@@ -1,4 +1,5 @@
 local Register = LuaSetup.LuaUserData.RegisterType
+local RegisterExtension = LuaSetup.LuaUserData.RegisterExtensionType
 local RegisterBarotrauma = LuaSetup.LuaUserData.RegisterTypeBarotrauma
 
 Register("System.TimeSpan")
@@ -471,3 +472,6 @@ LuaUserData.RemoveMember(workshopItem, "RemoveFavorite")
 LuaUserData.RemoveMember(workshopItem, "Vote")
 LuaUserData.RemoveMember(workshopItem, "GetUserVote")
 LuaUserData.RemoveMember(workshopItem, "Edit")
+
+RegisterExtension("Barotrauma.MathUtils")
+RegisterExtension("Barotrauma.XMLExtensions")

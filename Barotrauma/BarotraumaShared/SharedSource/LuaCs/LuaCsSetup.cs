@@ -420,9 +420,6 @@ namespace Barotrauma
             UserData.RegisterType<LuaCsPerformanceCounter>();
             UserData.RegisterType<IUserDataDescriptor>();
 
-            UserData.RegisterExtensionType(typeof(MathUtils));
-            UserData.RegisterExtensionType(typeof(XMLExtensions));
-
             Lua.Globals["printerror"] = (DynValue o) => { LuaCsLogger.LogError(o.ToString(), LuaCsMessageOrigin.LuaMod); };
 
             Lua.Globals["setmodulepaths"] = (Action<string[]>)SetModulePaths;
