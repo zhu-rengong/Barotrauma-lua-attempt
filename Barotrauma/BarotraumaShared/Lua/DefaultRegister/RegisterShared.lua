@@ -65,6 +65,7 @@ RegisterBarotrauma("DestructibleLevelWall")
 RegisterBarotrauma("Biome")
 RegisterBarotrauma("Map")
 RegisterBarotrauma("Networking.RespawnManager")
+RegisterBarotrauma("Networking.RespawnManager+TeamSpecificState")
 
 RegisterBarotrauma("Character")
 RegisterBarotrauma("CharacterPrefab")

@@ -166,11 +166,6 @@ namespace Barotrauma.Networking
 
         partial void UpdateWaiting(TeamSpecificState teamSpecificState)
         {
-            if (!GameMain.LuaCs.Game.overrideRespawnSub)
-            {
-                RespawnShuttle.Velocity = Vector2.Zero;
-            }
-
             //no respawns in the first minute of the round - otherwise it can be that bots
             //are respawned to "fill" the spots of players who are taking a long time to load in
             if (GameMain.GameSession is { RoundDuration: < 60 })
@@ -180,7 +175,7 @@ namespace Barotrauma.Networking
 
             var teamId = teamSpecificState.TeamID;
             var respawnShuttle = GetShuttle(teamId);
-            if (respawnShuttle != null)
+            if (respawnShuttle != null && !GameMain.LuaCs.Game.overrideRespawnSub)
             {
                 respawnShuttle.Velocity = Vector2.Zero;
             }
@@ -228,7 +223,7 @@ namespace Barotrauma.Networking
             }
         }
 
-        private void DispatchShuttle(TeamSpecificState teamSpecificState)
+        public void DispatchShuttle(TeamSpecificState teamSpecificState)
         {
             if (RespawnShuttles.Any())
             {
