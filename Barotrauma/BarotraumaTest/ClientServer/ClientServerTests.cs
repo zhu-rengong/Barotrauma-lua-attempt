@@ -93,6 +93,7 @@ public class ClientServerTests : IDisposable
 
         currentServer = new GameServer(
             name: ServerName,
+            listenIp: null,
             port: NetConfig.DefaultPort,
             queryPort: NetConfig.DefaultQueryPort,
             maxPlayers: 1,
