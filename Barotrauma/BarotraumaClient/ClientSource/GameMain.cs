@@ -785,7 +785,7 @@ namespace Barotrauma
                             {
                                 try
                                 {
-                                    SaveUtil.LoadGame(saveFiles.OrderBy(file => file.SaveTime).Last().FilePath);
+                                    SaveUtil.LoadGame(CampaignDataPath.CreateRegular(saveFiles.OrderBy(file => file.SaveTime).Last().FilePath));
                                 }
                                 catch (Exception e)
                                 {
@@ -1155,7 +1155,7 @@ namespace Barotrauma
                 }
                 GameSession.Campaign?.End();
                 
-                SaveUtil.SaveGame(GameSession.SavePath);
+                SaveUtil.SaveGame(GameSession.DataPath);
             }
 
             if (Client != null)
