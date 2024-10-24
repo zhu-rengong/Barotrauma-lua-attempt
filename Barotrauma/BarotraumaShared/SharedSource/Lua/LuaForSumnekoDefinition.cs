@@ -171,6 +171,8 @@ namespace Barotrauma
             LualyBase(typeof(LuaCsSetup.LuaCsModStore), new string[] { "ModStore" });
             LualyBase(typeof(LuaCsSetup.LuaCsModStore.CsModStore), new string[] { "ModStore", "CsModStore" });
             LualyBase(typeof(LuaCsSetup.LuaCsModStore.LuaModStore), new string[] { "ModStore", "LuaModStore" });
+            LualyBase(typeof(Barotrauma.AssemblyManager), new string[] { "AssemblyManager" });
+            LualyBase(typeof(Barotrauma.CsPackageManager), new string[] { "PluginPackageManager" });
             Lualy<MoonSharp.Interpreter.Interop.IUserDataDescriptor>();
 
             LualyBase(typeof(Barotrauma.ToolBox));
@@ -410,7 +412,6 @@ namespace Barotrauma
             Lualy<Barotrauma.ReadyCheck>();
 
             //Mission
-            Lualy<Barotrauma.MissionType>();
             Lualy<Barotrauma.Mission>();
             Lualy<Barotrauma.MissionPrefab>();
             Lualy<Barotrauma.AbandonedOutpostMission>();
@@ -1158,6 +1159,8 @@ namespace Barotrauma
 
             Lualy<Barotrauma.KarmaManager>();
             LualyBase(typeof(Barotrauma.Networking.RespawnManager));
+            LualyBase(typeof(Barotrauma.Networking.RespawnManager.State));
+            LualyBase(typeof(Barotrauma.Networking.RespawnManager.TeamSpecificState));
 
             Lualy<Barotrauma.Voting>();
             Lualy<Barotrauma.Networking.VoteType>(new string[] { "VoteType" });
